@@ -22,7 +22,7 @@ const MODES = {
 };
 
 function getBaseURL() {
-  return "http://192.168.0.146:5173";
+  return window.location.origin;
 }
 
 function clone(obj) {
@@ -632,6 +632,18 @@ function AppButton({ children, style = {}, onClick, ...props }) {
   );
 }
 
+
+function LogoHeader({ subtitle = "" }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 14, flexDirection: "column" }}>
+      <img src="/logo.png" alt="Hwarang Scoring Universe" style={{ height: 68, width: "auto", objectFit: "contain", filter: "drop-shadow(0 0 10px rgba(255,215,0,0.18))" }} />
+      {subtitle ? (
+        <div style={{ fontSize: 12, letterSpacing: 3, color: "#d7d7d7", fontWeight: 700, textTransform: "uppercase" }}>{subtitle}</div>
+      ) : null}
+    </div>
+  );
+}
+
 function WinnerFullScreen({ winner, zIndex = 50 }) {
   if (winner === "draw") {
     return (
@@ -1233,6 +1245,7 @@ function Home({ navigate, meta }) {
 
   return (
     <div style={styles.page}>
+      <LogoHeader subtitle="Hwarang Scoring Universe" />
       <h1>Hwarang Scoring</h1>
       <p>Elegí una pantalla:</p>
 
@@ -2466,6 +2479,8 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
   if (judgeId > currentJudges) {
     return (
       <div style={styles.page}>
+      <LogoHeader subtitle="Combat" />
+      <LogoHeader subtitle="Combat" />
         <AppButton style={styles.gray} onClick={() => navigate("/")}>
           Inicio
         </AppButton>
