@@ -602,6 +602,24 @@ function Frame16x9({ children }) {
   );
 }
 
+function BrandHeaderLarge() {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 18, marginBottom: 14 }}>
+      <img src="/logo-universe.png" alt="Hwarang Universe" style={{ height: 82, objectFit: "contain" }} />
+      <img src="/logo-combat.png" alt="Hwarang Combat" style={{ height: 82, objectFit: "contain" }} />
+    </div>
+  );
+}
+
+function BrandHeaderSmall() {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10, margin: "8px 0 12px" }}>
+      <img src="/logo-universe.png" alt="Hwarang Universe" style={{ height: 40, objectFit: "contain" }} />
+      <img src="/logo-combat.png" alt="Hwarang Combat" style={{ height: 40, objectFit: "contain" }} />
+    </div>
+  );
+}
+
 function AppButton({ children, style = {}, onClick, ...props }) {
   return (
     <button
@@ -629,18 +647,6 @@ function AppButton({ children, style = {}, onClick, ...props }) {
     >
       {children}
     </button>
-  );
-}
-
-
-function LogoHeader({ subtitle = "" }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 14, flexDirection: "column" }}>
-      <img src="/logo.png" alt="Hwarang Scoring Universe" style={{ height: 68, width: "auto", objectFit: "contain", filter: "drop-shadow(0 0 10px rgba(255,215,0,0.18))" }} />
-      {subtitle ? (
-        <div style={{ fontSize: 12, letterSpacing: 3, color: "#d7d7d7", fontWeight: 700, textTransform: "uppercase" }}>{subtitle}</div>
-      ) : null}
-    </div>
   );
 }
 
@@ -1245,7 +1251,6 @@ function Home({ navigate, meta }) {
 
   return (
     <div style={styles.page}>
-      <LogoHeader subtitle="Hwarang Scoring Universe" />
       <h1>Hwarang Scoring</h1>
       <p>Elegí una pantalla:</p>
 
@@ -1266,7 +1271,7 @@ function Home({ navigate, meta }) {
       <div style={{ ...styles.panel, marginTop: 16 }}>
         <h2>Modalidad actual</h2>
         <div style={{ fontSize: 28, fontWeight: 900 }}>
-          "COMBATE"
+          COMBATE
         </div>
       </div>
 
@@ -1325,7 +1330,7 @@ function CompetitorPublicCard({
           textAlign: "center",
         }}
       >
-        Jueces a favor
+        JUECES A FAVOR
       </div>
 
       <div
@@ -1365,7 +1370,7 @@ function CompetitorPublicCard({
               fontWeight: 700,
             }}
           >
-            ADVERT.
+            ADVERTENCIAS
           </div>
           <div style={{ fontSize: "clamp(18px, 2.4vw, 34px)", fontWeight: 900 }}>
             {warnings}
@@ -1584,6 +1589,10 @@ function PublicScreen({ meta, judges, navigate }) {
         Inicio
       </AppButton>
 
+      <div style={{ position: "absolute", top: 16, left: 0, right: 0, zIndex: 4 }}>
+        <BrandHeaderLarge />
+      </div>
+
       <div
         style={{
           display: "grid",
@@ -1622,7 +1631,7 @@ function PublicScreen({ meta, judges, navigate }) {
               color: "#cfcfcf",
             }}
           >
-            HWARANG SCORING
+            HWARANG SCORING COMBAT
           </div>
 
           <div
@@ -2119,6 +2128,10 @@ function PresidentScreen({
 
   return (
     <Frame16x9>
+      <div style={{ marginTop: 8 }}>
+        <BrandHeaderLarge />
+      </div>
+
       <div
         style={{
           position: "sticky",
@@ -2479,11 +2492,10 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
   if (judgeId > currentJudges) {
     return (
       <div style={styles.page}>
-      <LogoHeader subtitle="Combat" />
-      <LogoHeader subtitle="Combat" />
         <AppButton style={styles.gray} onClick={() => navigate("/")}>
           Inicio
         </AppButton>
+        <BrandHeaderSmall />
         <h1>Juez {judgeId}</h1>
         <div style={styles.panel}>Este juez no está activo en la modalidad actual.</div>
       </div>
@@ -2571,6 +2583,8 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
       <AppButton style={styles.gray} onClick={() => navigate("/")}>
         Inicio
       </AppButton>
+
+      <BrandHeaderSmall />
 
       <h1>Juez {judgeId}</h1>
 
