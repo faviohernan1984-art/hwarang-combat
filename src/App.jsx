@@ -172,6 +172,7 @@ function makeInitialMeta() {
     config: {
       roundSeconds: 120,
       rounds: 2,
+      breakSeconds: BREAK_SECONDS,
     },
     round: 1,
     phase: "fight",
@@ -717,7 +718,7 @@ function Home({ navigate, meta }) {
             <div style={styles.row}>
               <div style={styles.stat}>Round: <strong>{meta.round}</strong></div>
               <div style={styles.stat}>Tiempo: <strong>{formatTime(meta.pausedRemaining)}</strong></div>
-              <div style={styles.stat}>Estado: <strong>{meta.phase === "finished" ? "Finalizado" : meta.status === "running" ? "En marcha" : "Pausado"}</strong></div>
+              <div style={styles.stat}>Estado: <strong>{meta.phase === "finished" ? "Finalizado" : meta.phase === "break" ? "Descanso" : meta.status === "running" ? "En marcha" : "Pausado"}</strong></div>
             </div>
           </div>
         </div>
@@ -729,31 +730,120 @@ function Home({ navigate, meta }) {
 function PublicFighterPanel({ title, fighter, score, warnings, fouls }) {
   const isHong = fighter.color === "hong";
   return (
-    <div style={{ width: "100%", height: "100%", borderRadius: 34, background: isHong ? "linear-gradient(180deg, #d12626 0%, #771313 100%)" : "linear-gradient(180deg, #1554d3 0%, #0b2c75 100%)", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "34px 30px 28px 30px", boxSizing: "border-box", overflow: "hidden", boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.10)" }}>
-      <div>
-        <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "0.18em", lineHeight: 1 }}>{title}</div>
-        <div style={{ marginTop: 18, fontSize: 62, fontWeight: 900, lineHeight: 0.98, textTransform: "uppercase", wordBreak: "break-word" }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        borderRadius: 34,
+        background: isHong
+          ? "linear-gradient(180deg, #d12626 0%, #771313 100%)"
+          : "linear-gradient(180deg, #1554d3 0%, #0b2c75 100%)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "34px 30px 28px 30px",
+        boxSizing: "border-box",
+        overflow: "hidden",
+        boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.10)",
+        textAlign: "center",
+      }}
+    >
+      <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div
+          style={{
+            width: "100%",
+            fontSize: 26,
+            fontWeight: 900,
+            letterSpacing: "0.18em",
+            lineHeight: 1,
+            textAlign: "center",
+          }}
+        >
+          {title}
+        </div>
+        <div
+          style={{
+            marginTop: 18,
+            width: "100%",
+            fontSize: 62,
+            fontWeight: 900,
+            lineHeight: 0.98,
+            textTransform: "uppercase",
+            wordBreak: "break-word",
+            textAlign: "center",
+          }}
+        >
           {fighter.name || title}
         </div>
-        <div style={{ marginTop: 10, fontSize: 24, fontWeight: 600, lineHeight: 1.1, opacity: 0.95, wordBreak: "break-word" }}>
+        <div
+          style={{
+            marginTop: 10,
+            width: "100%",
+            fontSize: 24,
+            fontWeight: 600,
+            lineHeight: 1.1,
+            opacity: 0.95,
+            wordBreak: "break-word",
+            textAlign: "center",
+          }}
+        >
           {fighter.club || "ACADEMIA / EQUIPO"}
         </div>
       </div>
 
-      <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <div style={{ fontSize: 250, fontWeight: 900, lineHeight: 0.9, letterSpacing: "-0.04em", textShadow: "0 10px 30px rgba(0,0,0,0.35)" }}>
+      <div style={{ flex: 1, width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div
+          style={{
+            width: "100%",
+            fontSize: 250,
+            fontWeight: 900,
+            lineHeight: 0.9,
+            letterSpacing: "-0.04em",
+            textShadow: "0 10px 30px rgba(0,0,0,0.35)",
+            textAlign: "center",
+          }}
+        >
           {score}
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        <div style={{ minHeight: 126, borderRadius: 24, background: "rgba(255,255,255,0.12)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "12px 10px", boxSizing: "border-box", boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)" }}>
-          <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.05, letterSpacing: "0.05em", textAlign: "center" }}>WARNINGS</div>
-          <div style={{ marginTop: 10, fontSize: 60, fontWeight: 900, lineHeight: 1 }}>{warnings}</div>
+      <div style={{ width: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div
+          style={{
+            minHeight: 126,
+            borderRadius: 24,
+            background: "rgba(255,255,255,0.12)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "12px 10px",
+            boxSizing: "border-box",
+            boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.05, letterSpacing: "0.05em", textAlign: "center" }}>ADVERTENCIAS</div>
+          <div style={{ marginTop: 10, fontSize: 60, fontWeight: 900, lineHeight: 1, textAlign: "center" }}>{warnings}</div>
         </div>
-        <div style={{ minHeight: 126, borderRadius: 24, background: "rgba(255,255,255,0.12)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "12px 10px", boxSizing: "border-box", boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)" }}>
-          <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.05, letterSpacing: "0.05em", textAlign: "center" }}>FOULS</div>
-          <div style={{ marginTop: 10, fontSize: 60, fontWeight: 900, lineHeight: 1 }}>{fouls}</div>
+        <div
+          style={{
+            minHeight: 126,
+            borderRadius: 24,
+            background: "rgba(255,255,255,0.12)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "12px 10px",
+            boxSizing: "border-box",
+            boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.05, letterSpacing: "0.05em", textAlign: "center" }}>FALTAS</div>
+          <div style={{ marginTop: 10, fontSize: 60, fontWeight: 900, lineHeight: 1, textAlign: "center" }}>{fouls}</div>
         </div>
       </div>
     </div>
@@ -774,7 +864,7 @@ function PublicScreen({ meta, judges, navigate }) {
   return (
     <Frame16x9>
       <AppButton
-        style={{ ...styles.gray, position: "absolute", right: 26, bottom: 18, zIndex: 120, fontSize: 22, padding: "12px 22px", boxShadow: "0 0 18px rgba(255,255,255,0.16)" }}
+        style={{ ...styles.gray, position: "absolute", right: 34, bottom: 24, zIndex: 120, fontSize: 20, padding: "10px 20px", opacity: 0.78, boxShadow: "0 0 18px rgba(255,255,255,0.16)" }}
         onClick={() => navigate("/")}
       >
         Inicio
@@ -804,9 +894,13 @@ function PublicScreen({ meta, judges, navigate }) {
 
           <div style={{ minHeight: 0, display: "grid", gridTemplateRows: "290px 1fr 120px", gap: 18 }}>
             <div style={{ borderRadius: 34, background: "linear-gradient(180deg, #ffffff 0%, #dde4ec 100%)", color: "#111", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.30)" }}>
-              <div style={{ fontSize: 30, fontWeight: 900, letterSpacing: "0.20em", lineHeight: 1 }}>TIME</div>
+              <div style={{ fontSize: 30, fontWeight: 900, letterSpacing: "0.20em", lineHeight: 1 }}>
+                {meta.phase === "break" ? "DESCANSO" : "TIME"}
+              </div>
               <div style={{ marginTop: 18, fontSize: 122, fontWeight: 900, lineHeight: 0.9, letterSpacing: "-0.04em" }}>{formatTime(time)}</div>
-              <div style={{ marginTop: 16, fontSize: 34, fontWeight: 900, letterSpacing: "0.08em" }}>ROUND {meta.round}</div>
+              <div style={{ marginTop: 16, fontSize: 34, fontWeight: 900, letterSpacing: "0.08em", textAlign: "center" }}>
+                {meta.phase === "break" ? "NO MANIPULAR" : `ROUND ${meta.round}`}
+              </div>
             </div>
 
             <div style={{ borderRadius: 34, background: "rgba(255,255,255,0.06)", display: "flex", justifyContent: "center", alignItems: "center", boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)" }}>
@@ -815,7 +909,7 @@ function PublicScreen({ meta, judges, navigate }) {
 
             <div style={{ borderRadius: 24, background: "rgba(255,255,255,0.08)", display: "flex", justifyContent: "center", alignItems: "center", boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)" }}>
               <div style={{ fontSize: 34, fontWeight: 900, letterSpacing: "0.08em", textAlign: "center" }}>
-                {meta.phase === "finished" ? "FINALIZADO" : meta.status === "running" ? "EN CURSO" : "PAUSADO"}
+                {meta.phase === "finished" ? "FINALIZADO" : meta.phase === "break" ? "DESCANSO OFICIAL" : meta.status === "running" ? "EN CURSO" : "PAUSADO"}
               </div>
             </div>
           </div>
@@ -843,6 +937,7 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
   const prevFinishedRef = useRef(false);
   const [secondsInput, setSecondsInput] = useState(String(meta.config.roundSeconds || 120));
   const [roundsInput, setRoundsInput] = useState(String(meta.config.rounds || 2));
+  const [breakSecondsInput, setBreakSecondsInput] = useState(String(meta.config.breakSeconds || BREAK_SECONDS));
   const [editor, setEditor] = useState({
     hongName: meta.hong?.name || "",
     hongClub: meta.hong?.club || "",
@@ -939,7 +1034,8 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
   useEffect(() => {
     setSecondsInput(String(meta.config.roundSeconds || 120));
     setRoundsInput(String(meta.config.rounds || 2));
-  }, [meta.config.roundSeconds, meta.config.rounds]);
+    setBreakSecondsInput(String(meta.config.breakSeconds || BREAK_SECONDS));
+  }, [meta.config.roundSeconds, meta.config.rounds, meta.config.breakSeconds]);
 
   useEffect(() => {
     if (meta.status !== "running") return;
@@ -953,7 +1049,7 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
           if (current.round < (current.config.rounds || 1)) {
             current.phase = "break";
             current.status = "paused";
-            current.pausedRemaining = BREAK_SECONDS;
+            current.pausedRemaining = current.config.breakSeconds || BREAK_SECONDS;
             current.phaseStartedAt = null;
           } else {
             current.phase = "finished";
@@ -979,6 +1075,7 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
   const saveConfig = async () => {
     const roundSeconds = Math.max(1, parseInt(secondsInput, 10) || 120);
     const rounds = Math.max(1, parseInt(roundsInput, 10) || 2);
+    const breakSeconds = Math.max(1, parseInt(breakSecondsInput, 10) || BREAK_SECONDS);
 
     await writeMeta((current) => ({
       ...current,
@@ -986,10 +1083,14 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
         ...(current.config || {}),
         roundSeconds,
         rounds,
+        breakSeconds,
       },
-      pausedRemaining: current.status === "paused" && current.phase === "fight"
-        ? roundSeconds
-        : current.pausedRemaining,
+      pausedRemaining:
+        current.status === "paused" && current.phase === "fight"
+          ? roundSeconds
+          : current.status === "paused" && current.phase === "break"
+          ? breakSeconds
+          : current.pausedRemaining,
     }));
   };
 
@@ -1125,7 +1226,7 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
         <div style={styles.row}>
           <div style={styles.stat}>Tiempo: <strong>{formatTime(time)}</strong></div>
           <div style={styles.stat}>Round: <strong>{meta.round}/{meta.config.rounds}</strong></div>
-          <div style={styles.stat}>Estado: <strong>{meta.phase === "finished" ? "Finalizado" : meta.status === "running" ? "En marcha" : meta.phase === "break" ? "Descanso" : "Pausado"}</strong></div>
+          <div style={styles.stat}>Estado: <strong>{meta.phase === "finished" ? "Finalizado" : meta.phase === "break" ? "Descanso oficial" : meta.status === "running" ? "En marcha" : "Pausado"}</strong></div>
           <div style={styles.stat}>Hong votos: <strong>{s.hongVotes}</strong></div>
           <div style={styles.stat}>Chong votos: <strong>{s.chongVotes}</strong></div>
         </div>
@@ -1153,7 +1254,7 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
         </div>
 
         <div style={{ ...styles.panel, marginTop: 16 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 12, alignItems: "end" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: 12, alignItems: "end" }}>
             <div>
               <label>Tiempo por round (segundos)</label>
               <input type="number" min="1" value={secondsInput} onChange={(e) => setSecondsInput(e.target.value)} style={{ width: "100%", padding: 10, marginTop: 6, borderRadius: 10 }} />
@@ -1161,6 +1262,10 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
             <div>
               <label>Cantidad de rounds</label>
               <input type="number" min="1" value={roundsInput} onChange={(e) => setRoundsInput(e.target.value)} style={{ width: "100%", padding: 10, marginTop: 6, borderRadius: 10 }} />
+            </div>
+            <div>
+              <label>Tiempo de descanso (segundos)</label>
+              <input type="number" min="1" value={breakSecondsInput} onChange={(e) => setBreakSecondsInput(e.target.value)} style={{ width: "100%", padding: 10, marginTop: 6, borderRadius: 10 }} />
             </div>
             <AppButton style={styles.blue} onClick={saveConfig}>Guardar configuración</AppButton>
           </div>
@@ -1173,6 +1278,14 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
             ))}
           </div>
 
+          <div style={{ ...styles.row, marginTop: 12 }}>
+            {[10, 20, 30, 45, 60].map((s) => (
+              <AppButton key={`break-${s}`} style={styles.gray} onClick={() => setBreakSecondsInput(String(s))}>
+                Descanso {s}s
+              </AppButton>
+            ))}
+          </div>
+
           <div style={{ ...styles.row, marginTop: 16 }}>
             <AppButton style={{ ...styles.green, boxShadow: "0 0 18px rgba(34,197,94,0.35)" }} onClick={startTimer}>
               {meta.phase === "break" ? "Iniciar siguiente round" : "Iniciar"}
@@ -1181,6 +1294,12 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
             <AppButton style={{ ...styles.purple, boxShadow: "0 0 18px rgba(168,85,247,0.35)" }} onClick={finishMatch}>Finalizar</AppButton>
           </div>
         </div>
+
+        {meta.phase === "break" && (
+          <div style={{ ...styles.panel, marginTop: 16, background: "#78350f", border: "1px solid #f59e0b", color: "#fffbeb", fontWeight: 900, textAlign: "center" }}>
+            DESCANSO OFICIAL EN CURSO · NO MANIPULAR
+          </div>
+        )}
 
         <div style={{ ...styles.panel, marginTop: 16 }}>
           <h2>Cambio de lado independiente</h2>
@@ -1352,7 +1471,7 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
 
       <div style={styles.row}>
         <div style={styles.stat}>Tiempo: <strong>{formatTime(time)}</strong></div>
-        <div style={styles.stat}>Modalidad: <strong>COMBATE</strong></div>
+        <div style={styles.stat}>Modalidad: <strong>{meta.phase === "break" ? "DESCANSO" : "COMBATE"}</strong></div>
         {meta.goldenPoint?.active && (
           <div style={styles.stat}>
             <strong>
@@ -1361,6 +1480,12 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
           </div>
         )}
       </div>
+
+      {meta.phase === "break" && (
+        <div style={{ ...styles.panel, background: "#7c2d12", border: "1px solid #f97316", marginTop: 16, color: "#ffedd5", fontWeight: 900, textAlign: "center" }}>
+          DESCANSO · NO MANIPULAR
+        </div>
+      )}
 
       {!!warning && !meta.goldenPoint?.active && (
         <div style={{ ...styles.panel, background: "#7c2d12", border: "1px solid #f97316", marginTop: 16, color: "#ffedd5", fontWeight: 900, textAlign: "center" }}>
@@ -1388,6 +1513,7 @@ export default function App() {
         current.mode = "combat";
         current.config.rounds = current.config.rounds || 2;
         current.config.roundSeconds = current.config.roundSeconds || 120;
+        current.config.breakSeconds = current.config.breakSeconds || BREAK_SECONDS;
         if (!current.pausedRemaining) current.pausedRemaining = current.config.roundSeconds;
         current.publicSwapSides = !!current.publicSwapSides;
         current.presidentSwapSides = !!current.presidentSwapSides;
