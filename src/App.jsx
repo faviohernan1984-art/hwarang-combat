@@ -1695,11 +1695,12 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
           width: "100%",
           background: "#020814",
           color: "white",
-          padding: 14,
+          padding: 12,
           boxSizing: "border-box",
           overflowX: "hidden",
           overflowY: "auto",
           fontFamily: "Arial, sans-serif",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         <div style={{ width: "100%", maxWidth: 560, margin: "0 auto" }}>
@@ -1779,33 +1780,38 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
   const judgeWinner = summary(meta, judges).winner;
   const showJudgeWinner = meta.phase === "finished";
 
+  const isSmallMobile = typeof window !== "undefined" && window.innerWidth <= 430;
+  const isVerySmallMobile = typeof window !== "undefined" && window.innerWidth <= 390;
+
   const shellStyle = {
     minHeight: "100dvh",
     width: "100%",
     background: "linear-gradient(180deg, #06101c 0%, #020814 100%)",
     color: "white",
-    padding: 12,
+    padding: isVerySmallMobile ? 8 : isSmallMobile ? 10 : 12,
     boxSizing: "border-box",
     overflowX: "hidden",
     overflowY: "auto",
     fontFamily: "Arial, sans-serif",
+    WebkitOverflowScrolling: "touch",
   };
 
   const wrapStyle = {
     width: "100%",
-    maxWidth: 560,
+    maxWidth: isVerySmallMobile ? 760 : 900,
     margin: "0 auto",
     display: "flex",
     flexDirection: "column",
-    gap: 12,
-    paddingBottom: 12,
+    gap: isVerySmallMobile ? 8 : 12,
+    paddingBottom: isVerySmallMobile ? 20 : 28,
+    boxSizing: "border-box",
   };
 
   const cardStyle = {
     background: "#07111f",
     border: "1px solid #17304f",
-    borderRadius: 22,
-    padding: 14,
+    borderRadius: isVerySmallMobile ? 18 : 22,
+    padding: isVerySmallMobile ? 12 : 14,
     boxSizing: "border-box",
     boxShadow: "0 12px 36px rgba(0,0,0,0.28)",
   };
@@ -1813,49 +1819,62 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
   const statCardStyle = {
     background: "rgba(255,255,255,0.05)",
     border: "1px solid rgba(255,255,255,0.10)",
-    borderRadius: 16,
-    padding: "12px 10px",
+    borderRadius: isVerySmallMobile ? 14 : 16,
+    padding: isVerySmallMobile ? "10px 8px" : "12px 10px",
     textAlign: "center",
-    minHeight: 76,
+    minHeight: isVerySmallMobile ? 68 : 76,
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
+    boxSizing: "border-box",
   };
 
   const sideBoxBase = {
-    borderRadius: 20,
-    padding: 14,
+    borderRadius: isVerySmallMobile ? 16 : 20,
+    padding: isVerySmallMobile ? 10 : 14,
     display: "flex",
     flexDirection: "column",
-    gap: 12,
+    gap: isVerySmallMobile ? 8 : 12,
     boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08)",
+    boxSizing: "border-box",
+    minWidth: 0,
   };
 
   const scoreStyle = {
     textAlign: "center",
-    fontSize: "clamp(56px, 16vw, 96px)",
+    fontSize: isVerySmallMobile ? "clamp(44px, 10vw, 72px)" : "clamp(56px, 10vw, 96px)",
     fontWeight: 900,
     lineHeight: 0.95,
     letterSpacing: "-0.04em",
     textShadow: "0 10px 24px rgba(0,0,0,0.28)",
-    margin: "4px 0 2px",
+    margin: isVerySmallMobile ? "0 0 2px" : "4px 0 2px",
   };
 
   const buttonGridStyle = {
     display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: 10,
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: isVerySmallMobile ? 8 : 10,
+    width: "100%",
   };
 
   const touchBtnBase = {
-    minHeight: 68,
+    minHeight: isVerySmallMobile ? 68 : 82,
     border: "1px solid rgba(255,255,255,0.14)",
-    borderRadius: 16,
+    borderRadius: isVerySmallMobile ? 14 : 18,
     color: "white",
     fontWeight: 900,
-    fontSize: "clamp(24px, 6vw, 30px)",
+    fontSize: isVerySmallMobile ? "clamp(20px, 5vw, 28px)" : "clamp(28px, 7vw, 38px)",
     cursor: "pointer",
     boxShadow: "0 0 18px rgba(255,255,255,0.10), inset 0 0 12px rgba(255,255,255,0.05)",
+    width: "100%",
+    minWidth: 0,
+  };
+
+  const sidesWrapStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: isVerySmallMobile ? 10 : 14,
+    alignItems: "stretch",
   };
 
   return (
@@ -1866,8 +1885,8 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
             ...styles.gray,
             boxShadow: "0 0 18px rgba(255,255,255,0.16)",
             width: "100%",
-            minHeight: 54,
-            fontSize: 18,
+            minHeight: isVerySmallMobile ? 50 : 54,
+            fontSize: isVerySmallMobile ? 17 : 18,
           }}
           onClick={() => navigate("/")}
         >
@@ -1878,11 +1897,17 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
           <BrandHeaderSmall />
         </div>
 
-        <div style={{ ...cardStyle, paddingTop: 16, paddingBottom: 16 }}>
+        <div
+          style={{
+            ...cardStyle,
+            paddingTop: isVerySmallMobile ? 12 : 16,
+            paddingBottom: isVerySmallMobile ? 12 : 16,
+          }}
+        >
           <div
             style={{
               textAlign: "center",
-              fontSize: "clamp(30px, 7vw, 42px)",
+              fontSize: isVerySmallMobile ? "clamp(26px, 6.5vw, 36px)" : "clamp(30px, 7vw, 42px)",
               fontWeight: 900,
               lineHeight: 1,
               letterSpacing: "0.04em",
@@ -1892,17 +1917,39 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: isVerySmallMobile ? 8 : 10,
+          }}
+        >
           <div style={statCardStyle}>
-            <div style={{ fontSize: 13, opacity: 0.85, fontWeight: 700, letterSpacing: "0.06em" }}>TIEMPO</div>
-            <div style={{ marginTop: 6, fontSize: "clamp(22px, 5vw, 30px)", fontWeight: 900 }}>
+            <div style={{ fontSize: isVerySmallMobile ? 12 : 13, opacity: 0.85, fontWeight: 700, letterSpacing: "0.06em" }}>
+              TIEMPO
+            </div>
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: isVerySmallMobile ? "clamp(20px, 4.8vw, 28px)" : "clamp(22px, 5vw, 30px)",
+                fontWeight: 900,
+              }}
+            >
               {formatTime(time)}
             </div>
           </div>
 
           <div style={statCardStyle}>
-            <div style={{ fontSize: 13, opacity: 0.85, fontWeight: 700, letterSpacing: "0.06em" }}>ESTADO</div>
-            <div style={{ marginTop: 6, fontSize: "clamp(18px, 4.5vw, 24px)", fontWeight: 900 }}>
+            <div style={{ fontSize: isVerySmallMobile ? 12 : 13, opacity: 0.85, fontWeight: 700, letterSpacing: "0.06em" }}>
+              ESTADO
+            </div>
+            <div
+              style={{
+                marginTop: 6,
+                fontSize: isVerySmallMobile ? "clamp(16px, 4vw, 21px)" : "clamp(18px, 4.5vw, 24px)",
+                fontWeight: 900,
+              }}
+            >
               {meta.phase === "break" ? "DESCANSO" : "COMBATE"}
             </div>
           </div>
@@ -1917,7 +1964,7 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
               color: "#f5f3ff",
               textAlign: "center",
               fontWeight: 900,
-              fontSize: "clamp(16px, 4vw, 22px)",
+              fontSize: isVerySmallMobile ? "clamp(15px, 3.8vw, 20px)" : "clamp(16px, 4vw, 22px)",
             }}
           >
             {meta.goldenPoint.mode === "A"
@@ -1935,7 +1982,7 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
               color: "#ffedd5",
               textAlign: "center",
               fontWeight: 900,
-              fontSize: "clamp(16px, 4vw, 22px)",
+              fontSize: isVerySmallMobile ? "clamp(15px, 3.8vw, 20px)" : "clamp(16px, 4vw, 22px)",
             }}
           >
             DESCANSO · NO MANIPULAR
@@ -1951,16 +1998,17 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
               color: "#ffedd5",
               textAlign: "center",
               fontWeight: 900,
-              fontSize: "clamp(15px, 4vw, 20px)",
+              fontSize: isVerySmallMobile ? "clamp(14px, 3.7vw, 18px)" : "clamp(15px, 4vw, 20px)",
             }}
           >
             {warning}
           </div>
         )}
 
-        <div style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={sidesWrapStyle}>
           <div
             style={{
+              ...cardStyle,
               ...sideBoxBase,
               background: "linear-gradient(180deg, #991b1b 0%, #5f1010 100%)",
             }}
@@ -1968,7 +2016,7 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
             <div
               style={{
                 textAlign: "center",
-                fontSize: "clamp(20px, 5vw, 28px)",
+                fontSize: isVerySmallMobile ? "clamp(16px, 4vw, 22px)" : "clamp(20px, 5vw, 28px)",
                 fontWeight: 900,
                 letterSpacing: "0.08em",
               }}
@@ -1981,30 +2029,38 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
             <div style={buttonGridStyle}>
               <AppButton
                 feedback="judge"
-                style={{ ...touchBtnBase, background: "#991b1b" }}
+                style={{ ...touchBtnBase, background: "#b91c1c" }}
                 onClick={() => updateJudge("POINT", "hong", 1)}
               >
                 +1
               </AppButton>
               <AppButton
                 feedback="judge"
-                style={{ ...touchBtnBase, background: "#b91c1c" }}
+                style={{ ...touchBtnBase, background: "#dc2626" }}
                 onClick={() => updateJudge("POINT", "hong", 2)}
               >
                 +2
               </AppButton>
               <AppButton
                 feedback="judge"
-                style={{ ...touchBtnBase, background: "#dc2626" }}
+                style={{ ...touchBtnBase, background: "#ef4444" }}
                 onClick={() => updateJudge("POINT", "hong", 3)}
               >
                 +3
+              </AppButton>
+              <AppButton
+                feedback="judge"
+                style={{ ...touchBtnBase, background: "#f87171" }}
+                onClick={() => updateJudge("POINT", "hong", 4)}
+              >
+                +4
               </AppButton>
             </div>
           </div>
 
           <div
             style={{
+              ...cardStyle,
               ...sideBoxBase,
               background: "linear-gradient(180deg, #1d4ed8 0%, #132e7b 100%)",
             }}
@@ -2012,7 +2068,7 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
             <div
               style={{
                 textAlign: "center",
-                fontSize: "clamp(20px, 5vw, 28px)",
+                fontSize: isVerySmallMobile ? "clamp(16px, 4vw, 22px)" : "clamp(20px, 5vw, 28px)",
                 fontWeight: 900,
                 letterSpacing: "0.08em",
               }}
@@ -2025,42 +2081,49 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
             <div style={buttonGridStyle}>
               <AppButton
                 feedback="judge"
-                style={{ ...touchBtnBase, background: "#1e3a8a" }}
+                style={{ ...touchBtnBase, background: "#1d4ed8" }}
                 onClick={() => updateJudge("POINT", "chong", 1)}
               >
                 +1
               </AppButton>
               <AppButton
                 feedback="judge"
-                style={{ ...touchBtnBase, background: "#1d4ed8" }}
+                style={{ ...touchBtnBase, background: "#2563eb" }}
                 onClick={() => updateJudge("POINT", "chong", 2)}
               >
                 +2
               </AppButton>
               <AppButton
                 feedback="judge"
-                style={{ ...touchBtnBase, background: "#2563eb" }}
+                style={{ ...touchBtnBase, background: "#3b82f6" }}
                 onClick={() => updateJudge("POINT", "chong", 3)}
               >
                 +3
               </AppButton>
+              <AppButton
+                feedback="judge"
+                style={{ ...touchBtnBase, background: "#60a5fa" }}
+                onClick={() => updateJudge("POINT", "chong", 4)}
+              >
+                +4
+              </AppButton>
             </div>
           </div>
-
-          <AppButton
-            feedback="judge"
-            style={{
-              ...styles.gray,
-              minHeight: 62,
-              fontSize: "clamp(18px, 4.5vw, 24px)",
-              fontWeight: 900,
-              boxShadow: "0 0 18px rgba(255,255,255,0.16)",
-            }}
-            onClick={() => updateJudge("UNDO")}
-          >
-            DESHACER
-          </AppButton>
         </div>
+
+        <AppButton
+          feedback="judge"
+          style={{
+            ...styles.gray,
+            minHeight: isVerySmallMobile ? 56 : 62,
+            fontSize: isVerySmallMobile ? "clamp(17px, 4.2vw, 22px)" : "clamp(18px, 4.5vw, 24px)",
+            fontWeight: 900,
+            boxShadow: "0 0 18px rgba(255,255,255,0.16)",
+          }}
+          onClick={() => updateJudge("UNDO")}
+        >
+          DESHACER
+        </AppButton>
       </div>
 
       {showJudgeWinner && <WinnerFullScreen winner={judgeWinner} />}
