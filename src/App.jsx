@@ -434,17 +434,18 @@ const styles = {
     fontFamily: "Arial, sans-serif",
   },
   frameBg: {
-    background: "#020814",
-    color: "white",
-    minHeight: "100vh",
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 0,
-    boxSizing: "border-box",
-    fontFamily: "Arial, sans-serif",
-  },
+  background: "#020814",
+  color: "white",
+  height: "100vh",
+  overflow: "hidden",
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 0,
+  boxSizing: "border-box",
+  fontFamily: "Arial, sans-serif",
+},
   panel: {
     background: "#111",
     border: "1px solid #333",
@@ -490,8 +491,9 @@ function Frame16x9({ children }) {
 
   useEffect(() => {
     const recalc = () => {
-      const next = Math.min(window.innerWidth / baseWidth, window.innerHeight / baseHeight);
-      setScale(next);
+      const scaleX = window.innerWidth / baseWidth;
+      const scaleY = window.innerHeight / baseHeight;
+      setScale(Math.min(scaleX, scaleY));
     };
     recalc();
     window.addEventListener("resize", recalc);
@@ -861,62 +863,336 @@ function PublicScreen({ meta, judges, navigate }) {
 
   const winner = meta.phase === "finished" ? s.winner : null;
 
+  const sideGradient = (color) =>
+    color === "hong"
+      ? "linear-gradient(180deg, rgba(185,28,28,0.95) 0%, rgba(80,7,7,0.98) 100%)"
+      : "linear-gradient(180deg, rgba(29,78,216,0.95) 0%, rgba(14,35,86,0.98) 100%)";
+
+  const renderSidePanel = (fighter) => {
+    const colorKey = fighter.pointsLabel;
+    const score = scoreMap[colorKey];
+    const warnings = warningsMap[colorKey];
+    const fouls = foulsMap[colorKey];
+
+    return (
+      <div
+        style={{
+          borderRadius: 28,
+          background: sideGradient(fighter.color),
+          display: "grid",
+          gridTemplateRows: "auto auto auto 1fr auto",
+          alignItems: "stretch",
+          padding: "28px 24px",
+          minHeight: 0,
+          boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.10)",
+        }}
+      >
+        <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: "0.12em", textAlign: "center" }}>
+          {fighter.visualLabel}
+        </div>
+
+        <div
+          style={{
+            marginTop: 18,
+            fontSize: 70,
+            fontWeight: 900,
+            lineHeight: 0.95,
+            textAlign: "center",
+            textTransform: "uppercase",
+            wordBreak: "break-word",
+          }}
+        >
+          {fighter.name || fighter.visualLabel}
+        </div>
+
+        <div
+          style={{
+            marginTop: 10,
+            fontSize: 26,
+            opacity: 0.92,
+            textAlign: "center",
+            wordBreak: "break-word",
+          }}
+        >
+          {fighter.club || "ACADEMIA / EQUIPO"}
+        </div>
+
+        <div
+          style={{
+            fontSize: 190,
+            fontWeight: 900,
+            textAlign: "center",
+            lineHeight: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {score}
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div
+            style={{
+              borderRadius: 20,
+              background: "rgba(255,255,255,0.12)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: 112,
+              boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 900,
+                lineHeight: 1.05,
+                letterSpacing: "0.05em",
+                textAlign: "center",
+              }}
+            >
+              ADVERTENCIAS
+            </div>
+            <div style={{ marginTop: 10, fontSize: 46, fontWeight: 900, lineHeight: 1 }}>{warnings}</div>
+          </div>
+
+          <div
+            style={{
+              borderRadius: 20,
+              background: "rgba(255,255,255,0.12)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: 112,
+              boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 900,
+                lineHeight: 1.05,
+                letterSpacing: "0.05em",
+                textAlign: "center",
+              }}
+            >
+              FALTAS
+            </div>
+            <div style={{ marginTop: 10, fontSize: 46, fontWeight: 900, lineHeight: 1 }}>{fouls}</div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Frame16x9>
       <AppButton
-        style={{ ...styles.gray, position: "absolute", right: 34, bottom: 24, zIndex: 120, fontSize: 20, padding: "10px 20px", opacity: 0.78, boxShadow: "0 0 18px rgba(255,255,255,0.16)" }}
+        style={{
+          ...styles.gray,
+          position: "absolute",
+          right: 26,
+          bottom: 18,
+          zIndex: 20,
+          fontSize: 18,
+          padding: "10px 18px",
+          opacity: 0.78,
+          boxShadow: "0 0 18px rgba(255,255,255,0.16)",
+        }}
         onClick={() => navigate("/")}
       >
         Inicio
       </AppButton>
 
-      <div style={{ width: "100%", height: "100%", display: "grid", gridTemplateRows: "190px 1fr 52px", padding: "18px 24px 10px 24px", boxSizing: "border-box" }}>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "grid",
+          gridTemplateRows: "190px 1fr 52px",
+          padding: "12px 18px 8px 18px",
+          boxSizing: "border-box",
+        }}
+      >
         <div style={{ display: "grid", gridTemplateColumns: "420px 1fr 420px", alignItems: "center" }}>
           <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
-            <img src="/logo-universe.png" alt="Hwarang Universe" style={{ maxWidth: 420, maxHeight: 190, width: "auto", height: "auto", objectFit: "contain", display: "block" }} />
+            <img
+              src="/logo-universe.png"
+              alt="Hwarang Universe"
+              style={{
+                maxWidth: 420,
+                maxHeight: 190,
+                width: "auto",
+                height: "auto",
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
           </div>
+
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 30, fontWeight: 700, letterSpacing: "0.24em", lineHeight: 1, opacity: 0.92 }}>HWARANG SCORING</div>
-            <div style={{ marginTop: 12, fontSize: 70, fontWeight: 900, lineHeight: 1, letterSpacing: "0.04em" }}>COMBAT</div>
-            <div style={{ marginTop: 12, fontSize: 28, fontWeight: 800, letterSpacing: "0.10em", opacity: 0.92 }}>
-              {meta.goldenPoint?.active ? (meta.goldenPoint.mode === "A" ? "GOLDEN POINT A" : `GOLDEN POINT B / ROUND ${meta.goldenPoint.gpRound || 1}`) : "COMBATE"}
+            <div
+              style={{
+                fontSize: 30,
+                fontWeight: 700,
+                letterSpacing: "0.24em",
+                lineHeight: 1,
+                opacity: 0.92,
+              }}
+            >
+              HWARANG SCORING
+            </div>
+
+            <div
+              style={{
+                marginTop: 12,
+                fontSize: 70,
+                fontWeight: 900,
+                lineHeight: 1,
+                letterSpacing: "0.04em",
+              }}
+            >
+              COMBAT
+            </div>
+
+            <div
+              style={{
+                marginTop: 12,
+                fontSize: 28,
+                fontWeight: 800,
+                letterSpacing: "0.10em",
+                opacity: 0.92,
+              }}
+            >
+              {meta.goldenPoint?.active
+                ? meta.goldenPoint.mode === "A"
+                  ? "GOLDEN POINT A"
+                  : `GOLDEN POINT B / ROUND ${meta.goldenPoint.gpRound || 1}`
+                : "COMBATE"}
             </div>
           </div>
+
           <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
-            <img src="/logo-combat.png" alt="Hwarang Combat" style={{ maxWidth: 420, maxHeight: 190, width: "auto", height: "auto", objectFit: "contain", display: "block" }} />
+            <img
+              src="/logo-combat.png"
+              alt="Hwarang Combat"
+              style={{
+                maxWidth: 420,
+                maxHeight: 190,
+                width: "auto",
+                height: "auto",
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
           </div>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 360px 1fr", gap: 20, minHeight: 0 }}>
-          <div style={{ minHeight: 0, display: "flex" }}>
-            <PublicFighterPanel title={left.visualLabel} fighter={left} score={scoreMap[left.pointsLabel]} warnings={warningsMap[left.pointsLabel]} fouls={foulsMap[left.pointsLabel]} />
-          </div>
+          {renderSidePanel(left)}
 
           <div style={{ minHeight: 0, display: "grid", gridTemplateRows: "290px 1fr 120px", gap: 18 }}>
-            <div style={{ borderRadius: 34, background: "linear-gradient(180deg, #ffffff 0%, #dde4ec 100%)", color: "#111", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.30)" }}>
+            <div
+              style={{
+                borderRadius: 34,
+                background: "linear-gradient(180deg, #ffffff 0%, #dde4ec 100%)",
+                color: "#111",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.30)",
+              }}
+            >
               <div style={{ fontSize: 30, fontWeight: 900, letterSpacing: "0.20em", lineHeight: 1 }}>
                 {meta.phase === "break" ? "DESCANSO" : "TIME"}
               </div>
-              <div style={{ marginTop: 18, fontSize: 122, fontWeight: 900, lineHeight: 0.9, letterSpacing: "-0.04em" }}>{formatTime(time)}</div>
-              <div style={{ marginTop: 16, fontSize: 34, fontWeight: 900, letterSpacing: "0.08em", textAlign: "center" }}>
-                {meta.phase === "break" ? "NO MANIPULAR" : `ROUND ${meta.round}`}
+
+              <div
+                style={{
+                  marginTop: 18,
+                  fontSize: 122,
+                  fontWeight: 900,
+                  lineHeight: 0.9,
+                  letterSpacing: "-0.04em",
+                }}
+              >
+                {formatTime(time)}
+              </div>
+
+              <div
+                style={{
+                  marginTop: 16,
+                  fontSize: 34,
+                  fontWeight: 900,
+                  letterSpacing: "0.08em",
+                  textAlign: "center",
+                }}
+              >
+                {meta.phase === "break"
+                  ? "NO MANIPULAR"
+                  : meta.goldenPoint?.active
+                  ? `GP ${meta.goldenPoint.mode === "A" ? "A" : "B"}`
+                  : `ROUND ${meta.round}`}
               </div>
             </div>
 
-            <div style={{ borderRadius: 34, background: "rgba(255,255,255,0.06)", display: "flex", justifyContent: "center", alignItems: "center", boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)" }}>
-              <div style={{ fontSize: 96, fontWeight: 900, lineHeight: 1, letterSpacing: "0.06em", opacity: 0.85 }}>VS</div>
+            <div
+              style={{
+                borderRadius: 34,
+                background: "rgba(255,255,255,0.06)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 58,
+                  fontWeight: 900,
+                  lineHeight: 1,
+                  letterSpacing: "0.06em",
+                  opacity: 0.9,
+                }}
+              >
+                VS
+              </div>
             </div>
 
-            <div style={{ borderRadius: 24, background: "rgba(255,255,255,0.08)", display: "flex", justifyContent: "center", alignItems: "center", boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)" }}>
-              <div style={{ fontSize: 34, fontWeight: 900, letterSpacing: "0.08em", textAlign: "center" }}>
-                {meta.phase === "finished" ? "FINALIZADO" : meta.phase === "break" ? "DESCANSO OFICIAL" : meta.status === "running" ? "EN CURSO" : "PAUSADO"}
+            <div
+              style={{
+                borderRadius: 24,
+                background: "rgba(255,255,255,0.08)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.08)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 34,
+                  fontWeight: 900,
+                  letterSpacing: "0.08em",
+                  textAlign: "center",
+                }}
+              >
+                {meta.phase === "finished"
+                  ? "FINALIZADO"
+                  : meta.phase === "break"
+                  ? "DESCANSO OFICIAL"
+                  : meta.status === "running"
+                  ? "EN CURSO"
+                  : "PAUSADO"}
               </div>
             </div>
           </div>
 
-          <div style={{ minHeight: 0, display: "flex" }}>
-            <PublicFighterPanel title={right.visualLabel} fighter={right} score={scoreMap[right.pointsLabel]} warnings={warningsMap[right.pointsLabel]} fouls={foulsMap[right.pointsLabel]} />
-          </div>
+          {renderSidePanel(right)}
         </div>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.82 }}>
@@ -928,7 +1204,6 @@ function PublicScreen({ meta, judges, navigate }) {
     </Frame16x9>
   );
 }
-
 function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, navigate }) {
   meta = ensureMetaShape(meta);
   const time = useClock(meta);
@@ -1414,11 +1689,53 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
 
   if (judgeId > COMBAT_JUDGES) {
     return (
-      <div style={styles.page}>
-        <AppButton style={{ ...styles.gray, boxShadow: "0 0 18px rgba(255,255,255,0.16)" }} onClick={() => navigate("/")}>Inicio</AppButton>
-        <BrandHeaderSmall />
-        <h1>Juez {judgeId}</h1>
-        <div style={styles.panel}>Este juez no está activo en la modalidad actual.</div>
+      <div
+        style={{
+          minHeight: "100dvh",
+          width: "100%",
+          background: "#020814",
+          color: "white",
+          padding: 14,
+          boxSizing: "border-box",
+          overflowX: "hidden",
+          overflowY: "auto",
+          fontFamily: "Arial, sans-serif",
+        }}
+      >
+        <div style={{ width: "100%", maxWidth: 560, margin: "0 auto" }}>
+          <AppButton
+            style={{
+              ...styles.gray,
+              boxShadow: "0 0 18px rgba(255,255,255,0.16)",
+              width: "100%",
+              minHeight: 54,
+              fontSize: 18,
+            }}
+            onClick={() => navigate("/")}
+          >
+            Inicio
+          </AppButton>
+
+          <BrandHeaderSmall />
+
+          <h1 style={{ textAlign: "center", fontSize: "clamp(28px, 6vw, 40px)", margin: "8px 0 14px" }}>
+            Juez {judgeId}
+          </h1>
+
+          <div
+            style={{
+              background: "#07111f",
+              border: "1px solid #17304f",
+              borderRadius: 18,
+              padding: 18,
+              textAlign: "center",
+              fontSize: "clamp(16px, 4vw, 20px)",
+              fontWeight: 700,
+            }}
+          >
+            Este juez no está activo en la modalidad actual.
+          </div>
+        </div>
       </div>
     );
   }
@@ -1462,39 +1779,288 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
   const judgeWinner = summary(meta, judges).winner;
   const showJudgeWinner = meta.phase === "finished";
 
+  const shellStyle = {
+    minHeight: "100dvh",
+    width: "100%",
+    background: "linear-gradient(180deg, #06101c 0%, #020814 100%)",
+    color: "white",
+    padding: 12,
+    boxSizing: "border-box",
+    overflowX: "hidden",
+    overflowY: "auto",
+    fontFamily: "Arial, sans-serif",
+  };
+
+  const wrapStyle = {
+    width: "100%",
+    maxWidth: 560,
+    margin: "0 auto",
+    display: "flex",
+    flexDirection: "column",
+    gap: 12,
+    paddingBottom: 12,
+  };
+
+  const cardStyle = {
+    background: "#07111f",
+    border: "1px solid #17304f",
+    borderRadius: 22,
+    padding: 14,
+    boxSizing: "border-box",
+    boxShadow: "0 12px 36px rgba(0,0,0,0.28)",
+  };
+
+  const statCardStyle = {
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.10)",
+    borderRadius: 16,
+    padding: "12px 10px",
+    textAlign: "center",
+    minHeight: 76,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+  };
+
+  const sideBoxBase = {
+    borderRadius: 20,
+    padding: 14,
+    display: "flex",
+    flexDirection: "column",
+    gap: 12,
+    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08)",
+  };
+
+  const scoreStyle = {
+    textAlign: "center",
+    fontSize: "clamp(56px, 16vw, 96px)",
+    fontWeight: 900,
+    lineHeight: 0.95,
+    letterSpacing: "-0.04em",
+    textShadow: "0 10px 24px rgba(0,0,0,0.28)",
+    margin: "4px 0 2px",
+  };
+
+  const buttonGridStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: 10,
+  };
+
+  const touchBtnBase = {
+    minHeight: 68,
+    border: "1px solid rgba(255,255,255,0.14)",
+    borderRadius: 16,
+    color: "white",
+    fontWeight: 900,
+    fontSize: "clamp(24px, 6vw, 30px)",
+    cursor: "pointer",
+    boxShadow: "0 0 18px rgba(255,255,255,0.10), inset 0 0 12px rgba(255,255,255,0.05)",
+  };
+
   return (
-    <div style={{ ...styles.page, background: "#06101c", minHeight: "100vh" }}>
-      <AppButton style={{ ...styles.gray, boxShadow: "0 0 18px rgba(255,255,255,0.16)" }} onClick={() => navigate("/")}>Inicio</AppButton>
-      <BrandHeaderSmall />
+    <div style={shellStyle}>
+      <div style={wrapStyle}>
+        <AppButton
+          style={{
+            ...styles.gray,
+            boxShadow: "0 0 18px rgba(255,255,255,0.16)",
+            width: "100%",
+            minHeight: 54,
+            fontSize: 18,
+          }}
+          onClick={() => navigate("/")}
+        >
+          Inicio
+        </AppButton>
 
-      <h1>Juez {judgeId}</h1>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <BrandHeaderSmall />
+        </div>
 
-      <div style={styles.row}>
-        <div style={styles.stat}>Tiempo: <strong>{formatTime(time)}</strong></div>
-        <div style={styles.stat}>Modalidad: <strong>{meta.phase === "break" ? "DESCANSO" : "COMBATE"}</strong></div>
+        <div style={{ ...cardStyle, paddingTop: 16, paddingBottom: 16 }}>
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: "clamp(30px, 7vw, 42px)",
+              fontWeight: 900,
+              lineHeight: 1,
+              letterSpacing: "0.04em",
+            }}
+          >
+            JUEZ {judgeId}
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+          <div style={statCardStyle}>
+            <div style={{ fontSize: 13, opacity: 0.85, fontWeight: 700, letterSpacing: "0.06em" }}>TIEMPO</div>
+            <div style={{ marginTop: 6, fontSize: "clamp(22px, 5vw, 30px)", fontWeight: 900 }}>
+              {formatTime(time)}
+            </div>
+          </div>
+
+          <div style={statCardStyle}>
+            <div style={{ fontSize: 13, opacity: 0.85, fontWeight: 700, letterSpacing: "0.06em" }}>ESTADO</div>
+            <div style={{ marginTop: 6, fontSize: "clamp(18px, 4.5vw, 24px)", fontWeight: 900 }}>
+              {meta.phase === "break" ? "DESCANSO" : "COMBATE"}
+            </div>
+          </div>
+        </div>
+
         {meta.goldenPoint?.active && (
-          <div style={styles.stat}>
-            <strong>
-              {meta.goldenPoint.mode === "A" ? "GOLDEN POINT A" : `GOLDEN POINT B / ROUND ${meta.goldenPoint.gpRound || 1}`}
-            </strong>
+          <div
+            style={{
+              ...cardStyle,
+              background: "#4c1d95",
+              border: "1px solid #8b5cf6",
+              color: "#f5f3ff",
+              textAlign: "center",
+              fontWeight: 900,
+              fontSize: "clamp(16px, 4vw, 22px)",
+            }}
+          >
+            {meta.goldenPoint.mode === "A"
+              ? "GOLDEN POINT A"
+              : `GOLDEN POINT B / ROUND ${meta.goldenPoint.gpRound || 1}`}
           </div>
         )}
-      </div>
 
-      {meta.phase === "break" && (
-        <div style={{ ...styles.panel, background: "#7c2d12", border: "1px solid #f97316", marginTop: 16, color: "#ffedd5", fontWeight: 900, textAlign: "center" }}>
-          DESCANSO · NO MANIPULAR
+        {meta.phase === "break" && (
+          <div
+            style={{
+              ...cardStyle,
+              background: "#7c2d12",
+              border: "1px solid #f97316",
+              color: "#ffedd5",
+              textAlign: "center",
+              fontWeight: 900,
+              fontSize: "clamp(16px, 4vw, 22px)",
+            }}
+          >
+            DESCANSO · NO MANIPULAR
+          </div>
+        )}
+
+        {!!warning && !meta.goldenPoint?.active && (
+          <div
+            style={{
+              ...cardStyle,
+              background: "#7c2d12",
+              border: "1px solid #f97316",
+              color: "#ffedd5",
+              textAlign: "center",
+              fontWeight: 900,
+              fontSize: "clamp(15px, 4vw, 20px)",
+            }}
+          >
+            {warning}
+          </div>
+        )}
+
+        <div style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 12 }}>
+          <div
+            style={{
+              ...sideBoxBase,
+              background: "linear-gradient(180deg, #991b1b 0%, #5f1010 100%)",
+            }}
+          >
+            <div
+              style={{
+                textAlign: "center",
+                fontSize: "clamp(20px, 5vw, 28px)",
+                fontWeight: 900,
+                letterSpacing: "0.08em",
+              }}
+            >
+              HONG
+            </div>
+
+            <div style={scoreStyle}>{judge.hongPoints}</div>
+
+            <div style={buttonGridStyle}>
+              <AppButton
+                feedback="judge"
+                style={{ ...touchBtnBase, background: "#991b1b" }}
+                onClick={() => updateJudge("POINT", "hong", 1)}
+              >
+                +1
+              </AppButton>
+              <AppButton
+                feedback="judge"
+                style={{ ...touchBtnBase, background: "#b91c1c" }}
+                onClick={() => updateJudge("POINT", "hong", 2)}
+              >
+                +2
+              </AppButton>
+              <AppButton
+                feedback="judge"
+                style={{ ...touchBtnBase, background: "#dc2626" }}
+                onClick={() => updateJudge("POINT", "hong", 3)}
+              >
+                +3
+              </AppButton>
+            </div>
+          </div>
+
+          <div
+            style={{
+              ...sideBoxBase,
+              background: "linear-gradient(180deg, #1d4ed8 0%, #132e7b 100%)",
+            }}
+          >
+            <div
+              style={{
+                textAlign: "center",
+                fontSize: "clamp(20px, 5vw, 28px)",
+                fontWeight: 900,
+                letterSpacing: "0.08em",
+              }}
+            >
+              CHONG
+            </div>
+
+            <div style={scoreStyle}>{judge.chongPoints}</div>
+
+            <div style={buttonGridStyle}>
+              <AppButton
+                feedback="judge"
+                style={{ ...touchBtnBase, background: "#1e3a8a" }}
+                onClick={() => updateJudge("POINT", "chong", 1)}
+              >
+                +1
+              </AppButton>
+              <AppButton
+                feedback="judge"
+                style={{ ...touchBtnBase, background: "#1d4ed8" }}
+                onClick={() => updateJudge("POINT", "chong", 2)}
+              >
+                +2
+              </AppButton>
+              <AppButton
+                feedback="judge"
+                style={{ ...touchBtnBase, background: "#2563eb" }}
+                onClick={() => updateJudge("POINT", "chong", 3)}
+              >
+                +3
+              </AppButton>
+            </div>
+          </div>
+
+          <AppButton
+            feedback="judge"
+            style={{
+              ...styles.gray,
+              minHeight: 62,
+              fontSize: "clamp(18px, 4.5vw, 24px)",
+              fontWeight: 900,
+              boxShadow: "0 0 18px rgba(255,255,255,0.16)",
+            }}
+            onClick={() => updateJudge("UNDO")}
+          >
+            DESHACER
+          </AppButton>
         </div>
-      )}
-
-      {!!warning && !meta.goldenPoint?.active && (
-        <div style={{ ...styles.panel, background: "#7c2d12", border: "1px solid #f97316", marginTop: 16, color: "#ffedd5", fontWeight: 900, textAlign: "center" }}>
-          {warning}
-        </div>
-      )}
-
-      <div style={{ marginTop: 16 }}>
-        <JudgePanel judge={judge} onPoint={(side, value) => updateJudge("POINT", side, value)} onUndo={() => updateJudge("UNDO")} />
       </div>
 
       {showJudgeWinner && <WinnerFullScreen winner={judgeWinner} />}
