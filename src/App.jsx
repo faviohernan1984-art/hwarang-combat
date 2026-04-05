@@ -189,6 +189,7 @@ function makeInitialMeta() {
     publicSwapSides: false,
     presidentSwapSides: false,
     goldenPoint: makeEmptyGoldenPoint(),
+    showResult: false,
     updatedAt: Date.now(),
   };
 }
@@ -861,7 +862,7 @@ function PublicScreen({ meta, judges, navigate }) {
   const warningsMap = { hong: meta.hongWarnings || 0, chong: meta.chongWarnings || 0 };
   const foulsMap = { hong: meta.hongFouls || 0, chong: meta.chongFouls || 0 };
 
-  const winner = meta.phase === "finished" ? s.winner : null;
+  const winner = meta.showResult ? s.winner : null;
 
   const sideGradient = (color) =>
     color === "hong"
@@ -1404,25 +1405,38 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
   };
 
   const finishMatch = async () => {
-    await writeMeta((current) => {
-      current.pausedRemaining = getDerivedTime(current, Date.now());
-      current.status = "paused";
-      current.phase = "finished";
-      current.phaseStartedAt = null;
-      return current;
-    });
-  };
+  await writeMeta((current) => {
+    current.pausedRemaining = getDerivedTime(current, Date.now());
+    current.status = "paused";
+    current.phase = "finished";
+    current.phaseStartedAt = null;
+    current.showResult = false;
+    return current;
+  });
+};
 
-  const applyCombatForcedWinner = async (winner) => {
-    await writeMeta((current) => {
-      current.combatForcedWinner = winner;
-      current.status = "paused";
-      current.phase = "finished";
-      current.pausedRemaining = 0;
-      current.phaseStartedAt = null;
-      return current;
-    });
-  };
+  const closeMatch = async () => {
+  await writeMeta((current) => {
+    current.showResult = true;
+    current.status = "paused";
+    current.phase = "finished";
+    current.phaseStartedAt = null;
+    current.pausedRemaining = getDerivedTime(current, Date.now());
+    return current;
+  });
+};
+
+     const applyCombatForcedWinner = async (winner) => {
+  await writeMeta((current) => {
+    current.combatForcedWinner = winner;
+    current.showResult = true;
+    current.status = "paused";
+    current.phase = "finished";
+    current.pausedRemaining = 0;
+    current.phaseStartedAt = null;
+    return current;
+  });
+};
 
   const activateGoldenPoint = async (mode) => {
     await writeMeta((current) => {
@@ -1459,6 +1473,7 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
       current.chongFouls = 0;
       current.combatForcedWinner = null;
       current.goldenPoint = makeEmptyGoldenPoint();
+      current.showResult = false;
       return current;
     });
   };
@@ -1660,6 +1675,22 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
           </div>
         </div>
 
+  <div style={{ ...styles.panel, marginTop: 16 }}>
+    <h2>Cierre de combate</h2>
+    <div style={styles.row}>
+      <AppButton
+      style={{
+        ...styles.purple,
+        boxShadow: "0 0 18px rgba(168,85,247,0.35)",
+        fontSize: 20,
+      }}
+      onClick={closeMatch}
+    >
+      CLOSE MATCH
+    </AppButton>
+  </div>
+</div>
+
         <div style={{ ...styles.panel, marginTop: 16 }}>
           <h2>Tarjetas de jueces (solo lectura)</h2>
           <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
@@ -1778,8 +1809,7 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
   };
 
   const judgeWinner = summary(meta, judges).winner;
-  const showJudgeWinner = meta.phase === "finished";
-
+  const showJudgeWinner = meta.showResult === true;
   const isSmallMobile = typeof window !== "undefined" && window.innerWidth <= 430;
   const isVerySmallMobile = typeof window !== "undefined" && window.innerWidth <= 390;
 
