@@ -11,6 +11,24 @@ import {
 import { db, matchMetaRef, judgesColRef, judgeRef } from "./firebase";
 import { QRCodeCanvas } from "qrcode.react";
 
+if (typeof document !== "undefined" && !document.getElementById("winnerPulseStyle")) {
+  const style = document.createElement("style");
+  style.id = "winnerPulseStyle";
+  style.innerHTML = `
+    @keyframes winnerPulse {
+      0% {
+        transform: scale(1);
+        filter: brightness(1);
+      }
+      100% {
+        transform: scale(1.04);
+        filter: brightness(1.35);
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 const HONG = "Hong";
 const CHONG = "Chong";
 const MAX_JUDGES = 5;
@@ -681,28 +699,107 @@ function AppButton({ children, style = {}, onClick, feedback = "ui", ...props })
   );
 }
 
-function WinnerFullScreen({ winner, zIndex = 50 }) {
-  if (winner === "draw") {
-    return (
-      <div style={{ position: "absolute", inset: 0, zIndex, background: "#3b3b3b", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "5vw" }}>
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div style={{ fontSize: 62, fontWeight: 800, letterSpacing: "0.16em", lineHeight: 1 }}>RESULTADO</div>
-          <div style={{ marginTop: 28, fontSize: 210, fontWeight: 900, lineHeight: 0.92 }}>EMPATE</div>
-        </div>
-      </div>
-    );
-  }
+function WinnerFullScreen({
+  winner,
+  zIndex = 50,
+  onNextCombat,
+  onResetTotal,
+  onClose,
+  mode = "public"
+}) {
+  const getBg = () => {
+    if (winner === "hong") return "#8b0000";
+    if (winner === "chong") return "#003a8c";
+    return "#3b3b3b";
+  };
 
-  if (winner !== "hong" && winner !== "chong") return null;
-  const isHong = winner === "hong";
+  const getTitle = () => {
+    if (winner === "hong") return "HONG WINNER";
+    if (winner === "chong") return "CHONG WINNER";
+    return "EMPATE";
+  };
 
   return (
-    <div style={{ position: "absolute", inset: 0, zIndex, background: isHong ? "#b91c1c" : "#1d4ed8", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "5vw", animation: "winnerPulse 1.2s infinite" }}>
-      <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <div style={{ fontSize: 62, fontWeight: 800, letterSpacing: "0.16em", opacity: 0.92, lineHeight: 1 }}>WINNER</div>
-        <div style={{ marginTop: 28, fontSize: 220, fontWeight: 900, lineHeight: 0.92 }}>{isHong ? "HONG" : "CHONG"}</div>
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex,
+        width: "min(1200px, 82vw)",
+        minHeight: "340px",
+        borderRadius: 28,
+        background: getBg(),
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        padding: "32px 28px 110px",
+        color: "#fff",
+        boxSizing: "border-box",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.45)",
+        pointerEvents: "auto",
+        }}
+    >
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 34,
+            fontWeight: 800,
+            letterSpacing: "0.16em",
+            lineHeight: 1,
+          }}
+        >
+          RESULTADO
+        </div>
+
+        <div
+          style={{
+            marginTop: 22,
+            fontSize: "clamp(72px, 8vw, 150px)",
+            fontWeight: 900,
+            lineHeight: 0.92,
+            animation: "winnerPulse 0.9s infinite alternate",
+          }}
+        >
+          {getTitle()}
+        </div>
       </div>
-      <style>{`@keyframes winnerPulse {0%{opacity:1;}50%{opacity:0.76;}100%{opacity:1;}}`}</style>
+
+      <div
+        style={{
+          position: "absolute",
+          bottom: 24,
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          gap: 14,
+          flexWrap: "wrap",
+          justifyContent: "center",
+          width: "calc(100% - 40px)",
+        }}
+      >
+        <AppButton style={styles.green} onClick={onNextCombat}>
+          Next Combat
+        </AppButton>
+
+        <AppButton style={styles.red} onClick={onResetTotal}>
+          Reset Total
+        </AppButton>
+
+        <AppButton style={styles.gray} onClick={onClose}>
+          Cerrar
+        </AppButton>
+      </div>
     </div>
   );
 }
@@ -1634,7 +1731,7 @@ function PublicScreen({ meta, judges, navigate }) {
         </div>
       </div>
 
-      {winner && <WinnerFullScreen winner={winner} zIndex={140} />}
+      {winner && <WinnerFullScreen winner={winner} zIndex={100} mode="public" />}
     </Frame16x9>
   );
 }
@@ -2760,7 +2857,20 @@ const handleInvertSides = async () => {
           </AppButton>
         </div>
 
-        {winner && <WinnerFullScreen winner={winner} zIndex={100} />}
+        {winner && (
+  <WinnerFullScreen
+    winner={winner}
+    zIndex={100}
+    onNextCombat={prepareNextMatch}
+    onResetTotal={resetAll}
+    onClose={() =>
+      writeMeta((current) => ({
+        ...current,
+        showResult: false,
+      }))
+    }
+  />
+)}
       </div>
     </Frame16x9>
   );
