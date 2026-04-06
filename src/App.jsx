@@ -167,13 +167,20 @@ function makeEmptyGoldenPoint() {
 }
 
 function makeInitialMeta() {
-  return {
+   return {
     mode: "combat",
     config: {
       roundSeconds: 120,
       rounds: 2,
       breakSeconds: BREAK_SECONDS,
     },
+    medicalPreset: 300,
+    medicalActive: false,
+    medicalSide: null,
+    medicalRunning: false,
+    medicalHong: 300,
+    medicalChong: 300,
+    medicalLast: 0,
     round: 1,
     phase: "fight",
     status: "paused",
@@ -225,6 +232,99 @@ function formatTime(totalSeconds) {
   const mins = Math.floor(safe / 60);
   const secs = safe % 60;
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+}
+
+function ensureMedical(meta) {
+  const preset = Math.min(300, Math.max(0, meta?.medicalPreset || 300));
+
+  return {
+    preset,
+    active: meta?.medicalActive || false,
+    side: meta?.medicalSide || null,
+    running: meta?.medicalRunning || false,
+    hong: meta?.medicalHong ?? preset,
+    chong: meta?.medicalChong ?? preset,
+    last: meta?.medicalLast || 0,
+  };
+}
+
+function tickMedical(meta) {
+  const m = ensureMedical(meta);
+  if (!m.active || !m.running || !m.side) return meta;
+
+  const now = Date.now();
+  const diff = Math.floor((now - m.last) / 1000);
+  if (diff <= 0) return meta;
+
+  if (m.side === "hong") {
+    const next = Math.max(0, m.hong - diff);
+    return {
+      ...meta,
+      medicalHong: next,
+      medicalLast: now,
+      medicalRunning: next > 0,
+      medicalActive: next > 0,
+      medicalSide: next > 0 ? "hong" : null,
+    };
+  }
+
+  if (m.side === "chong") {
+    const next = Math.max(0, m.chong - diff);
+    return {
+      ...meta,
+      medicalChong: next,
+      medicalLast: now,
+      medicalRunning: next > 0,
+      medicalActive: next > 0,
+      medicalSide: next > 0 ? "chong" : null,
+    };
+  }
+
+  return meta;
+}
+
+function startMedical(meta, side) {
+  const m = ensureMedical(meta);
+  const now = Date.now();
+
+  const remaining =
+    side === "hong" ? m.hong : m.chong;
+
+  return {
+    ...meta,
+    medicalActive: true,
+    medicalRunning: true,
+    medicalSide: side,
+    medicalLast: now,
+    medicalHong: side === "hong" ? remaining : m.hong,
+    medicalChong: side === "chong" ? remaining : m.chong,
+  };
+}
+
+function pauseMedical(meta) {
+  const updated = tickMedical(meta);
+
+  return {
+    ...updated,
+    medicalActive: false,
+    medicalRunning: false,
+    medicalSide: null,
+    medicalLast: 0,
+  };
+}
+
+function stopMedical(meta) {
+  const current = ensureMedical(meta);
+
+  return {
+    ...meta,
+    medicalActive: false,
+    medicalRunning: false,
+    medicalSide: null,
+    medicalLast: 0,
+    medicalHong: current.preset,
+    medicalChong: current.preset,
+  };
 }
 
 function getDerivedTime(meta, now = Date.now()) {
@@ -354,7 +454,17 @@ function useFightData() {
   );
 
   useEffect(() => {
-    ensureInitialDocs();
+  if (!meta?.medicalActive || !meta?.medicalRunning) return;
+
+  const i = setInterval(() => {
+    writeMeta((prev) => tickMedical(prev));
+  }, 500);
+
+  return () => clearInterval(i);
+}, [meta?.medicalActive, meta?.medicalRunning]);
+  
+   useEffect(() => {
+   ensureInitialDocs();
 
     const unsubMeta = onSnapshot(matchMetaRef, (snap) => {
       if (snap.exists()) setMeta(ensureMetaShape(snap.data())); else setMeta(makeInitialMeta());
@@ -639,23 +749,69 @@ function JudgePanel({ judge, onPoint, onUndo }) {
 function JudgeReadOnlyCard({ judge, meta }) {
   const net = judgeNet(judge, meta);
   const vote = judgeVote(judge, meta);
+  const { left, right } = getDisplaySides(meta, "president");
+
+  const grossMap = {
+    hong: judge.hongPoints,
+    chong: judge.chongPoints,
+  };
+
+  const netMap = {
+    hong: net.hong,
+    chong: net.chong,
+  };
+
+  const renderJudgeSide = (fighter) => {
+    const sideKey = fighter.pointsLabel;
+    const isHongColor = fighter.color === "hong";
+
+    return (
+      <div
+        style={{
+          ...styles.panel,
+          background: isHongColor ? "#2a0606" : "#07172f",
+          border: isHongColor ? "1px solid #631010" : "1px solid #174a9c",
+          padding: 10,
+        }}
+      >
+        <div style={{ fontWeight: "bold", marginBottom: 6 }}>
+          {fighter.visualLabel}
+        </div>
+        <div>
+          Bruto: <strong>{grossMap[sideKey]}</strong>
+        </div>
+        <div>
+          Neto: <strong>{netMap[sideKey]}</strong>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={styles.panel}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, fontWeight: "bold" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: 12,
+          fontWeight: "bold",
+        }}
+      >
         <span>Juez {judge.id}</span>
-        <span>Voto: {vote === "draw" ? "Empate" : vote === "hong" ? "Hong" : "Chong"}</span>
+        <span>
+          Voto: {vote === "draw" ? "Empate" : vote === "hong" ? "Hong" : "Chong"}
+        </span>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <div style={{ ...styles.panel, background: "#2a0606", border: "1px solid #631010" }}>
-          <div style={{ fontWeight: "bold" }}>{HONG}</div>
-          <div>Bruto: <strong>{judge.hongPoints}</strong></div>
-          <div>Neto: <strong>{net.hong}</strong></div>
-        </div>
-        <div style={{ ...styles.panel, background: "#07172f", border: "1px solid #174a9c" }}>
-          <div style={{ fontWeight: "bold" }}>{CHONG}</div>
-          <div>Bruto: <strong>{judge.chongPoints}</strong></div>
-          <div>Neto: <strong>{net.chong}</strong></div>
-        </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 12,
+        }}
+      >
+        {renderJudgeSide(left)}
+        {renderJudgeSide(right)}
       </div>
     </div>
   );
@@ -663,30 +819,116 @@ function JudgeReadOnlyCard({ judge, meta }) {
 
 function QRSection() {
   const base = getBaseURL();
+
+  const shortSide = Math.min(window.innerWidth, window.innerHeight);
+
+  let judgeSize = 110;
+  let centerSize = 125;
+  let titleSize = 15;
+  let gapSize = 12;
+  let paddingSize = 8;
+
+  if (shortSide >= 1400) {
+    judgeSize = 170;
+    centerSize = 190;
+    titleSize = 20;
+    gapSize = 20;
+    paddingSize = 10;
+  } else if (shortSide >= 1100) {
+    judgeSize = 145;
+    centerSize = 165;
+    titleSize = 18;
+    gapSize = 16;
+    paddingSize = 9;
+  } else if (shortSide >= 900) {
+    judgeSize = 125;
+    centerSize = 145;
+    titleSize = 16;
+    gapSize = 14;
+    paddingSize = 8;
+  }
+
+  const box = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    width: "100%",
+    height: "100%",
+  };
+
+  const title = {
+    fontSize: titleSize,
+    fontWeight: 900,
+    letterSpacing: "0.04em",
+    textAlign: "center",
+    lineHeight: 1.1,
+  };
+
+  const qrBox = {
+    background: "white",
+    padding: paddingSize,
+    borderRadius: 14,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 6px 18px rgba(0,0,0,0.22)",
+  };
+
   return (
-    <div style={{ ...styles.panel, marginTop: 16 }}>
-      <h2>QR Conexión</h2>
-      <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ marginBottom: 8 }}>Presidente</div>
-          <div style={{ background: "white", padding: 10, borderRadius: 12 }}>
-            <QRCodeCanvas value={`${base}/president`} size={150} />
-          </div>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr 1fr",
+        gridTemplateRows: "1fr 1fr",
+        gap: gapSize,
+        alignItems: "center",
+        justifyItems: "center",
+      }}
+    >
+      <div style={box}>
+        <div style={title}>Juez 2</div>
+        <div style={qrBox}>
+          <QRCodeCanvas value={`${base}/judge/2`} size={judgeSize} />
         </div>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ marginBottom: 8 }}>Pantalla pública</div>
-          <div style={{ background: "white", padding: 10, borderRadius: 12 }}>
-            <QRCodeCanvas value={`${base}/public`} size={150} />
-          </div>
+      </div>
+
+      <div style={box}>
+        <div style={title}>Presidente</div>
+        <div style={qrBox}>
+          <QRCodeCanvas value={`${base}/president`} size={centerSize} />
         </div>
-        {Array.from({ length: COMBAT_JUDGES }, (_, i) => i + 1).map((n) => (
-          <div key={n} style={{ textAlign: "center" }}>
-            <div style={{ marginBottom: 8 }}>Juez {n}</div>
-            <div style={{ background: "white", padding: 10, borderRadius: 12 }}>
-              <QRCodeCanvas value={`${base}/judge/${n}`} size={150} />
-            </div>
-          </div>
-        ))}
+      </div>
+
+      <div style={box}>
+        <div style={title}>Juez 3</div>
+        <div style={qrBox}>
+          <QRCodeCanvas value={`${base}/judge/3`} size={judgeSize} />
+        </div>
+      </div>
+
+      <div style={box}>
+        <div style={title}>Juez 1</div>
+        <div style={qrBox}>
+          <QRCodeCanvas value={`${base}/judge/1`} size={judgeSize} />
+        </div>
+      </div>
+
+      <div style={box}>
+        <div style={title}>Pantalla pública</div>
+        <div style={qrBox}>
+          <QRCodeCanvas value={`${base}/public`} size={centerSize} />
+        </div>
+      </div>
+
+      <div style={box}>
+        <div style={title}>Juez 4</div>
+        <div style={qrBox}>
+          <QRCodeCanvas value={`${base}/judge/4`} size={judgeSize} />
+        </div>
       </div>
     </div>
   );
@@ -695,34 +937,111 @@ function QRSection() {
 function Home({ navigate, meta }) {
   return (
     <Frame16x9>
-      <div style={{ ...styles.page, display: "grid", gridTemplateRows: "260px auto 1fr", alignContent: "start" }}>
+      <div
+        style={{
+          ...styles.page,
+          display: "grid",
+          gridTemplateRows: "240px 120px 150px 1fr",
+          alignContent: "start",
+          gap: 14,
+          padding: 20,
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
           <BrandHeaderLarge />
         </div>
 
-        <div style={{ textAlign: "center", marginTop: -20 }}>
-          <h1 style={{ margin: 0, fontSize: 64 }}>Hwarang Scoring Combat</h1>
-          <p style={{ fontSize: 28, opacity: 0.9 }}>Elegí una pantalla</p>
+        <div style={{ textAlign: "center", marginTop: -10 }}>
+          <h1 style={{ margin: 0, fontSize: 58 }}>Hwarang Scoring Combat</h1>
+          <p style={{ fontSize: 24, opacity: 0.9, marginTop: 10 }}>Elegí una pantalla</p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 24, alignItems: "start", marginTop: 20 }}>
-          <div style={{ ...styles.panel, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)" }}>
-            <div style={{ ...styles.row, gap: 16 }}>
-              <AppButton style={{ ...styles.green, boxShadow: "0 0 20px rgba(34,197,94,0.35)" }} onClick={() => navigate("/president")}>Presidente</AppButton>
-              <AppButton style={{ ...styles.blue, boxShadow: "0 0 20px rgba(59,130,246,0.35)" }} onClick={() => navigate("/public")}>Pantalla pública</AppButton>
-              {Array.from({ length: COMBAT_JUDGES }, (_, i) => i + 1).map((n) => (
-                <AppButton key={n} style={{ ...styles.red, boxShadow: "0 0 20px rgba(239,68,68,0.35)" }} onClick={() => navigate(`/judge/${n}`)}>Juez {n}</AppButton>
-              ))}
+        <div
+          style={{
+            ...styles.panel,
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            padding: 16,
+          }}
+        >
+          <div style={{ ...styles.row, gap: 14, justifyContent: "center" }}>
+            <AppButton
+              style={{ ...styles.green, boxShadow: "0 0 20px rgba(34,197,94,0.35)" }}
+              onClick={() => navigate("/president")}
+            >
+              Presidente
+            </AppButton>
+
+            <AppButton
+              style={{ ...styles.blue, boxShadow: "0 0 20px rgba(59,130,246,0.35)" }}
+              onClick={() => navigate("/public")}
+            >
+              Pantalla pública
+            </AppButton>
+
+            {Array.from({ length: COMBAT_JUDGES }, (_, i) => i + 1).map((n) => (
+              <AppButton
+                key={n}
+                style={{ ...styles.red, boxShadow: "0 0 20px rgba(239,68,68,0.35)" }}
+                onClick={() => navigate(`/judge/${n}`)}
+              >
+                Juez {n}
+              </AppButton>
+            ))}
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "0.95fr 1.65fr",
+            gap: 16,
+            alignItems: "start",
+            minHeight: 0,
+          }}
+        >
+          <div
+            style={{
+              ...styles.panel,
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.12)",
+            }}
+          >
+            <h2 style={{ marginTop: 0 }}>Estado actual</h2>
+
+            <div style={{ display: "grid", gap: 12 }}>
+              <div style={styles.stat}>
+                Round: <strong>{meta.round}</strong>
+              </div>
+
+              <div style={styles.stat}>
+                Tiempo: <strong>{formatTime(meta.pausedRemaining)}</strong>
+              </div>
+
+              <div style={styles.stat}>
+                Estado:{" "}
+                <strong>
+                  {meta.phase === "finished"
+                    ? "Finalizado"
+                    : meta.phase === "break"
+                    ? "Descanso"
+                    : meta.status === "running"
+                    ? "En marcha"
+                    : "Pausado"}
+                </strong>
+              </div>
             </div>
           </div>
 
-          <div style={{ ...styles.panel, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)" }}>
-            <h2 style={{ marginTop: 0 }}>Estado actual</h2>
-            <div style={styles.row}>
-              <div style={styles.stat}>Round: <strong>{meta.round}</strong></div>
-              <div style={styles.stat}>Tiempo: <strong>{formatTime(meta.pausedRemaining)}</strong></div>
-              <div style={styles.stat}>Estado: <strong>{meta.phase === "finished" ? "Finalizado" : meta.phase === "break" ? "Descanso" : meta.status === "running" ? "En marcha" : "Pausado"}</strong></div>
-            </div>
+          <div
+            style={{
+              ...styles.panel,
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.12)",
+            }}
+          >
+            <h2 style={{ marginTop: 0, marginBottom: 14 }}>QR Conexión</h2>
+            <QRSection />
           </div>
         </div>
       </div>
@@ -858,8 +1177,34 @@ function PublicScreen({ meta, judges, navigate }) {
   const s = summary(meta, judges);
   const { left, right } = getDisplaySides(meta, "public");
 
+  const medical = ensureMedical(meta);
+
+  const medicalBanner = medical.active ? (
+    <div
+      style={{
+        position: "absolute",
+        top: 20,
+        left: 20,
+        right: 20,
+        zIndex: 20,
+        background: medical.side === "hong" ? "#b91c1c" : "#1d4ed8",
+        borderRadius: 20,
+        padding: 20,
+        textAlign: "center",
+        fontSize: 60,
+        fontWeight: 900,
+      }}
+    >
+      MEDICAL {medical.side?.toUpperCase()}{" "}
+      {formatTime(medical.side === "hong" ? medical.hong : medical.chong)}
+    </div>
+  ) : null;
+
   const scoreMap = { hong: s.hongVotes, chong: s.chongVotes };
-  const warningsMap = { hong: meta.hongWarnings || 0, chong: meta.chongWarnings || 0 };
+  const warningsMap = {
+    hong: meta.hongWarnings || 0,
+    chong: meta.chongWarnings || 0,
+  };
   const foulsMap = { hong: meta.hongFouls || 0, chong: meta.chongFouls || 0 };
 
   const winner = meta.showResult ? s.winner : null;
@@ -888,7 +1233,14 @@ function PublicScreen({ meta, judges, navigate }) {
           boxShadow: "inset 0 0 0 2px rgba(255,255,255,0.10)",
         }}
       >
-        <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: "0.12em", textAlign: "center" }}>
+        <div
+          style={{
+            fontSize: 28,
+            fontWeight: 900,
+            letterSpacing: "0.12em",
+            textAlign: "center",
+          }}
+        >
           {fighter.visualLabel}
         </div>
 
@@ -932,7 +1284,13 @@ function PublicScreen({ meta, judges, navigate }) {
           {score}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 14,
+          }}
+        >
           <div
             style={{
               borderRadius: 20,
@@ -956,7 +1314,16 @@ function PublicScreen({ meta, judges, navigate }) {
             >
               ADVERTENCIAS
             </div>
-            <div style={{ marginTop: 10, fontSize: 46, fontWeight: 900, lineHeight: 1 }}>{warnings}</div>
+            <div
+              style={{
+                marginTop: 10,
+                fontSize: 46,
+                fontWeight: 900,
+                lineHeight: 1,
+              }}
+            >
+              {warnings}
+            </div>
           </div>
 
           <div
@@ -982,7 +1349,16 @@ function PublicScreen({ meta, judges, navigate }) {
             >
               FALTAS
             </div>
-            <div style={{ marginTop: 10, fontSize: 46, fontWeight: 900, lineHeight: 1 }}>{fouls}</div>
+            <div
+              style={{
+                marginTop: 10,
+                fontSize: 46,
+                fontWeight: 900,
+                lineHeight: 1,
+              }}
+            >
+              {fouls}
+            </div>
           </div>
         </div>
       </div>
@@ -1010,6 +1386,7 @@ function PublicScreen({ meta, judges, navigate }) {
 
       <div
         style={{
+          position: "relative",
           width: "100%",
           height: "100%",
           display: "grid",
@@ -1018,8 +1395,22 @@ function PublicScreen({ meta, judges, navigate }) {
           boxSizing: "border-box",
         }}
       >
-        <div style={{ display: "grid", gridTemplateColumns: "420px 1fr 420px", alignItems: "center" }}>
-          <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+        {medicalBanner}
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "420px 1fr 420px",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-start",
+              alignItems: "center",
+            }}
+          >
             <img
               src="/logo-universe.png"
               alt="Hwarang Universe"
@@ -1076,7 +1467,13 @@ function PublicScreen({ meta, judges, navigate }) {
             </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+            }}
+          >
             <img
               src="/logo-combat.png"
               alt="Hwarang Combat"
@@ -1092,10 +1489,24 @@ function PublicScreen({ meta, judges, navigate }) {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 360px 1fr", gap: 20, minHeight: 0 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 360px 1fr",
+            gap: 20,
+            minHeight: 0,
+          }}
+        >
           {renderSidePanel(left)}
 
-          <div style={{ minHeight: 0, display: "grid", gridTemplateRows: "290px 1fr 120px", gap: 18 }}>
+          <div
+            style={{
+              minHeight: 0,
+              display: "grid",
+              gridTemplateRows: "290px 1fr 120px",
+              gap: 18,
+            }}
+          >
             <div
               style={{
                 borderRadius: 34,
@@ -1108,7 +1519,14 @@ function PublicScreen({ meta, judges, navigate }) {
                 boxShadow: "0 8px 24px rgba(0,0,0,0.30)",
               }}
             >
-              <div style={{ fontSize: 30, fontWeight: 900, letterSpacing: "0.20em", lineHeight: 1 }}>
+              <div
+                style={{
+                  fontSize: 30,
+                  fontWeight: 900,
+                  letterSpacing: "0.20em",
+                  lineHeight: 1,
+                }}
+              >
                 {meta.phase === "break" ? "DESCANSO" : "TIME"}
               </div>
 
@@ -1196,8 +1614,23 @@ function PublicScreen({ meta, judges, navigate }) {
           {renderSidePanel(right)}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.82 }}>
-          <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: "0.08em" }}>TORNEO / COMBATE</div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            opacity: 0.82,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 20,
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+            }}
+          >
+            TORNEO / COMBATE
+          </div>
         </div>
       </div>
 
@@ -1205,21 +1638,211 @@ function PublicScreen({ meta, judges, navigate }) {
     </Frame16x9>
   );
 }
+function MedicalPanel({ meta, writeMeta }) {
+  const m = ensureMedical(meta);
+
+  const activeTime =
+    m.side === "hong" ? m.hong :
+    m.side === "chong" ? m.chong : 0;
+
+  const MedicalBadge = ({ active = false }) => (
+    <div
+      style={{
+        width: 34,
+        height: 34,
+        borderRadius: 999,
+        background: "#b91c1c",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: active
+          ? "0 0 0 4px rgba(239,68,68,0.18), 0 0 18px rgba(239,68,68,0.45)"
+          : "0 0 10px rgba(0,0,0,0.22)",
+        animation: active ? "medicalPulse 1.1s infinite" : "none",
+        flexShrink: 0,
+      }}
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+      >
+        <rect x="9" y="4" width="6" height="16" rx="1.4" fill="white" />
+        <rect x="4" y="9" width="16" height="6" rx="1.4" fill="white" />
+      </svg>
+    </div>
+  );
+
+  return (
+    <div
+      style={{
+        ...styles.panel,
+        marginTop: 16,
+        background: "rgba(255,255,255,0.05)",
+        border: "1px solid rgba(255,255,255,0.12)",
+        overflow: "hidden",
+        height: "100%",
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: 12,
+      }}
+    >
+      <style>{`
+        @keyframes medicalPulse {
+          0% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.08); opacity: 0.82; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <h2 style={{ marginTop: 0, marginBottom: 0 }}>Tiempo médico</h2>
+
+        <div style={{ opacity: 0.88, fontWeight: 700 }}>
+          Activate the medical time for Hong or Chong.
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 12,
+          marginTop: 12,
+          marginBottom: 12,
+        }}
+      >
+        <AppButton
+          style={{
+            ...styles.red,
+            minHeight: 82,
+            fontSize: 24,
+            fontWeight: 900,
+            boxShadow:
+              m.side === "hong" && m.active
+                ? "0 0 24px rgba(239,68,68,0.42)"
+                : "0 0 20px rgba(239,68,68,0.32)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+          }}
+          onClick={() => writeMeta((p) => startMedical(p, "hong"))}
+        >
+          <MedicalBadge active={m.side === "hong" && m.active} />
+          <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.05 }}>
+            <span>HONG</span>
+            <span style={{ fontSize: 26 }}>{formatTime(m.hong)}</span>
+          </span>
+        </AppButton>
+
+        <AppButton
+          style={{
+            ...styles.blue,
+            minHeight: 82,
+            fontSize: 24,
+            fontWeight: 900,
+            boxShadow:
+              m.side === "chong" && m.active
+                ? "0 0 24px rgba(59,130,246,0.42)"
+                : "0 0 20px rgba(59,130,246,0.32)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+          }}
+          onClick={() => writeMeta((p) => startMedical(p, "chong"))}
+        >
+          <MedicalBadge active={m.side === "chong" && m.active} />
+          <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.05 }}>
+            <span>CHONG</span>
+            <span style={{ fontSize: 26 }}>{formatTime(m.chong)}</span>
+          </span>
+        </AppButton>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 12,
+          marginTop: "auto",
+        }}
+      >
+        <AppButton
+          style={{
+            ...styles.gray,
+            minHeight: 56,
+            fontSize: 20,
+            fontWeight: 900,
+          }}
+          onClick={() => writeMeta((p) => pauseMedical(p))}
+        >
+          PAUSE SAVE MEDICAL TIME
+        </AppButton>
+
+        <AppButton
+          style={{
+            ...styles.gray,
+            minHeight: 56,
+            fontSize: 20,
+            fontWeight: 900,
+          }}
+          onClick={() => writeMeta((p) => stopMedical(p))}
+        >
+          STOP RESET MEDICAL TIME
+        </AppButton>
+      </div>
+
+      <div
+        style={{
+          marginTop: 12,
+          minHeight: 38,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 20,
+          fontWeight: 900,
+          textAlign: "center",
+          letterSpacing: "0.04em",
+          color:
+            m.side === "hong"
+              ? "#fca5a5"
+              : m.side === "chong"
+              ? "#93c5fd"
+              : "white",
+        }}
+      >
+        {m.active
+          ? `MEDICAL ${m.side?.toUpperCase()} · ${formatTime(activeTime)}`
+          : "SIN TIEMPO MÉDICO"}
+      </div>
+    </div>
+  );
+}
+
 function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, navigate }) {
   meta = ensureMetaShape(meta);
   const time = useClock(meta);
   const s = summary(meta, judges);
   const prevRunningRef = useRef(false);
   const prevFinishedRef = useRef(false);
+
   const [secondsInput, setSecondsInput] = useState(String(meta.config.roundSeconds || 120));
   const [roundsInput, setRoundsInput] = useState(String(meta.config.rounds || 2));
   const [breakSecondsInput, setBreakSecondsInput] = useState(String(meta.config.breakSeconds || BREAK_SECONDS));
+
   const [editor, setEditor] = useState({
     hongName: meta.hong?.name || "",
     hongClub: meta.hong?.club || "",
     chongName: meta.chong?.name || "",
     chongClub: meta.chong?.club || "",
   });
+
   const editorFocusRef = useRef(false);
   const editorDraftRef = useRef({
     hongName: meta.hong?.name || "",
@@ -1228,6 +1851,7 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
     chongClub: meta.chong?.club || "",
   });
   const editorSaveTimeoutRef = useRef(null);
+
   const { left, right } = getDisplaySides(meta, "president");
 
   useEffect(() => {
@@ -1239,12 +1863,14 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
     };
     editorDraftRef.current = next;
     if (editorFocusRef.current) return;
-    setEditor((current) => (
+    setEditor((current) =>
       current.hongName === next.hongName &&
       current.hongClub === next.hongClub &&
       current.chongName === next.chongName &&
       current.chongClub === next.chongClub
-    ) ? current : next);
+        ? current
+        : next
+    );
   }, [meta.hong?.name, meta.hong?.club, meta.chong?.name, meta.chong?.club]);
 
   const commitEditor = async (nextEditor) => {
@@ -1288,8 +1914,10 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
     });
   };
 
-  useEffect(() => () => {
-    if (editorSaveTimeoutRef.current) clearTimeout(editorSaveTimeoutRef.current);
+  useEffect(() => {
+    return () => {
+      if (editorSaveTimeoutRef.current) clearTimeout(editorSaveTimeoutRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -1299,13 +1927,12 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
   }, [meta.status, meta.phase]);
 
   useEffect(() => {
-    const isFinished = meta.phase === "finished";
-    if (isFinished && !prevFinishedRef.current) {
-      playEndAlarm();
-      setTimeout(() => playWinnerSound(), 320);
+    const isShowingResult = meta.showResult === true;
+    if (isShowingResult && !prevFinishedRef.current) {
+      playWinnerSound();
     }
-    prevFinishedRef.current = isFinished;
-  }, [meta.phase]);
+    prevFinishedRef.current = isShowingResult;
+  }, [meta.showResult]);
 
   useEffect(() => {
     setSecondsInput(String(meta.config.roundSeconds || 120));
@@ -1372,25 +1999,46 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
 
   const startTimer = async () => {
     await commitEditor(editorDraftRef.current);
-    await saveConfig();
 
     await writeMeta((current) => {
       if (current.status === "running") return current;
       if (current.phase === "finished") return current;
 
-      const next = {
-        ...current,
-        status: "running",
-        phaseStartedAt: Date.now(),
+      const roundSeconds = Math.max(
+        1,
+        parseInt(secondsInput, 10) || current.config?.roundSeconds || 120
+      );
+      const rounds = Math.max(
+        1,
+        parseInt(roundsInput, 10) || current.config?.rounds || 2
+      );
+      const breakSeconds = Math.max(
+        1,
+        parseInt(breakSecondsInput, 10) || current.config?.breakSeconds || BREAK_SECONDS
+      );
+
+      current.config = {
+        ...(current.config || {}),
+        roundSeconds,
+        rounds,
+        breakSeconds,
       };
 
-      if (current.phase === "break" && (current.pausedRemaining || 0) <= 0) {
-        next.phase = "fight";
-        next.round = (current.round || 1) + 1;
-        next.pausedRemaining = current.config?.roundSeconds || 120;
+      if (!current.pausedRemaining || current.pausedRemaining < 0) {
+        current.pausedRemaining =
+          current.phase === "break" ? breakSeconds : roundSeconds;
       }
 
-      return next;
+      if (current.phase === "break" && (current.pausedRemaining || 0) <= 0) {
+        current.phase = "fight";
+        current.round = (current.round || 1) + 1;
+        current.pausedRemaining = roundSeconds;
+      }
+
+      current.status = "running";
+      current.phaseStartedAt = Date.now();
+
+      return current;
     });
   };
 
@@ -1405,38 +2053,34 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
   };
 
   const finishMatch = async () => {
-  await writeMeta((current) => {
-    current.pausedRemaining = getDerivedTime(current, Date.now());
-    current.status = "paused";
-    current.phase = "finished";
-    current.phaseStartedAt = null;
-    current.showResult = false;
-    return current;
-  });
-};
+    await writeMeta((current) => {
+      current.pausedRemaining = getDerivedTime(current, Date.now());
+      current.status = "paused";
+      current.phase = "finished";
+      current.phaseStartedAt = null;
+      current.showResult = false;
+      return current;
+    });
+  };
 
   const closeMatch = async () => {
-  await writeMeta((current) => {
-    current.showResult = true;
-    current.status = "paused";
-    current.phase = "finished";
-    current.phaseStartedAt = null;
-    current.pausedRemaining = getDerivedTime(current, Date.now());
-    return current;
-  });
-};
+    await writeMeta((current) => {
+      current.showResult = true;
+      return current;
+    });
+  };
 
-     const applyCombatForcedWinner = async (winner) => {
-  await writeMeta((current) => {
-    current.combatForcedWinner = winner;
-    current.showResult = true;
-    current.status = "paused";
-    current.phase = "finished";
-    current.pausedRemaining = 0;
-    current.phaseStartedAt = null;
-    return current;
-  });
-};
+  const applyCombatForcedWinner = async (winnerSide) => {
+    await writeMeta((current) => {
+      current.combatForcedWinner = winnerSide;
+      current.showResult = true;
+      current.status = "paused";
+      current.phase = "finished";
+      current.pausedRemaining = 0;
+      current.phaseStartedAt = null;
+      return current;
+    });
+  };
 
   const activateGoldenPoint = async (mode) => {
     await writeMeta((current) => {
@@ -1451,7 +2095,6 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
       return current;
     });
   };
-
 
   const prepareNextMatch = async () => {
     for (let i = 1; i <= MAX_JUDGES; i += 1) {
@@ -1474,14 +2117,12 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
       current.combatForcedWinner = null;
       current.goldenPoint = makeEmptyGoldenPoint();
       current.showResult = false;
-      return current;
-    });
-  };
-
-  const updateCombatant = async (side, field, value) => {
-    await writeMeta((current) => {
-      current[side] = current[side] || getBaseCombatant(side === "hong" ? HONG : CHONG);
-      current[side][field] = value;
+      current.medicalActive = false;
+      current.medicalRunning = false;
+      current.medicalSide = null;
+      current.medicalLast = 0;
+      current.medicalHong = current.medicalPreset || 300;
+      current.medicalChong = current.medicalPreset || 300;
       return current;
     });
   };
@@ -1493,211 +2134,630 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
     });
   };
 
-  const winner = meta.phase === "finished" ? s.winner : null;
+const handleInvertPublic = async () => {
+  await commitEditor(editorDraftRef.current);
+
+  await writeMeta((current) => ({
+    ...current,
+    publicSwapSides: !current.publicSwapSides,
+  }));
+};
+
+const handleInvertPresident = async () => {
+  await commitEditor(editorDraftRef.current);
+
+  await writeMeta((current) => ({
+    ...current,
+    presidentSwapSides: !current.presidentSwapSides,
+  }));
+};
+
+  const winner = meta.showResult ? s.winner : null;
+const handleInvertSides = async () => {
+  await commitEditor(editorDraftRef.current);
+
+  await writeMeta((current) => ({
+    ...current,
+    publicSwapSides: !current.publicSwapSides,
+    presidentSwapSides: !current.presidentSwapSides,
+  }));
+};
+
+  const currentStatusLabel =
+    meta.phase === "finished"
+      ? "Finalizado"
+      : meta.phase === "break"
+      ? "Descanso"
+      : meta.status === "running"
+      ? "Combate en curso"
+      : "Pausado";
 
   return (
     <Frame16x9>
-      <div style={{ position: "absolute", inset: 0, overflow: "auto", padding: 22, boxSizing: "border-box" }}>
-        <div style={{ position: "sticky", top: 0, zIndex: 120, display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 12, paddingBottom: 6, background: "rgba(2,6,13,0.92)" }}>
-          <AppButton style={{ ...styles.gray, boxShadow: "0 0 18px rgba(255,255,255,0.16)" }} onClick={() => navigate("/")}>Inicio</AppButton>
-          <AppButton style={{ ...styles.green, boxShadow: "0 0 18px rgba(34,197,94,0.35)" }} onClick={prepareNextMatch}>Siguiente match</AppButton>
-          <AppButton style={{ ...styles.gray, boxShadow: "0 0 18px rgba(255,255,255,0.16)" }} onClick={resetAll}>Reset total</AppButton>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          padding: 12,
+          boxSizing: "border-box",
+          display: "grid",
+          gridTemplateRows: "64px 86px 350px 400px 100px",
+          gap: 8,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "auto auto auto auto auto 1fr",
+            gap: 8,
+            alignItems: "center",
+          }}
+        >
+          <AppButton style={styles.gray} onClick={() => navigate("/")}>
+            Home Page
+          </AppButton>
+
+          <AppButton style={styles.green} onClick={prepareNextMatch}>
+            Next Combat
+          </AppButton>
+
+          <AppButton style={styles.red} onClick={resetAll}>
+            Reset Total
+          </AppButton>
+
+          <AppButton style={styles.purple} onClick={handleInvertPublic}>
+            Invest Public
+          </AppButton>
+
+          <AppButton style={styles.purple} onClick={handleInvertPresident}>
+            Invest President
+          </AppButton>
+
+          <div
+            style={{
+              textAlign: "right",
+              fontSize: 28,
+              fontWeight: 900,
+              letterSpacing: "0.04em",
+            }}
+          >
+            PRESIDENT SCREEN
+          </div>
         </div>
 
-        <BrandHeaderLarge />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1.15fr 2.7fr 1fr 1fr",
+            gap: 8,
+            alignItems: "stretch",
+          }}
+        >
+          <div
+            style={{
+              ...styles.stat,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "6px 8px",
+            }}
+          >
+            <div style={{ fontSize: 17, fontWeight: 800, lineHeight: 1.1 }}>
+              Round
+            </div>
+            <strong style={{ fontSize: 24, lineHeight: 1.05 }}>
+              {meta.round}/{meta.config.rounds}
+            </strong>
+          </div>
 
-        <h1 style={{ margin: "0 0 16px 0", textAlign: "center", fontSize: "clamp(34px,4vw,64px)" }}>Presidente</h1>
+          <div
+            style={{
+              ...styles.stat,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "6px 8px",
+            }}
+          >
+            <div style={{ fontSize: 17, fontWeight: 800, lineHeight: 1.1 }}>
+              Estado
+            </div>
+            <strong style={{ fontSize: 21, lineHeight: 1.05 }}>
+              {currentStatusLabel}
+            </strong>
+          </div>
 
-        <div style={{ ...styles.panel, marginTop: 16 }}>
-          <h2>Modalidad</h2>
-          <div style={{ fontSize: 28, fontWeight: 900 }}>COMBATE</div>
+          <div
+            style={{
+              ...styles.panel,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "4px 10px",
+              background:
+                meta.phase === "finished"
+                  ? "linear-gradient(180deg, #141414 0%, #090909 100%)"
+                  : meta.phase === "break"
+                  ? "linear-gradient(180deg, #111827 0%, #0b1220 100%)"
+                  : "linear-gradient(180deg, #121212 0%, #050505 100%)",
+              border:
+                meta.status === "running"
+                  ? "1px solid rgba(255, 210, 64, 0.55)"
+                  : "1px solid rgba(255,255,255,0.12)",
+              boxShadow:
+                meta.status === "running"
+                  ? "inset 0 0 18px rgba(255, 210, 64, 0.12), 0 0 14px rgba(255, 210, 64, 0.10)"
+                  : undefined,
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "'Orbitron', 'Courier New', monospace",
+                fontVariantNumeric: "tabular-nums",
+                fontSize: 60,
+                fontWeight: 900,
+                letterSpacing: "0.12em",
+                color: meta.status === "running" ? "#ffd84d" : "#7df9ff",
+                textShadow:
+                  meta.status === "running"
+                    ? "0 0 8px rgba(255, 216, 77, 0.45)"
+                    : "0 0 8px rgba(125, 249, 255, 0.35)",
+                lineHeight: 1,
+              }}
+            >
+              {formatTime(time)}
+            </div>
+          </div>
+
+          <div
+            style={{
+              ...styles.stat,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "6px 8px",
+            }}
+          >
+            <div style={{ fontSize: 17, fontWeight: 800, lineHeight: 1.1 }}>
+              Hong Points
+            </div>
+            <strong style={{ fontSize: 25, lineHeight: 1.05 }}>{s.hongVotes}</strong>
+          </div>
+
+          <div
+            style={{
+              ...styles.stat,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "6px 8px",
+            }}
+          >
+            <div style={{ fontSize: 17, fontWeight: 800, lineHeight: 1.1 }}>
+              Chong Points
+            </div>
+            <strong style={{ fontSize: 25, lineHeight: 1.05 }}>{s.chongVotes}</strong>
+          </div>
         </div>
 
-        <div style={styles.row}>
-          <div style={styles.stat}>Tiempo: <strong>{formatTime(time)}</strong></div>
-          <div style={styles.stat}>Round: <strong>{meta.round}/{meta.config.rounds}</strong></div>
-          <div style={styles.stat}>Estado: <strong>{meta.phase === "finished" ? "Finalizado" : meta.phase === "break" ? "Descanso oficial" : meta.status === "running" ? "En marcha" : "Pausado"}</strong></div>
-          <div style={styles.stat}>Hong votos: <strong>{s.hongVotes}</strong></div>
-          <div style={styles.stat}>Chong votos: <strong>{s.chongVotes}</strong></div>
-        </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "0.96fr 1.14fr 0.9fr",
+            gap: 8,
+            alignItems: "stretch",
+          }}
+        >
+          <div
+            style={{
+              ...styles.panel,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              textAlign: "center",
+              padding: 10,
+            }}
+          >
+            <div style={{ fontWeight: 900, fontSize: 20, marginBottom: 8 }}>
+              Time setting
+            </div>
 
-        <div style={{ ...styles.panel, marginTop: 16 }}>
-          <h2>Competidores</h2>
-          <div style={{ marginBottom: 14, fontWeight: 700, opacity: 0.9 }}>Esta vista respeta el cambio de lado del presidente.</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            {[left, right].map((fighter, index) => {
-              const side = fighter.color;
-              return (
-                <div key={`${side}-${index}`} style={{ ...styles.panel, background: side === "hong" ? "#2a0606" : "#07172f", border: side === "hong" ? "1px solid #631010" : "1px solid #174a9c" }}>
-                  <div style={{ fontWeight: 900, marginBottom: 10, fontSize: 22 }}>
-                    {index === 0 ? "Izquierda" : "Derecha"} · {fighter.visualLabel}
-                  </div>
-                  <div style={{ display: "grid", gap: 10 }}>
-                    <input value={side === "hong" ? editor.hongName : editor.chongName} onFocus={() => { editorFocusRef.current = true; }} onChange={(e) => updateEditorField(side === "hong" ? "hongName" : "chongName", e.target.value)} onBlur={async () => { editorFocusRef.current = false; await commitEditor(editorDraftRef.current); }} placeholder={`Nombre ${side}`} style={{ width: "100%", padding: 12, borderRadius: 10 }} />
-                    <input value={side === "hong" ? editor.hongClub : editor.chongClub} onFocus={() => { editorFocusRef.current = true; }} onChange={(e) => updateEditorField(side === "hong" ? "hongClub" : "chongClub", e.target.value)} onBlur={async () => { editorFocusRef.current = false; await commitEditor(editorDraftRef.current); }} placeholder={`Club ${side}`} style={{ width: "100%", padding: 12, borderRadius: 10 }} />
-                  </div>
-                  <div style={{ fontSize: 13, opacity: 0.72 }}>Guardado automático</div>
+            <div
+              style={{
+                width: "100%",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr auto",
+                gap: 6,
+                alignItems: "end",
+              }}
+            >
+              <div style={{ display: "grid", gap: 4 }}>
+                <label style={{ fontSize: 13, fontWeight: 700, textAlign: "center" }}>
+                  Tiempo de combate
+                </label>
+                <input
+                  value={secondsInput}
+                  onChange={(e) => setSecondsInput(e.target.value)}
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    padding: 7,
+                    borderRadius: 8,
+                    fontSize: 14,
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "grid", gap: 4 }}>
+                <label style={{ fontSize: 13, fontWeight: 700, textAlign: "center" }}>
+                  Cantidad de rondas
+                </label>
+                <input
+                  value={roundsInput}
+                  onChange={(e) => setRoundsInput(e.target.value)}
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    padding: 7,
+                    borderRadius: 8,
+                    fontSize: 14,
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "grid", gap: 4 }}>
+                <label style={{ fontSize: 13, fontWeight: 700, textAlign: "center" }}>
+                  Tiempo de descanso
+                </label>
+                <input
+                  value={breakSecondsInput}
+                  onChange={(e) => setBreakSecondsInput(e.target.value)}
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    padding: 7,
+                    borderRadius: 8,
+                    fontSize: 14,
+                  }}
+                />
+              </div>
+
+              <AppButton style={{ ...styles.blue, minHeight: 38, fontSize: 13 }} onClick={saveConfig}>
+                Guardar
+              </AppButton>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                gap: 6,
+                marginTop: 8,
+                justifyContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <AppButton style={{ ...styles.gray, minHeight: 34, fontSize: 13 }} onClick={() => setSecondsInput("60")}>
+                1:00
+              </AppButton>
+              <AppButton style={{ ...styles.gray, minHeight: 34, fontSize: 13 }} onClick={() => setSecondsInput("90")}>
+                1:30
+              </AppButton>
+              <AppButton style={{ ...styles.gray, minHeight: 34, fontSize: 13 }} onClick={() => setSecondsInput("120")}>
+                2:00
+              </AppButton>
+            </div>
+
+            <div
+              style={{
+                ...styles.row,
+                marginTop: 8,
+                justifyContent: "center",
+                gap: 6,
+                flexWrap: "wrap",
+              }}
+            >
+              <AppButton style={{ ...styles.green, minHeight: 38, fontSize: 13 }} onClick={startTimer}>
+                Iniciar
+              </AppButton>
+              <AppButton style={{ ...styles.amber, minHeight: 38, fontSize: 13 }} onClick={pauseTimer}>
+                Pausar
+              </AppButton>
+              <AppButton style={{ ...styles.purple, minHeight: 38, fontSize: 13 }} onClick={finishMatch}>
+                Finalizar
+              </AppButton>
+            </div>
+
+            <AppButton
+              style={{ ...styles.red, marginTop: 8, minHeight: 38, fontSize: 13 }}
+              onClick={closeMatch}
+            >
+              Cerrar combate
+            </AppButton>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "stretch",
+              justifyContent: "center",
+              minHeight: 0,
+              height: "100%",
+            }}
+          >
+            <MedicalPanel meta={meta} writeMeta={writeMeta} />
+          </div>
+
+          <div
+            style={{
+              ...styles.panel,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              textAlign: "center",
+              padding: 10,
+            }}
+          >
+            <div style={{ fontWeight: 900, fontSize: 20, marginBottom: 8 }}>
+              Advertencias y faltas
+            </div>
+
+            <div
+              style={{
+                width: "100%",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 8,
+              }}
+            >
+              <div
+                style={{
+                  ...styles.panel,
+                  background: "#2a0606",
+                  border: "1px solid #631010",
+                  padding: 8,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontWeight: 900, marginBottom: 8, fontSize: 18 }}>Hong</div>
+
+                <div style={{ ...styles.row, justifyContent: "center", gap: 6, flexWrap: "wrap" }}>
+                  <AppButton
+                    style={{ ...styles.red, minHeight: 34, fontSize: 12 }}
+                    onClick={() => modifyMetaNumber("hongWarnings", 1)}
+                  >
+                    + Advertencia
+                  </AppButton>
+                  <AppButton
+                    style={{ ...styles.gray, minHeight: 34, fontSize: 12 }}
+                    onClick={() => modifyMetaNumber("hongWarnings", -1)}
+                  >
+                    - Advertencia
+                  </AppButton>
                 </div>
-              );
-            })}
-          </div>
-        </div>
 
-        <div style={{ ...styles.panel, marginTop: 16 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: 12, alignItems: "end" }}>
-            <div>
-              <label>Tiempo por round (segundos)</label>
-              <input type="number" min="1" value={secondsInput} onChange={(e) => setSecondsInput(e.target.value)} style={{ width: "100%", padding: 10, marginTop: 6, borderRadius: 10 }} />
-            </div>
-            <div>
-              <label>Cantidad de rounds</label>
-              <input type="number" min="1" value={roundsInput} onChange={(e) => setRoundsInput(e.target.value)} style={{ width: "100%", padding: 10, marginTop: 6, borderRadius: 10 }} />
-            </div>
-            <div>
-              <label>Tiempo de descanso (segundos)</label>
-              <input type="number" min="1" value={breakSecondsInput} onChange={(e) => setBreakSecondsInput(e.target.value)} style={{ width: "100%", padding: 10, marginTop: 6, borderRadius: 10 }} />
-            </div>
-            <AppButton style={styles.blue} onClick={saveConfig}>Guardar configuración</AppButton>
-          </div>
+                <div style={{ ...styles.row, justifyContent: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                  <AppButton
+                    style={{ ...styles.red, minHeight: 34, fontSize: 12 }}
+                    onClick={() => modifyMetaNumber("hongFouls", 1)}
+                  >
+                    + Falta
+                  </AppButton>
+                  <AppButton
+                    style={{ ...styles.gray, minHeight: 34, fontSize: 12 }}
+                    onClick={() => modifyMetaNumber("hongFouls", -1)}
+                  >
+                    - Falta
+                  </AppButton>
+                </div>
 
-          <div style={{ ...styles.row, marginTop: 12 }}>
-            {[60, 90, 120, 180, 300].map((s) => (
-              <AppButton key={s} style={styles.gray} onClick={() => setSecondsInput(String(s))}>
-                {s} segundos
-              </AppButton>
-            ))}
-          </div>
-
-          <div style={{ ...styles.row, marginTop: 12 }}>
-            {[10, 20, 30, 45, 60].map((s) => (
-              <AppButton key={`break-${s}`} style={styles.gray} onClick={() => setBreakSecondsInput(String(s))}>
-                Descanso {s}s
-              </AppButton>
-            ))}
-          </div>
-
-          <div style={{ ...styles.row, marginTop: 16 }}>
-            <AppButton style={{ ...styles.green, boxShadow: "0 0 18px rgba(34,197,94,0.35)" }} onClick={startTimer}>
-              {meta.phase === "break" ? "Iniciar siguiente round" : "Iniciar"}
-            </AppButton>
-            <AppButton style={{ ...styles.amber, boxShadow: "0 0 18px rgba(245,158,11,0.35)" }} onClick={pauseTimer}>Pausar</AppButton>
-            <AppButton style={{ ...styles.purple, boxShadow: "0 0 18px rgba(168,85,247,0.35)" }} onClick={finishMatch}>Finalizar</AppButton>
-          </div>
-        </div>
-
-        {meta.phase === "break" && (
-          <div style={{ ...styles.panel, marginTop: 16, background: "#78350f", border: "1px solid #f59e0b", color: "#fffbeb", fontWeight: 900, textAlign: "center" }}>
-            DESCANSO OFICIAL EN CURSO · NO MANIPULAR
-          </div>
-        )}
-
-        <div style={{ ...styles.panel, marginTop: 16 }}>
-          <h2>Cambio de lado independiente</h2>
-          <div style={styles.row}>
-            <AppButton style={meta.publicSwapSides ? styles.green : styles.gray} onClick={() => writeMeta((c) => { c.publicSwapSides = !c.publicSwapSides; return c; })}>
-              Pública: {meta.publicSwapSides ? "Invertida" : "Normal"}
-            </AppButton>
-            <AppButton style={meta.presidentSwapSides ? styles.green : styles.gray} onClick={() => writeMeta((c) => { c.presidentSwapSides = !c.presidentSwapSides; return c; })}>
-              Presidente: {meta.presidentSwapSides ? "Invertida" : "Normal"}
-            </AppButton>
-          </div>
-
-          <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <div style={{ ...styles.panel, background: "#091423" }}>
-              <div style={{ fontWeight: 900, marginBottom: 10 }}>Vista presidente</div>
-              <div>Izquierda: <strong>{left.visualLabel} - {left.name || left.visualLabel}</strong></div>
-              <div>Derecha: <strong>{right.visualLabel} - {right.name || right.visualLabel}</strong></div>
-            </div>
-            <div style={{ ...styles.panel, background: "#091423" }}>
-              <div style={{ fontWeight: 900, marginBottom: 10 }}>Vista pública</div>
-              <div>Izquierda: <strong>{getDisplaySides(meta, "public").left.visualLabel} - {getDisplaySides(meta, "public").left.name || getDisplaySides(meta, "public").left.visualLabel}</strong></div>
-              <div>Derecha: <strong>{getDisplaySides(meta, "public").right.visualLabel} - {getDisplaySides(meta, "public").right.name || getDisplaySides(meta, "public").right.visualLabel}</strong></div>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ ...styles.panel, marginTop: 16 }}>
-          <h2>Warnings / Faltas</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <div style={{ ...styles.panel, background: "#2a0606", border: "1px solid #631010" }}>
-              <div style={{ fontWeight: 900, marginBottom: 12 }}>Hong</div>
-              <div style={styles.row}>
-                <AppButton style={styles.red} onClick={() => modifyMetaNumber("hongWarnings", 1)}>+ Warning</AppButton>
-                <AppButton style={styles.gray} onClick={() => modifyMetaNumber("hongWarnings", -1)}>- Warning</AppButton>
-                <AppButton style={styles.red} onClick={() => modifyMetaNumber("hongFouls", 1)}>+ Falta</AppButton>
-                <AppButton style={styles.gray} onClick={() => modifyMetaNumber("hongFouls", -1)}>- Falta</AppButton>
+                <div style={{ marginTop: 8, fontSize: 15 }}>
+                  Advertencias: <strong>{meta.hongWarnings}</strong>
+                </div>
+                <div style={{ fontSize: 15 }}>
+                  Faltas: <strong>{meta.hongFouls}</strong>
+                </div>
               </div>
-              <div style={{ marginTop: 12 }}>Warnings: <strong>{meta.hongWarnings || 0}</strong></div>
-              <div>Faltas: <strong>{meta.hongFouls || 0}</strong></div>
-            </div>
 
-            <div style={{ ...styles.panel, background: "#07172f", border: "1px solid #174a9c" }}>
-              <div style={{ fontWeight: 900, marginBottom: 12 }}>Chong</div>
-              <div style={styles.row}>
-                <AppButton style={styles.blue} onClick={() => modifyMetaNumber("chongWarnings", 1)}>+ Warning</AppButton>
-                <AppButton style={styles.gray} onClick={() => modifyMetaNumber("chongWarnings", -1)}>- Warning</AppButton>
-                <AppButton style={styles.blue} onClick={() => modifyMetaNumber("chongFouls", 1)}>+ Falta</AppButton>
-                <AppButton style={styles.gray} onClick={() => modifyMetaNumber("chongFouls", -1)}>- Falta</AppButton>
+              <div
+                style={{
+                  ...styles.panel,
+                  background: "#07172f",
+                  border: "1px solid #174a9c",
+                  padding: 8,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontWeight: 900, marginBottom: 8, fontSize: 18 }}>Chong</div>
+
+                <div style={{ ...styles.row, justifyContent: "center", gap: 6, flexWrap: "wrap" }}>
+                  <AppButton
+                    style={{ ...styles.blue, minHeight: 34, fontSize: 12 }}
+                    onClick={() => modifyMetaNumber("chongWarnings", 1)}
+                  >
+                    + Advertencia
+                  </AppButton>
+                  <AppButton
+                    style={{ ...styles.gray, minHeight: 34, fontSize: 12 }}
+                    onClick={() => modifyMetaNumber("chongWarnings", -1)}
+                  >
+                    - Advertencia
+                  </AppButton>
+                </div>
+
+                <div style={{ ...styles.row, justifyContent: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                  <AppButton
+                    style={{ ...styles.blue, minHeight: 34, fontSize: 12 }}
+                    onClick={() => modifyMetaNumber("chongFouls", 1)}
+                  >
+                    + Falta
+                  </AppButton>
+                  <AppButton
+                    style={{ ...styles.gray, minHeight: 34, fontSize: 12 }}
+                    onClick={() => modifyMetaNumber("chongFouls", -1)}
+                  >
+                    - Falta
+                  </AppButton>
+                </div>
+
+                <div style={{ marginTop: 8, fontSize: 15 }}>
+                  Advertencias: <strong>{meta.chongWarnings}</strong>
+                </div>
+                <div style={{ fontSize: 15 }}>
+                  Faltas: <strong>{meta.chongFouls}</strong>
+                </div>
               </div>
-              <div style={{ marginTop: 12 }}>Warnings: <strong>{meta.chongWarnings || 0}</strong></div>
-              <div>Faltas: <strong>{meta.chongFouls || 0}</strong></div>
             </div>
-          </div>
 
-          {!!secondFoulWarning(meta) && (
-            <div style={{ ...styles.panel, background: "#7c2d12", border: "1px solid #f97316", marginTop: 16, color: "#ffedd5", fontWeight: 900, textAlign: "center" }}>
-              {secondFoulWarning(meta)}
-            </div>
-          )}
-        </div>
-
-        <QRSection />
-
-        <div style={{ ...styles.panel, marginTop: 16 }}>
-          <h2>Golden Point</h2>
-          <div style={styles.row}>
-            <AppButton style={meta.goldenPoint?.active && meta.goldenPoint?.mode === "A" ? styles.green : styles.blue} onClick={() => activateGoldenPoint("A")}>Activar GP A</AppButton>
-            <AppButton style={meta.goldenPoint?.active && meta.goldenPoint?.mode === "B" ? styles.green : styles.blue} onClick={() => activateGoldenPoint("B")}>Activar GP B</AppButton>
-          </div>
-          {meta.goldenPoint?.active && (
-            <div style={{ marginTop: 12 }}>
-              Activo: <strong>{meta.goldenPoint.mode === "A" ? "Golden Point A" : `Golden Point B / Round ${meta.goldenPoint.gpRound || 1}`}</strong>
-            </div>
-          )}
-        </div>
-
-        <div style={{ ...styles.panel, marginTop: 16 }}>
-          <h2>Fallo arbitral Combate</h2>
-          <div style={styles.row}>
-            <AppButton style={styles.red} onClick={() => applyCombatForcedWinner("hong")}>Ganador Rojo</AppButton>
-            <AppButton style={styles.blue} onClick={() => applyCombatForcedWinner("chong")}>Ganador Azul</AppButton>
-            <AppButton style={styles.gray} onClick={() => applyCombatForcedWinner("draw")}>Empate</AppButton>
+            {!!secondFoulWarning(meta) && (
+              <div
+                style={{
+                  marginTop: 8,
+                  width: "100%",
+                  padding: 8,
+                  borderRadius: 10,
+                  background: "#7c2d12",
+                  border: "1px solid #f97316",
+                  color: "#ffedd5",
+                  fontWeight: 900,
+                  textAlign: "center",
+                  fontSize: 13,
+                  lineHeight: 1.15,
+                }}
+              >
+                {secondFoulWarning(meta)}
+              </div>
+            )}
           </div>
         </div>
 
-  <div style={{ ...styles.panel, marginTop: 16 }}>
-    <h2>Cierre de combate</h2>
-    <div style={styles.row}>
-      <AppButton
-      style={{
-        ...styles.purple,
-        boxShadow: "0 0 18px rgba(168,85,247,0.35)",
-        fontSize: 20,
-      }}
-      onClick={closeMatch}
-    >
-      CLOSE MATCH
-    </AppButton>
-  </div>
-</div>
+        <div
+          style={{
+            ...styles.panel,
+            padding: "2px 6px 4px 6px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignSelf: "start",
+            height: 280,
+            minHeight: 280,
+            maxHeight: 280,
+            marginTop: 120,
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              fontWeight: 800,
+              fontSize: 30,
+              marginBottom: 2,
+              textAlign: "center",
+              lineHeight: 1,
+              minHeight: 12,
+              marginTop: 10,
+            }}
+          >
+            JUDGES CARDS
+          </div>
 
-        <div style={{ ...styles.panel, marginTop: 16 }}>
-          <h2>Tarjetas de jueces (solo lectura)</h2>
-          <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
+          <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: 4,
+    alignItems: "start",
+    flex: 1,
+    minHeight: 0,
+    height: "100%",
+    overflow: "hidden",
+    marginTop: 20,   // 👈 BAJA LAS 4 JUNTAS
+  }}
+>
             {judges.slice(0, COMBAT_JUDGES).map((j) => (
-              <JudgeReadOnlyCard key={j.id} judge={j} meta={meta} />
+              <div
+  key={j.id}
+  style={{
+    height: 200,          // 👈 ACHICA DESDE ABAJO
+    minHeight: 200,
+    display: "flex",
+    alignItems: "flex-start",
+  }}
+>
+  <JudgeReadOnlyCard judge={j} meta={meta} />
+</div>
             ))}
           </div>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr",
+            gap: 8,
+            alignItems: "stretch",
+          }}
+        >
+          <AppButton
+            style={{
+              ...styles.red,
+              minHeight: 40,
+              fontSize: 14,
+              fontWeight: 800,
+              borderRadius: 10,
+              paddingTop: 6,
+              paddingBottom: 6,
+            }}
+            onClick={() => applyCombatForcedWinner("hong")}
+          >
+            Ganador Hong
+          </AppButton>
+
+          <AppButton
+            style={{
+              ...styles.gray,
+              minHeight: 40,
+              fontSize: 14,
+              fontWeight: 800,
+              borderRadius: 10,
+              paddingTop: 6,
+              paddingBottom: 6,
+            }}
+            onClick={() => applyCombatForcedWinner("draw")}
+          >
+            Empate
+          </AppButton>
+
+          <AppButton
+            style={{
+              ...styles.blue,
+              minHeight: 40,
+              fontSize: 14,
+              fontWeight: 800,
+              borderRadius: 10,
+              paddingTop: 6,
+              paddingBottom: 6,
+            }}
+            onClick={() => applyCombatForcedWinner("chong")}
+          >
+            Ganador Chong
+          </AppButton>
         </div>
 
         {winner && <WinnerFullScreen winner={winner} zIndex={100} />}
