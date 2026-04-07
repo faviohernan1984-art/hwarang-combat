@@ -353,6 +353,7 @@ function getDerivedTime(meta, now = Date.now()) {
 }
 
 function useClock(meta) {
+
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
