@@ -4158,7 +4158,7 @@ const isSwapped = meta.presidentSwapSides;
   >
     <span
       style={{
-        background: "#a31212",
+        background: isSwapped ? "#1e3a8a" : "#a31212",
         borderRadius: "50%",
         width: 24,
         height: 24,
@@ -4173,7 +4173,7 @@ const isSwapped = meta.presidentSwapSides;
 
     <span>{isSwapped ? "CHONG" : "HONG"}</span>
 
-    <span style={{ fontSize: 18 }}>04:45</span>
+    <span style={{ fontSize: 18 }}>{isSwapped ? "05:00" : "04:45"}</span>
   </button>
 
   <button
@@ -4261,7 +4261,7 @@ const isSwapped = meta.presidentSwapSides;
   >
     <span
       style={{
-        background: "#1e3a8a",
+        background: isSwapped ? "#a31212" : "#1e3a8a",
         borderRadius: "50%",
         width: 24,
         height: 24,
@@ -4276,7 +4276,7 @@ const isSwapped = meta.presidentSwapSides;
 
     <span>{isSwapped ? "HONG" : "CHONG"}</span>
 
-    <span style={{ fontSize: 18 }}>05:00</span>
+    <span style={{ fontSize: 18 }}>{isSwapped ? "04:45" : "05:00"}</span>
   </button>
 
   <button
@@ -4556,7 +4556,9 @@ const isSwapped = meta.presidentSwapSides;
     minWidth: 0,
     minHeight: 0,
     overflow: "hidden",
-    background: "linear-gradient(135deg, rgba(255,0,0,0.6), rgba(180,0,0,0.8))",
+    background: isSwapped
+  ? "linear-gradient(135deg, rgba(0,102,255,0.6), rgba(0,40,120,0.8))"
+  : "linear-gradient(135deg, rgba(255,0,0,0.6), rgba(180,0,0,0.8))",
   }}
 >
   <div
@@ -4568,7 +4570,7 @@ const isSwapped = meta.presidentSwapSides;
       whiteSpace: "nowrap",
     }}
   >
-    HONG DATA
+    {isSwapped ? "CHONG DATA" : "HONG DATA"}
   </div>
 
   <div
@@ -4590,7 +4592,7 @@ const isSwapped = meta.presidentSwapSides;
     style={{
       width: "100%",
       borderRadius: 50,
-      border: "2px solid #ff4d4d",
+      border: isSwapped ? "2px solid #4da6ff" : "2px solid #ff4d4d",
       padding: 10,
       fontWeight: 900,
       textAlign: "center",
@@ -4603,7 +4605,7 @@ const isSwapped = meta.presidentSwapSides;
     style={{
       width: "100%",
       borderRadius: 50,
-      border: "2px solid #ff4d4d",
+      border: isSwapped ? "2px solid #4da6ff" : "2px solid #ff4d4d",
       padding: 10,
       fontWeight: 900,
       textAlign: "center",
@@ -4703,7 +4705,9 @@ const isSwapped = meta.presidentSwapSides;
     minWidth: 0,
     minHeight: 0,
     overflow: "hidden",
-    background: "linear-gradient(135deg, rgba(0,102,255,0.6), rgba(0,60,180,0.8))",
+    background: isSwapped
+  ? "linear-gradient(135deg, rgba(255,0,0,0.6), rgba(180,0,0,0.8))"
+  : "linear-gradient(135deg, rgba(0,102,255,0.6), rgba(0,40,120,0.8))",
   }}
 >
   <div
@@ -4715,7 +4719,7 @@ const isSwapped = meta.presidentSwapSides;
       whiteSpace: "nowrap",
     }}
   >
-    CHONG DATA
+    {isSwapped ? "HONG DATA" : "CHONG DATA"}
   </div>
 
   <div
@@ -4736,7 +4740,7 @@ const isSwapped = meta.presidentSwapSides;
     style={{
       width: "100%",
       borderRadius: 50,
-      border: "2px solid #4da6ff",
+      border: isSwapped ? "2px solid #ff4d4d" : "2px solid #4da6ff",
       padding: 10,
       fontWeight: 900,
       textAlign: "center",
@@ -4749,7 +4753,7 @@ const isSwapped = meta.presidentSwapSides;
     style={{
       width: "100%",
       borderRadius: 50,
-      border: "2px solid #4da6ff",
+      border: isSwapped ? "2px solid #ff4d4d" : "2px solid #4da6ff",
       padding: 10,
       fontWeight: 900,
       textAlign: "center",
@@ -4880,7 +4884,9 @@ const isSwapped = meta.presidentSwapSides;
     <div
       style={{
         borderRadius: 8,
-        background: "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
+        background: isSwapped
+  ? "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))"
+  : "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
         boxShadow: "inset 0 0 12px rgba(255,0,0,0.6)",
         
         display: "grid",
@@ -4899,7 +4905,9 @@ const isSwapped = meta.presidentSwapSides;
     <div
       style={{
         borderRadius: 8,
-        background: "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
+        background: isSwapped
+  ? "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))"
+  : "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
         display: "grid",
         gridTemplateRows: "1fr 1fr 1fr",
         padding: 6,
@@ -4951,7 +4959,9 @@ const isSwapped = meta.presidentSwapSides;
     <div
       style={{
         borderRadius: 8,
-        background: "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
+        background: isSwapped
+  ? "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))"
+  : "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
         boxShadow: "inset 0 0 12px rgba(255,0,0,0.6)",
         
         display: "grid",
@@ -4970,7 +4980,9 @@ const isSwapped = meta.presidentSwapSides;
     <div
       style={{
         borderRadius: 8,
-        background: "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
+        background: isSwapped
+  ? "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))"
+  : "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
         display: "grid",
         gridTemplateRows: "1fr 1fr 1fr",
         padding: 6,
@@ -5022,7 +5034,9 @@ const isSwapped = meta.presidentSwapSides;
     <div
       style={{
         borderRadius: 8,
-        background: "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
+        background: isSwapped
+  ? "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))"
+  : "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
         boxShadow: "inset 0 0 12px rgba(255,0,0,0.6)",
         
         display: "grid",
@@ -5041,7 +5055,9 @@ const isSwapped = meta.presidentSwapSides;
     <div
       style={{
         borderRadius: 8,
-        background: "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
+        background: isSwapped
+  ? "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))"
+  : "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
         display: "grid",
         gridTemplateRows: "1fr 1fr 1fr",
         padding: 6,
@@ -5093,7 +5109,9 @@ const isSwapped = meta.presidentSwapSides;
     <div
       style={{
         borderRadius: 8,
-        background: "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
+        background: isSwapped
+  ? "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))"
+  : "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
         boxShadow: "inset 0 0 12px rgba(255,0,0,0.6)",
         
         display: "grid",
@@ -5112,7 +5130,9 @@ const isSwapped = meta.presidentSwapSides;
     <div
       style={{
         borderRadius: 8,
-        background: "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
+        background: isSwapped
+  ? "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))"
+  : "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
         display: "grid",
         gridTemplateRows: "1fr 1fr 1fr",
         padding: 6,
@@ -5151,14 +5171,18 @@ const isSwapped = meta.presidentSwapSides;
     fontSize: 22,
     padding: 12,
     boxSizing: "border-box",
-    background: "linear-gradient(135deg, rgba(255,0,0,0.65), rgba(140,0,0,0.95))",
+    background: isSwapped
+  ? "linear-gradient(135deg, rgba(0,102,255,0.65), rgba(0,45,140,0.95))"
+  : "linear-gradient(135deg, rgba(255,0,0,0.65), rgba(140,0,0,0.95))",
     color: "white",
-    boxShadow: "inset 0 0 12px rgba(255,255,255,0.12), 0 0 14px rgba(255,0,0,0.35)",
+    boxShadow: isSwapped
+  ? "inset 0 0 12px rgba(255,255,255,0.12), 0 0 14px rgba(0,102,255,0.35)"
+  : "inset 0 0 12px rgba(255,255,255,0.12), 0 0 14px rgba(255,0,0,0.35)",
     transform: "scale(1)",
     transition: "transform 0.2s ease, box-shadow 0.2s ease",
   }}
 >
-  HONG WINNER
+  {isSwapped ? "CHONG WINNER" : "HONG WINNER"}
 </div>
 
 <div
@@ -5195,14 +5219,18 @@ const isSwapped = meta.presidentSwapSides;
     fontSize: 22,
     padding: 12,
     boxSizing: "border-box",
-    background: "linear-gradient(135deg, rgba(0,102,255,0.65), rgba(0,45,140,0.95))",
+    background: isSwapped
+  ? "linear-gradient(135deg, rgba(255,0,0,0.65), rgba(140,0,0,0.95))"
+  : "linear-gradient(135deg, rgba(0,102,255,0.65), rgba(0,45,140,0.95))",
     color: "white",
-    boxShadow: "inset 0 0 12px rgba(255,255,255,0.12), 0 0 14px rgba(0,102,255,0.35)",
+    boxShadow: isSwapped
+  ? "inset 0 0 12px rgba(255,255,255,0.12), 0 0 14px rgba(255,0,0,0.35)"
+  : "inset 0 0 12px rgba(255,255,255,0.12), 0 0 14px rgba(0,102,255,0.35)",
     transform: "scale(1)",
     transition: "transform 0.2s ease, box-shadow 0.2s ease",
   }}
 >
-  CHONG WINNER
+  {isSwapped ? "HONG WINNER" : "CHONG WINNER"}
 </div>
       </div>
     </div>
