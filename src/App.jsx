@@ -185,13 +185,24 @@ function makeEmptyGoldenPoint() {
 }
 
 function makeInitialMeta() {
-   return {
+  return {
     mode: "combat",
+
     config: {
       roundSeconds: 120,
       rounds: 2,
       breakSeconds: BREAK_SECONDS,
+      medicalPreset: 300,
     },
+
+    match: {
+      round: 1,
+      phase: "fight",
+      status: "paused",
+      timeLeft: 120,
+      phaseStartedAt: null,
+    },
+
     medicalPreset: 300,
     medicalActive: false,
     medicalSide: null,
@@ -199,17 +210,22 @@ function makeInitialMeta() {
     medicalHong: 300,
     medicalChong: 300,
     medicalLast: 0,
+
+    // compatibilidad temporal con lógica vieja
     round: 1,
     phase: "fight",
     status: "paused",
     pausedRemaining: 120,
     phaseStartedAt: null,
+
     hongWarnings: 0,
     chongWarnings: 0,
     hongFouls: 0,
     chongFouls: 0,
+
     hong: getBaseCombatant(HONG),
     chong: getBaseCombatant(CHONG),
+
     combatForcedWinner: null,
     publicSwapSides: false,
     presidentSwapSides: false,
@@ -347,9 +363,39 @@ function stopMedical(meta) {
 
 function getDerivedTime(meta, now = Date.now()) {
   if (!meta) return 0;
-  if (meta.status !== "running" || !meta.phaseStartedAt) return meta.pausedRemaining || 0;
+  if (meta.status !== "running" || !meta.phaseStartedAt) {
+    return meta.pausedRemaining || 0;
+  }
   const elapsed = Math.floor((now - meta.phaseStartedAt) / 1000);
   return Math.max(0, (meta.pausedRemaining || 0) - elapsed);
+}
+
+function syncLegacyClockFields(current) {
+  if (!current.match) {
+    current.match = {
+      round: current.round ?? 1,
+      phase: current.phase ?? "fight",
+      status: current.status ?? "paused",
+      timeLeft: current.pausedRemaining ?? current.config?.roundSeconds ?? 120,
+      phaseStartedAt: current.phaseStartedAt ?? null,
+    };
+  }
+
+  current.round = current.match.round;
+  current.phase = current.match.phase;
+  current.status = current.match.status;
+  current.pausedRemaining = current.match.timeLeft;
+  current.phaseStartedAt = current.match.phaseStartedAt;
+
+  if (!current.config) current.config = {};
+  if (current.config.medicalPreset == null && current.medicalPreset != null) {
+    current.config.medicalPreset = current.medicalPreset;
+  }
+  if (current.medicalPreset == null && current.config.medicalPreset != null) {
+    current.medicalPreset = current.config.medicalPreset;
+  }
+
+  return current;
 }
 
 function useClock(meta) {
@@ -505,14 +551,14 @@ function useFightData() {
   }, []);
 
   const writeMeta = async (mutator) => {
-    const snap = await getDoc(matchMetaRef);
-    const current = ensureMetaShape(snap.exists() ? snap.data() : makeInitialMeta());
-    const draft = clone(current);
-    const result = typeof mutator === "function" ? mutator(draft) : mutator;
-    const next = ensureMetaShape(result ?? draft);
-    next.updatedAt = Date.now();
-    await setDoc(matchMetaRef, next);
-  };
+  const snap = await getDoc(matchMetaRef);
+  const current = ensureMetaShape(snap.exists() ? snap.data() : makeInitialMeta());
+  const draft = clone(current);
+  const result = typeof mutator === "function" ? mutator(draft) : mutator;
+  const next = ensureMetaShape(result ?? draft);
+  next.updatedAt = Date.now();
+  await setDoc(matchMetaRef, next);
+};
 
   const writeJudge = async (id, mutator) => {
     const ref = judgeRef(id);
@@ -672,6 +718,7 @@ function AppButton({ children, style = {}, onClick, feedback = "ui", ...props })
   const triggerFeedback = () => {
     if (feedback === "judge") tapFeedback();
     else if (feedback === "ui") playButtonSound();
+    else if (feedback === "none") return;
   };
 
   return (
@@ -1272,6 +1319,10 @@ function PublicFighterPanel({ title, fighter, score, warnings, fouls }) {
 
 function PublicScreen({ meta, judges, navigate }) {
   const time = useClock(meta);
+const displayTime =
+  meta.status === "running"
+    ? time
+    : meta.remaining ?? time;
   const s = summary(meta, judges);
   const { left, right } = getDisplaySides(meta, "public");
 
@@ -1365,7 +1416,7 @@ function PublicScreen({ meta, judges, navigate }) {
             wordBreak: "break-word",
           }}
         >
-          {fighter.club || "ACADEMIA / EQUIPO"}
+          {fighter.club || "NAME / TEAM"}
         </div>
 
         <div
@@ -1410,7 +1461,7 @@ function PublicScreen({ meta, judges, navigate }) {
                 textAlign: "center",
               }}
             >
-              ADVERTENCIAS
+              WARNINGS
             </div>
             <div
               style={{
@@ -1445,7 +1496,7 @@ function PublicScreen({ meta, judges, navigate }) {
                 textAlign: "center",
               }}
             >
-              FALTAS
+              FOULS
             </div>
             <div
               style={{
@@ -1561,7 +1612,7 @@ function PublicScreen({ meta, judges, navigate }) {
                 ? meta.goldenPoint.mode === "A"
                   ? "GOLDEN POINT A"
                   : `GOLDEN POINT B / ROUND ${meta.goldenPoint.gpRound || 1}`
-                : "COMBATE"}
+                : "MATCH"}
             </div>
           </div>
 
@@ -1625,7 +1676,7 @@ function PublicScreen({ meta, judges, navigate }) {
                   lineHeight: 1,
                 }}
               >
-                {meta.phase === "break" ? "DESCANSO" : "TIME"}
+                {meta.phase === "break" ? "BREAK" : "TIME"}
               </div>
 
               <div
@@ -1637,7 +1688,7 @@ function PublicScreen({ meta, judges, navigate }) {
                   letterSpacing: "-0.04em",
                 }}
               >
-                {formatTime(time)}
+                {formatTime(time || meta.time || 0)}
               </div>
 
               <div
@@ -1650,7 +1701,7 @@ function PublicScreen({ meta, judges, navigate }) {
                 }}
               >
                 {meta.phase === "break"
-                  ? "NO MANIPULAR"
+                  ? "DO NOT OPERATE"
                   : meta.goldenPoint?.active
                   ? `GP ${meta.goldenPoint.mode === "A" ? "A" : "B"}`
                   : `ROUND ${meta.round}`}
@@ -1699,12 +1750,12 @@ function PublicScreen({ meta, judges, navigate }) {
                 }}
               >
                 {meta.phase === "finished"
-                  ? "FINALIZADO"
+                  ? "MATCH FINISHED"
                   : meta.phase === "break"
-                  ? "DESCANSO OFICIAL"
+                  ? "BREAK TIME"
                   : meta.status === "running"
-                  ? "EN CURSO"
-                  : "PAUSADO"}
+                  ? "IN PROGRESS"
+                  : "MATCH PAUSED"}
               </div>
             </div>
           </div>
@@ -1727,7 +1778,7 @@ function PublicScreen({ meta, judges, navigate }) {
               letterSpacing: "0.08em",
             }}
           >
-            TORNEO / COMBATE
+            TOURNAMENT / SAPRRING
           </div>
         </div>
       </div>
@@ -1925,7 +1976,10 @@ function MedicalPanel({ meta, writeMeta }) {
 
 function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, navigate }) {
   meta = ensureMetaShape(meta);
-  const time = useClock(meta);
+  const time = useClock({
+  ...meta,
+  startTime: meta.startTime || meta.lastStartTime,
+});
   const s = summary(meta, judges);
   const prevRunningRef = useRef(false);
   const prevFinishedRef = useRef(false);
@@ -2018,11 +2072,7 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
     };
   }, []);
 
-  useEffect(() => {
-    const isRunning = meta.status === "running" && meta.phase === "fight";
-    if (isRunning && !prevRunningRef.current) playStartAlarm();
-    prevRunningRef.current = isRunning;
-  }, [meta.status, meta.phase]);
+  
 
   useEffect(() => {
     const isShowingResult = meta.showResult === true;
@@ -2200,29 +2250,37 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
     }
 
     await writeMeta((current) => {
-      const fresh = makeInitialMeta();
-      current.mode = fresh.mode;
-      current.config = { ...current.config, ...fresh.config };
-      current.round = fresh.round;
-      current.phase = fresh.phase;
-      current.status = fresh.status;
-      current.pausedRemaining = current.config.roundSeconds || fresh.pausedRemaining;
-      current.phaseStartedAt = null;
-      current.hongWarnings = 0;
-      current.chongWarnings = 0;
-      current.hongFouls = 0;
-      current.chongFouls = 0;
-      current.combatForcedWinner = null;
-      current.goldenPoint = makeEmptyGoldenPoint();
-      current.showResult = false;
-      current.medicalActive = false;
-      current.medicalRunning = false;
-      current.medicalSide = null;
-      current.medicalLast = 0;
-      current.medicalHong = current.medicalPreset || 300;
-      current.medicalChong = current.medicalPreset || 300;
-      return current;
-    });
+  const fresh = makeInitialMeta();
+
+  current.mode = fresh.mode;
+  current.config = { ...fresh.config, ...current.config };
+
+  current.match = {
+    round: 1,
+    phase: "fight",
+    status: "paused",
+    timeLeft: current.config.roundSeconds ?? fresh.config.roundSeconds,
+    phaseStartedAt: null,
+  };
+
+  current.hongWarnings = 0;
+  current.chongWarnings = 0;
+  current.hongFouls = 0;
+  current.chongFouls = 0;
+
+  current.combatForcedWinner = null;
+  current.goldenPoint = makeEmptyGoldenPoint();
+  current.showResult = false;
+
+  current.medicalActive = false;
+  current.medicalRunning = false;
+  current.medicalSide = null;
+  current.medicalLast = 0;
+  current.medicalHong = current.medicalPreset || current.config.medicalPreset || 300;
+  current.medicalChong = current.medicalPreset || current.config.medicalPreset || 300;
+
+  return syncLegacyClockFields(current);
+});
   };
 
   const modifyMetaNumber = async (field, delta) => {
@@ -2409,7 +2467,7 @@ const handleInvertSides = async () => {
                 lineHeight: 1,
               }}
             >
-              {formatTime(time)}
+              {formatTime(displayTime)}
             </div>
           </div>
 
@@ -2876,6 +2934,2277 @@ const handleInvertSides = async () => {
     </Frame16x9>
   );
 }
+
+{/*==============================PRESIDENTSCREENV2NUEVOOOOOOO=========================*/}
+
+function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navigate }) {
+  meta = ensureMetaShape(meta);
+  const time = useClock(meta);
+  const s = summary(meta, judges);
+  const prevRunningRef = useRef(false);
+  const prevFinishedRef = useRef(false);
+
+  const [secondsInput, setSecondsInput] = useState(String(meta.config.roundSeconds || 120));
+  const [roundsInput, setRoundsInput] = useState(String(meta.config.rounds || 2));
+  const [breakSecondsInput, setBreakSecondsInput] = useState(String(meta.config.breakSeconds || BREAK_SECONDS));
+
+  const [editor, setEditor] = useState({
+    hongName: meta.hong?.name || "",
+    hongClub: meta.hong?.club || "",
+    chongName: meta.chong?.name || "",
+    chongClub: meta.chong?.club || "",
+  });
+
+  const editorFocusRef = useRef(false);
+  const editorDraftRef = useRef({
+    hongName: meta.hong?.name || "",
+    hongClub: meta.hong?.club || "",
+    chongName: meta.chong?.name || "",
+    chongClub: meta.chong?.club || "",
+  });
+  const editorSaveTimeoutRef = useRef(null);
+
+  const { left, right } = getDisplaySides(meta, "president");
+
+  useEffect(() => {
+    const next = {
+      hongName: meta.hong?.name || "",
+      hongClub: meta.hong?.club || "",
+      chongName: meta.chong?.name || "",
+      chongClub: meta.chong?.club || "",
+    };
+    editorDraftRef.current = next;
+    if (editorFocusRef.current) return;
+    setEditor((current) =>
+      current.hongName === next.hongName &&
+      current.hongClub === next.hongClub &&
+      current.chongName === next.chongName &&
+      current.chongClub === next.chongClub
+        ? current
+        : next
+    );
+  }, [meta.hong?.name, meta.hong?.club, meta.chong?.name, meta.chong?.club]);
+
+  const commitEditor = async (nextEditor) => {
+    const finalEditor = nextEditor || editorDraftRef.current;
+    const unchanged =
+      (meta.hong?.name || "") === finalEditor.hongName &&
+      (meta.hong?.club || "") === finalEditor.hongClub &&
+      (meta.chong?.name || "") === finalEditor.chongName &&
+      (meta.chong?.club || "") === finalEditor.chongClub;
+
+    if (unchanged) return;
+
+    await writeMeta((current) => ({
+      ...current,
+      hong: {
+        ...(current.hong || getBaseCombatant(HONG)),
+        name: finalEditor.hongName,
+        club: finalEditor.hongClub,
+      },
+      chong: {
+        ...(current.chong || getBaseCombatant(CHONG)),
+        name: finalEditor.chongName,
+        club: finalEditor.chongClub,
+      },
+    }));
+  };
+
+  const persistClockConfig = async ({
+  roundSeconds,
+  rounds,
+  breakSeconds,
+}) => {
+  const safeRoundSeconds = Math.max(1, parseInt(roundSeconds, 10) || 120);
+  const safeRounds = Math.max(1, parseInt(rounds, 10) || 2);
+  const safeBreakSeconds = Math.max(
+    1,
+    parseInt(breakSeconds, 10) || BREAK_SECONDS
+  );
+
+  await writeMeta((current) => {
+    const next = {
+      ...current,
+      config: {
+        ...(current.config || {}),
+        roundSeconds: safeRoundSeconds,
+        rounds: safeRounds,
+        breakSeconds: safeBreakSeconds,
+      },
+    };
+
+    // 🔥 CLAVE ABSOLUTA
+    // SI NO ESTÁ CORRIENDO → SINCRONIZAMOS EL RELOJ REAL
+    if (current.status !== "running") {
+      next.pausedRemaining =
+        current.phase === "break"
+          ? safeBreakSeconds
+          : safeRoundSeconds;
+
+      next.phaseStartedAt = null;
+    }
+
+    return next;
+  });
+};
+
+  const applyRoundSeconds = async (value) => {
+    const safe = Math.max(1, parseInt(value, 10) || 120);
+    setSecondsInput(String(safe));
+    await persistClockConfig({
+      roundSeconds: safe,
+      rounds: roundsInput,
+      breakSeconds: breakSecondsInput,
+    });
+  };
+
+  const applyBreakSeconds = async (value) => {
+    const safe = Math.max(1, parseInt(value, 10) || BREAK_SECONDS);
+    setBreakSecondsInput(String(safe));
+    await persistClockConfig({
+      roundSeconds: secondsInput,
+      rounds: roundsInput,
+      breakSeconds: safe,
+    });
+  };
+
+  const applyRounds = async (value) => {
+    const safe = Math.max(1, parseInt(value, 10) || 2);
+    setRoundsInput(String(safe));
+    await persistClockConfig({
+      roundSeconds: secondsInput,
+      rounds: safe,
+      breakSeconds: breakSecondsInput,
+    });
+  };
+
+  const startTimer = async () => {
+  await writeMeta((current) => {
+    if (current.status === "running") return current;
+    if (current.phase === "finished") return current;
+
+    const roundSeconds = Math.max(
+      1,
+      parseInt(current.config?.roundSeconds, 10) || 120
+    );
+    const rounds = Math.max(
+      1,
+      parseInt(current.config?.rounds, 10) || 2
+    );
+    const breakSeconds = Math.max(
+      1,
+      parseInt(current.config?.breakSeconds, 10) || BREAK_SECONDS
+    );
+
+    const phase = current.phase || "fight";
+    const round = current.round || 1;
+    const defaultPhaseSeconds =
+      phase === "break" ? breakSeconds : roundSeconds;
+
+    const shouldResume =
+      current.status === "paused" &&
+      current.phaseStartedAt == null &&
+      typeof current.pausedRemaining === "number" &&
+      current.pausedRemaining > 0 &&
+      current.pausedRemaining < defaultPhaseSeconds;
+
+    const pausedRemaining = shouldResume
+      ? current.pausedRemaining
+      : defaultPhaseSeconds;
+
+    return {
+      ...current,
+      config: {
+        ...(current.config || {}),
+        roundSeconds,
+        rounds,
+        breakSeconds,
+      },
+      phase,
+      round,
+      pausedRemaining,
+      status: "running",
+      phaseStartedAt: Date.now(),
+    };
+  });
+};
+
+  const queueEditorCommit = (nextEditor) => {
+    if (editorSaveTimeoutRef.current) clearTimeout(editorSaveTimeoutRef.current);
+    editorSaveTimeoutRef.current = setTimeout(() => {
+      commitEditor(nextEditor);
+    }, 250);
+  };
+
+  const updateEditorField = (field, value) => {
+    setEditor((current) => {
+      const next = { ...current, [field]: value };
+      editorDraftRef.current = next;
+      queueEditorCommit(next);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      if (editorSaveTimeoutRef.current) clearTimeout(editorSaveTimeoutRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+  const isRunning = meta.status === "running" && meta.phase === "fight";
+  
+  prevRunningRef.current = isRunning;
+}, [meta.status, meta.phase]);
+
+  useEffect(() => {
+    const isShowingResult = meta.showResult === true;
+    if (isShowingResult && !prevFinishedRef.current) {
+      playWinnerSound();
+    }
+    prevFinishedRef.current = isShowingResult;
+  }, [meta.showResult]);
+
+  useEffect(() => {
+    setSecondsInput(String(meta.config.roundSeconds || 120));
+    setRoundsInput(String(meta.config.rounds || 2));
+    setBreakSecondsInput(String(meta.config.breakSeconds || BREAK_SECONDS));
+  }, [meta.config.roundSeconds, meta.config.rounds, meta.config.breakSeconds]);
+
+const skipAutoSaveRef = useRef(true);
+
+useEffect(() => {
+  if (skipAutoSaveRef.current) {
+    skipAutoSaveRef.current = false;
+    return;
+  }
+
+  const t = setTimeout(() => {
+    saveConfig();
+  }, 120);
+
+  return () => clearTimeout(t);
+}, [secondsInput, roundsInput, breakSecondsInput]);
+
+  useEffect(() => {
+    if (meta.status !== "running") return;
+    if (time > 0) return;
+
+    const finishByTime = async () => {
+      await writeMeta((current) => {
+        if (current.status !== "running") return current;
+
+        if (current.phase === "fight") {
+          if (current.round < (current.config.rounds || 1)) {
+            current.phase = "break";
+            current.status = "running";
+            current.pausedRemaining = current.config.breakSeconds || BREAK_SECONDS;
+            current.phaseStartedAt = Date.now();
+          } else {
+            current.phase = "finished";
+            current.status = "paused";
+            current.pausedRemaining = 0;
+            current.phaseStartedAt = null;
+          }
+        } else if (current.phase === "break") {
+          current.phase = "fight";
+          current.round += 1;
+          current.status = "paused";
+          current.pausedRemaining = current.config.roundSeconds || 120;
+          current.phaseStartedAt = null;
+        }
+
+        return current;
+      });
+    };
+
+    finishByTime();
+  }, [meta.status, meta.phase, time, writeMeta]);
+
+  const saveConfig = async () => {
+  await persistClockConfig({
+    roundSeconds: secondsInput,
+    rounds: roundsInput,
+    breakSeconds: breakSecondsInput,
+  });
+};
+
+  
+
+  const pauseTimer = async () => {
+    await writeMeta((current) => {
+      if (current.status !== "running") return current;
+      current.pausedRemaining = getDerivedTime(current, Date.now());
+      current.status = "paused";
+      current.phaseStartedAt = null;
+      return current;
+    });
+  };
+
+  const finishMatch = async () => {
+    await writeMeta((current) => {
+      current.pausedRemaining = getDerivedTime(current, Date.now());
+      current.status = "paused";
+      current.phase = "finished";
+      current.phaseStartedAt = null;
+      current.showResult = false;
+      return current;
+    });
+  };
+
+  const closeMatch = async () => {
+    await writeMeta((current) => {
+      current.showResult = true;
+      return current;
+    });
+  };
+
+  const applyCombatForcedWinner = async (winnerSide) => {
+    await writeMeta((current) => {
+      current.combatForcedWinner = winnerSide;
+      current.showResult = true;
+      current.status = "paused";
+      current.phase = "finished";
+      current.pausedRemaining = 0;
+      current.phaseStartedAt = null;
+      return current;
+    });
+  };
+
+  const activateGoldenPoint = async (mode) => {
+    await writeMeta((current) => {
+      current.goldenPoint.active = true;
+      current.goldenPoint.mode = mode;
+      if (mode === "B") current.goldenPoint.gpRound = (current.goldenPoint.gpRound || 0) + 1;
+      current.combatForcedWinner = null;
+      current.phase = "fight";
+      current.status = "paused";
+      current.pausedRemaining = current.config.roundSeconds || 120;
+      current.phaseStartedAt = null;
+      return current;
+    });
+  };
+
+  const prepareNextMatch = async () => {
+  for (let i = 1; i <= MAX_JUDGES; i += 1) {
+    await writeJudge(i, () => makeJudge(i));
+  }
+
+  await writeMeta((current) => {
+    const fresh = makeInitialMeta();
+
+    current.mode = fresh.mode;
+    current.config = { ...fresh.config, ...current.config };
+
+    current.round = fresh.round;
+    current.phase = fresh.phase;
+    current.status = fresh.status;
+    current.pausedRemaining =
+      current.config.roundSeconds || fresh.config.roundSeconds;
+
+    current.phaseStartedAt = null;
+    current.hongWarnings = 0;
+    current.chongWarnings = 0;
+    current.hongFouls = 0;
+    current.chongFouls = 0;
+    current.combatForcedWinner = null;
+    current.goldenPoint = makeEmptyGoldenPoint();
+    current.showResult = false;
+    current.medicalActive = false;
+    current.medicalRunning = false;
+    current.medicalSide = null;
+    current.medicalLast = 0;
+    current.medicalHong = current.medicalPreset || 300;
+    current.medicalChong = current.medicalPreset || 300;
+
+    return current;
+  });
+};
+
+  const modifyMetaNumber = async (field, delta) => {
+    await writeMeta((current) => {
+      current[field] = Math.max(0, (current[field] || 0) + delta);
+      return current;
+    });
+  };
+
+const handleInvertPublic = async () => {
+  await commitEditor(editorDraftRef.current);
+
+  await writeMeta((current) => ({
+    ...current,
+    publicSwapSides: !current.publicSwapSides,
+  }));
+};
+
+const handleInvertPresident = async () => {
+  await commitEditor(editorDraftRef.current);
+
+  await writeMeta((current) => ({
+    ...current,
+    presidentSwapSides: !current.presidentSwapSides,
+  }));
+};
+
+  const winner = meta.showResult ? s.winner : null;
+const handleInvertSides = async () => {
+  await commitEditor(editorDraftRef.current);
+
+  await writeMeta((current) => ({
+    ...current,
+    publicSwapSides: !current.publicSwapSides,
+    presidentSwapSides: !current.presidentSwapSides,
+  }));
+};
+
+  const currentStatusLabel =
+    meta.phase === "finished"
+      ? "Finished"
+      : meta.phase === "break"
+      ? "Breack"
+      : meta.status === "running"
+      ? "Sparring in Progress"
+      : "Match Paused";
+
+  return (
+  <Frame16x9>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        padding: 12,
+        boxSizing: "border-box",
+        display: "grid",
+        gridTemplateRows: "50px 120px 200px 170px 1fr 150px",
+        gap: 8,
+        overflow: "hidden",
+        background: "#0b0f1a",
+      }}
+    >
+      <div
+  style={{
+    
+    borderRadius: 12,
+    display: "grid",
+    gridTemplateColumns: "repeat(5, auto) 1fr",
+    gap: 13,
+    alignItems: "center",
+    padding: "4px 10px",
+    minHeight: 0,
+    height: "100%",
+    overflow: "hidden",
+    color: "white",
+  }}
+>
+  <AppButton style={{ ...styles.gray, minHeight: 32, fontSize: 17 }} onClick={() => navigate("/")}>
+    Home
+  </AppButton>
+
+  <AppButton style={{ ...styles.green, minHeight: 32, fontSize: 17 }} onClick={prepareNextMatch}>
+    Next
+  </AppButton>
+
+  <AppButton style={{ ...styles.red, minHeight: 32, fontSize: 17 }} onClick={resetAll}>
+    Reset
+  </AppButton>
+
+  <AppButton style={{ ...styles.purple, minHeight: 32, fontSize: 17 }} onClick={handleInvertPublic}>
+    Invert Pub
+  </AppButton>
+
+  <AppButton style={{ ...styles.purple, minHeight: 32, fontSize: 17 }} onClick={handleInvertPresident}>
+    Invert Pres
+  </AppButton>
+
+  <div
+    style={{
+      textAlign: "right",
+      fontSize: 18,
+      fontWeight: 900,
+      letterSpacing: "0.04em",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    }}
+  >
+    PRESIDENT SCREEN V2
+  </div>
+</div>
+
+      <div
+  style={{
+    
+    borderRadius: 12,
+    display: "grid",
+    gridTemplateColumns: "0.9fr 1.1fr 2.2fr 0.9fr 0.9fr",
+    gap: 8,
+    alignItems: "stretch",
+    padding: 8,
+    color: "white",
+    minHeight: 0,
+    height: "100%",
+  }}
+>
+  <div
+    style={{
+      ...styles.stat,
+      
+      borderRadius: 10,
+      border: "none",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      padding: "6px 8px",
+      minWidth: 0,
+      
+    }}
+  >
+    <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
+      Round
+    </div>
+    <strong style={{ fontSize: 28, lineHeight: 1.05 }}>
+      {meta.round}/{meta.config.rounds}
+    </strong>
+  </div>
+
+  <div
+    style={{
+      ...styles.stat,
+      
+      borderRadius: 10,
+      border: "none",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      padding: "6px 8px",
+      minWidth: 0,
+      
+    }}
+  >
+    <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
+      Status
+    </div>
+    <strong style={{ fontSize: 22, lineHeight: 1.05 }}>
+      {currentStatusLabel}
+    </strong>
+  </div>
+
+  <div
+    style={{
+      ...styles.panel,
+      borderRadius: 10,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      padding: "4px 10px",
+      background:
+        meta.phase === "finished"
+          ? "linear-gradient(180deg, #141414 0%, #090909 100%)"
+          : meta.phase === "break"
+          ? "linear-gradient(180deg, #111827 0%, #0b1220 100%)"
+          : "linear-gradient(180deg, #121212 0%, #050505 100%)",
+      border: "none",
+      boxShadow:
+        meta.status === "running"
+          ? "inset 0 0 18px rgba(255, 210, 64, 0.12), 0 0 14px rgba(255, 210, 64, 0.10)"
+          : undefined,
+      minWidth: 0,
+    }}
+  >
+    <div
+      style={{
+        fontFamily: "Share Tech Mono, monospace",
+        fontVariantNumeric: "tabular-nums",
+        fontSize: 70,
+        fontWeight: 900,
+        letterSpacing: "0.12em",
+        color: meta.status === "running" ? "#ffd84d" : "#7df9ff",
+        textShadow:
+          meta.status === "running"
+            ? "0 0 8px rgba(255, 216, 77, 0.45)"
+            : "0 0 8px rgba(125, 249, 255, 0.35)",
+        lineHeight: 1,
+      }}
+    >
+      {formatTime(meta.status === "running" ? time : meta.pausedRemaining || 0)}
+    </div>
+  </div>
+
+  <div
+    style={{
+      ...styles.stat,
+      background: "linear-gradient(135deg, rgba(255,80,80,0.25), rgba(120,0,0,0.45))",
+       
+      borderRadius: 10,
+      boxShadow: "inset 0 0 8px rgba(255,255,255,0.1)",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      padding: "6px 8px",
+      minWidth: 0,
+    }}
+  >
+    <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
+      Hong Points
+    </div>
+    <strong style={{ fontSize: 28, lineHeight: 1.05 }}>
+      {s.hongVotes}
+    </strong>
+  </div>
+
+  <div
+    style={{
+      ...styles.stat,
+      background: "linear-gradient(135deg, rgba(0,102,255,0.25), rgba(0,40,120,0.5))",
+      boxShadow: "inset 0 0 8px rgba(255,255,255,0.1)",
+      borderRadius: 10,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      padding: "6px 8px",
+      minWidth: 0,
+    }}
+  >
+    <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
+      Chong Points
+    </div>
+    <strong style={{ fontSize: 28, lineHeight: 1.05 }}>
+      {s.chongVotes}
+    </strong>
+  </div>
+</div>
+
+{/*===================2da FILA=======================*/}
+
+      <div
+  style={{
+    
+    borderRadius: 12,
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr 1fr",
+    gap: 8,
+    padding: 8,
+    color: "white",
+    height: "100%",
+    boxSizing: "border-box",
+  }}
+>
+  <div
+  style={{
+    
+    borderRadius: 10,
+    display: "grid",
+    gridTemplateRows: "15px auto 40px",
+    gap: 8,
+    fontWeight: 900,
+    padding: 10,
+    boxSizing: "border-box",
+    minWidth: 0,
+    minHeight: 0,
+    overflow: "hidden",
+  }}
+>
+  <div
+    style={{
+      fontSize: 20,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minWidth: 0,
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+    }}
+  >
+    TIME SETTINGS
+  </div>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr",
+      gap: 8,
+      minWidth: 0,
+      minHeight: 0,
+      overflow: "hidden",
+    }}
+  >
+    <div
+      style={{
+        
+        borderRadius: 8,
+        padding: 8,
+        boxSizing: "border-box",
+        minWidth: 0,
+        minHeight: 0,
+        overflow: "hidden",
+        display: "grid",
+        gridTemplateRows: "24px 1fr",
+        gap: 6,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 13,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+        }}
+      >
+        COMBAT TIME
+      </div>
+
+      <div
+        style={{
+          
+          borderRadius: 6,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          textAlign: "center",
+          padding: 4,
+          minWidth: 0,
+          minHeight: 0,
+        }}
+      >
+        <div
+  style={{
+    display: "grid",
+    gridTemplateRows: "auto auto",
+    gap: 6,
+  }}
+>
+  <div
+    style={{
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 6,
+  flexWrap: "nowrap",
+  minWidth: 0,
+}}
+  >
+    <button
+  onClick={() =>
+    setSecondsInput(String(Math.max(1, (parseInt(secondsInput, 10) || 0) - 10)))
+  }
+  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
+>
+  -
+</button>
+
+<div style={{ fontSize: 18, fontWeight: 900 }}>
+  {formatTime(parseInt(secondsInput, 10) || 0)}
+</div>
+
+<button
+  onClick={() =>
+    setSecondsInput(String((parseInt(secondsInput, 10) || 0) + 10))
+  }
+  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
+>
+  +
+</button>
+  </div>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr",
+      gap: 4,
+    }}
+  >
+    <button
+  onClick={() => setSecondsInput("60")}
+  style={{ height: 25, fontSize: 15, fontWeight: 900 }}
+>
+  1:00
+</button>
+
+<button
+  onClick={() => setSecondsInput("90")}
+  style={{ height: 25, fontSize: 15, fontWeight: 900 }}
+>
+  1:30
+</button>
+
+<button
+  onClick={() => setSecondsInput("120")}
+  style={{ height: 25, fontSize: 15, fontWeight: 900 }}
+>
+  2:00
+</button>
+  </div>
+</div>
+      </div>
+    </div>
+
+    <div
+      style={{
+        
+        borderRadius: 8,
+        padding: 8,
+        boxSizing: "border-box",
+        minWidth: 0,
+        minHeight: 0,
+        overflow: "hidden",
+        display: "grid",
+        gridTemplateRows: "24px 1fr",
+        gap: 6,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 13,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+        }}
+      >
+        BREAK TIME
+      </div>
+
+      <div
+        style={{
+          
+          borderRadius: 6,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          textAlign: "center",
+          padding: 4,
+          minWidth: 0,
+          minHeight: 0,
+        }}
+      >
+        <div
+  style={{
+    display: "grid",
+    gridTemplateRows: "auto auto",
+    gap: 6,
+  }}
+>
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      flexWrap: "nowrap",
+      minWidth: 0,
+    }}
+  >
+    <button
+  onClick={() =>
+    setBreakSecondsInput(String(Math.max(1, (parseInt(breakSecondsInput, 10) || 0) - 5)))
+  }
+  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
+>
+  -
+</button>
+
+<div style={{ fontSize: 18, fontWeight: 900 }}>
+  {formatTime(parseInt(breakSecondsInput, 10) || 0)}
+</div>
+
+<button
+  onClick={() =>
+    setBreakSecondsInput(String((parseInt(breakSecondsInput, 10) || 0) + 5))
+  }
+  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
+>
+  +
+</button>
+  </div>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr",
+      gap: 4,
+    }}
+  >
+    <button
+  onClick={() => setBreakSecondsInput("30")}
+  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
+>
+  0:30
+</button>
+
+<button
+  onClick={() => setBreakSecondsInput("45")}
+  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
+>
+  0:45
+</button>
+
+<button
+  onClick={() => setBreakSecondsInput("60")}
+  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
+>
+  1:00
+</button>
+  </div>
+</div>
+      </div>
+    </div>
+
+    <div
+      style={{
+        
+        borderRadius: 8,
+        padding: 8,
+        boxSizing: "border-box",
+        minWidth: 0,
+        minHeight: 0,
+        overflow: "hidden",
+        display: "grid",
+        gridTemplateRows: "24px 1fr",
+        gap: 6,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 13,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+        }}
+      >
+        ROUNDS
+      </div>
+
+      <div
+        style={{
+          
+          borderRadius: 6,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          textAlign: "center",
+          padding: 4,
+          minWidth: 0,
+          minHeight: 0,
+        }}
+      >
+        <div
+  style={{
+    display: "grid",
+    gridTemplateRows: "auto auto",
+    gap: 6,
+  }}
+>
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 20,
+    }}
+  >
+    <button
+  onClick={() =>
+    setRoundsInput(String(Math.max(1, (parseInt(roundsInput, 10) || 0) - 1)))
+  }
+  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
+>
+  -
+</button>
+
+<div style={{ fontSize: 18, fontWeight: 900 }}>
+  {parseInt(roundsInput, 10) || 1}
+</div>
+
+<button
+  onClick={() =>
+    setRoundsInput(String((parseInt(roundsInput, 10) || 0) + 1))
+  }
+  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
+>
+  +
+</button>
+  </div>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr",
+      gap: 4,
+    }}
+  >
+    <button
+  onClick={() => setRoundsInput("1")}
+  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
+>
+  1
+</button>
+
+<button
+  onClick={() => setRoundsInput("2")}
+  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
+>
+  2
+</button>
+
+<button
+  onClick={() => setRoundsInput("3")}
+  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
+>
+  3
+</button>
+  </div>
+</div>
+      </div>
+    </div>
+  </div>
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: 4,
+    marginTop: 6,
+  }}
+>
+  <AppButton
+  feedback="none"
+  style={{
+    ...styles.green,
+    height: 28,
+    fontSize: 14,
+    borderRadius: 4,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+  onClick={startTimer}
+>
+  START
+</AppButton>
+
+  <AppButton
+    style={{
+      ...styles.amber,
+      height: 28,
+      fontSize: 14,
+      borderRadius: 4,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+    onClick={pauseTimer}
+  >
+    PAUSE
+  </AppButton>
+
+  <AppButton
+    style={{
+      ...styles.purple,
+      height: 28,
+      fontSize: 14,
+      borderRadius: 4,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+    onClick={finishMatch}
+  >
+    FINISH
+  </AppButton>
+
+  <AppButton
+    style={{
+      ...styles.red,
+      height: 28,
+      fontSize: 14,
+      borderRadius: 4,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+    onClick={closeMatch}
+  >
+    SET DECISION
+  </AppButton>
+</div>
+</div>
+
+{/*==============================caja medical time==============*/}
+
+  <div
+  style={{
+    
+    borderRadius: 10,
+    display: "grid",
+    gridTemplateRows: "32px 1fr",
+    gap: 8,
+    fontWeight: 900,
+    padding: 10,
+    boxSizing: "border-box",
+    minWidth: 0,
+    minHeight: 0,
+    overflow: "hidden",
+    
+  }}
+>
+  <div
+    style={{
+      fontSize: 20,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minWidth: 0,
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+    }}
+  >
+    MEDICAL TIME
+  </div>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: 10,
+      minWidth: 0,
+      minHeight: 0,
+      overflow: "hidden",
+    }}
+  >
+    <div
+      style={{
+        
+        borderRadius: 8,
+        padding: 2,
+        boxSizing: "border-box",
+        minWidth: 0,
+        minHeight: 0,
+        overflow: "hidden",
+        display: "grid",
+        gridTemplateRows: "auto 1fr",
+        gap: 2,
+        background: "white",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 13,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+        }}
+      >
+        
+      </div>
+
+      <div
+        style={{
+          
+          borderRadius: 6,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          textAlign: "center",
+          padding: 4,
+          minWidth: 0,
+          minHeight: 0,
+        }}
+      >
+        <div
+  style={{
+    display: "grid",
+    gridTemplateRows: "auto auto",
+    gap: 6,
+    height: "100%",
+    width: "100%",
+  }}
+>
+  <button
+    style={{
+      background: "#c81e1e",
+      border: "none",
+      borderRadius: 10,
+      color: "white",
+      fontWeight: 900,
+      fontSize: 16,
+      padding: 6,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      width: "100%",
+    }}
+  >
+    <span
+      style={{
+        background: "#a31212",
+        borderRadius: "50%",
+        width: 24,
+        height: 24,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 16,
+      }}
+    >
+      +
+    </span>
+
+    <span>HONG</span>
+
+    <span style={{ fontSize: 18 }}>04:45</span>
+  </button>
+
+  <button
+    style={{
+      background: "#3f3f3f",
+      border: "none",
+      borderRadius: 10,
+      color: "white",
+      fontWeight: 900,
+      fontSize: 12,
+      padding: 6,
+      width: "100%",
+    }}
+  >
+    MEDICAL TIME BREAK
+  </button>
+</div>
+      </div>
+    </div>
+
+    <div
+      style={{
+  borderRadius: 8,
+  padding: 2,
+  boxSizing: "border-box",
+  minWidth: 0,
+  minHeight: 0,
+  overflow: "hidden",
+  display: "grid",
+  gridTemplateRows: "auto 1fr",
+  gap: 2,
+  background: "white",
+}}
+    >
+      <div
+        style={{
+          fontSize: 13,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+        }}
+      >
+        
+      </div>
+
+      <div
+        style={{
+          
+          borderRadius: 6,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          textAlign: "center",
+          padding: 4,
+          minWidth: 0,
+          minHeight: 0,
+        }}
+      >
+        <div
+  style={{
+    display: "grid",
+    gridTemplateRows: "auto auto",
+    gap: 6,
+    height: "100%",
+    width: "100%",
+  }}
+>
+  <button
+    style={{
+      background: "#1d4ed8",
+      border: "none",
+      borderRadius: 10,
+      color: "white",
+      fontWeight: 900,
+      fontSize: 16,
+      padding: 6,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      width: "100%",
+    }}
+  >
+    <span
+      style={{
+        background: "#1e3a8a",
+        borderRadius: "50%",
+        width: 24,
+        height: 24,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 16,
+      }}
+    >
+      +
+    </span>
+
+    <span>CHONG</span>
+
+    <span style={{ fontSize: 18 }}>05:00</span>
+  </button>
+
+  <button
+    style={{
+      background: "#3f3f3f",
+      border: "none",
+      borderRadius: 10,
+      color: "white",
+      fontWeight: 900,
+      fontSize: 12,
+      padding: 6,
+      width: "100%",
+    }}
+  >
+    MEDICAL TIME BREAK
+  </button>
+</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{/*====================================CAJA GRANDE WARNINGS=======================*/}
+
+  <div
+  style={{
+    
+    borderRadius: 10,
+    display: "grid",
+    gridTemplateRows: "32px 1fr",
+    gap: 8,
+    fontWeight: 900,
+    padding: 10,
+    boxSizing: "border-box",
+    minWidth: 0,
+    minHeight: 0,
+    overflow: "hidden",
+    
+  }}
+>
+  <div
+    style={{
+      fontSize: 20,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minWidth: 0,
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+    }}
+  >
+    WARNINGS & FOULS
+  </div>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: 10,
+      minWidth: 0,
+      minHeight: 0,
+      overflow: "hidden",
+    }}
+  >
+    <div
+      style={{
+        borderRadius: 8,
+        padding: 2,
+        boxSizing: "border-box",
+        minWidth: 0,
+        minHeight: 0,
+        overflow: "hidden",
+        display: "grid",
+        gridTemplateRows: "auto 1fr",
+        gap: 0,
+        
+      }}
+    >
+      <div></div>
+
+      <div
+        style={{
+          borderRadius: 6,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          textAlign: "center",
+          padding: 4,
+          minWidth: 0,
+          minHeight: 0,
+        }}
+      >
+        <div
+  style={{
+    display: "grid",
+    gridTemplateRows: "auto auto auto",
+    gap: 6,
+    height: "100%",
+    width: "100%",
+  }}
+>
+  <button
+    style={{
+      background: "#c81e1e",
+      border: "none",
+      borderRadius: 10,
+      color: "white",
+      fontWeight: 900,
+      fontSize: 16,
+      padding: 6,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      width: "100%",
+    }}
+  >
+    
+    <span>WARNING</span>
+    <span style={{ fontSize: 18 }}>0</span>
+  </button>
+
+  <button
+    style={{
+      background: "#a31212",
+      border: "none",
+      borderRadius: 10,
+      color: "white",
+      fontWeight: 900,
+      fontSize: 14,
+      padding: 6,
+      width: "100%",
+    }}
+  >
+    FOUL 0
+  </button>
+
+  <button
+    style={{
+      background: "#3f3f3f",
+      border: "none",
+      borderRadius: 10,
+      color: "white",
+      fontWeight: 900,
+      fontSize: 12,
+      padding: 6,
+      width: "100%",
+    }}
+  >
+    DELETE HONG
+  </button>
+</div>
+      </div>
+    </div>
+
+    <div
+      style={{
+        borderRadius: 8,
+        padding: 2,
+        boxSizing: "border-box",
+        minWidth: 0,
+        minHeight: 0,
+        overflow: "hidden",
+        display: "grid",
+        gridTemplateRows: "auto 1fr",
+        gap: 0,
+        
+      }}
+    >
+      <div></div>
+
+      <div
+        style={{
+          borderRadius: 6,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          textAlign: "center",
+          padding: 4,
+          minWidth: 0,
+          minHeight: 0,
+        }}
+      >
+        <div
+  style={{
+    display: "grid",
+    gridTemplateRows: "auto auto auto",
+    gap: 6,
+    height: "100%",
+    width: "100%",
+  }}
+>
+  <button
+    style={{
+      background: "#1d4ed8",
+      border: "none",
+      borderRadius: 10,
+      color: "white",
+      fontWeight: 900,
+      fontSize: 16,
+      padding: 6,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      width: "100%",
+    }}
+  >
+    
+    <span>WARNING</span>
+    <span style={{ fontSize: 18 }}>0</span>
+  </button>
+
+  <button
+    style={{
+      background: "#1e3a8a",
+      border: "none",
+      borderRadius: 10,
+      color: "white",
+      fontWeight: 900,
+      fontSize: 14,
+      padding: 6,
+      width: "100%",
+    }}
+  >
+    FOUL 0
+  </button>
+
+{/*==================================BOTONES WARNINGS & FOULS===========================*/}
+
+  <button
+    style={{
+      background: "#3f3f3f",
+      border: "none",
+      borderRadius: 10,
+      color: "white",
+      fontWeight: 900,
+      fontSize: 12,
+      padding: 6,
+      width: "100%",
+    }}
+  >
+    DELETE CHONG
+  </button>
+</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+{/*==============================Caja Hong Data 4ta fila=====================*/}
+
+      <div
+        style={{
+          
+          borderRadius: 12,
+          display: "grid",
+          gridTemplateColumns: "1fr 0.7fr 1fr",
+          gap: 8,
+          padding: 8,
+          color: "white",
+        }}
+      >
+        <div
+  style={{
+    
+    borderRadius: 10,
+    display: "grid",
+    gridTemplateRows: "32px 1fr",
+    gap: 8,
+    fontWeight: 900,
+    padding: 8,
+    boxSizing: "border-box",
+    minWidth: 0,
+    minHeight: 0,
+    overflow: "hidden",
+    background: "linear-gradient(135deg, rgba(255,0,0,0.6), rgba(180,0,0,0.8))",
+  }}
+>
+  <div
+    style={{
+      fontSize: 20,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      whiteSpace: "nowrap",
+    }}
+  >
+    HONG DATA
+  </div>
+
+  <div
+  style={{
+    borderRadius: 8,
+    
+    color: "black",
+    display: "grid",
+    gridTemplateRows: "1fr 1fr",
+    gap: 6,
+    padding: 0,
+    boxSizing: "border-box",
+    minWidth: 0,
+    minHeight: 0,
+  }}
+>
+  <input
+    placeholder="NAME"
+    style={{
+      width: "100%",
+      borderRadius: 50,
+      border: "2px solid #ff4d4d",
+      padding: 10,
+      fontWeight: 900,
+      textAlign: "center",
+      fontSize: 16,
+    }}
+  />
+
+  <input
+    placeholder="TEAM"
+    style={{
+      width: "100%",
+      borderRadius: 50,
+      border: "2px solid #ff4d4d",
+      padding: 10,
+      fontWeight: 900,
+      textAlign: "center",
+      fontSize: 14,
+    }}
+  />
+</div>
+</div>
+
+<div
+  style={{
+    
+    borderRadius: 10,
+    display: "grid",
+    gridTemplateRows: "32px auto auto",
+    gap: 8,
+    fontWeight: 900,
+    padding: 8,
+    boxSizing: "border-box",
+    minWidth: 0,
+    minHeight: 0,
+    overflow: "hidden",
+    
+    color: "white",
+  }}
+>
+  <div
+    style={{
+      fontSize: 20,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      whiteSpace: "nowrap",
+    }}
+  >
+    MED TIME SET
+  </div>
+
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <select
+      style={{
+        width: "100%",
+        borderRadius: 50,
+        border: "2px solid #cccccc",
+        padding: 8,
+        fontWeight: 900,
+        textAlign: "center",
+        fontSize: 16,
+        background: "white",
+        color: "black",
+      }}
+    >
+      <option>00:30</option>
+      <option>01:00</option>
+      <option>01:30</option>
+      <option>02:00</option>
+      <option>02:30</option>
+      <option>03:00</option>
+      <option>03:30</option>
+      <option>04:00</option>
+      <option>04:30</option>
+      <option>05:00</option>
+    </select>
+  </div>
+
+  <button
+    style={{
+      width: "100%",
+      border: "none",
+      borderRadius: 999,
+      background: "#3f3f3f",
+      color: "white",
+      fontWeight: 900,
+      fontSize: 14,
+      padding: 10,
+    }}
+  >
+    ⟲ RESET MEDICAL TIME
+  </button>
+</div>
+<div
+  style={{
+    
+    borderRadius: 10,
+    display: "grid",
+    gridTemplateRows: "32px 1fr",
+    gap: 8,
+    fontWeight: 900,
+    padding: 8,
+    boxSizing: "border-box",
+    minWidth: 0,
+    minHeight: 0,
+    overflow: "hidden",
+    background: "linear-gradient(135deg, rgba(0,102,255,0.6), rgba(0,60,180,0.8))",
+  }}
+>
+  <div
+    style={{
+      fontSize: 20,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      whiteSpace: "nowrap",
+    }}
+  >
+    CHONG DATA
+  </div>
+
+  <div
+  style={{
+    borderRadius: 8,
+    color: "black",
+    display: "grid",
+    gridTemplateRows: "1fr 1fr",
+    gap: 6,
+    padding: 0,
+    boxSizing: "border-box",
+    minWidth: 0,
+    minHeight: 0,
+  }}
+>
+  <input
+    placeholder="NAME"
+    style={{
+      width: "100%",
+      borderRadius: 50,
+      border: "2px solid #4da6ff",
+      padding: 10,
+      fontWeight: 900,
+      textAlign: "center",
+      fontSize: 16,
+    }}
+  />
+
+  <input
+    placeholder="TEAM"
+    style={{
+      width: "100%",
+      borderRadius: 50,
+      border: "2px solid #4da6ff",
+      padding: 10,
+      fontWeight: 900,
+      textAlign: "center",
+      fontSize: 14,
+    }}
+  />
+</div>
+</div>
+      </div>
+
+{/*==============================FILA NUMERO 5 GOLDEN POINTS===========*/}
+
+      <div
+        style={{
+          
+          borderRadius: 12,
+          display: "grid",
+          gridTemplateColumns: "1pr 0.50fr 1fr",
+          gap: 8,
+          padding: 8,
+          minHeight: 0,
+          color: "white",
+        }}
+      >
+        <div
+  style={{
+    
+    borderRadius: 12,
+    display: "grid",
+    gridTemplateRows: "50px 1fr 1fr",
+    gap: 8,
+    padding: 8,
+    boxSizing: "border-box",
+    
+    color: "white",
+    fontWeight: 900,
+  }}
+>
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 18,
+    }}
+  >
+    GOLDEN POINT
+  </div>
+
+  <button
+    style={{
+      border: "none",
+      borderRadius: 10,
+      background: "linear-gradient(135deg, #FFD700, #B8860B)",
+      color: "black",
+      color: "black",
+      fontWeight: 900,
+      fontSize: 16,
+      padding: 10,
+    }}
+  >
+    GOLDEN POINT A
+  </button>
+
+  <button
+    style={{
+      border: "none",
+      borderRadius: 10,
+      background: "linear-gradient(135deg, #FFC300, #8B6508)",
+      
+      color: "black",
+      color: "black",
+      fontWeight: 900,
+      fontSize: 16,
+      padding: 10,
+    }}
+  >
+    GOLDEN POINT B
+  </button>
+</div>
+
+        <div
+          style={{
+            
+            borderRadius: 10,
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: 8,
+            padding: 8,
+            minHeight: 0,
+          }}
+        >
+          <div
+  style={{
+    
+    borderRadius: 10,
+    display: "grid",
+    gridTemplateRows: "28px 1fr",
+    gap: 6,
+    padding: 6,
+    boxSizing: "border-box",
+    
+    color: "white",
+    fontWeight: 900,
+  }}
+>
+  {/*=====================TITULO JUEZ===================*/}
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 14,
+    }}
+  >
+    JUDGE 1
+  </div>
+
+  {/* CONTENIDO */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: 6,
+    }}
+  >
+    {/* HONG */}
+    <div
+      style={{
+        borderRadius: 8,
+        background: "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
+        boxShadow: "inset 0 0 12px rgba(255,0,0,0.6)",
+        
+        display: "grid",
+        gridTemplateRows: "1fr 1fr 1fr",
+        padding: 6,
+        textAlign: "center",
+        fontSize: 12,
+      }}
+    >
+      <div>POINTS 0</div>
+      <div>WARNING 0</div>
+      <div>FOULS 0</div>
+    </div>
+
+    {/* CHONG */}
+    <div
+      style={{
+        borderRadius: 8,
+        background: "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
+        display: "grid",
+        gridTemplateRows: "1fr 1fr 1fr",
+        padding: 6,
+        textAlign: "center",
+        fontSize: 12,
+      }}
+    >
+      <div>POINTS 0</div>
+      <div>WARNING 0</div>
+      <div>FOULS 0</div>
+    </div>
+  </div>
+</div>
+          <div
+  style={{
+    
+    borderRadius: 10,
+    display: "grid",
+    gridTemplateRows: "28px 1fr",
+    gap: 6,
+    padding: 6,
+    boxSizing: "border-box",
+    
+    color: "white",
+    fontWeight: 900,
+  }}
+>
+  {/*=====================TITULO JUEZ===================*/}
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 14,
+    }}
+  >
+    JUDGE 2
+  </div>
+
+  {/* CONTENIDO */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: 6,
+    }}
+  >
+    {/* HONG */}
+    <div
+      style={{
+        borderRadius: 8,
+        background: "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
+        boxShadow: "inset 0 0 12px rgba(255,0,0,0.6)",
+        
+        display: "grid",
+        gridTemplateRows: "1fr 1fr 1fr",
+        padding: 6,
+        textAlign: "center",
+        fontSize: 12,
+      }}
+    >
+      <div>POINTS 0</div>
+      <div>WARNING 0</div>
+      <div>FOULS 0</div>
+    </div>
+
+    {/* CHONG */}
+    <div
+      style={{
+        borderRadius: 8,
+        background: "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
+        display: "grid",
+        gridTemplateRows: "1fr 1fr 1fr",
+        padding: 6,
+        textAlign: "center",
+        fontSize: 12,
+      }}
+    >
+      <div>POINTS 0</div>
+      <div>WARNING 0</div>
+      <div>FOULS 0</div>
+    </div>
+  </div>
+</div>
+          <div
+  style={{
+    
+    borderRadius: 10,
+    display: "grid",
+    gridTemplateRows: "28px 1fr",
+    gap: 6,
+    padding: 6,
+    boxSizing: "border-box",
+    
+    color: "white",
+    fontWeight: 900,
+  }}
+>
+  {/*=====================TITULO JUEZ===================*/}
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 14,
+    }}
+  >
+    JUDGE 3
+  </div>
+
+  {/* CONTENIDO */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: 6,
+    }}
+  >
+    {/* HONG */}
+    <div
+      style={{
+        borderRadius: 8,
+        background: "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
+        boxShadow: "inset 0 0 12px rgba(255,0,0,0.6)",
+        
+        display: "grid",
+        gridTemplateRows: "1fr 1fr 1fr",
+        padding: 6,
+        textAlign: "center",
+        fontSize: 12,
+      }}
+    >
+      <div>POINTS 0</div>
+      <div>WARNING 0</div>
+      <div>FOULS 0</div>
+    </div>
+
+    {/* CHONG */}
+    <div
+      style={{
+        borderRadius: 8,
+        background: "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
+        display: "grid",
+        gridTemplateRows: "1fr 1fr 1fr",
+        padding: 6,
+        textAlign: "center",
+        fontSize: 12,
+      }}
+    >
+      <div>POINTS 0</div>
+      <div>WARNING 0</div>
+      <div>FOULS 0</div>
+    </div>
+  </div>
+</div>
+          <div
+  style={{
+    
+    borderRadius: 10,
+    display: "grid",
+    gridTemplateRows: "28px 1fr",
+    gap: 6,
+    padding: 6,
+    boxSizing: "border-box",
+    
+    color: "white",
+    fontWeight: 900,
+  }}
+>
+  {/*=====================TITULO JUEZ===================*/}
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 14,
+    }}
+  >
+    JUDGE 4
+  </div>
+
+  {/* CONTENIDO */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: 6,
+    }}
+  >
+    {/* HONG */}
+    <div
+      style={{
+        borderRadius: 8,
+        background: "linear-gradient(135deg, rgba(255,0,0,0.75), rgba(120,0,0,1))",
+        boxShadow: "inset 0 0 12px rgba(255,0,0,0.6)",
+        
+        display: "grid",
+        gridTemplateRows: "1fr 1fr 1fr",
+        padding: 6,
+        textAlign: "center",
+        fontSize: 12,
+      }}
+    >
+      <div>POINTS 0</div>
+      <div>WARNING 0</div>
+      <div>FOULS 0</div>
+    </div>
+
+    {/* CHONG */}
+    <div
+      style={{
+        borderRadius: 8,
+        background: "linear-gradient(135deg, rgba(0,102,255,0.5), rgba(0,30,120,0.8))",
+        display: "grid",
+        gridTemplateRows: "1fr 1fr 1fr",
+        padding: 6,
+        textAlign: "center",
+        fontSize: 12,
+      }}
+    >
+      <div>POINTS 0</div>
+      <div>WARNING 0</div>
+      <div>FOULS 0</div>
+    </div>
+  </div>
+</div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          
+          borderRadius: 12,
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          gap: 8,
+          padding: 8,
+          color: "white",
+        }}
+      >
+        <div
+  style={{
+    
+    borderRadius: 14,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: 900,
+    fontSize: 22,
+    padding: 12,
+    boxSizing: "border-box",
+    background: "linear-gradient(135deg, rgba(255,0,0,0.65), rgba(140,0,0,0.95))",
+    color: "white",
+    boxShadow: "inset 0 0 12px rgba(255,255,255,0.12), 0 0 14px rgba(255,0,0,0.35)",
+    transform: "scale(1)",
+    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+  }}
+>
+  HONG WINNER
+</div>
+
+<div
+  style={{
+    
+    borderRadius: 14,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: 900,
+    fontSize: 22,
+    padding: 12,
+    boxSizing: "border-box",
+    background: "linear-gradient(135deg, #e5e5e5, #8c8c8c)",
+    color: "black",
+    border: "3px solid #cccccc",
+    color: "black",
+    boxShadow: "inset 0 0 12px rgba(255,255,255,0.18), 0 0 14px rgba(255,215,0,0.35)",
+    transform: "scale(1)",
+    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+  }}
+>
+  DRAW
+</div>
+
+<div
+  style={{
+    
+    borderRadius: 14,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: 900,
+    fontSize: 22,
+    padding: 12,
+    boxSizing: "border-box",
+    background: "linear-gradient(135deg, rgba(0,102,255,0.65), rgba(0,45,140,0.95))",
+    color: "white",
+    boxShadow: "inset 0 0 12px rgba(255,255,255,0.12), 0 0 14px rgba(0,102,255,0.35)",
+    transform: "scale(1)",
+    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+  }}
+>
+  CHONG WINNER
+</div>
+      </div>
+    </div>
+  </Frame16x9>
+);
+}
+
+{/*=============================HASTA ACA ES FUNCTION PRESIDENTSCREENV2============================*/}
 
 function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate }) {
   const time = useClock(meta);
@@ -3360,7 +5689,7 @@ export default function App() {
 
   if (path === "/president") {
     return (
-      <><GlobalAppStyle /><PresidentScreen
+      <><GlobalAppStyle /><PresidentScreenV2
         meta={meta}
         judges={judges}
         writeMeta={writeMeta}
