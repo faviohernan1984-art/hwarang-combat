@@ -3346,8 +3346,8 @@ const handleInvertPresident = async () => {
   }));
 };
 
-  const winner = meta.showResult ? s.winner : null;
-const handleInvertSides = async () => {
+const winner = meta.showResult ? s.winner : null;
+  const handleInvertSides = async () => {
   await commitEditor(editorDraftRef.current);
 
   await writeMeta((current) => ({
@@ -3365,6 +3365,8 @@ const handleInvertSides = async () => {
       : meta.status === "running"
       ? "Sparring in Progress"
       : "Match Paused";
+
+const isSwapped = meta.presidentSwapSides;
 
   return (
   <Frame16x9>
@@ -3538,7 +3540,9 @@ const handleInvertSides = async () => {
   <div
     style={{
       ...styles.stat,
-      background: "linear-gradient(135deg, rgba(255,80,80,0.25), rgba(120,0,0,0.45))",
+      background: isSwapped
+  ? "linear-gradient(135deg, rgba(0,102,255,0.25), rgba(0,40,120,0.5))"
+  : "linear-gradient(135deg, rgba(255,80,80,0.25), rgba(120,0,0,0.45))",
        
       borderRadius: 10,
       boxShadow: "inset 0 0 8px rgba(255,255,255,0.1)",
@@ -3552,17 +3556,19 @@ const handleInvertSides = async () => {
     }}
   >
     <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
-      Hong Points
+      {isSwapped ? "Chong Points" : "Hong Points"}
     </div>
     <strong style={{ fontSize: 28, lineHeight: 1.05 }}>
-      {s.hongVotes}
+      {isSwapped ? s.chongVotes : s.hongVotes}
     </strong>
   </div>
 
   <div
     style={{
       ...styles.stat,
-      background: "linear-gradient(135deg, rgba(0,102,255,0.25), rgba(0,40,120,0.5))",
+      background: isSwapped
+  ? "linear-gradient(135deg, rgba(255,80,80,0.25), rgba(120,0,0,0.45))"
+  : "linear-gradient(135deg, rgba(0,102,255,0.25), rgba(0,40,120,0.5))",
       boxShadow: "inset 0 0 8px rgba(255,255,255,0.1)",
       borderRadius: 10,
       display: "flex",
@@ -3575,11 +3581,11 @@ const handleInvertSides = async () => {
     }}
   >
     <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
-      Chong Points
-    </div>
+  {isSwapped ? "Hong Points" : "Chong Points"}
+</div>
     <strong style={{ fontSize: 28, lineHeight: 1.05 }}>
-      {s.chongVotes}
-    </strong>
+  {isSwapped ? s.hongVotes : s.chongVotes}
+</strong>
   </div>
 </div>
 
@@ -4136,7 +4142,7 @@ const handleInvertSides = async () => {
 >
   <button
     style={{
-      background: "#c81e1e",
+      background: isSwapped ? "#1d4ed8" : "#c81e1e",
       border: "none",
       borderRadius: 10,
       color: "white",
@@ -4165,7 +4171,7 @@ const handleInvertSides = async () => {
       +
     </span>
 
-    <span>HONG</span>
+    <span>{isSwapped ? "CHONG" : "HONG"}</span>
 
     <span style={{ fontSize: 18 }}>04:45</span>
   </button>
@@ -4239,7 +4245,7 @@ const handleInvertSides = async () => {
 >
   <button
     style={{
-      background: "#1d4ed8",
+      background: isSwapped ? "#c81e1e" : "#1d4ed8",
       border: "none",
       borderRadius: 10,
       color: "white",
@@ -4268,7 +4274,7 @@ const handleInvertSides = async () => {
       +
     </span>
 
-    <span>CHONG</span>
+    <span>{isSwapped ? "HONG" : "CHONG"}</span>
 
     <span style={{ fontSize: 18 }}>05:00</span>
   </button>
@@ -4375,7 +4381,7 @@ const handleInvertSides = async () => {
 >
   <button
     style={{
-      background: "#c81e1e",
+      background: isSwapped ? "#1d4ed8" : "#c81e1e",
       border: "none",
       borderRadius: 10,
       color: "white",
@@ -4396,7 +4402,7 @@ const handleInvertSides = async () => {
 
   <button
     style={{
-      background: "#a31212",
+      background: isSwapped ? "#1e3a8a" : "#a31212",
       border: "none",
       borderRadius: 10,
       color: "white",
@@ -4406,7 +4412,7 @@ const handleInvertSides = async () => {
       width: "100%",
     }}
   >
-    FOUL 0
+    {isSwapped ? "FOUL 0" : "FOUL 0"}
   </button>
 
   <button
@@ -4421,7 +4427,7 @@ const handleInvertSides = async () => {
       width: "100%",
     }}
   >
-    DELETE HONG
+    {isSwapped ? "DELETE CHONG" : "DELETE HONG"}
   </button>
 </div>
       </div>
@@ -4467,7 +4473,7 @@ const handleInvertSides = async () => {
 >
   <button
     style={{
-      background: "#1d4ed8",
+      background: isSwapped ? "#c81e1e" : "#1d4ed8",
       border: "none",
       borderRadius: 10,
       color: "white",
@@ -4488,7 +4494,7 @@ const handleInvertSides = async () => {
 
   <button
     style={{
-      background: "#1e3a8a",
+      background: isSwapped ? "#a31212" : "#1e3a8a",
       border: "none",
       borderRadius: 10,
       color: "white",
@@ -4515,7 +4521,7 @@ const handleInvertSides = async () => {
       width: "100%",
     }}
   >
-    DELETE CHONG
+    {isSwapped ? "DELETE HONG" : "DELETE CHONG"}
   </button>
 </div>
       </div>
