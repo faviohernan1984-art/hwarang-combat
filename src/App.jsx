@@ -1317,6 +1317,8 @@ function PublicFighterPanel({ title, fighter, score, warnings, fouls }) {
   );
 }
 
+{/*==================================publicScreen===================*/}
+
 function PublicScreen({ meta, judges, navigate }) {
   const time = useClock(meta);
 const displayTime =
