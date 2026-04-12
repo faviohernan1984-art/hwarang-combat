@@ -3348,6 +3348,36 @@ const handleInvertPresident = async () => {
   }));
 };
 
+const handleMedicalBreak = async () => {
+  await commitEditor(editorDraftRef.current);
+
+  await writeMeta((current) => ({
+    ...current,
+    medicalActive: false,
+    medicalRunning: false,
+  }));
+};
+const handleMedicalStart = async (side) => {
+  console.log("medical start", side);
+  await commitEditor(editorDraftRef.current);
+
+  await writeMeta((current) => {
+    const preset =
+      current?.config?.medicalPreset ??
+      current?.medicalPreset ??
+      300;
+
+    return {
+      ...current,
+      medicalActive: true,
+      medicalRunning: true,
+      medicalSide: side,
+      medicalLast: Date.now(),
+      medicalHong: side === "hong" ? (current.medicalHong ?? preset) : (current.medicalHong ?? preset),
+      medicalChong: side === "chong" ? (current.medicalChong ?? preset) : (current.medicalChong ?? preset),
+    };
+  });
+};
 const winner = meta.showResult ? s.winner : null;
   const handleInvertSides = async () => {
   await commitEditor(editorDraftRef.current);
@@ -3369,6 +3399,8 @@ const winner = meta.showResult ? s.winner : null;
       : "Match Paused";
 
 const isSwapped = meta.presidentSwapSides;
+const leftSide = isSwapped ? "chong" : "hong";
+const rightSide = isSwapped ? "hong" : "chong";
 
   return (
   <Frame16x9>
@@ -4090,6 +4122,7 @@ const isSwapped = meta.presidentSwapSides;
       minWidth: 0,
       minHeight: 0,
       overflow: "hidden",
+     
     }}
   >
     <div
@@ -4105,6 +4138,7 @@ const isSwapped = meta.presidentSwapSides;
         gridTemplateRows: "auto 1fr",
         gap: 2,
         background: "white",
+        
       }}
     >
       <div
@@ -4140,9 +4174,11 @@ const isSwapped = meta.presidentSwapSides;
     gap: 6,
     height: "100%",
     width: "100%",
+    
   }}
 >
   <button
+    onClick={() => handleMedicalStart(leftSide)}
     style={{
       background: isSwapped ? "#1d4ed8" : "#c81e1e",
       border: "none",
@@ -4156,6 +4192,10 @@ const isSwapped = meta.presidentSwapSides;
       justifyContent: "center",
       gap: 8,
       width: "100%",
+      pointerEvents: "auto",
+      position: "relative",
+      zIndex: 10,
+      cursor: "pointer",
     }}
   >
     <span
@@ -4175,23 +4215,29 @@ const isSwapped = meta.presidentSwapSides;
 
     <span>{isSwapped ? "CHONG" : "HONG"}</span>
 
-    <span style={{ fontSize: 18 }}>{isSwapped ? "05:00" : "04:45"}</span>
+    <span style={{ fontSize: 18 }}>
+  {formatTime(
+    (isSwapped ? meta.medicalChong : meta.medicalHong) || 0
+  )}
+</span>
   </button>
 
   <button
-    style={{
-      background: "#3f3f3f",
-      border: "none",
-      borderRadius: 10,
-      color: "white",
-      fontWeight: 900,
-      fontSize: 12,
-      padding: 6,
-      width: "100%",
-    }}
-  >
-    MEDICAL TIME BREAK
-  </button>
+  onClick={handleMedicalBreak}
+  style={{
+    background: "#3f3f3f",
+    border: "none",
+    borderRadius: 10,
+    color: "white",
+    fontWeight: 900,
+    fontSize: 12,
+    padding: 6,
+    width: "100%",
+    cursor: "pointer",
+  }}
+>
+  MEDICAL TIME BREAK
+</button>
 </div>
       </div>
     </div>
@@ -4246,6 +4292,7 @@ const isSwapped = meta.presidentSwapSides;
   }}
 >
   <button
+      onClick={() => handleMedicalStart(rightSide)}
     style={{
       background: isSwapped ? "#c81e1e" : "#1d4ed8",
       border: "none",
@@ -4278,23 +4325,29 @@ const isSwapped = meta.presidentSwapSides;
 
     <span>{isSwapped ? "HONG" : "CHONG"}</span>
 
-    <span style={{ fontSize: 18 }}>{isSwapped ? "04:45" : "05:00"}</span>
+    <span style={{ fontSize: 18 }}>
+  {formatTime(
+    (isSwapped ? meta.medicalHong : meta.medicalChong) || 0
+  )}
+</span>
   </button>
 
   <button
-    style={{
-      background: "#3f3f3f",
-      border: "none",
-      borderRadius: 10,
-      color: "white",
-      fontWeight: 900,
-      fontSize: 12,
-      padding: 6,
-      width: "100%",
-    }}
-  >
-    MEDICAL TIME BREAK
-  </button>
+  onClick={handleMedicalBreak}
+  style={{
+    background: "#3f3f3f",
+    border: "none",
+    borderRadius: 10,
+    color: "white",
+    fontWeight: 900,
+    fontSize: 12,
+    padding: 6,
+    width: "100%",
+    cursor: "pointer",
+  }}
+>
+  MEDICAL TIME BREAK
+</button>
 </div>
       </div>
     </div>
