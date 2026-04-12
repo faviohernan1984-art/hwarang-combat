@@ -223,6 +223,9 @@ function makeInitialMeta() {
     hongFouls: 0,
     chongFouls: 0,
 
+    hongLog: [],
+    chongLog: [],
+
     hong: getBaseCombatant(HONG),
     chong: getBaseCombatant(CHONG),
 
@@ -2309,7 +2312,8 @@ const handleInvertPresident = async () => {
     presidentSwapSides: !current.presidentSwapSides,
   }));
 };
-
+  
+  
   const winner = meta.showResult ? s.winner : null;
 const handleInvertSides = async () => {
   await commitEditor(editorDraftRef.current);
@@ -3357,8 +3361,38 @@ const handleMedicalBreak = async () => {
     medicalRunning: false,
   }));
 };
+const handleWarningAdd = async (side) => {
+  await commitEditor(editorDraftRef.current);
+
+  await writeMeta((current) => ({
+    ...current,
+    hongWarnings:
+      side === "hong"
+        ? (current.hongWarnings || 0) + 1
+        : current.hongWarnings || 0,
+    chongWarnings:
+      side === "chong"
+        ? (current.chongWarnings || 0) + 1
+        : current.chongWarnings || 0,
+  }));
+};
+const handleFoulAdd = async (side) => {
+  await commitEditor(editorDraftRef.current);
+
+  await writeMeta((current) => ({
+    ...current,
+    hongFouls:
+      side === "hong"
+        ? (current.hongFouls || 0) + 1
+        : current.hongFouls || 0,
+    chongFouls:
+      side === "chong"
+        ? (current.chongFouls || 0) + 1
+        : current.chongFouls || 0,
+  }));
+};
 const handleMedicalStart = async (side) => {
-  console.log("medical start", side);
+  
   await commitEditor(editorDraftRef.current);
 
   await writeMeta((current) => {
@@ -3463,7 +3497,7 @@ const rightSide = isSwapped ? "hong" : "chong";
       textOverflow: "ellipsis",
     }}
   >
-    PRESIDENT SCREEN V2
+    HWARANG SOCORING UNIVERSE
   </div>
 </div>
 
@@ -4435,6 +4469,7 @@ const rightSide = isSwapped ? "hong" : "chong";
   }}
 >
   <button
+      onClick={() => handleWarningAdd(leftSide)}
     style={{
       background: isSwapped ? "#1d4ed8" : "#c81e1e",
       border: "none",
@@ -4452,10 +4487,13 @@ const rightSide = isSwapped ? "hong" : "chong";
   >
     
     <span>WARNING</span>
-    <span style={{ fontSize: 18 }}>0</span>
+    <span style={{ fontSize: 18 }}>
+  {leftSide === "hong" ? meta.hongWarnings || 0 : meta.chongWarnings || 0}
+</span>
   </button>
 
   <button
+      onClick={() => handleFoulAdd(leftSide)}
     style={{
       background: isSwapped ? "#1e3a8a" : "#a31212",
       border: "none",
@@ -4467,23 +4505,58 @@ const rightSide = isSwapped ? "hong" : "chong";
       width: "100%",
     }}
   >
-    {isSwapped ? "FOUL 0" : "FOUL 0"}
+    <span>
+  FOUL{" "}
+  {leftSide === "hong"
+    ? meta.hongFouls || 0
+    : meta.chongFouls || 0}
+</span>
   </button>
 
   <button
-    style={{
-      background: "#3f3f3f",
-      border: "none",
-      borderRadius: 10,
-      color: "white",
-      fontWeight: 900,
-      fontSize: 12,
-      padding: 6,
-      width: "100%",
-    }}
-  >
-    {isSwapped ? "DELETE CHONG" : "DELETE HONG"}
-  </button>
+  onClick={async () => {
+    
+    await commitEditor(editorDraftRef.current);
+
+    await writeMeta((current) => {
+      let hongWarnings = current.hongWarnings || 0;
+      let chongWarnings = current.chongWarnings || 0;
+      let hongFouls = current.hongFouls || 0;
+      let chongFouls = current.chongFouls || 0;
+
+      if (leftSide === "hong") {
+        if (hongFouls > 0) hongFouls -= 1;
+        else if (hongWarnings > 0) hongWarnings -= 1;
+      }
+
+      if (leftSide === "chong") {
+        if (chongFouls > 0) chongFouls -= 1;
+        else if (chongWarnings > 0) chongWarnings -= 1;
+      }
+
+      return {
+        ...current,
+        hongWarnings,
+        chongWarnings,
+        hongFouls,
+        chongFouls,
+      };
+    });
+  }}
+  style={{
+    background: "#3f3f3f",
+    border: "none",
+    borderRadius: 10,
+    color: "white",
+    fontWeight: 900,
+    fontSize: 12,
+    padding: 6,
+    width: "100%",
+    cursor: "pointer",
+  }}
+>
+  {isSwapped ? "DELETE CHONG" : "DELETE HONG"}
+</button>
 </div>
       </div>
     </div>
@@ -4527,6 +4600,7 @@ const rightSide = isSwapped ? "hong" : "chong";
   }}
 >
   <button
+      onClick={() => handleWarningAdd(rightSide)}
     style={{
       background: isSwapped ? "#c81e1e" : "#1d4ed8",
       border: "none",
@@ -4544,10 +4618,13 @@ const rightSide = isSwapped ? "hong" : "chong";
   >
     
     <span>WARNING</span>
-    <span style={{ fontSize: 18 }}>0</span>
+    <span style={{ fontSize: 18 }}>
+  {rightSide === "hong" ? meta.hongWarnings || 0 : meta.chongWarnings || 0}
+</span>
   </button>
 
   <button
+      onClick={() => handleFoulAdd(rightSide)}
     style={{
       background: isSwapped ? "#a31212" : "#1e3a8a",
       border: "none",
@@ -4559,25 +4636,60 @@ const rightSide = isSwapped ? "hong" : "chong";
       width: "100%",
     }}
   >
-    FOUL 0
+    <span>
+  FOUL{" "}
+  {rightSide === "hong"
+    ? meta.hongFouls || 0
+    : meta.chongFouls || 0}
+</span>
   </button>
 
 {/*==================================BOTONES WARNINGS & FOULS===========================*/}
 
   <button
-    style={{
-      background: "#3f3f3f",
-      border: "none",
-      borderRadius: 10,
-      color: "white",
-      fontWeight: 900,
-      fontSize: 12,
-      padding: 6,
-      width: "100%",
-    }}
-  >
-    {isSwapped ? "DELETE HONG" : "DELETE CHONG"}
-  </button>
+  onClick={async () => {
+    
+    await commitEditor(editorDraftRef.current);
+
+    await writeMeta((current) => {
+      let hongWarnings = current.hongWarnings || 0;
+      let chongWarnings = current.chongWarnings || 0;
+      let hongFouls = current.hongFouls || 0;
+      let chongFouls = current.chongFouls || 0;
+
+      if (rightSide === "hong") {
+        if (hongFouls > 0) hongFouls -= 1;
+        else if (hongWarnings > 0) hongWarnings -= 1;
+      }
+
+      if (rightSide === "chong") {
+        if (chongFouls > 0) chongFouls -= 1;
+        else if (chongWarnings > 0) chongWarnings -= 1;
+      }
+
+      return {
+        ...current,
+        hongWarnings,
+        chongWarnings,
+        hongFouls,
+        chongFouls,
+      };
+    });
+  }}
+  style={{
+    background: "#3f3f3f",
+    border: "none",
+    borderRadius: 10,
+    color: "white",
+    fontWeight: 900,
+    fontSize: 12,
+    padding: 6,
+    width: "100%",
+    cursor: "pointer",
+  }}
+>
+  {isSwapped ? "DELETE HONG" : "DELETE CHONG"}
+</button>
 </div>
       </div>
     </div>
