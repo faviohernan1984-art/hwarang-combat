@@ -465,8 +465,18 @@ function summary(meta, judges) {
 }
 
 function secondFoulWarning(meta) {
-  if ((meta.hongFouls || 0) === 2) return `${HONG}: a la próxima falta grave será descalificación`;
-  if ((meta.chongFouls || 0) === 2) return `${CHONG}: a la próxima falta grave será descalificación`;
+  const hongSecond = (meta.hongFouls || 0) === 2;
+  const chongSecond = (meta.chongFouls || 0) === 2;
+
+  if (hongSecond && chongSecond) {
+    return "DOUBLE WARNING: Next grave foul = disqualification.";
+  }
+  if (hongSecond) {
+    return "HONG WARNING: Next grave foul = disqualification.";
+  }
+  if (chongSecond) {
+    return "CHONG WARNING: Next grave foul = disqualification.";
+  }
   return "";
 }
 
@@ -1324,20 +1334,21 @@ function PublicFighterPanel({ title, fighter, score, warnings, fouls }) {
 
 function PublicScreen({ meta, judges, navigate }) {
   const time = useClock(meta);
-const displayTime =
-  meta.status === "running"
-    ? time
-    : meta.remaining ?? time;
+  const displayTime =
+    meta.status === "running"
+      ? time
+      : meta.remaining ?? time;
+
   const s = summary(meta, judges);
   const { left, right } = getDisplaySides(meta, "public");
-
   const medical = ensureMedical(meta);
+  const warning = secondFoulWarning(meta);
 
   const medicalBanner = medical.active ? (
     <div
       style={{
         position: "absolute",
-        top: 20,
+        top: 790,
         left: 20,
         right: 20,
         zIndex: 20,
@@ -1351,6 +1362,37 @@ const displayTime =
     >
       MEDICAL {medical.side?.toUpperCase()}{" "}
       {formatTime(medical.side === "hong" ? medical.hong : medical.chong)}
+    </div>
+  ) : null;
+
+const foulWarningBanner =
+  !medical.active &&
+  !meta.showResult &&
+  meta.phase !== "finished" &&
+  (meta.hongFouls || 0) < 3 &&
+  (meta.chongFouls || 0) < 3 &&
+  secondFoulWarning(meta) ? (
+    <div
+      style={{
+        position: "absolute",
+        top: 790,
+        left: 20,
+        right: 20,
+        zIndex: 19,
+        background: "#7c2d12",
+        border: "3px solid #f97316",
+        borderRadius: 20,
+        padding: 18,
+        textAlign: "center",
+        color: "#ffedd5",
+        fontSize: 34,
+        fontWeight: 900,
+        lineHeight: 1.15,
+        letterSpacing: "0.02em",
+        textTransform: "uppercase",
+      }}
+    >
+      {secondFoulWarning(meta)}
     </div>
   ) : null;
 
@@ -1550,6 +1592,7 @@ const displayTime =
         }}
       >
         {medicalBanner}
+        {foulWarningBanner}
 
         <div
           style={{
@@ -2947,8 +2990,10 @@ function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navi
   meta = ensureMetaShape(meta);
   const time = useClock(meta);
   const s = summary(meta, judges);
+  const presidentWinner = meta.showResult ? s.winner : null;
   const prevRunningRef = useRef(false);
   const prevFinishedRef = useRef(false);
+  const inputsLocked = meta.phase === "finished";
 
   const [secondsInput, setSecondsInput] = useState(String(meta.config.roundSeconds || 120));
   const [roundsInput, setRoundsInput] = useState(String(meta.config.rounds || 2));
@@ -3379,17 +3424,39 @@ const handleWarningAdd = async (side) => {
 const handleFoulAdd = async (side) => {
   await commitEditor(editorDraftRef.current);
 
-  await writeMeta((current) => ({
-    ...current,
-    hongFouls:
+  await writeMeta((current) => {
+    const nextHongFouls =
       side === "hong"
         ? (current.hongFouls || 0) + 1
-        : current.hongFouls || 0,
-    chongFouls:
+        : current.hongFouls || 0;
+
+    const nextChongFouls =
       side === "chong"
         ? (current.chongFouls || 0) + 1
-        : current.chongFouls || 0,
-  }));
+        : current.chongFouls || 0;
+
+    const hongReachedThird = nextHongFouls >= 3;
+    const chongReachedThird = nextChongFouls >= 3;
+
+    return {
+      ...current,
+      hongFouls: nextHongFouls,
+      chongFouls: nextChongFouls,
+
+      ...(hongReachedThird || chongReachedThird
+        ? {
+            phase: "finished",
+            status: "paused",
+            showResult: false,
+            match: {
+              ...(current.match || {}),
+              phase: "finished",
+              status: "paused",
+            },
+          }
+        : {}),
+    };
+  });
 };
 const handleMedicalStart = async (side) => {
   
@@ -3449,8 +3516,10 @@ const rightSide = isSwapped ? "hong" : "chong";
         gap: 8,
         overflow: "hidden",
         background: "#0b0f1a",
+        position: "relative",
       }}
     >
+
       <div
   style={{
     
@@ -3500,6 +3569,8 @@ const rightSide = isSwapped ? "hong" : "chong";
     HWARANG SOCORING UNIVERSE
   </div>
 </div>
+
+
 
       <div
   style={{
@@ -4469,53 +4540,61 @@ const rightSide = isSwapped ? "hong" : "chong";
   }}
 >
   <button
-      onClick={() => handleWarningAdd(leftSide)}
-    style={{
-      background: isSwapped ? "#1d4ed8" : "#c81e1e",
-      border: "none",
-      borderRadius: 10,
-      color: "white",
-      fontWeight: 900,
-      fontSize: 16,
-      padding: 6,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 8,
-      width: "100%",
-    }}
-  >
-    
-    <span>WARNING</span>
-    <span style={{ fontSize: 18 }}>
-  {leftSide === "hong" ? meta.hongWarnings || 0 : meta.chongWarnings || 0}
-</span>
-  </button>
+  onClick={() => handleWarningAdd(leftSide)}
+  disabled={inputsLocked}
+  style={{
+    background: isSwapped ? "#1d4ed8" : "#c81e1e",
+    border: "none",
+    borderRadius: 10,
+    color: "white",
+    fontWeight: 900,
+    fontSize: 16,
+    padding: 6,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    width: "100%",
+
+    opacity: inputsLocked ? 0.4 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
+  }}
+>
+  <span>WARNING</span>
+  <span style={{ fontSize: 18 }}>
+    {leftSide === "hong"
+      ? meta.hongWarnings || 0
+      : meta.chongWarnings || 0}
+  </span>
+</button>
 
   <button
-      onClick={() => handleFoulAdd(leftSide)}
-    style={{
-      background: isSwapped ? "#1e3a8a" : "#a31212",
-      border: "none",
-      borderRadius: 10,
-      color: "white",
-      fontWeight: 900,
-      fontSize: 14,
-      padding: 6,
-      width: "100%",
-    }}
-  >
-    <span>
-  FOUL{" "}
-  {leftSide === "hong"
-    ? meta.hongFouls || 0
-    : meta.chongFouls || 0}
-</span>
-  </button>
+  onClick={() => handleFoulAdd(leftSide)}
+  disabled={inputsLocked}
+  style={{
+    background: isSwapped ? "#1e3a8a" : "#a31212",
+    border: "none",
+    borderRadius: 10,
+    color: "white",
+    fontWeight: 900,
+    fontSize: 14,
+    padding: 6,
+    width: "100%",
+
+    opacity: inputsLocked ? 0.4 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
+  }}
+>
+  <span>
+    FOUL{" "}
+    {leftSide === "hong"
+      ? meta.hongFouls || 0
+      : meta.chongFouls || 0}
+  </span>
+</button>
 
   <button
   onClick={async () => {
-    
     await commitEditor(editorDraftRef.current);
 
     await writeMeta((current) => {
@@ -4543,6 +4622,7 @@ const rightSide = isSwapped ? "hong" : "chong";
       };
     });
   }}
+  disabled={inputsLocked}
   style={{
     background: "#3f3f3f",
     border: "none",
@@ -4552,7 +4632,9 @@ const rightSide = isSwapped ? "hong" : "chong";
     fontSize: 12,
     padding: 6,
     width: "100%",
-    cursor: "pointer",
+    cursor: inputsLocked ? "not-allowed" : "pointer",
+    opacity: inputsLocked ? 0.4 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
   }}
 >
   {isSwapped ? "DELETE CHONG" : "DELETE HONG"}
@@ -4600,55 +4682,62 @@ const rightSide = isSwapped ? "hong" : "chong";
   }}
 >
   <button
-      onClick={() => handleWarningAdd(rightSide)}
-    style={{
-      background: isSwapped ? "#c81e1e" : "#1d4ed8",
-      border: "none",
-      borderRadius: 10,
-      color: "white",
-      fontWeight: 900,
-      fontSize: 16,
-      padding: 6,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 8,
-      width: "100%",
-    }}
-  >
-    
-    <span>WARNING</span>
-    <span style={{ fontSize: 18 }}>
-  {rightSide === "hong" ? meta.hongWarnings || 0 : meta.chongWarnings || 0}
-</span>
-  </button>
+  onClick={() => handleWarningAdd(rightSide)}
+  disabled={inputsLocked}
+  style={{
+    background: isSwapped ? "#c81e1e" : "#1d4ed8",
+    border: "none",
+    borderRadius: 10,
+    color: "white",
+    fontWeight: 900,
+    fontSize: 16,
+    padding: 6,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    width: "100%",
+
+    opacity: inputsLocked ? 0.4 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
+  }}
+>
+  <span>WARNING</span>
+  <span style={{ fontSize: 18 }}>
+    {rightSide === "hong"
+      ? meta.hongWarnings || 0
+      : meta.chongWarnings || 0}
+  </span>
+</button>
 
   <button
-      onClick={() => handleFoulAdd(rightSide)}
-    style={{
-      background: isSwapped ? "#a31212" : "#1e3a8a",
-      border: "none",
-      borderRadius: 10,
-      color: "white",
-      fontWeight: 900,
-      fontSize: 14,
-      padding: 6,
-      width: "100%",
-    }}
-  >
-    <span>
-  FOUL{" "}
-  {rightSide === "hong"
-    ? meta.hongFouls || 0
-    : meta.chongFouls || 0}
-</span>
-  </button>
+  onClick={() => handleFoulAdd(rightSide)}
+  disabled={inputsLocked}
+  style={{
+    background: isSwapped ? "#a31212" : "#1e3a8a",
+    border: "none",
+    borderRadius: 10,
+    color: "white",
+    fontWeight: 900,
+    fontSize: 14,
+    padding: 6,
+    width: "100%",
+    opacity: inputsLocked ? 0.4 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
+  }}
+>
+  <span>
+    FOUL{" "}
+    {rightSide === "hong"
+      ? meta.hongFouls || 0
+      : meta.chongFouls || 0}
+  </span>
+</button>
 
 {/*==================================BOTONES WARNINGS & FOULS===========================*/}
 
   <button
   onClick={async () => {
-    
     await commitEditor(editorDraftRef.current);
 
     await writeMeta((current) => {
@@ -4676,6 +4765,7 @@ const rightSide = isSwapped ? "hong" : "chong";
       };
     });
   }}
+  disabled={inputsLocked}
   style={{
     background: "#3f3f3f",
     border: "none",
@@ -4685,7 +4775,9 @@ const rightSide = isSwapped ? "hong" : "chong";
     fontSize: 12,
     padding: 6,
     width: "100%",
-    cursor: "pointer",
+    cursor: inputsLocked ? "not-allowed" : "pointer",
+    opacity: inputsLocked ? 0.4 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
   }}
 >
   {isSwapped ? "DELETE HONG" : "DELETE CHONG"}
@@ -5398,9 +5490,55 @@ const rightSide = isSwapped ? "hong" : "chong";
   }}
 >
   {isSwapped ? "HONG WINNER" : "CHONG WINNER"}
+  {isSwapped ? "HONG WINNER" : "CHONG WINNER"}
 </div>
       </div>
     </div>
+
+    {presidentWinner && (
+      <WinnerFullScreen
+        winner={presidentWinner}
+        onNextCombat={() => {}}
+        onResetTotal={() => {}}
+        onClose={() =>
+          writeMeta((current) => ({
+            ...current,
+            showResult: false,
+          }))
+        }
+      />
+    )}
+
+{secondFoulWarning(meta) &&
+  meta.phase !== "finished" &&
+  !meta.showResult && (
+    <div
+      style={{
+        position: "absolute",
+        top: 21,
+        left: 650,
+        zIndex: 30,
+        width: 680,
+        minHeight: 34,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#7c2d12",
+        border: "1px solid #f97316",
+        borderRadius: 8,
+        color: "#ffedd5",
+        fontWeight: 900,
+        fontSize: 17,
+        lineHeight: 1.1,
+        padding: "4px 10px",
+        boxSizing: "border-box",
+        textAlign: "center",
+      }}
+    >
+      {secondFoulWarning(meta)}
+    </div>
+)}
+
   </Frame16x9>
 );
 }
