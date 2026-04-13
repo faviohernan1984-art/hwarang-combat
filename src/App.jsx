@@ -155,6 +155,18 @@ function GlobalAppStyle() {
       input, button, textarea, select {
         font-family: inherit;
       }
+
+      @keyframes winnerPulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 rgba(255,255,255,0.0);
+        }
+        100% {
+          transform: scale(1.02);
+          box-shadow: 0 0 18px rgba(255,255,255,0.25);
+        }
+      }
+
     `}</style>
   );
 }
@@ -476,6 +488,16 @@ function secondFoulWarning(meta) {
   }
   if (chongSecond) {
     return "CHONG WARNING: Next grave foul = disqualification.";
+  }
+  return "";
+}
+
+function preDecisionAdvantage(meta) {
+  if ((meta.hongFouls || 0) >= 3 && !meta.showResult) {
+    return "CHONG ADVANTAGE - DECISION PENDING";
+  }
+  if ((meta.chongFouls || 0) >= 3 && !meta.showResult) {
+    return "HONG ADVANTAGE - DECISION PENDING";
   }
   return "";
 }
@@ -1343,6 +1365,7 @@ function PublicScreen({ meta, judges, navigate }) {
   const { left, right } = getDisplaySides(meta, "public");
   const medical = ensureMedical(meta);
   const warning = secondFoulWarning(meta);
+  const preDecision = preDecisionAdvantage(meta);
 
   const medicalBanner = medical.active ? (
     <div
@@ -1393,6 +1416,34 @@ const foulWarningBanner =
       }}
     >
       {secondFoulWarning(meta)}
+    </div>
+  ) : null;
+
+const preDecisionBanner =
+  !medical.active && preDecision ? (
+    <div
+      style={{
+        position: "absolute",
+        top: 790,
+        left: 20,
+        right: 20,
+        zIndex: 19,
+        background: preDecision.includes("HONG") ? "#7f1d1d" : "#1e3a8a",
+        border: "2px solid rgba(255,255,255,0.25)",
+        borderRadius: 20,
+        padding: 18,
+        textAlign: "center",
+        color: "white",
+        fontSize: 34,
+        fontWeight: 900,
+        lineHeight: 1.15,
+        letterSpacing: "0.02em",
+        textTransform: "uppercase",
+
+        animation: "winnerPulse 0.8s ease-in-out infinite alternate",
+      }}
+    >
+      {preDecision}
     </div>
   ) : null;
 
@@ -1592,6 +1643,7 @@ const foulWarningBanner =
         }}
       >
         {medicalBanner}
+        {preDecisionBanner}
         {foulWarningBanner}
 
         <div
@@ -2998,13 +3050,29 @@ function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navi
   const [secondsInput, setSecondsInput] = useState(String(meta.config.roundSeconds || 120));
   const [roundsInput, setRoundsInput] = useState(String(meta.config.rounds || 2));
   const [breakSecondsInput, setBreakSecondsInput] = useState(String(meta.config.breakSeconds || BREAK_SECONDS));
-
+  
   const [editor, setEditor] = useState({
     hongName: meta.hong?.name || "",
     hongClub: meta.hong?.club || "",
     chongName: meta.chong?.name || "",
     chongClub: meta.chong?.club || "",
   });
+
+  const playButtonSound = () => {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.type = "square";
+  osc.frequency.value = 800; // tono click
+  gain.gain.value = 0.1;
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start();
+  osc.stop(ctx.currentTime + 0.05); // sonido corto tipo click
+};
 
   const editorFocusRef = useRef(false);
   const editorDraftRef = useRef({
@@ -4283,52 +4351,75 @@ const rightSide = isSwapped ? "hong" : "chong";
   }}
 >
   <button
-    onClick={() => handleMedicalStart(leftSide)}
+  onClick={() => {
+    if (inputsLocked) return;
+    playButtonSound();
+    handleMedicalStart(leftSide);
+  }}
+
+  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
+  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+
+  style={{
+    background: isSwapped ? "#1d4ed8" : "#c81e1e",
+    border: "none",
+    borderRadius: 10,
+    color: "white",
+    fontWeight: 900,
+    fontSize: 16,
+    padding: 6,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    width: "100%",
+    position: "relative",
+    zIndex: 10,
+
+    transform: "scale(1)",
+    transition: "transform 0.05s ease",
+
+    cursor: inputsLocked ? "not-allowed" : "pointer",
+    opacity: inputsLocked ? 0.4 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
+  }}
+>
+  <span
     style={{
-      background: isSwapped ? "#1d4ed8" : "#c81e1e",
-      border: "none",
-      borderRadius: 10,
-      color: "white",
-      fontWeight: 900,
-      fontSize: 16,
-      padding: 6,
+      background: isSwapped ? "#1e3a8a" : "#a31212",
+      borderRadius: "50%",
+      width: 24,
+      height: 24,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      gap: 8,
-      width: "100%",
-      pointerEvents: "auto",
-      position: "relative",
-      zIndex: 10,
-      cursor: "pointer",
+      fontSize: 16,
     }}
   >
-    <span
-      style={{
-        background: isSwapped ? "#1e3a8a" : "#a31212",
-        borderRadius: "50%",
-        width: 24,
-        height: 24,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 16,
-      }}
-    >
-      +
-    </span>
+    +
+  </span>
 
-    <span>{isSwapped ? "CHONG" : "HONG"}</span>
+  <span>{isSwapped ? "CHONG" : "HONG"}</span>
 
-    <span style={{ fontSize: 18 }}>
-  {formatTime(
-    (isSwapped ? meta.medicalChong : meta.medicalHong) || 0
-  )}
-</span>
-  </button>
+  <span style={{ fontSize: 18 }}>
+    {formatTime(
+      (isSwapped ? meta.medicalChong : meta.medicalHong) || 0
+    )}
+  </span>
+</button>
 
   <button
-  onClick={handleMedicalBreak}
+  onClick={() => {
+    if (inputsLocked) return;
+    playButtonSound();
+    handleMedicalBreak();
+  }}
+
+  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
+  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+
   style={{
     background: "#3f3f3f",
     border: "none",
@@ -4339,6 +4430,12 @@ const rightSide = isSwapped ? "hong" : "chong";
     padding: 6,
     width: "100%",
     cursor: "pointer",
+
+    transform: "scale(1)",
+    transition: "transform 0.05s ease",
+
+    opacity: inputsLocked ? 0.4 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
   }}
 >
   MEDICAL TIME BREAK
@@ -4397,48 +4494,73 @@ const rightSide = isSwapped ? "hong" : "chong";
   }}
 >
   <button
-      onClick={() => handleMedicalStart(rightSide)}
+  onClick={() => {
+    if (inputsLocked) return;
+    playButtonSound();
+    handleMedicalStart(rightSide);
+  }}
+
+  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
+  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+
+  style={{
+    background: isSwapped ? "#c81e1e" : "#1d4ed8",
+    border: "none",
+    borderRadius: 10,
+    color: "white",
+    fontWeight: 900,
+    fontSize: 16,
+    padding: 6,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    width: "100%",
+
+    transform: "scale(1)",
+    transition: "transform 0.05s ease",
+
+    opacity: inputsLocked ? 0.4 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
+    cursor: inputsLocked ? "not-allowed" : "pointer",
+  }}
+>
+  <span
     style={{
-      background: isSwapped ? "#c81e1e" : "#1d4ed8",
-      border: "none",
-      borderRadius: 10,
-      color: "white",
-      fontWeight: 900,
-      fontSize: 16,
-      padding: 6,
+      background: isSwapped ? "#a31212" : "#1e3a8a",
+      borderRadius: "50%",
+      width: 24,
+      height: 24,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      gap: 8,
-      width: "100%",
+      fontSize: 16,
     }}
   >
-    <span
-      style={{
-        background: isSwapped ? "#a31212" : "#1e3a8a",
-        borderRadius: "50%",
-        width: 24,
-        height: 24,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 16,
-      }}
-    >
-      +
-    </span>
+    +
+  </span>
 
-    <span>{isSwapped ? "HONG" : "CHONG"}</span>
+  <span>{isSwapped ? "HONG" : "CHONG"}</span>
 
-    <span style={{ fontSize: 18 }}>
-  {formatTime(
-    (isSwapped ? meta.medicalHong : meta.medicalChong) || 0
-  )}
-</span>
-  </button>
+  <span style={{ fontSize: 18 }}>
+    {formatTime(
+      (isSwapped ? meta.medicalHong : meta.medicalChong) || 0
+    )}
+  </span>
+</button>
 
   <button
-  onClick={handleMedicalBreak}
+  onClick={() => {
+    if (inputsLocked) return;
+    playButtonSound();
+    handleMedicalBreak();
+  }}
+
+  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
+  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+
   style={{
     background: "#3f3f3f",
     border: "none",
@@ -4448,7 +4570,13 @@ const rightSide = isSwapped ? "hong" : "chong";
     fontSize: 12,
     padding: 6,
     width: "100%",
-    cursor: "pointer",
+
+    transform: "scale(1)",
+    transition: "transform 0.05s ease",
+
+    cursor: inputsLocked ? "not-allowed" : "pointer",
+    opacity: inputsLocked ? 0.4 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
   }}
 >
   MEDICAL TIME BREAK
@@ -4540,9 +4668,19 @@ const rightSide = isSwapped ? "hong" : "chong";
   }}
 >
   <button
-  onClick={() => handleWarningAdd(leftSide)}
+  onClick={() => {
+  if (inputsLocked) return;
+  playButtonSound();
+  handleWarningAdd(leftSide);
+}}
+onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
+onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
   disabled={inputsLocked}
   style={{
+
+   
+
     background: isSwapped ? "#1d4ed8" : "#c81e1e",
     border: "none",
     borderRadius: 10,
@@ -4555,6 +4693,8 @@ const rightSide = isSwapped ? "hong" : "chong";
     justifyContent: "center",
     gap: 8,
     width: "100%",
+    transform: "scale(1)",
+    transition: "transform 0.05s ease",
 
     opacity: inputsLocked ? 0.4 : 1,
     pointerEvents: inputsLocked ? "none" : "auto",
@@ -4569,7 +4709,16 @@ const rightSide = isSwapped ? "hong" : "chong";
 </button>
 
   <button
-  onClick={() => handleFoulAdd(leftSide)}
+  onClick={() => {
+    if (inputsLocked) return;
+    playButtonSound();
+    handleFoulAdd(leftSide);
+  }}
+
+    onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
+onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+
   disabled={inputsLocked}
   style={{
     background: isSwapped ? "#1e3a8a" : "#a31212",
@@ -4580,6 +4729,9 @@ const rightSide = isSwapped ? "hong" : "chong";
     fontSize: 14,
     padding: 6,
     width: "100%",
+
+    transform: "scale(1)",
+    transition: "transform 0.05s ease",
 
     opacity: inputsLocked ? 0.4 : 1,
     pointerEvents: inputsLocked ? "none" : "auto",
@@ -4595,6 +4747,10 @@ const rightSide = isSwapped ? "hong" : "chong";
 
   <button
   onClick={async () => {
+    if (inputsLocked) return;
+
+    playButtonSound();
+
     await commitEditor(editorDraftRef.current);
 
     await writeMeta((current) => {
@@ -4622,6 +4778,11 @@ const rightSide = isSwapped ? "hong" : "chong";
       };
     });
   }}
+
+  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
+  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+
   disabled={inputsLocked}
   style={{
     background: "#3f3f3f",
@@ -4633,6 +4794,10 @@ const rightSide = isSwapped ? "hong" : "chong";
     padding: 6,
     width: "100%",
     cursor: inputsLocked ? "not-allowed" : "pointer",
+
+    transform: "scale(1)",
+    transition: "transform 0.05s ease",
+
     opacity: inputsLocked ? 0.4 : 1,
     pointerEvents: inputsLocked ? "none" : "auto",
   }}
@@ -4682,7 +4847,14 @@ const rightSide = isSwapped ? "hong" : "chong";
   }}
 >
   <button
-  onClick={() => handleWarningAdd(rightSide)}
+  onClick={() => {
+  if (inputsLocked) return;
+  playButtonSound();
+  handleWarningAdd(rightSide);
+}}
+  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
+  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
   disabled={inputsLocked}
   style={{
     background: isSwapped ? "#c81e1e" : "#1d4ed8",
@@ -4697,6 +4869,8 @@ const rightSide = isSwapped ? "hong" : "chong";
     justifyContent: "center",
     gap: 8,
     width: "100%",
+    transform: "scale(1)",
+    transition: "transform 0.05s ease",
 
     opacity: inputsLocked ? 0.4 : 1,
     pointerEvents: inputsLocked ? "none" : "auto",
@@ -4711,7 +4885,16 @@ const rightSide = isSwapped ? "hong" : "chong";
 </button>
 
   <button
-  onClick={() => handleFoulAdd(rightSide)}
+  onClick={() => {
+    if (inputsLocked) return;
+    playButtonSound();
+    handleFoulAdd(rightSide);
+  }}
+
+  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
+  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+
   disabled={inputsLocked}
   style={{
     background: isSwapped ? "#a31212" : "#1e3a8a",
@@ -4721,13 +4904,21 @@ const rightSide = isSwapped ? "hong" : "chong";
     fontWeight: 900,
     fontSize: 14,
     padding: 6,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
     width: "100%",
+
+    transform: "scale(1)",
+    transition: "transform 0.05s ease",
+
     opacity: inputsLocked ? 0.4 : 1,
     pointerEvents: inputsLocked ? "none" : "auto",
   }}
 >
-  <span>
-    FOUL{" "}
+  <span>FOUL</span>
+  <span style={{ fontSize: 16 }}>
     {rightSide === "hong"
       ? meta.hongFouls || 0
       : meta.chongFouls || 0}
@@ -4738,6 +4929,10 @@ const rightSide = isSwapped ? "hong" : "chong";
 
   <button
   onClick={async () => {
+    if (inputsLocked) return;
+
+    playButtonSound();
+
     await commitEditor(editorDraftRef.current);
 
     await writeMeta((current) => {
@@ -4765,6 +4960,11 @@ const rightSide = isSwapped ? "hong" : "chong";
       };
     });
   }}
+
+  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
+  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+
   disabled={inputsLocked}
   style={{
     background: "#3f3f3f",
@@ -4776,6 +4976,10 @@ const rightSide = isSwapped ? "hong" : "chong";
     padding: 6,
     width: "100%",
     cursor: inputsLocked ? "not-allowed" : "pointer",
+
+    transform: "scale(1)",
+    transition: "transform 0.05s ease",
+
     opacity: inputsLocked ? 0.4 : 1,
     pointerEvents: inputsLocked ? "none" : "auto",
   }}
@@ -5613,6 +5817,7 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
 
   const judge = judges.find((j) => j.id === judgeId) || makeJudge(judgeId);
   const warning = secondFoulWarning(meta);
+  
 
   const updateJudge = async (kind, side = null, value = null) => {
     await writeJudge(judgeId, (j) => {
