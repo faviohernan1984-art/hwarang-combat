@@ -148,14 +148,18 @@ function GlobalAppStyle() {
         overflow: hidden;
         background: #000;
       }
+
       * { box-sizing: border-box; }
+
       body {
         font-family: Arial, sans-serif;
       }
+
       input, button, textarea, select {
         font-family: inherit;
       }
 
+      /* ---------------- WINNER ---------------- */
       @keyframes winnerPulse {
         0% {
           transform: scale(1);
@@ -164,6 +168,88 @@ function GlobalAppStyle() {
         100% {
           transform: scale(1.02);
           box-shadow: 0 0 18px rgba(255,255,255,0.25);
+        }
+      }
+
+      /* ---------------- HWARANG FLOW (rojo → celeste) ---------------- */
+      @keyframes hwarangFlow {
+        0% {
+          background-position: 0% center;
+        }
+        100% {
+          background-position: 220% center;
+        }
+      }
+@keyframes hwarangShift {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.25);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+@keyframes hwarangStrike {
+  0% {
+    letter-spacing: 0.12em;
+    transform: translateX(0);
+  }
+
+  10% {
+    letter-spacing: 0.16em;
+    transform: translateX(2px);
+  }
+
+  20% {
+    letter-spacing: 0.12em;
+    transform: translateX(0);
+  }
+
+  30% {
+    letter-spacing: 0.15em;
+    transform: translateX(1px);
+  }
+
+  40% {
+    letter-spacing: 0.12em;
+    transform: translateX(0);
+  }
+
+  /* PAUSA */
+  100% {
+    letter-spacing: 0.12em;
+    transform: translateX(0);
+  }
+}
+
+      /* ---------------- GLOW DINÁMICO ---------------- */
+      @keyframes hwarangGlow {
+        0% {
+          text-shadow:
+            0 0 6px rgba(255, 0, 0, 0.6),
+            0 0 12px rgba(255, 0, 0, 0.4);
+        }
+        50% {
+          text-shadow:
+            0 0 8px rgba(30, 111, 255, 0.7),
+            0 0 16px rgba(30, 111, 255, 0.5);
+        }
+        100% {
+          text-shadow:
+            0 0 6px rgba(255, 0, 0, 0.6),
+            0 0 12px rgba(255, 0, 0, 0.4);
+        }
+      }
+
+      /* ---------------- MICRO MOVIMIENTO (vida) ---------------- */
+      @keyframes hwarangBreath {
+        0% {
+          transform: scale(1);
+        }
+        100% {
+          transform: scale(1.03);
         }
       }
 
@@ -3085,6 +3171,7 @@ function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navi
 
   const { left, right } = getDisplaySides(meta, "president");
 
+  
   useEffect(() => {
     const next = {
       hongName: meta.hong?.name || "",
@@ -3434,7 +3521,10 @@ useEffect(() => {
     current.medicalSide = null;
     current.medicalLast = 0;
     current.medicalHong = current.medicalPreset || 300;
-    current.medicalChong = current.medicalPreset || 300;
+    current.medicalChong = current.medicalPreset || 300; 
+
+    current.hong = getBaseCombatant(HONG);
+    current.chong = getBaseCombatant(CHONG);
 
     return current;
   });
@@ -3624,18 +3714,25 @@ const rightSide = isSwapped ? "hong" : "chong";
   </AppButton>
 
   <div
-    style={{
-      textAlign: "right",
-      fontSize: 18,
-      fontWeight: 900,
-      letterSpacing: "0.04em",
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    }}
-  >
-    HWARANG SOCORING UNIVERSE
-  </div>
+  style={{
+    textAlign: "right",
+    fontSize: 22,
+    fontWeight: 900,
+    letterSpacing: "0.12em",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+
+    background: "linear-gradient(90deg, #ff0000 0%, #ff0000 28%, #1e6fff 50%, #ff0000 72%, #ff0000 100%)",
+    backgroundSize: "240% auto",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+
+    animation: "hwarangFlow 4.2s linear infinite, hwarangShift 2.2s ease-in-out infinite, hwarangStrike 3.2s ease-in-out infinite",
+  }}
+>
+  HWARANG SCORING UNIVERSE
+</div>
 </div>
 
 
@@ -5051,30 +5148,60 @@ onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
   }}
 >
   <input
-    placeholder="NAME"
-    style={{
-      width: "100%",
-      borderRadius: 50,
-      border: isSwapped ? "2px solid #4da6ff" : "2px solid #ff4d4d",
-      padding: 10,
-      fontWeight: 900,
-      textAlign: "center",
-      fontSize: 16,
-    }}
-  />
+  key={`left-name-${isSwapped ? "swap" : "normal"}-${meta.hong?.name || ""}-${meta.chong?.name || ""}`}
+  placeholder="NAME"
+  defaultValue={
+  isSwapped
+    ? meta.chong?.name === "CHONG"
+      ? ""
+      : meta.chong?.name || ""
+    : meta.hong?.name === "HONG"
+      ? ""
+      : meta.hong?.name || ""
+}
+  onBlur={(e) =>
+  writeMeta((prev) => ({
+    ...prev,
+    [isSwapped ? "chong" : "hong"]: {
+      ...(prev[isSwapped ? "chong" : "hong"] || {}),
+      name: e.target.value,
+    },
+  }))
+}
+  style={{
+    width: "100%",
+    borderRadius: 50,
+    border: isSwapped ? "2px solid #4da6ff" : "2px solid #ff4d4d",
+    padding: 10,
+    fontWeight: 900,
+    textAlign: "center",
+    fontSize: 16,
+  }}
+/>
 
   <input
-    placeholder="TEAM"
-    style={{
-      width: "100%",
-      borderRadius: 50,
-      border: isSwapped ? "2px solid #4da6ff" : "2px solid #ff4d4d",
-      padding: 10,
-      fontWeight: 900,
-      textAlign: "center",
-      fontSize: 14,
-    }}
-  />
+  key={`left-team-${isSwapped ? "swap" : "normal"}-${meta.hong?.club || ""}-${meta.chong?.club || ""}`}
+  placeholder="TEAM"
+  defaultValue={isSwapped ? meta.chong?.club || "" : meta.hong?.club || ""}
+  onBlur={(e) =>
+  writeMeta((prev) => ({
+    ...prev,
+    [isSwapped ? "chong" : "hong"]: {
+      ...(prev[isSwapped ? "chong" : "hong"] || {}),
+      club: e.target.value,
+    },
+  }))
+}
+  style={{
+    width: "100%",
+    borderRadius: 50,
+    border: isSwapped ? "2px solid #4da6ff" : "2px solid #ff4d4d",
+    padding: 10,
+    fontWeight: 900,
+    textAlign: "center",
+    fontSize: 14,
+  }}
+/>
 </div>
 </div>
 
@@ -5115,45 +5242,85 @@ onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
     }}
   >
     <select
-      style={{
-        width: "100%",
-        borderRadius: 50,
-        border: "2px solid #cccccc",
-        padding: 8,
-        fontWeight: 900,
-        textAlign: "center",
-        fontSize: 16,
-        background: "white",
-        color: "black",
-      }}
-    >
-      <option>00:30</option>
-      <option>01:00</option>
-      <option>01:30</option>
-      <option>02:00</option>
-      <option>02:30</option>
-      <option>03:00</option>
-      <option>03:30</option>
-      <option>04:00</option>
-      <option>04:30</option>
-      <option>05:00</option>
-    </select>
+  value={formatTime(meta.medicalPreset || 300)}
+  onChange={(e) => {
+    const [mins, secs] = e.target.value.split(":").map(Number);
+    const total = mins * 60 + secs;
+
+    writeMeta((prev) => ({
+      ...prev,
+      medicalPreset: total,
+      medicalHong: total,
+      medicalChong: total,
+      medicalActive: false,
+      medicalRunning: false,
+      medicalSide: null,
+      medicalLast: 0,
+    }));
+  }}
+  style={{
+    width: "100%",
+    borderRadius: 50,
+    border: "2px solid #cccccc",
+    padding: 8,
+    fontWeight: 900,
+    textAlign: "center",
+    fontSize: 16,
+    background: "white",
+    color: "black",
+  }}
+>
+  <option>00:30</option>
+  <option>01:00</option>
+  <option>01:30</option>
+  <option>02:00</option>
+  <option>02:30</option>
+  <option>03:00</option>
+  <option>03:30</option>
+  <option>04:00</option>
+  <option>04:30</option>
+  <option>05:00</option>
+</select>
   </div>
 
   <button
-    style={{
-      width: "100%",
-      border: "none",
-      borderRadius: 999,
-      background: "#3f3f3f",
-      color: "white",
-      fontWeight: 900,
-      fontSize: 14,
-      padding: 10,
-    }}
-  >
-    ⟲ RESET MEDICAL TIME
-  </button>
+  onClick={() =>
+    writeMeta((prev) => ({
+      ...prev,
+      medicalHong: prev.medicalPreset || 300,
+      medicalChong: prev.medicalPreset || 300,
+      medicalActive: false,
+      medicalRunning: false,
+      medicalSide: null,
+      medicalLast: 0,
+    }))
+  }
+  onMouseDown={(e) => {
+  e.currentTarget.style.transform = "scale(0.98)";
+  e.currentTarget.style.filter = "brightness(1.08)";
+}}
+onMouseUp={(e) => {
+  e.currentTarget.style.transform = "scale(1)";
+  e.currentTarget.style.filter = "brightness(1)";
+}}
+onMouseLeave={(e) => {
+  e.currentTarget.style.transform = "scale(1)";
+  e.currentTarget.style.filter = "brightness(1)";
+}}
+  style={{
+    width: "100%",
+    border: "none",
+    borderRadius: 999,
+    background: "#3f3f3f",
+    color: "white",
+    fontWeight: 900,
+    fontSize: 14,
+    padding: 10,
+    transition: "transform 0.08s ease, filter 0.12s ease",
+  }}
+>
+  ⟲ RESET MEDICAL TIME
+</button>
 </div>
 <div
   style={{
@@ -5199,30 +5366,60 @@ onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
   }}
 >
   <input
-    placeholder="NAME"
-    style={{
-      width: "100%",
-      borderRadius: 50,
-      border: isSwapped ? "2px solid #ff4d4d" : "2px solid #4da6ff",
-      padding: 10,
-      fontWeight: 900,
-      textAlign: "center",
-      fontSize: 16,
-    }}
-  />
+  key={`right-name-${isSwapped ? "swap" : "normal"}-${meta.hong?.name || ""}-${meta.chong?.name || ""}`}
+  placeholder="NAME"
+  defaultValue={
+  isSwapped
+    ? meta.hong?.name === "HONG"
+      ? ""
+      : meta.hong?.name || ""
+    : meta.chong?.name === "CHONG"
+      ? ""
+      : meta.chong?.name || ""
+}
+  onBlur={(e) =>
+  writeMeta((prev) => ({
+    ...prev,
+    [isSwapped ? "hong" : "chong"]: {
+      ...(prev[isSwapped ? "hong" : "chong"] || {}),
+      name: e.target.value,
+    },
+  }))
+}
+  style={{
+    width: "100%",
+    borderRadius: 50,
+    border: isSwapped ? "2px solid #ff4d4d" : "2px solid #4da6ff",
+    padding: 10,
+    fontWeight: 900,
+    textAlign: "center",
+    fontSize: 16,
+  }}
+/>
 
   <input
-    placeholder="TEAM"
-    style={{
-      width: "100%",
-      borderRadius: 50,
-      border: isSwapped ? "2px solid #ff4d4d" : "2px solid #4da6ff",
-      padding: 10,
-      fontWeight: 900,
-      textAlign: "center",
-      fontSize: 14,
-    }}
-  />
+  key={`right-team-${isSwapped ? "swap" : "normal"}-${meta.hong?.club || ""}-${meta.chong?.club || ""}`}
+  placeholder="TEAM"
+  defaultValue={isSwapped ? meta.hong?.club || "" : meta.chong?.club || ""}
+  onBlur={(e) =>
+  writeMeta((prev) => ({
+    ...prev,
+    [isSwapped ? "hong" : "chong"]: {
+      ...(prev[isSwapped ? "hong" : "chong"] || {}),
+      club: e.target.value,
+    },
+  }))
+}
+  style={{
+    width: "100%",
+    borderRadius: 50,
+    border: isSwapped ? "2px solid #ff4d4d" : "2px solid #4da6ff",
+    padding: 10,
+    fontWeight: 900,
+    textAlign: "center",
+    fontSize: 14,
+  }}
+/>
 </div>
 </div>
       </div>
