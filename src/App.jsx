@@ -1,4 +1,4 @@
-
+console.log("ESTOY EN EL APP CORRECTO");
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   onSnapshot,
@@ -197,6 +197,17 @@ function GlobalAppStyle() {
     transform: translateX(0);
   }
 
+  @keyframes fadeSwap {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
   10% {
     letter-spacing: 0.16em;
     transform: translateX(2px);
@@ -242,6 +253,16 @@ function GlobalAppStyle() {
             0 0 12px rgba(255, 0, 0, 0.4);
         }
       }
+        @keyframes fadeSwapStrong {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+  }
+}
 
       /* ---------------- MICRO MOVIMIENTO (vida) ---------------- */
       @keyframes hwarangBreath {
@@ -500,11 +521,10 @@ function syncLegacyClockFields(current) {
 }
 
 function useClock(meta) {
-
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 300);
+    const t = setInterval(() => setNow(Date.now()), 100);
     return () => clearInterval(t);
   }, []);
 
@@ -634,7 +654,7 @@ async function ensureInitialDocs() {
 }
 
 function useFightData() {
-  const [meta, setMeta] = useState(null);
+  const [meta, setMeta] = useState(makeInitialMeta());
   const [judges, setJudges] = useState(
     Array.from({ length: MAX_JUDGES }, (_, i) => makeJudge(i + 1))
   );
@@ -650,26 +670,42 @@ function useFightData() {
 }, [meta?.medicalActive, meta?.medicalRunning]);
   
    useEffect(() => {
-   ensureInitialDocs();
+  let unsubMeta = () => {};
+  let unsubJudges = () => {};
+  let cancelled = false;
 
-    const unsubMeta = onSnapshot(matchMetaRef, (snap) => {
-      if (snap.exists()) setMeta(ensureMetaShape(snap.data())); else setMeta(makeInitialMeta());
+  const boot = async () => {
+    await ensureInitialDocs();
+    if (cancelled) return;
+
+    unsubMeta = onSnapshot(matchMetaRef, (snap) => {
+      if (snap.exists()) {
+        setMeta(ensureMetaShape(snap.data()));
+      } else {
+        setMeta(makeInitialMeta());
+      }
     });
 
-    const unsubJudges = onSnapshot(judgesColRef, (snap) => {
+    unsubJudges = onSnapshot(judgesColRef, (snap) => {
       const next = Array.from({ length: MAX_JUDGES }, (_, i) => makeJudge(i + 1));
       snap.docs.forEach((doc) => {
         const idx = Number(doc.id) - 1;
-        if (idx >= 0 && idx < MAX_JUDGES) next[idx] = normalizeJudge(doc.data(), idx + 1);
+        if (idx >= 0 && idx < MAX_JUDGES) {
+          next[idx] = normalizeJudge(doc.data(), idx + 1);
+        }
       });
       setJudges(next);
     });
+  };
 
-    return () => {
-      unsubMeta();
-      unsubJudges();
-    };
-  }, []);
+  boot();
+
+  return () => {
+    cancelled = true;
+    unsubMeta();
+    unsubJudges();
+  };
+}, []);
 
   const writeMeta = async (mutator) => {
   const snap = await getDoc(matchMetaRef);
@@ -1440,15 +1476,51 @@ function PublicFighterPanel({ title, fighter, score, warnings, fouls }) {
 
 {/*==================================publicScreen===================*/}
 
-function PublicScreen({ meta, judges, navigate }) {
-  const time = useClock(meta);
+function PublicScreen({ meta, judges, navigate, writeMeta }){
+  meta = ensureMetaShape(meta);
+  const time = useClock(meta || {});
   const displayTime =
-    meta.status === "running"
-      ? time
-      : meta.remaining ?? time;
+  meta.status === "running"
+    ? time
+    : meta.pausedRemaining ?? time;
 
   const s = summary(meta, judges);
   const { left, right } = getDisplaySides(meta, "public");
+  useEffect(() => {
+  if (!meta) return;
+  if (meta.status !== "running") return;
+  if (time > 0) return;
+
+  const finishByTime = async () => {
+    await writeMeta((current) => {
+      if (current.status !== "running") return current;
+
+      if (current.phase === "fight") {
+        if (current.round < (current.config.rounds || 1)) {
+          current.phase = "break";
+          current.status = "running";
+          current.pausedRemaining = current.config.breakSeconds || BREAK_SECONDS;
+          current.phaseStartedAt = Date.now();
+        } else {
+          current.phase = "finished";
+          current.status = "paused";
+          current.pausedRemaining = 0;
+          current.phaseStartedAt = null;
+        }
+      } else if (current.phase === "break") {
+        current.phase = "fight";
+        current.round += 1;
+        current.status = "paused";
+        current.pausedRemaining = current.config.roundSeconds || 120;
+        current.phaseStartedAt = null;
+      }
+
+      return current;
+    });
+  };
+
+  finishByTime();
+}, [meta.status, meta.phase, time]);
   const medical = ensureMedical(meta);
   const warning = secondFoulWarning(meta);
   const preDecision = preDecisionAdvantage(meta);
@@ -1852,18 +1924,35 @@ const preDecisionBanner =
                 justifyContent: "center",
                 alignItems: "center",
                 boxShadow: "0 8px 24px rgba(0,0,0,0.30)",
+                transition: "background 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease",
+                transform: meta.phase === "break" ? "scale(1.02)" : "scale(1)",
               }}
             >
               <div
-                style={{
-                  fontSize: 30,
-                  fontWeight: 900,
-                  letterSpacing: "0.20em",
-                  lineHeight: 1,
-                }}
-              >
-                {meta.phase === "break" ? "BREAK" : "TIME"}
-              </div>
+  style={{
+    position: "relative",
+    height: 36,
+    minWidth: 180,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  }}
+>
+  <div
+    key={`label-${meta.phase}`}
+    style={{
+      position: "absolute",
+      fontSize: 30,
+      fontWeight: 900,
+      letterSpacing: "0.20em",
+      lineHeight: 1,
+      animation: "fadeSwapStrong 0.28s ease",
+    }}
+  >
+    {meta.phase === "break" ? "BREAK" : "TIME"}
+  </div>
+</div>
 
               <div
                 style={{
@@ -1872,9 +1961,12 @@ const preDecisionBanner =
                   fontWeight: 900,
                   lineHeight: 0.9,
                   letterSpacing: "-0.04em",
+                  transition: "color 0.18s ease, transform 0.12s ease",
                 }}
               >
-                {formatTime(time || meta.time || 0)}
+                {meta.status === "running" && (displayTime ?? 0) === 0
+  ? "00:00"
+  : formatTime(displayTime ?? 0)}
               </div>
 
               <div
@@ -1928,21 +2020,31 @@ const preDecisionBanner =
               }}
             >
               <div
-                style={{
-                  fontSize: 34,
-                  fontWeight: 900,
-                  letterSpacing: "0.08em",
-                  textAlign: "center",
-                }}
-              >
-                {meta.phase === "finished"
-                  ? "MATCH FINISHED"
-                  : meta.phase === "break"
-                  ? "BREAK TIME"
-                  : meta.status === "running"
-                  ? "IN PROGRESS"
-                  : "MATCH PAUSED"}
-              </div>
+  style={{
+    fontSize: 34,
+    fontWeight: 900,
+    letterSpacing: "0.08em",
+    textAlign: "center",
+
+    // 🔥 TRANSICIÓN
+    transition: "opacity 0.18s ease, transform 0.18s ease",
+    opacity: 0.95,
+    transform:
+      meta.phase === "break"
+        ? "translateY(2px)"
+        : meta.status === "running"
+        ? "translateY(0px)"
+        : "translateY(1px)",
+  }}
+>
+  {meta.phase === "finished"
+    ? "MATCH FINISHED"
+    : meta.phase === "break"
+    ? "BREAK TIME"
+    : meta.status === "running"
+    ? "IN PROGRESS"
+    : "MATCH PAUSED"}
+</div>
             </div>
           </div>
 
@@ -2285,9 +2387,9 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
         if (current.phase === "fight") {
           if (current.round < (current.config.rounds || 1)) {
             current.phase = "break";
-            current.status = "paused";
+            current.status = "running";
             current.pausedRemaining = current.config.breakSeconds || BREAK_SECONDS;
-            current.phaseStartedAt = null;
+            current.phaseStartedAt = Date.now();
           } else {
             current.phase = "finished";
             current.status = "paused";
@@ -2315,20 +2417,15 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
     const breakSeconds = Math.max(1, parseInt(breakSecondsInput, 10) || BREAK_SECONDS);
 
     await writeMeta((current) => ({
-      ...current,
-      config: {
-        ...(current.config || {}),
-        roundSeconds,
-        rounds,
-        breakSeconds,
-      },
-      pausedRemaining:
-        current.status === "paused" && current.phase === "fight"
-          ? roundSeconds
-          : current.status === "paused" && current.phase === "break"
-          ? breakSeconds
-          : current.pausedRemaining,
-    }));
+  ...current,
+  config: {
+    ...(current.config || {}),
+    roundSeconds,
+    rounds,
+    breakSeconds,
+  },
+  pausedRemaining: current.pausedRemaining,
+}));
   };
 
   const startTimer = async () => {
@@ -3372,18 +3469,27 @@ function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navi
   }, [meta.showResult]);
 
   useEffect(() => {
-    setSecondsInput(String(meta.config.roundSeconds || 120));
-    setRoundsInput(String(meta.config.rounds || 2));
-    setBreakSecondsInput(String(meta.config.breakSeconds || BREAK_SECONDS));
-  }, [meta.config.roundSeconds, meta.config.rounds, meta.config.breakSeconds]);
+  isHydratingRef.current = true;
+
+  setSecondsInput(String(meta.config.roundSeconds || 120));
+  setRoundsInput(String(meta.config.rounds || 2));
+  setBreakSecondsInput(String(meta.config.breakSeconds || BREAK_SECONDS));
+
+  setTimeout(() => {
+    isHydratingRef.current = false;
+  }, 0);
+}, [meta.config.roundSeconds, meta.config.rounds, meta.config.breakSeconds]);
 
 const skipAutoSaveRef = useRef(true);
+const isHydratingRef = useRef(false);
 
 useEffect(() => {
   if (skipAutoSaveRef.current) {
     skipAutoSaveRef.current = false;
     return;
   }
+
+  if (isHydratingRef.current) return;
 
   const t = setTimeout(() => {
     saveConfig();
@@ -5891,7 +5997,7 @@ onMouseLeave={(e) => {
   }}
 >
   {isSwapped ? "HONG WINNER" : "CHONG WINNER"}
-  {isSwapped ? "HONG WINNER" : "CHONG WINNER"}
+  
 </div>
       </div>
     </div>
@@ -6414,7 +6520,9 @@ export default function App() {
         current.config.rounds = current.config.rounds || 2;
         current.config.roundSeconds = current.config.roundSeconds || 120;
         current.config.breakSeconds = current.config.breakSeconds || BREAK_SECONDS;
-        if (!current.pausedRemaining) current.pausedRemaining = current.config.roundSeconds;
+        if (current.pausedRemaining === undefined) {
+  current.pausedRemaining = current.config.roundSeconds;
+}
         current.publicSwapSides = !!current.publicSwapSides;
         current.presidentSwapSides = !!current.presidentSwapSides;
         current.hong = current.hong || getBaseCombatant(HONG);
@@ -6442,7 +6550,12 @@ export default function App() {
   }
 
   if (path === "/public") {
-    return <><GlobalAppStyle /><PublicScreen meta={meta} judges={judges} navigate={navigate} /></>;
+    return <><PublicScreen
+  meta={meta}
+  judges={judges}
+  navigate={navigate}
+  writeMeta={writeMeta}
+/></>;
   }
 
   if (path.startsWith("/judge/")) {
