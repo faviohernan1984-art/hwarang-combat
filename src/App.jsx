@@ -171,6 +171,137 @@ function GlobalAppStyle() {
         }
       }
 
+@keyframes gpPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+  }
+
+  30% {
+    transform: scale(1.08);
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.8);
+  }
+
+  60% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+  }
+}
+
+@keyframes callAttention {
+  0% {
+    opacity: 1;
+  }
+
+  10% {
+    opacity: 0.4;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  30% {
+    opacity: 0.4;
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes judgingBannerPulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.82;
+    transform: scale(1.01);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes setDecisionPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(255, 165, 0, 0);
+  }
+
+  25% {
+    transform: scale(1.06);
+    box-shadow: 0 0 14px rgba(255, 165, 0, 0.8);
+  }
+
+  50% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(255, 165, 0, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(255, 165, 0, 0);
+  }
+}
+
+@keyframes winnerImpact {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+  }
+
+  25% {
+    transform: scale(1.14);
+    opacity: 1;
+    box-shadow: 0 0 36px rgba(255, 215, 0, 1);
+  }
+
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.85);
+  }
+
+  75% {
+    transform: scale(1.1);
+    box-shadow: 0 0 28px rgba(255, 215, 0, 0.95);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.65);
+  }
+}
+
+@keyframes noDecisionFade {
+  0% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.4;
+  }
+}
+
       /* ---------------- HWARANG FLOW (rojo → celeste) ---------------- */
       @keyframes hwarangFlow {
         0% {
@@ -283,6 +414,7 @@ function makeJudge(id) {
     id,
     hongPoints: 0,
     chongPoints: 0,
+    gpDecision: null, // 👈 ACÁ
     history: [],
   };
 }
@@ -298,6 +430,8 @@ function makeEmptyGoldenPoint() {
   return {
     active: false,
     mode: null,
+    state: "idle",
+    result: null,
     gpRound: 0,
     archive: null,
   };
@@ -539,6 +673,9 @@ function judgeNet(judge, meta) {
     chong: judge.chongPoints - chongDiscount,
   };
 }
+
+// ⚠️ LEGACY - NO USAR EN GOLDEN POINT A
+// GPA ahora usa j.gpDecision directamente
 
 function judgeVote(judge, meta) {
   if ((meta.hongFouls || 0) >= 3) return "chong";
@@ -1492,32 +1629,36 @@ function PublicScreen({ meta, judges, navigate, writeMeta }){
   if (time > 0) return;
 
   const finishByTime = async () => {
-    await writeMeta((current) => {
-      if (current.status !== "running") return current;
+  await writeMeta((current) => {
+    if (current.status !== "running") return current;
 
-      if (current.phase === "fight") {
-        if (current.round < (current.config.rounds || 1)) {
-          current.phase = "break";
-          current.status = "running";
-          current.pausedRemaining = current.config.breakSeconds || BREAK_SECONDS;
-          current.phaseStartedAt = Date.now();
-        } else {
-          current.phase = "finished";
-          current.status = "paused";
-          current.pausedRemaining = 0;
-          current.phaseStartedAt = null;
-        }
-      } else if (current.phase === "break") {
-        current.phase = "fight";
-        current.round += 1;
+    if (current.phase === "fight") {
+      if (current.goldenPoint?.active && current.goldenPoint?.mode === "B") {
         current.status = "paused";
-        current.pausedRemaining = current.config.roundSeconds || 120;
+        current.pausedRemaining = 0;
+        current.phaseStartedAt = null;
+      } else if (current.round < (current.config.rounds || 1)) {
+        current.phase = "break";
+        current.status = "running";
+        current.pausedRemaining = current.config.breakSeconds || BREAK_SECONDS;
+        current.phaseStartedAt = Date.now();
+      } else {
+        current.phase = "finished";
+        current.status = "paused";
+        current.pausedRemaining = 0;
         current.phaseStartedAt = null;
       }
+    } else if (current.phase === "break") {
+      current.phase = "fight";
+      current.round += 1;
+      current.status = "paused";
+      current.pausedRemaining = current.config.roundSeconds || 120;
+      current.phaseStartedAt = null;
+    }
 
-      return current;
-    });
-  };
+    return current;
+  });
+};
 
   finishByTime();
 }, [meta.status, meta.phase, time]);
@@ -2021,7 +2162,7 @@ const preDecisionBanner =
             >
               <div
   style={{
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: 900,
     letterSpacing: "0.08em",
     textAlign: "center",
@@ -2495,11 +2636,14 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
   };
 
   const closeMatch = async () => {
-    await writeMeta((current) => {
-      current.showResult = true;
-      return current;
-    });
-  };
+  await writeMeta((current) => {
+    if (current.goldenPoint?.active && current.goldenPoint?.mode === "A") {
+      current.goldenPoint.state = "noDecision";
+    }
+
+    return current;
+  });
+};
 
   const applyCombatForcedWinner = async (winnerSide) => {
     await writeMeta((current) => {
@@ -3222,14 +3366,173 @@ const handleInvertSides = async () => {
 {/*==============================PRESIDENTSCREENV2NUEVOOOOOOO=========================*/}
 
 function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navigate }) {
-  meta = ensureMetaShape(meta);
-  const time = useClock(meta);
-  const s = summary(meta, judges);
-  const presidentWinner = meta.showResult ? s.winner : null;
-  const prevRunningRef = useRef(false);
-  const prevFinishedRef = useRef(false);
-  const inputsLocked = meta.phase === "finished";
 
+  function handleActivateGPA() {
+  writeMeta((current) => {
+    current.goldenPoint = makeEmptyGoldenPoint(); // 👈 CLAVE
+
+    current.goldenPoint.active = true;
+    current.goldenPoint.mode = "A";
+    current.goldenPoint.state = "running";
+    current.goldenPoint.result = null;
+
+    return current;
+  });
+}
+
+function handleActivateGPB() {
+  writeMeta((current) => {
+    current.goldenPoint = current.goldenPoint || makeEmptyGoldenPoint();
+
+    current.goldenPoint.active = true;
+    current.goldenPoint.mode = "B";
+    current.goldenPoint.state = "running";
+    current.goldenPoint.result = null;
+    current.goldenPoint.gpRound = 1;
+
+    current.combatForcedWinner = null;
+    current.showResult = false;
+
+    current.hongWarnings = 0;
+    current.chongWarnings = 0;
+    current.hongFouls = 0;
+    current.chongFouls = 0;
+
+    current.hongLog = [];
+    current.chongLog = [];
+
+    current.phase = "fight";
+    current.status = "paused";
+    current.pausedRemaining = current.config?.roundSeconds || 120;
+    current.phaseStartedAt = null;
+
+    return current;
+  });
+
+  for (let i = 1; i <= MAX_JUDGES; i += 1) {
+    writeJudge(i, (prev) => ({
+      ...prev,
+      hongPoints: 0,
+      chongPoints: 0,
+      gpDecision: null,
+      history: [],
+    }));
+  }
+}
+
+function resolveGoldenPointAVotes(judges, meta) {
+  const currentJudges = judges.filter((j) => j.id <= COMBAT_JUDGES);
+
+  let hong = 0;
+  let chong = 0;
+
+  currentJudges.forEach((j) => {
+  const v = j.gpDecision;
+  if (v === "hong") hong += 1;
+  else if (v === "chong") chong += 1;
+});
+
+  const totalVotes = hong + chong;
+
+  // 🔴 mínimo: al menos 2 votos válidos
+  if (totalVotes < 2) return "noDecision";
+
+  // 🔴 mayoría real (no alcanza con 1 voto)
+  if (hong >= 2 && hong > chong) return "hongWinner";
+  if (chong >= 2 && chong > hong) return "chongWinner";
+
+  return "noDecision";
+}
+
+function handleNextGPBRound() {
+  writeMeta((current) => {
+    current.goldenPoint = current.goldenPoint || makeEmptyGoldenPoint();
+
+    if (current.goldenPoint.mode !== "B") return current;
+
+    current.goldenPoint.active = true;
+    current.goldenPoint.mode = "B";
+    current.goldenPoint.state = "running";
+    current.goldenPoint.result = null;
+    current.goldenPoint.gpRound = (current.goldenPoint.gpRound || 1) + 1;
+
+    current.combatForcedWinner = null;
+    current.showResult = false;
+
+    current.hongWarnings = 0;
+    current.chongWarnings = 0;
+    current.hongFouls = 0;
+    current.chongFouls = 0;
+
+    current.hongLog = [];
+    current.chongLog = [];
+
+    current.phase = "fight";
+    current.status = "paused";
+    current.pausedRemaining = current.config?.roundSeconds || 120;
+    current.phaseStartedAt = null;
+
+    return current;
+  });
+
+  for (let i = 1; i <= MAX_JUDGES; i += 1) {
+    writeJudge(i, (prev) => ({
+      ...prev,
+      hongPoints: 0,
+      chongPoints: 0,
+      gpDecision: null,
+      history: [],
+    }));
+  }
+}
+
+function handleCallJudges() {
+  writeMeta((current) => {
+    current.goldenPoint = current.goldenPoint || {};
+    current.goldenPoint.active = true;
+    current.goldenPoint.mode = "A";
+    current.goldenPoint.state = "judging";
+    return current;
+  });
+
+  for (let i = 1; i <= MAX_JUDGES; i += 1) {
+  writeJudge(i, (prev) => ({
+    ...prev,
+    vote: null,
+    decision: null,
+    gpDecision: null, // 👈 clave para GPA
+  }));
+}
+}
+
+const showClearVotes =
+  meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "A";
+
+let gpStateText = "";
+
+if (meta?.goldenPoint?.state === "judging") {
+  gpStateText = "JUDGES DECIDING";
+} else if (meta?.goldenPoint?.state === "noDecision") {
+  gpStateText = "NO DECISION";
+} else if (meta?.goldenPoint?.state === "running") {
+  gpStateText = "";
+}
+
+const showGPStateBanner =
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "A" &&
+  !!gpStateText;
+
+meta = ensureMetaShape(meta);
+const time = useClock(meta);
+const s = summary(meta, judges);
+const presidentWinner = meta.showResult ? s.winner : null;
+const prevRunningRef = useRef(false);
+const prevFinishedRef = useRef(false);
+const inputsLocked = meta.phase === "finished";
+const [goldenPointAState, setGoldenPointAState] = useState("idle");
+
+  
   const [secondsInput, setSecondsInput] = useState(String(meta.config.roundSeconds || 120));
   const [roundsInput, setRoundsInput] = useState(String(meta.config.rounds || 2));
   const [breakSecondsInput, setBreakSecondsInput] = useState(String(meta.config.breakSeconds || BREAK_SECONDS));
@@ -3240,6 +3543,7 @@ function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navi
     chongName: meta.chong?.name || "",
     chongClub: meta.chong?.club || "",
   });
+  
 
   const playButtonSound = () => {
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -3744,7 +4048,18 @@ const handleMedicalStart = async (side) => {
   });
 };
 const winner = meta.showResult ? s.winner : null;
-  const handleInvertSides = async () => {
+const hasVotes = judges.some((j) => j.gpDecision === "hong" || j.gpDecision === "chong");
+const isGPAActive =
+  meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "A";
+
+const isGPBActive =
+  meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "B";
+const canAdvanceGPB =
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "B" &&
+  !meta?.showResult &&
+  meta?.goldenPoint?.state !== "resolved";  
+const handleInvertSides = async () => {
   await commitEditor(editorDraftRef.current);
 
   await writeMeta((current) => ({
@@ -3807,9 +4122,15 @@ const rightSide = isSwapped ? "hong" : "chong";
     Next
   </AppButton>
 
-  <AppButton style={{ ...styles.red, minHeight: 32, fontSize: 17 }} onClick={resetAll}>
-    Reset
-  </AppButton>
+  <AppButton
+  style={{ ...styles.red, minHeight: 32, fontSize: 17 }}
+  onClick={() => {
+    resetAll();
+    setGoldenPointAState("idle");
+  }}
+>
+  Reset
+</AppButton>
 
   <AppButton style={{ ...styles.purple, minHeight: 32, fontSize: 17 }} onClick={handleInvertPublic}>
     Invert Pub
@@ -5239,6 +5560,186 @@ onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
     {isSwapped ? "CHONG DATA" : "HONG DATA"}
   </div>
 
+{canAdvanceGPB && (
+  <button
+    onClick={handleNextGPBRound}
+    style={{
+      position: "absolute",
+      top: 590,
+      right: 1210,
+      width: 682,
+
+      borderRadius: 10,
+      border: "2px solid #00E0FF",
+
+      background: "#003a4a",
+      color: "#00E0FF",
+
+      fontWeight: 900,
+      fontSize: 18,
+      padding: 12,
+
+      boxShadow: "0 0 10px rgba(0,224,255,0.5)",
+      animation: "callAttention 2.8s ease-in-out infinite",
+    }}
+  >
+    GPB GO TO ROUND  {(meta?.goldenPoint?.gpRound || 1) + 1}
+  </button>
+)}
+
+{showClearVotes && (
+  <button
+    onClick={() => {
+  for (let i = 1; i <= MAX_JUDGES; i += 1) {
+    writeJudge(i, (prev) => ({
+      ...prev,
+      gpDecision: null,
+    }));
+  }
+}}
+    style={{
+  position: "absolute",
+  top: 590,
+  left: 27,
+  width: 340,
+
+  borderRadius: 10,
+  border: "2px solid #39FF14", // 👈 verde flúor
+
+  background: "#1f7a3a",
+color: "#ffffff",
+
+  fontWeight: 900,
+  fontSize: 18,
+  padding: 12,
+
+  opacity: 0.75,
+
+  boxShadow: "0 0 8px rgba(57,255,20,0.4)", // 👈 glow suave
+  animation: hasVotes ? "noDecisionFade 1.6s ease-in-out infinite" : "none",
+}}
+  >
+    CLEAR VOTES
+  </button>
+)}
+{showClearVotes && (
+  <button
+    onClick={() => {
+  if (meta?.goldenPoint?.state !== "judging") {
+    handleCallJudges();
+    return;
+  }
+
+  const result = resolveGoldenPointAVotes(judges, meta);
+
+// setGoldenPointAState(result);  ← lo dejamos desactivado
+
+writeMeta((current) => {
+  current.goldenPoint.state = "resolved";
+  current.goldenPoint.result = result;
+
+  if (result === "hongWinner") {
+    current.combatForcedWinner = "hong";
+    current.showResult = true;
+    current.status = "paused";
+    current.phase = "finished";
+    current.pausedRemaining = 0;
+    current.phaseStartedAt = null;
+  }
+
+  if (result === "chongWinner") {
+    current.combatForcedWinner = "chong";
+    current.showResult = true;
+    current.status = "paused";
+    current.phase = "finished";
+    current.pausedRemaining = 0;
+    current.phaseStartedAt = null;
+  }
+
+  return current;
+});
+}}
+    style={{
+      position: "absolute",
+      top: 590,
+      left: 370, // 👈 IMPORTANTE (27 + 341)
+
+      width: 340,
+
+      borderRadius: 10,
+      border: "2px solid #FFA500", // 👈 naranja/ámbar
+
+      background:
+  meta?.goldenPoint?.state === "judging"
+    ? "#8a4b00"   // más intenso para SET DECISION
+    : "#4a2a00",  // más oscuro para CALL JUDGES
+
+color: "#ffffff",
+
+      fontWeight: 900,
+      fontSize: 18,
+      padding: 12,
+
+      opacity: 0.85,
+
+      boxShadow: "0 0 10px rgba(255,165,0,0.5)",
+
+animation:
+  meta?.goldenPoint?.state === "judging"
+    ? hasVotes
+      ? "setDecisionPulse 1.6s ease-in-out infinite"
+      : "none"
+    : "callAttention 2.8s ease-in-out infinite",
+    }}
+  >
+    {meta?.goldenPoint?.state === "judging" ? "SET DECISION GPA" : "CALL JUDGES"}
+  </button>
+)}
+{(showGPStateBanner ||
+  meta?.goldenPoint?.state === "judging" ||
+  meta?.goldenPoint?.state === "resolved") && (
+  <div
+    style={{
+      position: "absolute",
+      top: 590,
+      right: 27,
+      width: 682,
+
+      borderRadius: 10,
+      border: "2px solid #FFD700",
+      background: "#3a2f00",
+      color: "#FFD700",
+
+      fontWeight: 900,
+      fontSize: 22,
+      padding: 12,
+      textAlign: "center",
+
+      boxShadow: "0 0 10px rgba(255,215,0,0.4)",
+      animation:
+  meta?.goldenPoint?.state === "judging"
+    ? "judgingBannerPulse 1.2s ease-in-out infinite"
+    : meta?.goldenPoint?.state === "resolved" &&
+      (meta?.goldenPoint?.result === "hongWinner" ||
+       meta?.goldenPoint?.result === "chongWinner")
+    ? "winnerImpact 0.8s ease-out"
+    : meta?.goldenPoint?.state === "resolved" &&
+      meta?.goldenPoint?.result === "noDecision"
+    ? "noDecisionFade 1.6s ease-in-out infinite"
+    : "none",
+    }}
+  >
+    {meta?.goldenPoint?.state === "judging"
+  ? "JUDGES DECIDING"
+  : meta?.goldenPoint?.state === "resolved" && meta?.goldenPoint?.result === "hongWinner"
+  ? "HONG WINNER"
+  : meta?.goldenPoint?.state === "resolved" && meta?.goldenPoint?.result === "chongWinner"
+  ? "CHONG WINNER"
+  : meta?.goldenPoint?.state === "resolved" && meta?.goldenPoint?.result === "noDecision"
+  ? "NO DECISION"
+  : ""}
+  </div>
+)}
   <div
   style={{
     borderRadius: 8,
@@ -5570,35 +6071,60 @@ onMouseLeave={(e) => {
   </div>
 
   <button
-    style={{
-      border: "none",
-      borderRadius: 10,
-      background: "linear-gradient(135deg, #FFD700, #B8860B)",
-      color: "black",
-      color: "black",
-      fontWeight: 900,
-      fontSize: 16,
-      padding: 10,
-    }}
-  >
-    GOLDEN POINT A
-  </button>
+  onClick={handleActivateGPA}
+  style={{
+    borderRadius: 10,
+    background: "linear-gradient(135deg, #FFD700, #B8860B)",
+    color: "black",
+    fontWeight: 900,
+    fontSize: 16,
+    padding: 10,
+
+    border: isGPAActive
+      ? "2px solid #FFD700"
+      : "none",
+
+    boxShadow:
+      isGPAActive
+        ? "0 0 12px rgba(255, 215, 0, 0.7)"
+        : "none",
+
+    animation:
+      isGPAActive
+        ? "gpPulse 1.6s ease-in-out infinite"
+        : "none",
+  }}
+>
+  GOLDEN POINT A
+</button>
 
   <button
-    style={{
-      border: "none",
-      borderRadius: 10,
-      background: "linear-gradient(135deg, #FFC300, #8B6508)",
-      
-      color: "black",
-      color: "black",
-      fontWeight: 900,
-      fontSize: 16,
-      padding: 10,
-    }}
-  >
-    GOLDEN POINT B
-  </button>
+  onClick={handleActivateGPB}
+  style={{
+    borderRadius: 10,
+    background: "linear-gradient(135deg, #FFC300, #8B6508)",
+    color: "black",
+    fontWeight: 900,
+    fontSize: 16,
+    padding: 10,
+
+    border: isGPBActive
+      ? "2px solid #FFC300"
+      : "none",
+
+    boxShadow:
+      isGPBActive
+        ? "0 0 12px rgba(255, 195, 0, 0.7)"
+        : "none",
+
+    animation:
+      isGPBActive
+        ? "gpPulse 1.6s ease-in-out infinite"
+        : "none",
+  }}
+>
+  GOLDEN POINT B
+</button>
 </div>
 
         <div
@@ -6120,40 +6646,48 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
 
   const judge = judges.find((j) => j.id === judgeId) || makeJudge(judgeId);
   const warning = secondFoulWarning(meta);
+  const isGPA = meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "A";
+  const judgeCompactMode = !!warning || meta.phase === "break";
+
+const gpDecisionText =
+  judge.gpDecision === "hong"
+    ? "VOTO HONG"
+    : judge.gpDecision === "chong"
+    ? "VOTO CHONG"
+    : "SIN VOTO";
+  
   
 
   const updateJudge = async (kind, side = null, value = null) => {
-    await writeJudge(judgeId, (j) => {
-      if (kind === "UNDO") {
-        if (!j.history?.length) return j;
-        return j.history[j.history.length - 1];
-      }
-
-      const before = clone(j);
-      const next = clone(j);
-      next.history = [...(j.history || []), before];
-
-      if (kind === "POINT") {
-        if (side === "hong") next.hongPoints += value;
-        else next.chongPoints += value;
-      }
-      return next;
-    });
-
-    if (kind === "POINT" && meta.goldenPoint?.active && meta.goldenPoint?.mode === "A") {
-      const declaredSummary = summary(meta, judges);
-      if (declaredSummary.hongVotes >= 2 || declaredSummary.chongVotes >= 2) {
-        await writeMeta((current) => {
-          current.combatForcedWinner = declaredSummary.hongVotes >= 2 ? "hong" : "chong";
-          current.phase = "finished";
-          current.status = "paused";
-          current.pausedRemaining = 0;
-          current.phaseStartedAt = null;
-          return current;
-        });
-      }
+  await writeJudge(judgeId, (j) => {
+    if (kind === "UNDO") {
+      if (!j.history?.length) return j;
+      return j.history[j.history.length - 1];
     }
-  };
+
+    const before = clone(j);
+    const next = clone(j);
+    next.history = [...(j.history || []), before];
+
+    // GP A = decisión binaria, NO puntos
+    if (
+      kind === "POINT" &&
+      meta?.goldenPoint?.active &&
+      meta?.goldenPoint?.mode === "A"
+    ) {
+      next.gpDecision = side;
+      return next;
+    }
+
+    // lógica vieja normal de combate
+    if (kind === "POINT") {
+      if (side === "hong") next.hongPoints += value;
+      else next.chongPoints += value;
+    }
+
+    return next;
+  });
+};
 
   const judgeWinner = summary(meta, judges).winner;
   const showJudgeWinner = meta.showResult === true;
@@ -6185,13 +6719,15 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
   };
 
   const cardStyle = {
-    background: "#07111f",
-    border: "1px solid #17304f",
-    borderRadius: isVerySmallMobile ? 18 : 22,
-    padding: isVerySmallMobile ? 12 : 14,
-    boxSizing: "border-box",
-    boxShadow: "0 12px 36px rgba(0,0,0,0.28)",
-  };
+  background: "#07111f",
+  border: "1px solid #17304f",
+  borderRadius: isVerySmallMobile ? 18 : 22,
+  padding: judgeCompactMode
+    ? (isVerySmallMobile ? 8 : 10)
+    : (isVerySmallMobile ? 12 : 14),
+  boxSizing: "border-box",
+  boxShadow: "0 12px 36px rgba(0,0,0,0.28)",
+};
 
   const statCardStyle = {
     background: "rgba(255,255,255,0.05)",
@@ -6207,25 +6743,33 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
   };
 
   const sideBoxBase = {
-    borderRadius: isVerySmallMobile ? 16 : 20,
-    padding: isVerySmallMobile ? 10 : 14,
-    display: "flex",
-    flexDirection: "column",
-    gap: isVerySmallMobile ? 8 : 12,
-    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08)",
-    boxSizing: "border-box",
-    minWidth: 0,
-  };
+  borderRadius: isVerySmallMobile ? 16 : 20,
+  padding: judgeCompactMode
+    ? (isVerySmallMobile ? 8 : 10)
+    : (isVerySmallMobile ? 10 : 14),
+  display: "flex",
+  flexDirection: "column",
+  gap: judgeCompactMode
+    ? (isVerySmallMobile ? 6 : 8)
+    : (isVerySmallMobile ? 8 : 12),
+  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08)",
+  boxSizing: "border-box",
+  minWidth: 0,
+};
 
   const scoreStyle = {
-    textAlign: "center",
-    fontSize: isVerySmallMobile ? "clamp(44px, 10vw, 72px)" : "clamp(56px, 10vw, 96px)",
-    fontWeight: 900,
-    lineHeight: 0.95,
-    letterSpacing: "-0.04em",
-    textShadow: "0 10px 24px rgba(0,0,0,0.28)",
-    margin: isVerySmallMobile ? "0 0 2px" : "4px 0 2px",
-  };
+  textAlign: "center",
+  fontSize: judgeCompactMode
+    ? (isVerySmallMobile ? "clamp(28px, 7vw, 44px)" : "clamp(34px, 8vw, 56px)")
+    : (isVerySmallMobile ? "clamp(44px, 10vw, 72px)" : "clamp(56px, 10vw, 96px)"),
+  fontWeight: 900,
+  lineHeight: 0.95,
+  letterSpacing: "-0.04em",
+  textShadow: "0 10px 24px rgba(0,0,0,0.28)",
+  margin: judgeCompactMode
+    ? "0"
+    : (isVerySmallMobile ? "0 0 2px" : "4px 0 2px"),
+};
 
   const buttonGridStyle = {
     display: "grid",
@@ -6248,11 +6792,13 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
   };
 
   const sidesWrapStyle = {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: isVerySmallMobile ? 10 : 14,
-    alignItems: "stretch",
-  };
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gap: judgeCompactMode
+    ? (isVerySmallMobile ? 8 : 10)
+    : (isVerySmallMobile ? 10 : 14),
+  alignItems: "stretch",
+};
 
   return (
     <div style={shellStyle}>
@@ -6350,6 +6896,27 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
           </div>
         )}
 
+        {isGPA && (
+  <div
+    style={{
+      ...cardStyle,
+      background:
+        judge.gpDecision === "hong"
+          ? "#7f1d1d"
+          : judge.gpDecision === "chong"
+          ? "#1e3a8a"
+          : "#374151",
+      border: "1px solid rgba(255,255,255,0.18)",
+      color: "white",
+      textAlign: "center",
+      fontWeight: 900,
+      fontSize: isVerySmallMobile ? "clamp(15px, 3.8vw, 20px)" : "clamp(16px, 4vw, 22px)",
+    }}
+  >
+    {gpDecisionText}
+  </div>
+)}
+
         {meta.phase === "break" && (
           <div
             style={{
@@ -6401,38 +6968,68 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
               HONG
             </div>
 
-            <div style={scoreStyle}>{judge.hongPoints}</div>
+            <div style={scoreStyle}>
+  {isGPA ? (judge.gpDecision === "hong" ? "✓" : "—") : judge.hongPoints}
+</div>
 
-            <div style={buttonGridStyle}>
-              <AppButton
-                feedback="judge"
-                style={{ ...touchBtnBase, background: "#b91c1c" }}
-                onClick={() => updateJudge("POINT", "hong", 1)}
-              >
-                +1
-              </AppButton>
-              <AppButton
-                feedback="judge"
-                style={{ ...touchBtnBase, background: "#dc2626" }}
-                onClick={() => updateJudge("POINT", "hong", 2)}
-              >
-                +2
-              </AppButton>
-              <AppButton
-                feedback="judge"
-                style={{ ...touchBtnBase, background: "#ef4444" }}
-                onClick={() => updateJudge("POINT", "hong", 3)}
-              >
-                +3
-              </AppButton>
-              <AppButton
-                feedback="judge"
-                style={{ ...touchBtnBase, background: "#f87171" }}
-                onClick={() => updateJudge("POINT", "hong", 4)}
-              >
-                +4
-              </AppButton>
-            </div>
+            <div
+  style={
+    isGPA
+      ? {
+          ...buttonGridStyle,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }
+      : buttonGridStyle
+  }
+>
+  {isGPA ? (
+    <AppButton
+      feedback="judge"
+      style={{
+        ...touchBtnBase,
+        background: "#b91c1c",
+        width: "80%",
+        minWidth: 0,
+      }}
+      onClick={() => updateJudge("POINT", "hong", 1)}
+    >
+      HONG
+    </AppButton>
+  ) : (
+    <>
+      <AppButton
+        feedback="judge"
+        style={{ ...touchBtnBase, background: "#b91c1c" }}
+        onClick={() => updateJudge("POINT", "hong", 1)}
+      >
+        +1
+      </AppButton>
+      <AppButton
+        feedback="judge"
+        style={{ ...touchBtnBase, background: "#dc2626" }}
+        onClick={() => updateJudge("POINT", "hong", 2)}
+      >
+        +2
+      </AppButton>
+      <AppButton
+        feedback="judge"
+        style={{ ...touchBtnBase, background: "#ef4444" }}
+        onClick={() => updateJudge("POINT", "hong", 3)}
+      >
+        +3
+      </AppButton>
+      <AppButton
+        feedback="judge"
+        style={{ ...touchBtnBase, background: "#f87171" }}
+        onClick={() => updateJudge("POINT", "hong", 4)}
+      >
+        +4
+      </AppButton>
+    </>
+  )}
+</div>
           </div>
 
           <div
@@ -6453,38 +7050,67 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
               CHONG
             </div>
 
-            <div style={scoreStyle}>{judge.chongPoints}</div>
+            <div style={scoreStyle}>
+  {isGPA ? (judge.gpDecision === "chong" ? "✓" : "—") : judge.chongPoints}
+</div>
 
-            <div style={buttonGridStyle}>
-              <AppButton
-                feedback="judge"
-                style={{ ...touchBtnBase, background: "#1d4ed8" }}
-                onClick={() => updateJudge("POINT", "chong", 1)}
-              >
-                +1
-              </AppButton>
-              <AppButton
-                feedback="judge"
-                style={{ ...touchBtnBase, background: "#2563eb" }}
-                onClick={() => updateJudge("POINT", "chong", 2)}
-              >
-                +2
-              </AppButton>
-              <AppButton
-                feedback="judge"
-                style={{ ...touchBtnBase, background: "#3b82f6" }}
-                onClick={() => updateJudge("POINT", "chong", 3)}
-              >
-                +3
-              </AppButton>
-              <AppButton
-                feedback="judge"
-                style={{ ...touchBtnBase, background: "#60a5fa" }}
-                onClick={() => updateJudge("POINT", "chong", 4)}
-              >
-                +4
-              </AppButton>
-            </div>
+            <div
+  style={
+    isGPA
+      ? {
+          ...buttonGridStyle,
+          display: "flex",
+          justifyContent: "center",
+        }
+      : buttonGridStyle
+  }
+>
+  {isGPA ? (
+    <AppButton
+      feedback="judge"
+      style={{
+        ...touchBtnBase,
+        background: "#1d4ed8",
+        width: "80%",
+        minWidth: 0,
+      }}
+      onClick={() => updateJudge("POINT", "chong", 1)}
+    >
+      CHONG
+    </AppButton>
+  ) : (
+    <>
+      <AppButton
+        feedback="judge"
+        style={{ ...touchBtnBase, background: "#1d4ed8" }}
+        onClick={() => updateJudge("POINT", "chong", 1)}
+      >
+        +1
+      </AppButton>
+      <AppButton
+        feedback="judge"
+        style={{ ...touchBtnBase, background: "#2563eb" }}
+        onClick={() => updateJudge("POINT", "chong", 2)}
+      >
+        +2
+      </AppButton>
+      <AppButton
+        feedback="judge"
+        style={{ ...touchBtnBase, background: "#3b82f6" }}
+        onClick={() => updateJudge("POINT", "chong", 3)}
+      >
+        +3
+      </AppButton>
+      <AppButton
+        feedback="judge"
+        style={{ ...touchBtnBase, background: "#60a5fa" }}
+        onClick={() => updateJudge("POINT", "chong", 4)}
+      >
+        +4
+      </AppButton>
+    </>
+  )}
+</div>
           </div>
         </div>
 
