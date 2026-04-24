@@ -1763,6 +1763,11 @@ const preDecisionBanner =
 
   const winner = meta.showResult ? s.winner : null;
 
+  const isGPBDraw =
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "B" &&
+  meta?.goldenPoint?.state === "noDecision";
+
   const sideGradient = (color) =>
     color === "hong"
       ? "linear-gradient(180deg, rgba(185,28,28,0.95) 0%, rgba(80,7,7,0.98) 100%)"
@@ -2219,7 +2224,28 @@ const preDecisionBanner =
           </div>
         </div>
       </div>
-
+    {isGPBDraw && (
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 95,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "rgba(0,0,0,0.89)",
+      color: "#FFD700",
+      fontSize: 120,
+      fontWeight: 900,
+      letterSpacing: "0.08em",
+      textAlign: "center",
+      textTransform: "uppercase",
+      textShadow: "0 0 28px rgba(255,215,0,0.85)",
+    }}
+  >
+    DRAW
+  </div>
+)}
       {winner && <WinnerFullScreen winner={winner} zIndex={100} mode="public" />}
     </Frame16x9>
   );
@@ -4108,7 +4134,11 @@ const canAdvanceGPB =
   meta?.goldenPoint?.active &&
   meta?.goldenPoint?.mode === "B" &&
   !meta?.showResult &&
-  meta?.goldenPoint?.state !== "resolved";  
+  meta?.goldenPoint?.state !== "resolved";
+const isGPBDraw =
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "B" &&
+  meta?.goldenPoint?.state === "noDecision";  
 const handleInvertSides = async () => {
   await commitEditor(editorDraftRef.current);
 
@@ -5730,7 +5760,8 @@ animation:
 )}
 {(showGPStateBanner ||
   meta?.goldenPoint?.state === "judging" ||
-  meta?.goldenPoint?.state === "resolved") && (
+  meta?.goldenPoint?.state === "resolved" ||
+  isGPBDraw) && (
   <div
     style={{
       position: "absolute",
@@ -5756,21 +5787,25 @@ animation:
       (meta?.goldenPoint?.result === "hongWinner" ||
        meta?.goldenPoint?.result === "chongWinner")
     ? "winnerImpact 0.8s ease-out"
-    : meta?.goldenPoint?.state === "resolved" &&
-      meta?.goldenPoint?.result === "noDecision"
-    ? "noDecisionFade 1.6s ease-in-out infinite"
-    : "none",
+    : isGPBDraw
+? "noDecisionFade 1.6s ease-in-out infinite"
+: meta?.goldenPoint?.state === "resolved" &&
+  meta?.goldenPoint?.result === "noDecision"
+? "noDecisionFade 1.6s ease-in-out infinite"
+: "none",
     }}
   >
     {meta?.goldenPoint?.state === "judging"
   ? "JUDGES DECIDING"
   : meta?.goldenPoint?.state === "resolved" && meta?.goldenPoint?.result === "hongWinner"
   ? "HONG WINNER"
-  : meta?.goldenPoint?.state === "resolved" && meta?.goldenPoint?.result === "chongWinner"
-  ? "CHONG WINNER"
-  : meta?.goldenPoint?.state === "resolved" && meta?.goldenPoint?.result === "noDecision"
-  ? "NO DECISION"
-  : ""}
+: meta?.goldenPoint?.state === "resolved" && meta?.goldenPoint?.result === "chongWinner"
+? "CHONG WINNER"
+: isGPBDraw
+? "NO DECISION"
+: meta?.goldenPoint?.state === "resolved" && meta?.goldenPoint?.result === "noDecision"
+? "NO DECISION"
+: ""}
   </div>
 )}
   <div
@@ -6221,9 +6256,9 @@ onMouseLeave={(e) => {
         fontSize: 12,
       }}
     >
-      <div>POINTS 0</div>
-      <div>WARNING 0</div>
-      <div>FOULS 0</div>
+      <div>POINTS {(isSwapped ? judges[0]?.chongPoints : judges[0]?.hongPoints) || 0}</div>
+<div>WARNING {(isSwapped ? meta.chongWarnings : meta.hongWarnings) || 0}</div>
+<div>FOULS {(isSwapped ? meta.chongFouls : meta.hongFouls) || 0}</div>
     </div>
 
     {/* CHONG */}
@@ -6240,9 +6275,9 @@ onMouseLeave={(e) => {
         fontSize: 12,
       }}
     >
-      <div>POINTS 0</div>
-      <div>WARNING 0</div>
-      <div>FOULS 0</div>
+      <div>POINTS {(isSwapped ? judges[0]?.hongPoints : judges[0]?.chongPoints) || 0}</div>
+<div>WARNING {(isSwapped ? meta.hongWarnings : meta.chongWarnings) || 0}</div>
+<div>FOULS {(isSwapped ? meta.hongFouls : meta.chongFouls) || 0}</div>
     </div>
   </div>
 </div>
@@ -6296,9 +6331,9 @@ onMouseLeave={(e) => {
         fontSize: 12,
       }}
     >
-      <div>POINTS 0</div>
-      <div>WARNING 0</div>
-      <div>FOULS 0</div>
+      <div>POINTS {(isSwapped ? judges[1]?.chongPoints : judges[1]?.hongPoints) || 0}</div>
+<div>WARNING {(isSwapped ? meta.chongWarnings : meta.hongWarnings) || 0}</div>
+<div>FOULS {(isSwapped ? meta.chongFouls : meta.hongFouls) || 0}</div>
     </div>
 
     {/* CHONG */}
@@ -6315,9 +6350,9 @@ onMouseLeave={(e) => {
         fontSize: 12,
       }}
     >
-      <div>POINTS 0</div>
-      <div>WARNING 0</div>
-      <div>FOULS 0</div>
+      <div>POINTS {(isSwapped ? judges[1]?.hongPoints : judges[1]?.chongPoints) || 0}</div>
+<div>WARNING {(isSwapped ? meta.hongWarnings : meta.chongWarnings) || 0}</div>
+<div>FOULS {(isSwapped ? meta.hongFouls : meta.chongFouls) || 0}</div>
     </div>
   </div>
 </div>
@@ -6371,9 +6406,9 @@ onMouseLeave={(e) => {
         fontSize: 12,
       }}
     >
-      <div>POINTS 0</div>
-      <div>WARNING 0</div>
-      <div>FOULS 0</div>
+      <div>POINTS {(isSwapped ? judges[2]?.chongPoints : judges[2]?.hongPoints) || 0}</div>
+<div>WARNING {(isSwapped ? meta.chongWarnings : meta.hongWarnings) || 0}</div>
+<div>FOULS {(isSwapped ? meta.chongFouls : meta.hongFouls) || 0}</div>
     </div>
 
     {/* CHONG */}
@@ -6390,9 +6425,9 @@ onMouseLeave={(e) => {
         fontSize: 12,
       }}
     >
-      <div>POINTS 0</div>
-      <div>WARNING 0</div>
-      <div>FOULS 0</div>
+      <div>POINTS {(isSwapped ? judges[2]?.hongPoints : judges[2]?.chongPoints) || 0}</div>
+<div>WARNING {(isSwapped ? meta.hongWarnings : meta.chongWarnings) || 0}</div>
+<div>FOULS {(isSwapped ? meta.hongFouls : meta.chongFouls) || 0}</div>
     </div>
   </div>
 </div>
@@ -6446,9 +6481,9 @@ onMouseLeave={(e) => {
         fontSize: 12,
       }}
     >
-      <div>POINTS 0</div>
-      <div>WARNING 0</div>
-      <div>FOULS 0</div>
+      <div>POINTS {(isSwapped ? judges[3]?.chongPoints : judges[3]?.hongPoints) || 0}</div>
+<div>WARNING {(isSwapped ? meta.chongWarnings : meta.hongWarnings) || 0}</div>
+<div>FOULS {(isSwapped ? meta.chongFouls : meta.hongFouls) || 0}</div>
     </div>
 
     {/* CHONG */}
@@ -6465,9 +6500,9 @@ onMouseLeave={(e) => {
         fontSize: 12,
       }}
     >
-      <div>POINTS 0</div>
-      <div>WARNING 0</div>
-      <div>FOULS 0</div>
+      <div>POINTS {(isSwapped ? judges[3]?.hongPoints : judges[3]?.chongPoints) || 0}</div>
+<div>WARNING {(isSwapped ? meta.hongWarnings : meta.chongWarnings) || 0}</div>
+<div>FOULS {(isSwapped ? meta.hongFouls : meta.chongFouls) || 0}</div>
     </div>
   </div>
 </div>
