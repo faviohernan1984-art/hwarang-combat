@@ -420,9 +420,17 @@ function makeJudge(id) {
 }
 
 function normalizeJudge(raw, id) {
+  const base = makeJudge(id);
+
   return {
-    ...makeJudge(id),
-    ...(raw || {}),
+    id: raw?.id ?? base.id,
+
+    hongPoints: Number(raw?.hongPoints ?? base.hongPoints),
+    chongPoints: Number(raw?.chongPoints ?? base.chongPoints),
+
+    gpDecision: raw?.gpDecision ?? base.gpDecision,
+
+    history: raw?.history ?? base.history,
   };
 }
 
@@ -3467,6 +3475,7 @@ function handleNextGPBRound() {
     current.hongLog = [];
     current.chongLog = [];
 
+    // CLAVE: GPB ROUND NUEVO SIEMPRE ARRANCA COMO FIGHT
     current.phase = "fight";
     current.status = "paused";
     current.pausedRemaining = current.config?.roundSeconds || 120;
@@ -3484,6 +3493,47 @@ function handleNextGPBRound() {
       history: [],
     }));
   }
+}
+
+function handleSetDecisionGPB() {
+  const s = summary(meta, judges);
+
+  let result = "noDecision";
+
+  if (s.hongVotes >= 2 && s.hongVotes > s.chongVotes) {
+    result = "hongWinner";
+  } else if (s.chongVotes >= 2 && s.chongVotes > s.hongVotes) {
+    result = "chongWinner";
+  }
+
+  writeMeta((current) => {
+  current.goldenPoint = current.goldenPoint || makeEmptyGoldenPoint();
+
+  current.goldenPoint.state =
+    result === "noDecision" ? "noDecision" : "resolved";
+
+  current.goldenPoint.result = result;
+
+  if (result === "hongWinner") {
+    current.combatForcedWinner = "hong";
+    current.showResult = true;
+    current.status = "paused";
+    current.phase = "finished";
+    current.pausedRemaining = 0;
+    current.phaseStartedAt = null;
+  }
+
+  if (result === "chongWinner") {
+    current.combatForcedWinner = "chong";
+    current.showResult = true;
+    current.status = "paused";
+    current.phase = "finished";
+    current.pausedRemaining = 0;
+    current.phaseStartedAt = null;
+  }
+
+  return current;
+});
 }
 
 function handleCallJudges() {
@@ -4772,7 +4822,13 @@ const rightSide = isSwapped ? "hong" : "chong";
       alignItems: "center",
       justifyContent: "center",
     }}
-    onClick={closeMatch}
+    onClick={() => {
+  if (meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "B") {
+    handleSetDecisionGPB();
+  } else {
+    closeMatch();
+  }
+}}
   >
     SET DECISION
   </AppButton>
@@ -5634,30 +5690,7 @@ color: "#ffffff",
 
 // setGoldenPointAState(result);  ← lo dejamos desactivado
 
-writeMeta((current) => {
-  current.goldenPoint.state = "resolved";
-  current.goldenPoint.result = result;
 
-  if (result === "hongWinner") {
-    current.combatForcedWinner = "hong";
-    current.showResult = true;
-    current.status = "paused";
-    current.phase = "finished";
-    current.pausedRemaining = 0;
-    current.phaseStartedAt = null;
-  }
-
-  if (result === "chongWinner") {
-    current.combatForcedWinner = "chong";
-    current.showResult = true;
-    current.status = "paused";
-    current.phase = "finished";
-    current.pausedRemaining = 0;
-    current.phaseStartedAt = null;
-  }
-
-  return current;
-});
 }}
     style={{
       position: "absolute",
