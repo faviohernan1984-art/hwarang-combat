@@ -3333,49 +3333,49 @@ const handleInvertSides = async () => {
           }}
         >
           <AppButton
-            style={{
-              ...styles.red,
-              minHeight: 40,
-              fontSize: 14,
-              fontWeight: 800,
-              borderRadius: 10,
-              paddingTop: 6,
-              paddingBottom: 6,
-            }}
-            onClick={() => applyCombatForcedWinner("hong")}
-          >
-            Ganador Hong
-          </AppButton>
+  style={{
+    ...styles.red,
+    minHeight: 40,
+    fontSize: 14,
+    fontWeight: 800,
+    borderRadius: 10,
+    paddingTop: 6,
+    paddingBottom: 6,
+  }}
+  onClick={() => applyCombatForcedWinner(isSwapped ? "chong" : "hong")}
+>
+  {isSwapped ? "CHONG WINNER" : "HONG WINNER"}
+</AppButton>
 
           <AppButton
-            style={{
-              ...styles.gray,
-              minHeight: 40,
-              fontSize: 14,
-              fontWeight: 800,
-              borderRadius: 10,
-              paddingTop: 6,
-              paddingBottom: 6,
-            }}
-            onClick={() => applyCombatForcedWinner("draw")}
-          >
-            Empate
-          </AppButton>
+  style={{
+    ...styles.gray,
+    minHeight: 40,
+    fontSize: 14,
+    fontWeight: 800,
+    borderRadius: 10,
+    paddingTop: 6,
+    paddingBottom: 6,
+  }}
+  onClick={() => applyCombatForcedWinner("draw")}
+>
+  DRAW
+</AppButton>
 
           <AppButton
-            style={{
-              ...styles.blue,
-              minHeight: 40,
-              fontSize: 14,
-              fontWeight: 800,
-              borderRadius: 10,
-              paddingTop: 6,
-              paddingBottom: 6,
-            }}
-            onClick={() => applyCombatForcedWinner("chong")}
-          >
-            Ganador Chong
-          </AppButton>
+  style={{
+    ...styles.blue,
+    minHeight: 40,
+    fontSize: 14,
+    fontWeight: 800,
+    borderRadius: 10,
+    paddingTop: 6,
+    paddingBottom: 6,
+  }}
+  onClick={() => applyCombatForcedWinner(isSwapped ? "hong" : "chong")}
+>
+  {isSwapped ? "HONG WINNER" : "CHONG WINNER"}
+</AppButton>
         </div>
 
         {winner && (
@@ -6510,7 +6510,8 @@ onMouseLeave={(e) => {
       </div>
 
       <div
-        style={{
+  
+  style={{
           
           borderRadius: 12,
           display: "grid",
@@ -6521,6 +6522,7 @@ onMouseLeave={(e) => {
         }}
       >
         <div
+        onClick={() => applyCombatForcedWinner(isSwapped ? "chong" : "hong")}
   style={{
     
     borderRadius: 14,
@@ -6546,6 +6548,7 @@ onMouseLeave={(e) => {
 </div>
 
 <div
+  onClick={() => applyCombatForcedWinner("draw")}
   style={{
     
     borderRadius: 14,
@@ -6569,6 +6572,7 @@ onMouseLeave={(e) => {
 </div>
 
 <div
+  onClick={() => applyCombatForcedWinner(isSwapped ? "hong" : "chong")}
   style={{
     
     borderRadius: 14,
@@ -6595,7 +6599,21 @@ onMouseLeave={(e) => {
 </div>
       </div>
     </div>
-
+<div
+  style={{
+    position: "absolute",
+    bottom: 5,
+    left: 10,
+    zIndex: 999,
+    color: "yellow",
+    background: "black",
+    padding: 8,
+    fontSize: 14,
+    fontWeight: 900,
+  }}
+>
+  forced: {String(meta.combatForcedWinner)} / winner: {String(s.winner)} / president: {String(presidentWinner)}
+</div>
     {presidentWinner && (
       <WinnerFullScreen
         winner={presidentWinner}
