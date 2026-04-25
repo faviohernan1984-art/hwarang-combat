@@ -171,6 +171,8 @@ function GlobalAppStyle() {
         }
       }
 
+
+      
 @keyframes gpPulse {
   0% {
     transform: scale(1);
@@ -190,6 +192,21 @@ function GlobalAppStyle() {
   100% {
     transform: scale(1);
     box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+  }
+}
+
+@keyframes hwarangLineFlow {
+  0% {
+    background-position: 0% 50%;
+    opacity: 0.5;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.9;
+  }
+  100% {
+    background-position: 0% 50%;
+    opacity: 0.5;
   }
 }
 
@@ -235,7 +252,42 @@ function GlobalAppStyle() {
     transform: scale(1);
   }
 }
+@keyframes winnerEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.72) translateY(24px);
+    filter: brightness(2.2) blur(6px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08) translateY(0);
+    filter: brightness(1.7) blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
 
+@keyframes winnerPulsePro {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  20% {
+    transform: scale(1.06);
+    filter: brightness(1.35);
+  }
+  30% {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
 @keyframes setDecisionPulse {
   0% {
     transform: scale(1);
@@ -366,6 +418,26 @@ function GlobalAppStyle() {
   }
 }
 
+@keyframes winnerEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.72) translateY(24px);
+    filter: brightness(2.2) blur(6px);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.08) translateY(0);
+    filter: brightness(1.7) blur(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
       /* ---------------- GLOW DINÁMICO ---------------- */
       @keyframes hwarangGlow {
         0% {
@@ -392,6 +464,28 @@ function GlobalAppStyle() {
   100% {
     opacity: 1;
     transform: translateY(0px) scale(1);
+  }
+}
+
+@keyframes winnerPulsePro {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+
+  20% {
+    transform: scale(1.06);
+    filter: brightness(1.35);
+  }
+
+  30% {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
   }
 }
 
@@ -1055,100 +1149,130 @@ function WinnerFullScreen({
   onNextCombat,
   onResetTotal,
   onClose,
-  mode = "public"
+  mode = "public",
 }) {
-  const getBg = () => {
-    if (winner === "hong") return "#8b0000";
-    if (winner === "chong") return "#003a8c";
-    return "#3b3b3b";
+  const getColor = () => {
+    if (winner === "hong") return "#ff1a1a";
+    if (winner === "chong") return "#0602e0";
+    return "#eeff00"; // DRAW
   };
 
-  const getTitle = () => {
+  const getText = () => {
     if (winner === "hong") return "HONG WINNER";
     if (winner === "chong") return "CHONG WINNER";
-    return "EMPATE";
+    return "DRAW";
   };
+
+  const color = getColor();
 
   return (
     <div
       style={{
         position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
+        top: 0,
+left: 0,
+right: 0,
+bottom: 0,
         zIndex,
-        width: "min(1200px, 82vw)",
-        minHeight: "340px",
-        borderRadius: 28,
-        background: getBg(),
         display: "flex",
-        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        textAlign: "center",
-        padding: "32px 28px 110px",
-        color: "#fff",
-        boxSizing: "border-box",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.45)",
-        pointerEvents: "auto",
-        }}
+        background: "rgba(0,0,0,0.90)",
+        
+      }}
     >
       <div
         style={{
+          textAlign: "center",
           width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
         }}
       >
-        <div
-          style={{
-            fontSize: 34,
-            fontWeight: 800,
-            letterSpacing: "0.16em",
-            lineHeight: 1,
-          }}
-        >
-          RESULTADO
-        </div>
+        {/* HEADER */}
+<div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    marginBottom: 50,
+  }}
+>
+  <div
+    style={{
+      color: color,
+      fontWeight: 600,
 
+      fontSize: "clamp(20px, 2.2vw, 30px)",
+      letterSpacing: "0.32em",
+
+      WebkitTextStroke: "0.3px rgba(255,255,255,0.25)",
+
+      textShadow: `
+        0 0 4px ${color},
+        0 0 10px ${color}66
+      `,
+
+      opacity: 0.9,
+    }}
+  >
+    HWARANG SCORING UNIVERSE
+  </div>
+
+  {/* LÍNEA IDENTIDAD */}
+  <div
+  style={{
+    marginTop: 8,
+    width: "330px",
+    height: 2,
+
+    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent)",
+    backgroundSize: "200% 100%",
+
+    animation: "hwarangLineFlow 3.5s ease-in-out infinite",
+
+    boxShadow: "0 0 10px rgba(255,255,255,0.8)",
+    opacity: 0.9,
+  }}
+/>
+</div>
+
+        {/* MAIN TEXT */}
         <div
           style={{
-            marginTop: 22,
-            fontSize: "clamp(72px, 8vw, 150px)",
+            color: color,
             fontWeight: 900,
-            lineHeight: 0.92,
-            animation: "winnerPulse 0.9s infinite alternate",
+            fontSize: "clamp(60px, 10vw, 160px)",
+            WebkitTextStroke: "1px rgb(90, 88, 88)",
+            letterSpacing: "0.08em",
+            
+            textShadow: `
+  0 0 2px ${color},
+  0 0 13px ${color},
+  0 0 3px ${color}
+`,
+            animation: "winnerEnter 0.6s ease-out, winnerPulsePro 1.6s ease-in-out 0.6s infinite",
           }}
         >
-          {getTitle()}
+          {getText()}
         </div>
-      </div>
 
-      <div
-        style={{
-          position: "absolute",
-          bottom: 24,
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          gap: 14,
-          flexWrap: "wrap",
-          justifyContent: "center",
-          width: "calc(100% - 40px)",
-        }}
-      >
-        <AppButton style={styles.green} onClick={onNextCombat}>
-          Next Combat
-        </AppButton>
+        {/* BOTONES */}
+        <div
+          style={{
+            marginTop: 100,
+            display: "flex",
+            justifyContent: "center",
+            gap: 12,
+            flexWrap: "wrap",
+          }}
+        >
+          
 
-        <AppButton style={styles.red} onClick={onResetTotal}>
-          Reset Total
-        </AppButton>
-
-        <AppButton style={styles.gray} onClick={onClose}>
-          Cerrar
-        </AppButton>
+          {mode === "president" && (
+  <AppButton style={styles.gray} onClick={onClose}>
+    Close
+  </AppButton>
+)}
+        </div>
       </div>
     </div>
   );
@@ -3607,6 +3731,7 @@ const prevRunningRef = useRef(false);
 const prevFinishedRef = useRef(false);
 const inputsLocked = meta.phase === "finished";
 const [goldenPointAState, setGoldenPointAState] = useState("idle");
+const [hidePresidentWinner, setHidePresidentWinner] = useState(false);
 
   
   const [secondsInput, setSecondsInput] = useState(String(meta.config.roundSeconds || 120));
@@ -3952,6 +4077,7 @@ useEffect(() => {
   };
 
   const applyCombatForcedWinner = async (winnerSide) => {
+    setHidePresidentWinner(false);
     await writeMeta((current) => {
       current.combatForcedWinner = winnerSide;
       current.showResult = true;
@@ -5711,6 +5837,7 @@ color: "#ffffff",
 {showClearVotes && (
   <button
     onClick={() => {
+      
   if (meta?.goldenPoint?.state !== "judging") {
     handleCallJudges();
     return;
@@ -5718,7 +5845,12 @@ color: "#ffffff",
 
   const result = resolveGoldenPointAVotes(judges, meta);
 
-// setGoldenPointAState(result);  ← lo dejamos desactivado
+writeMeta((current) => {
+  current.goldenPoint = current.goldenPoint || makeEmptyGoldenPoint();
+  current.goldenPoint.state = "resolved";
+  current.goldenPoint.result = result;
+  return current;
+});
 
 
 }}
@@ -5728,6 +5860,8 @@ color: "#ffffff",
       left: 370, // 👈 IMPORTANTE (27 + 341)
 
       width: 340,
+      zIndex: 50,
+cursor: "pointer",
 
       borderRadius: 10,
       border: "2px solid #FFA500", // 👈 naranja/ámbar
@@ -6599,33 +6733,13 @@ onMouseLeave={(e) => {
 </div>
       </div>
     </div>
-<div
-  style={{
-    position: "absolute",
-    bottom: 5,
-    left: 10,
-    zIndex: 999,
-    color: "yellow",
-    background: "black",
-    padding: 8,
-    fontSize: 14,
-    fontWeight: 900,
-  }}
->
-  forced: {String(meta.combatForcedWinner)} / winner: {String(s.winner)} / president: {String(presidentWinner)}
-</div>
-    {presidentWinner && (
+
+    {presidentWinner && !hidePresidentWinner && (
       <WinnerFullScreen
-        winner={presidentWinner}
-        onNextCombat={() => {}}
-        onResetTotal={() => {}}
-        onClose={() =>
-          writeMeta((current) => ({
-            ...current,
-            showResult: false,
-          }))
-        }
-      />
+  winner={presidentWinner}
+  mode="president"
+  onClose={() => setHidePresidentWinner(true)}
+/>
     )}
 
 {secondFoulWarning(meta) &&
@@ -7262,13 +7376,18 @@ export default function App() {
   }
 
   if (path === "/public") {
-    return <><PublicScreen
-  meta={meta}
-  judges={judges}
-  navigate={navigate}
-  writeMeta={writeMeta}
-/></>;
-  }
+  return (
+    <>
+      <GlobalAppStyle />
+      <PublicScreen
+        meta={meta}
+        judges={judges}
+        navigate={navigate}
+        writeMeta={writeMeta}
+      />
+    </>
+  );
+}
 
   if (path.startsWith("/judge/")) {
     const n = Number(path.split("/")[2]);
