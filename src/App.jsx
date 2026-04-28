@@ -1804,12 +1804,41 @@ function PublicScreen({ meta, judges, navigate, writeMeta }){
 
     if (current.phase === "fight") {
       // 🔒 BLINDAJE GOLDEN POINT (A y B)
-      if (current.goldenPoint?.active) {
-        current.status = "paused";
-        current.pausedRemaining = 0;
-        current.phaseStartedAt = null;
-        return current;
-      }
+if (
+  current.goldenPoint?.active &&
+  current.goldenPoint?.mode === "A"
+) {
+  current.status = "paused";
+  current.pausedRemaining = 0;
+  current.phaseStartedAt = null;
+
+  const hongPenalty =
+    Math.floor((current.hongWarnings || 0) / 3) +
+    (current.hongFouls || 0);
+
+  const chongPenalty =
+    Math.floor((current.chongWarnings || 0) / 3) +
+    (current.chongFouls || 0);
+
+  if (hongPenalty < chongPenalty) {
+    current.goldenPoint.state = "resolved";
+    current.goldenPoint.result = "hongWinner";
+    current.combatForcedWinner = "hong";
+    current.showResult = true;
+    current.phase = "finished";
+  } else if (chongPenalty < hongPenalty) {
+    current.goldenPoint.state = "resolved";
+    current.goldenPoint.result = "chongWinner";
+    current.combatForcedWinner = "chong";
+    current.showResult = true;
+    current.phase = "finished";
+  } else {
+    current.goldenPoint.state = "draw";
+    current.goldenPoint.result = "draw";
+  }
+
+  return current;
+}
 
       if (current.round < (current.config.rounds || 1)) {
         current.phase = "break";
@@ -1841,7 +1870,35 @@ function PublicScreen({ meta, judges, navigate, writeMeta }){
   const medical = ensureMedical(meta);
   const warning = secondFoulWarning(meta);
   const preDecision = preDecisionAdvantage(meta);
-
+  const publicGpaDecisionBanner =
+  !medical.active &&
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "A" &&
+  meta?.goldenPoint?.result === "noDecision" ? (
+    <div
+      style={{
+        position: "absolute",
+        top: 790,
+        left: 20,
+        right: 20,
+        zIndex: 21,
+        background: "#000000",
+        border: "3px solid #FFD700",
+        borderRadius: 20,
+        padding: 24,
+        textAlign: "center",
+        color: "#FFD700",
+        fontSize: 60,
+        fontWeight: 900,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        boxShadow: "0 0 18px rgba(255,215,0,0.45)",
+        animation: "noDecisionFade 1.6s ease-in-out infinite",
+      }}
+    >
+      NO DECISION
+    </div>
+  ) : null;
   const medicalBanner = medical.active ? (
     <div
       style={{
@@ -1939,7 +1996,18 @@ const preDecisionBanner =
   };
   const foulsMap = { hong: meta.hongFouls || 0, chong: meta.chongFouls || 0 };
 
-  const winner = meta.showResult ? s.winner : null;
+  const gpaWinner =
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "A" &&
+  meta?.goldenPoint?.state === "resolved"
+    ? meta?.goldenPoint?.result === "hongWinner"
+      ? "hong"
+      : meta?.goldenPoint?.result === "chongWinner"
+      ? "chong"
+      : null
+    : null;
+
+const winner = gpaWinner || (meta.showResult ? s.winner : null);
 
   const isGPBDraw =
   meta?.goldenPoint?.active &&
@@ -2132,6 +2200,7 @@ const preDecisionBanner =
           boxSizing: "border-box",
         }}
       >
+        {publicGpaDecisionBanner}
         {medicalBanner}
         {preDecisionBanner}
         {foulWarningBanner}
@@ -2402,7 +2471,12 @@ const preDecisionBanner =
           </div>
         </div>
       </div>
-    {isGPBDraw && (
+    {(isGPBDraw ||
+  (
+    meta?.goldenPoint?.active &&
+    meta?.goldenPoint?.mode === "A" &&
+    meta?.goldenPoint?.result === "draw"
+  )) && (
   <div
     style={{
       position: "absolute",
@@ -3834,7 +3908,17 @@ const presidentWinner =
   gpaWinner || (meta.showResult ? s.winner : null);
 const prevRunningRef = useRef(false);
 const prevFinishedRef = useRef(false);
-const inputsLocked = meta.phase === "finished";
+const isGPAWinner =
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "A" &&
+  meta?.goldenPoint?.state === "resolved" &&
+  (
+    meta?.goldenPoint?.result === "hongWinner" ||
+    meta?.goldenPoint?.result === "chongWinner"
+  );
+
+const inputsLocked =
+  meta.phase === "finished" || isGPAWinner;
 const [goldenPointAState, setGoldenPointAState] = useState("idle");
 const [hidePresidentWinner, setHidePresidentWinner] = useState(false);
 
@@ -3993,6 +4077,31 @@ const [hidePresidentWinner, setHidePresidentWinner] = useState(false);
 
   const startTimer = async () => {
   await writeMeta((current) => {
+    // BLOQUEO TOTAL: si GPA ya tiene ganador, START no hace nada
+    if (
+      current.goldenPoint?.active &&
+      current.goldenPoint?.mode === "A" &&
+      current.goldenPoint?.state === "resolved" &&
+      (
+        current.goldenPoint?.result === "hongWinner" ||
+        current.goldenPoint?.result === "chongWinner"
+      )
+    ) {
+      return current;
+    }
+
+    // Limpieza solo para DRAW / NO DECISION / continuidad GPA
+    if (
+      current.goldenPoint?.active &&
+      current.goldenPoint?.mode === "A"
+    ) {
+      current.goldenPoint.state = "running";
+      current.goldenPoint.result = null;
+
+      current.combatForcedWinner = null;
+      current.showResult = false;
+    }
+
     if (current.status === "running") return current;
     if (current.phase === "finished") return current;
 
@@ -4011,8 +4120,14 @@ const [hidePresidentWinner, setHidePresidentWinner] = useState(false);
 
     const phase = current.phase || "fight";
     const round = current.round || 1;
+
     const defaultPhaseSeconds =
-      phase === "break" ? breakSeconds : roundSeconds;
+      current.goldenPoint?.active &&
+      current.goldenPoint?.mode === "A"
+        ? 60
+        : phase === "break"
+        ? breakSeconds
+        : roundSeconds;
 
     const shouldResume =
       current.status === "paused" &&
@@ -4040,6 +4155,27 @@ const [hidePresidentWinner, setHidePresidentWinner] = useState(false);
       phaseStartedAt: Date.now(),
     };
   });
+
+  if (
+    meta?.goldenPoint?.active &&
+    meta?.goldenPoint?.mode === "A" &&
+    !(
+      meta?.goldenPoint?.state === "resolved" &&
+      (
+        meta?.goldenPoint?.result === "hongWinner" ||
+        meta?.goldenPoint?.result === "chongWinner"
+      )
+    )
+  ) {
+    for (let i = 1; i <= MAX_JUDGES; i += 1) {
+      await writeJudge(i, (prev) => ({
+        ...prev,
+        vote: null,
+        decision: null,
+        gpDecision: null,
+      }));
+    }
+  }
 };
 
   const queueEditorCommit = (nextEditor) => {
@@ -4117,12 +4253,45 @@ useEffect(() => {
         if (current.status !== "running") return current;
 
         if (current.phase === "fight") {
-  if (current.goldenPoint?.active) {
-    current.status = "paused";
+  if (
+  current.goldenPoint?.active &&
+  current.goldenPoint?.mode === "A"
+) {
+  current.status = "paused";
+  current.pausedRemaining = 0;
+  current.phaseStartedAt = null;
+
+  const hongPenalty =
+    Math.floor((current.hongWarnings || 0) / 3) +
+    (current.hongFouls || 0);
+
+  const chongPenalty =
+    Math.floor((current.chongWarnings || 0) / 3) +
+    (current.chongFouls || 0);
+
+  if (hongPenalty < chongPenalty) {
+    current.goldenPoint.state = "resolved";
+    current.goldenPoint.result = "hongWinner";
+    current.combatForcedWinner = "hong";
+    current.showResult = true;
+    current.phase = "finished";
     current.pausedRemaining = 0;
     current.phaseStartedAt = null;
-    return current;
+  } else if (chongPenalty < hongPenalty) {
+    current.goldenPoint.state = "resolved";
+    current.goldenPoint.result = "chongWinner";
+    current.combatForcedWinner = "chong";
+    current.showResult = true;
+    current.phase = "finished";
+    current.pausedRemaining = 0;
+    current.phaseStartedAt = null;
+  } else {
+    current.goldenPoint.state = "draw";
+    current.goldenPoint.result = "draw";
   }
+
+  return current;
+}
 
   if (current.round < (current.config.rounds || 1)) {
     current.phase = "break";
@@ -6007,7 +6176,8 @@ animation:
 {(showGPStateBanner ||
   meta?.goldenPoint?.state === "judging" ||
   meta?.goldenPoint?.state === "resolved" ||
-  isGPBDraw) && (
+  isGPBDraw ||
+meta?.goldenPoint?.state === "draw") && (
   <div
     style={{
       position: "absolute",
@@ -6051,6 +6221,8 @@ animation:
 ? "NO DECISION"
 : meta?.goldenPoint?.state === "resolved" && meta?.goldenPoint?.result === "noDecision"
 ? "NO DECISION"
+: meta?.goldenPoint?.state === "draw"
+? "DRAW"
 : ""}
   </div>
 )}
