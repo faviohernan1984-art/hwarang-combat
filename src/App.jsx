@@ -821,6 +821,24 @@ function summary(meta, judges) {
   };
 }
 
+function gpaSummary(judges) {
+  let hongVotes = 0;
+  let chongVotes = 0;
+  let draws = 0;
+
+  judges.forEach((j) => {
+    if (j.gpDecision === "hong") hongVotes += 1;
+    else if (j.gpDecision === "chong") chongVotes += 1;
+    else draws += 1;
+  });
+
+  return {
+    hongVotes,
+    chongVotes,
+    draws,
+  };
+}
+
 function secondFoulWarning(meta) {
   const hongSecond = (meta.hongFouls || 0) === 2;
   const chongSecond = (meta.chongFouls || 0) === 2;
@@ -1754,25 +1772,50 @@ function PublicScreen({ meta, judges, navigate, writeMeta }){
     : meta.pausedRemaining ?? time;
 
   const s = summary(meta, judges);
+  const publicGpaVisualSummary =
+  meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "A"
+    ? gpaSummary(judges)
+    : s;
+    console.log("PUBLIC GPA DEBUG", {
+  active: meta?.goldenPoint?.active,
+  mode: meta?.goldenPoint?.mode,
+  judgesGp: judges.map((j) => ({
+    id: j.id,
+    gpDecision: j.gpDecision,
+  })),
+  publicGpaVisualSummary,
+});
   const { left, right } = getDisplaySides(meta, "public");
+
+  
   useEffect(() => {
   if (!meta) return;
   if (meta.status !== "running") return;
   if (time > 0) return;
+
+  const scoreMap = {
+  hong: publicGpaVisualSummary.hongVotes,
+  chong: publicGpaVisualSummary.chongVotes,
+};
 
   const finishByTime = async () => {
   await writeMeta((current) => {
     if (current.status !== "running") return current;
 
     if (current.phase === "fight") {
-      if (current.goldenPoint?.active && current.goldenPoint?.mode === "B") {
+      // 🔒 BLINDAJE GOLDEN POINT (A y B)
+      if (current.goldenPoint?.active) {
         current.status = "paused";
         current.pausedRemaining = 0;
         current.phaseStartedAt = null;
-      } else if (current.round < (current.config.rounds || 1)) {
+        return current;
+      }
+
+      if (current.round < (current.config.rounds || 1)) {
         current.phase = "break";
         current.status = "running";
-        current.pausedRemaining = current.config.breakSeconds || BREAK_SECONDS;
+        current.pausedRemaining =
+          current.config.breakSeconds || BREAK_SECONDS;
         current.phaseStartedAt = Date.now();
       } else {
         current.phase = "finished";
@@ -1784,7 +1827,8 @@ function PublicScreen({ meta, judges, navigate, writeMeta }){
       current.phase = "fight";
       current.round += 1;
       current.status = "paused";
-      current.pausedRemaining = current.config.roundSeconds || 120;
+      current.pausedRemaining =
+        current.config.roundSeconds || 120;
       current.phaseStartedAt = null;
     }
 
@@ -1878,7 +1922,17 @@ const preDecisionBanner =
     </div>
   ) : null;
 
-  const scoreMap = { hong: s.hongVotes, chong: s.chongVotes };
+  const scoreMap = {
+  hong:
+    meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "A"
+      ? gpaSummary(judges).hongVotes
+      : s.hongVotes,
+
+  chong:
+    meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "A"
+      ? gpaSummary(judges).chongVotes
+      : s.chongVotes,
+};
   const warningsMap = {
     hong: meta.hongWarnings || 0,
     chong: meta.chongWarnings || 0,
@@ -3071,7 +3125,7 @@ const handleInvertSides = async () => {
             <div style={{ fontSize: 17, fontWeight: 800, lineHeight: 1.1 }}>
               Hong Points
             </div>
-            <strong style={{ fontSize: 25, lineHeight: 1.05 }}>{s.hongVotes}</strong>
+            <strong style={{ fontSize: 25, lineHeight: 1.05 }}>{gpaVisualSummary.hongVotes}</strong>
           </div>
 
           <div
@@ -3088,7 +3142,7 @@ const handleInvertSides = async () => {
             <div style={{ fontSize: 17, fontWeight: 800, lineHeight: 1.1 }}>
               Chong Points
             </div>
-            <strong style={{ fontSize: 25, lineHeight: 1.05 }}>{s.chongVotes}</strong>
+            <strong style={{ fontSize: 25, lineHeight: 1.05 }}>{gpaVisualSummary.chongVotes}</strong>
           </div>
         </div>
 
@@ -3525,14 +3579,44 @@ const handleInvertSides = async () => {
 
 function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navigate }) {
 
-  function handleActivateGPA() {
-  writeMeta((current) => {
-    current.goldenPoint = makeEmptyGoldenPoint(); // 👈 CLAVE
+  async function handleActivateGPA() {
+  // 1. LIMPIAR JUECES
+  for (let i = 1; i <= 4; i++) {
+    await writeJudge(i, (j) => {
+      j.hongPoints = 0;
+      j.chongPoints = 0;
+      j.history = [];
+      j.gpDecision = null;
+      return j;
+    });
+  }
+
+  // 2. LIMPIAR Y CONFIGURAR META
+  await writeMeta((current) => {
+    current.goldenPoint = makeEmptyGoldenPoint();
 
     current.goldenPoint.active = true;
     current.goldenPoint.mode = "A";
-    current.goldenPoint.state = "running";
+    current.goldenPoint.state = "idle"; // ⚠️ no running
     current.goldenPoint.result = null;
+
+    // 🔥 RESET MATCH
+    current.phase = "fight";
+    current.status = "paused";
+    current.pausedRemaining = 60; // reglamento
+    current.phaseStartedAt = null;
+
+    // 🔥 LIMPIAR RESIDUOS
+    current.hongWarnings = 0;
+    current.chongWarnings = 0;
+    current.hongFouls = 0;
+    current.chongFouls = 0;
+
+    current.hongLog = [];
+    current.chongLog = [];
+
+    current.showResult = false;
+    current.combatForcedWinner = null;
 
     return current;
   });
@@ -3726,7 +3810,28 @@ const showGPStateBanner =
 meta = ensureMetaShape(meta);
 const time = useClock(meta);
 const s = summary(meta, judges);
-const presidentWinner = meta.showResult ? s.winner : null;
+const gpaVisualSummary =
+  meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "A"
+    ? gpaSummary(judges)
+    : s;
+const isGPA =
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "A";
+
+
+const gpaWinner =
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "A" &&
+  meta?.goldenPoint?.state === "resolved"
+    ? meta.goldenPoint.result === "hongWinner"
+      ? "hong"
+      : meta.goldenPoint.result === "chongWinner"
+      ? "chong"
+      : null
+    : null;
+
+const presidentWinner =
+  gpaWinner || (meta.showResult ? s.winner : null);
 const prevRunningRef = useRef(false);
 const prevFinishedRef = useRef(false);
 const inputsLocked = meta.phase === "finished";
@@ -4012,18 +4117,25 @@ useEffect(() => {
         if (current.status !== "running") return current;
 
         if (current.phase === "fight") {
-          if (current.round < (current.config.rounds || 1)) {
-            current.phase = "break";
-            current.status = "running";
-            current.pausedRemaining = current.config.breakSeconds || BREAK_SECONDS;
-            current.phaseStartedAt = Date.now();
-          } else {
-            current.phase = "finished";
-            current.status = "paused";
-            current.pausedRemaining = 0;
-            current.phaseStartedAt = null;
-          }
-        } else if (current.phase === "break") {
+  if (current.goldenPoint?.active) {
+    current.status = "paused";
+    current.pausedRemaining = 0;
+    current.phaseStartedAt = null;
+    return current;
+  }
+
+  if (current.round < (current.config.rounds || 1)) {
+    current.phase = "break";
+    current.status = "running";
+    current.pausedRemaining = current.config.breakSeconds || BREAK_SECONDS;
+    current.phaseStartedAt = Date.now();
+  } else {
+    current.phase = "finished";
+    current.status = "paused";
+    current.pausedRemaining = 0;
+    current.phaseStartedAt = null;
+  }
+} else if (current.phase === "break") {
           current.phase = "fight";
           current.round += 1;
           current.status = "paused";
@@ -4496,7 +4608,7 @@ const rightSide = isSwapped ? "hong" : "chong";
       {isSwapped ? "Chong Points" : "Hong Points"}
     </div>
     <strong style={{ fontSize: 28, lineHeight: 1.05 }}>
-      {isSwapped ? s.chongVotes : s.hongVotes}
+      {isSwapped ? gpaVisualSummary.chongVotes : gpaVisualSummary.hongVotes}
     </strong>
   </div>
 
@@ -4521,7 +4633,7 @@ const rightSide = isSwapped ? "hong" : "chong";
   {isSwapped ? "Hong Points" : "Chong Points"}
 </div>
     <strong style={{ fontSize: 28, lineHeight: 1.05 }}>
-  {isSwapped ? s.hongVotes : s.chongVotes}
+  {isSwapped ? gpaVisualSummary.hongVotes : gpaVisualSummary.chongVotes}
 </strong>
   </div>
 </div>
