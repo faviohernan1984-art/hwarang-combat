@@ -1014,7 +1014,7 @@ function useRoute() {
 
 const styles = {
   page: {
-    background: "linear-gradient(180deg, #07111f 0%, #02060d 100%)",
+  background: "#000000",
     color: "white",
     width: "100%",
     height: "100%",
@@ -1024,7 +1024,7 @@ const styles = {
     fontFamily: "Arial, sans-serif",
   },
   frameBg: {
-  background: "#020814",
+  background: "#000000",
   color: "white",
   height: "100vh",
   overflow: "hidden",
@@ -1097,7 +1097,7 @@ function Frame16x9({ children }) {
           width: baseWidth,
           height: baseHeight,
           position: "relative",
-          background: "linear-gradient(180deg, #07111f 0%, #02060d 100%)",
+          background: "#000000",
           overflow: "hidden",
           transform: `scale(${scale})`,
           transformOrigin: "center center",
@@ -1386,7 +1386,7 @@ function JudgeReadOnlyCard({ judge, meta }) {
           fontWeight: "bold",
         }}
       >
-        <span>Juez {judge.id}</span>
+        <span>Judge {judge.id}</span>
         <span>
           Voto: {vote === "draw" ? "Empate" : vote === "hong" ? "Hong" : "Chong"}
         </span>
@@ -1479,44 +1479,44 @@ function QRSection() {
       }}
     >
       <div style={box}>
-        <div style={title}>Juez 2</div>
+        <div style={title}>Judge 2</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/2`} size={judgeSize} />
+          <QRCodeCanvas value={`${base}/judge/2`} size={190} />
         </div>
       </div>
 
       <div style={box}>
-        <div style={title}>Presidente</div>
+        <div style={title}>President</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/president`} size={centerSize} />
+          <QRCodeCanvas value={`${base}/president`} size={210} />
         </div>
       </div>
 
       <div style={box}>
-        <div style={title}>Juez 3</div>
+        <div style={title}>Judge 3</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/3`} size={judgeSize} />
+          <QRCodeCanvas value={`${base}/judge/3`} size={190} />
         </div>
       </div>
 
       <div style={box}>
-        <div style={title}>Juez 1</div>
+        <div style={title}>Judge 1</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/1`} size={judgeSize} />
+          <QRCodeCanvas value={`${base}/judge/1`} size={190} />
         </div>
       </div>
 
       <div style={box}>
-        <div style={title}>Pantalla pública</div>
+        <div style={title}>Public Screen</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/public`} size={centerSize} />
+          <QRCodeCanvas value={`${base}/public`} size={190} />
         </div>
       </div>
 
       <div style={box}>
-        <div style={title}>Juez 4</div>
+        <div style={title}>Judge 4</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/4`} size={judgeSize} />
+          <QRCodeCanvas value={`${base}/judge/4`} size={190} />
         </div>
       </div>
     </div>
@@ -1529,8 +1529,9 @@ function Home({ navigate, meta }) {
       <div
         style={{
           ...styles.page,
+          background: "#000000",
           display: "grid",
-          gridTemplateRows: "240px 120px 150px 1fr",
+          gridTemplateRows: "220px 100px 80px 1fr",
           alignContent: "start",
           gap: 14,
           padding: 20,
@@ -1542,30 +1543,30 @@ function Home({ navigate, meta }) {
 
         <div style={{ textAlign: "center", marginTop: -10 }}>
           <h1 style={{ margin: 0, fontSize: 58 }}>Hwarang Scoring Combat</h1>
-          <p style={{ fontSize: 24, opacity: 0.9, marginTop: 10 }}>Elegí una pantalla</p>
+          <p style={{ fontSize: 24, opacity: 0.9, marginTop: 10 }}>Select a screen</p>
         </div>
 
         <div
-          style={{
-            ...styles.panel,
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            padding: 16,
-          }}
-        >
+  style={{
+  ...styles.panel,
+  background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  padding: 16,
+}}
+>
           <div style={{ ...styles.row, gap: 14, justifyContent: "center" }}>
             <AppButton
               style={{ ...styles.green, boxShadow: "0 0 20px rgba(34,197,94,0.35)" }}
               onClick={() => navigate("/president")}
             >
-              Presidente
+              President
             </AppButton>
 
             <AppButton
               style={{ ...styles.blue, boxShadow: "0 0 20px rgba(59,130,246,0.35)" }}
               onClick={() => navigate("/public")}
             >
-              Pantalla pública
+              Public Screen
             </AppButton>
 
             {Array.from({ length: COMBAT_JUDGES }, (_, i) => i + 1).map((n) => (
@@ -1574,7 +1575,7 @@ function Home({ navigate, meta }) {
                 style={{ ...styles.red, boxShadow: "0 0 20px rgba(239,68,68,0.35)" }}
                 onClick={() => navigate(`/judge/${n}`)}
               >
-                Juez {n}
+                Judge {n}
               </AppButton>
             ))}
           </div>
@@ -1583,55 +1584,31 @@ function Home({ navigate, meta }) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "0.95fr 1.65fr",
+            gridTemplateColumns: "1fr",
             gap: 16,
             alignItems: "start",
             minHeight: 0,
           }}
         >
-          <div
-            style={{
-              ...styles.panel,
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.12)",
-            }}
-          >
-            <h2 style={{ marginTop: 0 }}>Estado actual</h2>
-
-            <div style={{ display: "grid", gap: 12 }}>
-              <div style={styles.stat}>
-                Round: <strong>{meta.round}</strong>
-              </div>
-
-              <div style={styles.stat}>
-                Tiempo: <strong>{formatTime(meta.pausedRemaining)}</strong>
-              </div>
-
-              <div style={styles.stat}>
-                Estado:{" "}
-                <strong>
-                  {meta.phase === "finished"
-                    ? "Finalizado"
-                    : meta.phase === "break"
-                    ? "Descanso"
-                    : meta.status === "running"
-                    ? "En marcha"
-                    : "Pausado"}
-                </strong>
-              </div>
-            </div>
-          </div>
+          
 
           <div
-            style={{
-              ...styles.panel,
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.12)",
-            }}
-          >
-            <h2 style={{ marginTop: 0, marginBottom: 14 }}>QR Conexión</h2>
-            <QRSection />
-          </div>
+  style={{
+    ...styles.panel,
+    background: "rgba(0, 0, 0, 0.0)",
+    border: "1px solid rgba(255,255,255,0.12)",
+
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+
+    minHeight: 600,
+  }}
+>
+  <h2 style={{ marginTop: 0, marginBottom: 0 }}>QR Connection</h2>
+  <QRSection />
+</div>
         </div>
       </div>
     </Frame16x9>
@@ -1876,28 +1853,34 @@ if (
   meta?.goldenPoint?.mode === "A" &&
   meta?.goldenPoint?.result === "noDecision" ? (
     <div
-      style={{
-        position: "absolute",
-        top: 790,
-        left: 20,
-        right: 20,
-        zIndex: 21,
-        background: "#000000",
-        border: "3px solid #FFD700",
-        borderRadius: 20,
-        padding: 24,
-        textAlign: "center",
-        color: "#FFD700",
-        fontSize: 60,
-        fontWeight: 900,
-        letterSpacing: "0.08em",
-        textTransform: "uppercase",
-        boxShadow: "0 0 18px rgba(255,215,0,0.45)",
-        animation: "noDecisionFade 1.6s ease-in-out infinite",
-      }}
-    >
-      NO DECISION
-    </div>
+  style={{
+    position: "absolute",
+    top: 790,
+    left: 20,
+    right: 20,
+    zIndex: 21,
+    background: "#000000",
+    border: "3px solid #FFD700",
+    borderRadius: 20,
+    padding: 24,
+    textAlign: "center",
+    color: "#FFD700",
+    fontSize: 60,
+    fontWeight: 900,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    boxShadow: "0 0 18px rgba(255,215,0,0.45)",
+  }}
+>
+  <span
+    style={{
+      display: "inline-block",
+      animation: "winnerPulsePro 1.2s ease-in-out infinite",
+    }}
+  >
+    NO DECISION
+  </span>
+</div>
   ) : null;
   const medicalBanner = medical.active ? (
     <div
@@ -2198,6 +2181,7 @@ const winner = gpaWinner || (meta.showResult ? s.winner : null);
           gridTemplateRows: "190px 1fr 52px",
           padding: "12px 18px 8px 18px",
           boxSizing: "border-box",
+          background: "#000000",
         }}
       >
         {publicGpaDecisionBanner}
@@ -2457,17 +2441,17 @@ const winner = gpaWinner || (meta.showResult ? s.winner : null);
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            opacity: 0.82,
+            opacity: 1,
           }}
         >
           <div
             style={{
               fontSize: 20,
-              fontWeight: 700,
+              fontWeight: 900,
               letterSpacing: "0.08em",
             }}
           >
-            TOURNAMENT / SAPRRING
+            ITF TOURNAMENT SPARRING
           </div>
         </div>
       </div>
@@ -2477,26 +2461,7 @@ const winner = gpaWinner || (meta.showResult ? s.winner : null);
     meta?.goldenPoint?.mode === "A" &&
     meta?.goldenPoint?.result === "draw"
   )) && (
-  <div
-    style={{
-      position: "absolute",
-      inset: 0,
-      zIndex: 95,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background: "rgba(0,0,0,0.89)",
-      color: "#FFD700",
-      fontSize: 120,
-      fontWeight: 900,
-      letterSpacing: "0.08em",
-      textAlign: "center",
-      textTransform: "uppercase",
-      textShadow: "0 0 28px rgba(255,215,0,0.85)",
-    }}
-  >
-    DRAW
-  </div>
+  <WinnerFullScreen winner="draw" zIndex={95} mode="public" />
 )}
       {winner && <WinnerFullScreen winner={winner} zIndex={100} mode="public" />}
     </Frame16x9>
@@ -3654,33 +3619,20 @@ const handleInvertSides = async () => {
 function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navigate }) {
 
   async function handleActivateGPA() {
-  // 1. LIMPIAR JUECES
-  for (let i = 1; i <= 4; i++) {
-    await writeJudge(i, (j) => {
-      j.hongPoints = 0;
-      j.chongPoints = 0;
-      j.history = [];
-      j.gpDecision = null;
-      return j;
-    });
-  }
-
-  // 2. LIMPIAR Y CONFIGURAR META
+  // 1. ACTIVAR GPA INMEDIATO (UI responde rápido)
   await writeMeta((current) => {
     current.goldenPoint = makeEmptyGoldenPoint();
 
     current.goldenPoint.active = true;
     current.goldenPoint.mode = "A";
-    current.goldenPoint.state = "idle"; // ⚠️ no running
+    current.goldenPoint.state = "idle";
     current.goldenPoint.result = null;
 
-    // 🔥 RESET MATCH
     current.phase = "fight";
     current.status = "paused";
-    current.pausedRemaining = 60; // reglamento
+    current.pausedRemaining = 60;
     current.phaseStartedAt = null;
 
-    // 🔥 LIMPIAR RESIDUOS
     current.hongWarnings = 0;
     current.chongWarnings = 0;
     current.hongFouls = 0;
@@ -3694,6 +3646,19 @@ function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navi
 
     return current;
   });
+
+  // 2. LIMPIAR JUECES EN PARALELO (rápido)
+  await Promise.all(
+    [1, 2, 3, 4].map((i) =>
+      writeJudge(i, (j) => {
+        j.hongPoints = 0;
+        j.chongPoints = 0;
+        j.history = [];
+        j.gpDecision = null;
+        return j;
+      })
+    )
+  );
 }
 
 function handleActivateGPB() {
@@ -4581,7 +4546,7 @@ const rightSide = isSwapped ? "hong" : "chong";
         gridTemplateRows: "50px 120px 200px 170px 1fr 150px",
         gap: 8,
         overflow: "hidden",
-        background: "#0b0f1a",
+        background: "#000000",
         position: "relative",
       }}
     >
@@ -7080,7 +7045,7 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
         style={{
           minHeight: "100dvh",
           width: "100%",
-          background: "#020814",
+          background: "#000000",
           color: "white",
           padding: 12,
           boxSizing: "border-box",
@@ -7107,7 +7072,7 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
           <BrandHeaderSmall />
 
           <h1 style={{ textAlign: "center", fontSize: "clamp(28px, 6vw, 40px)", margin: "8px 0 14px" }}>
-            Juez {judgeId}
+            Judge {judgeId}
           </h1>
 
           <div
@@ -7135,10 +7100,10 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
 
 const gpDecisionText =
   judge.gpDecision === "hong"
-    ? "VOTO HONG"
+    ? "HONG SELECTED"
     : judge.gpDecision === "chong"
-    ? "VOTO CHONG"
-    : "SIN VOTO";
+    ? "CHONG SELECTED"
+    : "NO SELECTION";
   
   
 
@@ -7181,7 +7146,7 @@ const gpDecisionText =
   const shellStyle = {
     minHeight: "100dvh",
     width: "100%",
-    background: "linear-gradient(180deg, #06101c 0%, #020814 100%)",
+    background: "#000000",
     color: "white",
     padding: isVerySmallMobile ? 8 : isSmallMobile ? 10 : 12,
     boxSizing: "border-box",
@@ -7297,7 +7262,7 @@ const gpDecisionText =
           }}
           onClick={() => navigate("/")}
         >
-          Inicio
+          HOME
         </AppButton>
 
         <div style={{ display: "flex", justifyContent: "center" }}>
@@ -7320,7 +7285,7 @@ const gpDecisionText =
               letterSpacing: "0.04em",
             }}
           >
-            JUEZ {judgeId}
+            JUDGE {judgeId}
           </div>
         </div>
 
@@ -7333,7 +7298,7 @@ const gpDecisionText =
         >
           <div style={statCardStyle}>
             <div style={{ fontSize: isVerySmallMobile ? 12 : 13, opacity: 0.85, fontWeight: 700, letterSpacing: "0.06em" }}>
-              TIEMPO
+              TIME
             </div>
             <div
               style={{
@@ -7348,7 +7313,7 @@ const gpDecisionText =
 
           <div style={statCardStyle}>
             <div style={{ fontSize: isVerySmallMobile ? 12 : 13, opacity: 0.85, fontWeight: 700, letterSpacing: "0.06em" }}>
-              ESTADO
+              STATUS
             </div>
             <div
               style={{
@@ -7357,7 +7322,7 @@ const gpDecisionText =
                 fontWeight: 900,
               }}
             >
-              {meta.phase === "break" ? "DESCANSO" : "COMBATE"}
+              {meta.phase === "break" ? "BREAK" : "FIGHT"}
             </div>
           </div>
         </div>
@@ -7376,7 +7341,7 @@ const gpDecisionText =
           >
             {meta.goldenPoint.mode === "A"
               ? "GOLDEN POINT A"
-              : `GOLDEN POINT B / ROUND ${meta.goldenPoint.gpRound || 1}`}
+              : `GOLDEN POINT B . ROUND ${meta.goldenPoint.gpRound || 1}`}
           </div>
         )}
 
@@ -7413,7 +7378,7 @@ const gpDecisionText =
               fontSize: isVerySmallMobile ? "clamp(15px, 3.8vw, 20px)" : "clamp(16px, 4vw, 22px)",
             }}
           >
-            DESCANSO · NO MANIPULAR
+            BREAK · DO NOT TOUCH
           </div>
         )}
 
@@ -7609,7 +7574,7 @@ const gpDecisionText =
           }}
           onClick={() => updateJudge("UNDO")}
         >
-          DESHACER
+          UNDO
         </AppButton>
       </div>
 
