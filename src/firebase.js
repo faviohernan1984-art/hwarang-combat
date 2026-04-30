@@ -14,8 +14,12 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
 
-// COMBAT separado
-export const matchMetaRef = doc(db, "matches", "combat");
-export const judgesColRef = collection(db, "matches", "combat", "judges");
-export const judgeRef = (id) =>
-  doc(db, "matches", "combat", "judges", String(id));
+// COMBAT por sala / universo
+export const getMatchMetaRef = (roomId = "combat") =>
+  doc(db, "matches", roomId);
+
+export const getJudgesColRef = (roomId = "combat") =>
+  collection(db, "matches", roomId, "judges");
+
+export const getJudgeRef = (roomId = "combat", id) =>
+  doc(db, "matches", roomId, "judges", String(id));

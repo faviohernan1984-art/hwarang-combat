@@ -8,7 +8,7 @@ import {
   getDocs,
   query,
 } from "firebase/firestore";
-import { db, matchMetaRef, judgesColRef, judgeRef } from "./firebase";
+import { db, getMatchMetaRef, getJudgesColRef, getJudgeRef } from "./firebase";
 import { QRCodeCanvas } from "qrcode.react";
 
 if (typeof document !== "undefined" && !document.getElementById("winnerPulseStyle")) {
@@ -895,7 +895,11 @@ function getDisplaySides(meta, context = "public") {
   };
 }
 
-async function ensureInitialDocs() {
+async function ensureInitialDocs(roomId = "combat") {
+  const matchMetaRef = getMatchMetaRef(roomId);
+  const judgesColRef = getJudgesColRef(roomId);
+  const judgeRef = (id) => getJudgeRef(roomId, id);
+
   const metaSnap = await getDoc(matchMetaRef);
   if (!metaSnap.exists()) {
     await setDoc(matchMetaRef, makeInitialMeta());
@@ -903,6 +907,7 @@ async function ensureInitialDocs() {
 
   const existing = await getDocs(query(judgesColRef));
   const ids = new Set(existing.docs.map((d) => d.id));
+
   for (let i = 1; i <= MAX_JUDGES; i += 1) {
     if (!ids.has(String(i))) {
       await setDoc(judgeRef(i), makeJudge(i));
@@ -910,7 +915,12 @@ async function ensureInitialDocs() {
   }
 }
 
-function useFightData() {
+function useFightData(roomId = "combat") {
+    const matchMetaRef = useMemo(() => getMatchMetaRef(roomId), [roomId]);
+  const judgesColRef = useMemo(() => getJudgesColRef(roomId), [roomId]);
+  const judgeRef = useMemo(() => {
+    return (id) => getJudgeRef(roomId, id);
+  }, [roomId]);
   const [meta, setMeta] = useState(makeInitialMeta());
   const [judges, setJudges] = useState(
     Array.from({ length: MAX_JUDGES }, (_, i) => makeJudge(i + 1))
@@ -932,7 +942,7 @@ function useFightData() {
   let cancelled = false;
 
   const boot = async () => {
-    await ensureInitialDocs();
+    await ensureInitialDocs(roomId);
     if (cancelled) return;
 
     unsubMeta = onSnapshot(matchMetaRef, (snap) => {
@@ -962,7 +972,7 @@ function useFightData() {
     unsubMeta();
     unsubJudges();
   };
-}, []);
+}, [roomId, matchMetaRef, judgesColRef]);
 
   const writeMeta = async (mutator) => {
   const snap = await getDoc(matchMetaRef);
@@ -1009,7 +1019,21 @@ function useRoute() {
     setPath(p);
   };
 
-  return { path, navigate };
+  const parts = path.split("/").filter(Boolean);
+
+  let roomId = "combat";
+
+  if (parts[0] === "judge" && parts.length >= 3) {
+    roomId = parts[1];
+  } else if (parts[0] === "president" && parts.length >= 2) {
+    roomId = parts[1];
+  } else if (parts[0] === "public" && parts.length >= 2) {
+    roomId = parts[1];
+  } else if (parts.length === 1) {
+    roomId = parts[0];
+  }
+
+  return { path, navigate, roomId };
 }
 
 const styles = {
@@ -1406,7 +1430,7 @@ function JudgeReadOnlyCard({ judge, meta }) {
   );
 }
 
-function QRSection() {
+function QRSection({ roomId = "combat" }) {
   const base = getBaseURL();
 
   const shortSide = Math.min(window.innerWidth, window.innerHeight);
@@ -1481,49 +1505,49 @@ function QRSection() {
       <div style={box}>
         <div style={title}>Judge 2</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/2`} size={190} />
+          <QRCodeCanvas value={`${base}/judge/${roomId}/2`} size={190} />
         </div>
       </div>
 
       <div style={box}>
         <div style={title}>President</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/president`} size={210} />
+          <QRCodeCanvas value={`${base}/president/${roomId}`} size={210} />
         </div>
       </div>
 
       <div style={box}>
         <div style={title}>Judge 3</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/3`} size={190} />
+          <QRCodeCanvas value={`${base}/judge/${roomId}/3`} size={190} />
         </div>
       </div>
 
       <div style={box}>
         <div style={title}>Judge 1</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/1`} size={190} />
+          <QRCodeCanvas value={`${base}/judge/${roomId}/1`} size={190} />
         </div>
       </div>
 
       <div style={box}>
         <div style={title}>Public Screen</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/public`} size={190} />
+          <QRCodeCanvas value={`${base}/public/${roomId}`} size={190} />
         </div>
       </div>
 
       <div style={box}>
         <div style={title}>Judge 4</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/4`} size={190} />
+          <QRCodeCanvas value={`${base}/judge/${roomId}/4`} size={190} />
         </div>
       </div>
     </div>
   );
 }
 
-function Home({ navigate, meta }) {
+function Home({ navigate, meta, roomId = "combat" }) {
   return (
     <Frame16x9>
       <div
@@ -1557,14 +1581,14 @@ function Home({ navigate, meta }) {
           <div style={{ ...styles.row, gap: 14, justifyContent: "center" }}>
             <AppButton
               style={{ ...styles.green, boxShadow: "0 0 20px rgba(34,197,94,0.35)" }}
-              onClick={() => navigate("/president")}
+              onClick={() => navigate(`/president/${roomId}`)}
             >
               President
             </AppButton>
 
             <AppButton
               style={{ ...styles.blue, boxShadow: "0 0 20px rgba(59,130,246,0.35)" }}
-              onClick={() => navigate("/public")}
+              onClick={() => navigate(`/public/${roomId}`)}
             >
               Public Screen
             </AppButton>
@@ -1573,7 +1597,7 @@ function Home({ navigate, meta }) {
               <AppButton
                 key={n}
                 style={{ ...styles.red, boxShadow: "0 0 20px rgba(239,68,68,0.35)" }}
-                onClick={() => navigate(`/judge/${n}`)}
+                onClick={() => navigate(`/judge/${roomId}/${n}`)}
               >
                 Judge {n}
               </AppButton>
@@ -1607,7 +1631,7 @@ function Home({ navigate, meta }) {
   }}
 >
   <h2 style={{ marginTop: 0, marginBottom: 0 }}>QR Connection</h2>
-  <QRSection />
+  <QRSection roomId={roomId} />
 </div>
         </div>
       </div>
@@ -1740,7 +1764,7 @@ function PublicFighterPanel({ title, fighter, score, warnings, fouls }) {
 
 {/*==================================publicScreen===================*/}
 
-function PublicScreen({ meta, judges, navigate, writeMeta }){
+function PublicScreen({ meta, judges, navigate, writeMeta, roomId }){
   meta = ensureMetaShape(meta);
   const time = useClock(meta || {});
   const displayTime =
@@ -1818,12 +1842,23 @@ if (
 }
 
       if (current.round < (current.config.rounds || 1)) {
-        current.phase = "break";
-        current.status = "running";
-        current.pausedRemaining =
-          current.config.breakSeconds || BREAK_SECONDS;
-        current.phaseStartedAt = Date.now();
-      } else {
+  if (
+    current.goldenPoint?.active &&
+    current.goldenPoint?.mode === "B"
+  ) {
+    current.status = "paused";
+    current.phase = "fight";
+    current.pausedRemaining = 0;
+    current.phaseStartedAt = null;
+    return current;
+  }
+
+  current.phase = "break";
+  current.status = "running";
+  current.pausedRemaining =
+    current.config.breakSeconds || BREAK_SECONDS;
+  current.phaseStartedAt = Date.now();
+} else {
         current.phase = "finished";
         current.status = "paused";
         current.pausedRemaining = 0;
@@ -1938,25 +1973,28 @@ const preDecisionBanner =
   !medical.active && preDecision ? (
     <div
       style={{
-        position: "absolute",
-        top: 790,
-        left: 20,
-        right: 20,
-        zIndex: 19,
-        background: preDecision.includes("HONG") ? "#7f1d1d" : "#1e3a8a",
-        border: "2px solid rgba(255,255,255,0.25)",
-        borderRadius: 20,
-        padding: 18,
-        textAlign: "center",
-        color: "white",
-        fontSize: 34,
-        fontWeight: 900,
-        lineHeight: 1.15,
-        letterSpacing: "0.02em",
-        textTransform: "uppercase",
+  position: "absolute",
+  top: 790,
+  left: 20,
+  right: 20,
+  zIndex: 19,
 
-        animation: "winnerPulse 0.8s ease-in-out infinite alternate",
-      }}
+  background: "#78350f",
+  border: "2px solid #facc15",
+  borderRadius: 20,
+  padding: 18,
+
+  textAlign: "center",
+  color: "#fef9c3",
+  fontSize: 34,
+  fontWeight: 900,
+  lineHeight: 1.15,
+  letterSpacing: "0.02em",
+  textTransform: "uppercase",
+  boxShadow: "0 20px 40px rgba(0,0,0,0.75), 0 0 0 2px rgba(0,0,0,0.0)",
+  backdropFilter: "blur(2px)",
+  animation: "winnerPulsePro 1.4s ease-in-out infinite",
+}}
     >
       {preDecision}
     </div>
@@ -2156,21 +2194,21 @@ const winner = gpaWinner || (meta.showResult ? s.winner : null);
   return (
     <Frame16x9>
       <AppButton
-        style={{
-          ...styles.gray,
-          position: "absolute",
-          right: 26,
-          bottom: 18,
-          zIndex: 20,
-          fontSize: 18,
-          padding: "10px 18px",
-          opacity: 0.78,
-          boxShadow: "0 0 18px rgba(255,255,255,0.16)",
-        }}
-        onClick={() => navigate("/")}
-      >
-        Inicio
-      </AppButton>
+  style={{
+    ...styles.gray,
+    position: "absolute",
+    right: 26,
+    bottom: 18,
+    zIndex: 20,
+    fontSize: 18,
+    padding: "10px 18px",
+    opacity: 0.78,
+    boxShadow: "0 0 18px rgba(255,255,255,0.16)",
+  }}
+  onClick={() => navigate(`/${roomId}`)}
+>
+  Inicio
+</AppButton>
 
       <div
         style={{
@@ -3616,7 +3654,7 @@ const handleInvertSides = async () => {
 
 {/*==============================PRESIDENTSCREENV2NUEVOOOOOOO=========================*/}
 
-function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navigate }) {
+function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navigate, roomId }) {
 
   async function handleActivateGPA() {
   // 1. ACTIVAR GPA INMEDIATO (UI responde rápido)
@@ -3886,6 +3924,12 @@ const inputsLocked =
   meta.phase === "finished" || isGPAWinner;
 const [goldenPointAState, setGoldenPointAState] = useState("idle");
 const [hidePresidentWinner, setHidePresidentWinner] = useState(false);
+
+useEffect(() => {
+  if (presidentWinner) {
+    setHidePresidentWinner(false);
+  }
+}, [presidentWinner]);
 
   
   const [secondsInput, setSecondsInput] = useState(String(meta.config.roundSeconds || 120));
@@ -4251,19 +4295,45 @@ useEffect(() => {
     current.pausedRemaining = 0;
     current.phaseStartedAt = null;
   } else {
-    current.goldenPoint.state = "draw";
-    current.goldenPoint.result = "draw";
-  }
+  current.goldenPoint.state = "draw";
+  current.goldenPoint.result = "draw";
+
+  current.combatForcedWinner = "draw";
+  current.showResult = true;
+
+  current.status = "paused";
+  current.phase = "finished";
+  current.pausedRemaining = 0;
+  current.phaseStartedAt = null;
+}
 
   return current;
 }
 
+if (
+  current.goldenPoint?.active &&
+  current.goldenPoint?.mode === "B"
+) {
+  current.status = "paused";
+  current.phase = "finished"; // 🔥 CLAVE
+  current.pausedRemaining = 0;
+  current.phaseStartedAt = null;
+  return current;
+}
+
   if (current.round < (current.config.rounds || 1)) {
-    current.phase = "break";
-    current.status = "running";
-    current.pausedRemaining = current.config.breakSeconds || BREAK_SECONDS;
-    current.phaseStartedAt = Date.now();
-  } else {
+  if (
+    current.goldenPoint?.active &&
+    current.goldenPoint?.mode === "B"
+  ) {
+    return current; // 🔥 bloquea completamente el break en GPB
+  }
+
+  current.phase = "break";
+  current.status = "running";
+  current.pausedRemaining = current.config.breakSeconds || BREAK_SECONDS;
+  current.phaseStartedAt = Date.now();
+} else {
     current.phase = "finished";
     current.status = "paused";
     current.pausedRemaining = 0;
@@ -4566,9 +4636,12 @@ const rightSide = isSwapped ? "hong" : "chong";
     color: "white",
   }}
 >
-  <AppButton style={{ ...styles.gray, minHeight: 32, fontSize: 17 }} onClick={() => navigate("/")}>
-    Home
-  </AppButton>
+  <AppButton
+  style={{ ...styles.gray, minHeight: 32, fontSize: 17 }}
+  onClick={() => navigate(`/${roomId}`)}
+>
+  Home
+</AppButton>
 
   <AppButton style={{ ...styles.green, minHeight: 32, fontSize: 17 }} onClick={prepareNextMatch}>
     Next
@@ -7021,13 +7094,45 @@ onMouseLeave={(e) => {
     </div>
 )}
 
+{preDecisionAdvantage(meta) && (
+  <div
+    style={{
+      position: "absolute",
+      top: 21,
+      left: 650,
+      zIndex: 30,
+      width: 680,
+      minHeight: 34,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+
+      background: "#78350f",
+      border: "1px solid #facc15",
+      borderRadius: 8,
+      color: "#fef9c3",
+
+      fontWeight: 900,
+      fontSize: 17,
+      lineHeight: 1.1,
+      padding: "4px 10px",
+      boxSizing: "border-box",
+      textAlign: "center",
+
+      animation: "winnerPulsePro 1.4s ease-in-out infinite",
+    }}
+  >
+    {preDecisionAdvantage(meta)}
+  </div>
+)}
+
   </Frame16x9>
 );
 }
 
 {/*=============================HASTA ACA ES FUNCTION PRESIDENTSCREENV2============================*/}
 
-function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate }) {
+function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate, roomId }) {
   const time = useClock(meta);
   const prevFinishedRef = useRef(false);
 
@@ -7095,6 +7200,7 @@ function JudgeScreen({ meta, judges, writeJudge, writeMeta, judgeId, navigate })
 
   const judge = judges.find((j) => j.id === judgeId) || makeJudge(judgeId);
   const warning = secondFoulWarning(meta);
+  const preDecision = preDecisionAdvantage(meta);
   const isGPA = meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "A";
   const judgeCompactMode = !!warning || meta.phase === "break";
 
@@ -7138,8 +7244,24 @@ const gpDecisionText =
   });
 };
 
-  const judgeWinner = summary(meta, judges).winner;
-  const showJudgeWinner = meta.showResult === true;
+  const gpJudgeWinner =
+  meta?.goldenPoint?.result === "hongWinner"
+    ? "hong"
+    : meta?.goldenPoint?.result === "chongWinner"
+    ? "chong"
+    : meta?.goldenPoint?.result === "draw"
+    ? "draw"
+    : null;
+
+const judgeWinner =
+  gpJudgeWinner ||
+  meta.combatForcedWinner ||
+  summary(meta, judges).winner;
+
+const showJudgeWinner =
+  (meta.showResult === true || !!gpJudgeWinner) &&
+  judgeWinner &&
+  judgeWinner !== "en_curso";
   const isSmallMobile = typeof window !== "undefined" && window.innerWidth <= 430;
   const isVerySmallMobile = typeof window !== "undefined" && window.innerWidth <= 390;
 
@@ -7260,7 +7382,7 @@ const gpDecisionText =
             minHeight: isVerySmallMobile ? 50 : 54,
             fontSize: isVerySmallMobile ? 17 : 18,
           }}
-          onClick={() => navigate("/")}
+          onClick={() => navigate(`/${roomId}`)}
         >
           HOME
         </AppButton>
@@ -7382,22 +7504,22 @@ const gpDecisionText =
           </div>
         )}
 
-        {!!warning && !meta.goldenPoint?.active && (
-          <div
-            style={{
-              ...cardStyle,
-              background: "#7c2d12",
-              border: "1px solid #f97316",
-              color: "#ffedd5",
-              textAlign: "center",
-              fontWeight: 900,
-              fontSize: isVerySmallMobile ? "clamp(14px, 3.7vw, 18px)" : "clamp(15px, 4vw, 20px)",
-            }}
-          >
-            {warning}
-          </div>
-        )}
-
+        {(preDecision || warning) && (
+  <div
+    style={{
+      ...cardStyle,
+      background: preDecision ? "#78350f" : "#7c2d12",
+      border: preDecision ? "1px solid #facc15" : "1px solid #f97316",
+      color: preDecision ? "#fef9c3" : "#ffedd5",
+      textAlign: "center",
+      fontWeight: 900,
+      fontSize: isVerySmallMobile ? "clamp(14px, 3.7vw, 18px)" : "clamp(15px, 4vw, 20px)",
+      animation: preDecision ? "winnerPulsePro 1.4s ease-in-out infinite" : "none",
+    }}
+  >
+    {preDecision || warning}
+  </div>
+)}
         <div style={sidesWrapStyle}>
           <div
             style={{
@@ -7584,8 +7706,8 @@ const gpDecisionText =
 }
 
 export default function App() {
-  const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData();
-  const { path, navigate } = useRoute();
+  const { path, navigate, roomId } = useRoute();
+  const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(roomId);
 
   useEffect(() => {
     if (!meta) return;
@@ -7596,8 +7718,8 @@ export default function App() {
         current.config.roundSeconds = current.config.roundSeconds || 120;
         current.config.breakSeconds = current.config.breakSeconds || BREAK_SECONDS;
         if (current.pausedRemaining === undefined) {
-  current.pausedRemaining = current.config.roundSeconds;
-}
+          current.pausedRemaining = current.config.roundSeconds;
+        }
         current.publicSwapSides = !!current.publicSwapSides;
         current.presidentSwapSides = !!current.presidentSwapSides;
         current.hong = current.hong || getBaseCombatant(HONG);
@@ -7611,7 +7733,7 @@ export default function App() {
     return <><GlobalAppStyle /><div style={styles.page}>Cargando...</div></>;
   }
 
-  if (path === "/president") {
+  if (path === "/president" || path.startsWith("/president/")) {
     return (
       <><GlobalAppStyle /><PresidentScreenV2
         meta={meta}
@@ -7620,26 +7742,36 @@ export default function App() {
         writeJudge={writeJudge}
         resetAll={resetAll}
         navigate={navigate}
-      /></> 
+        roomId={roomId}
+      /></>
     );
   }
 
-  if (path === "/public") {
-  return (
-    <>
-      <GlobalAppStyle />
-      <PublicScreen
-        meta={meta}
-        judges={judges}
-        navigate={navigate}
-        writeMeta={writeMeta}
-      />
-    </>
-  );
-}
+  if (path === "/public" || path.startsWith("/public/")) {
+    return (
+      <>
+        <GlobalAppStyle />
+        <PublicScreen
+          meta={meta}
+          judges={judges}
+          navigate={navigate}
+          writeMeta={writeMeta}
+          roomId={roomId}
+        />
+      </>
+    );
+  }
 
   if (path.startsWith("/judge/")) {
-    const n = Number(path.split("/")[2]);
+    const parts = path.split("/").filter(Boolean);
+
+    // soporta:
+    // /judge/1          → sala default combat
+    // /judge/papa/1     → sala papa
+    const n = parts.length >= 3
+      ? Number(parts[2])
+      : Number(parts[1]);
+
     if (n >= 1 && n <= COMBAT_JUDGES) {
       return (
         <><GlobalAppStyle /><JudgeScreen
@@ -7649,10 +7781,11 @@ export default function App() {
           writeMeta={writeMeta}
           judgeId={n}
           navigate={navigate}
+          roomId={roomId}
         /></>
       );
     }
   }
 
-  return <><GlobalAppStyle /><Home navigate={navigate} meta={meta} /></>;
+  return <><GlobalAppStyle /><Home navigate={navigate} meta={meta} roomId={roomId} /></>;
 }
