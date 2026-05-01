@@ -1196,7 +1196,7 @@ function WinnerFullScreen({
   const getColor = () => {
     if (winner === "hong") return "#ff1a1a";
     if (winner === "chong") return "#0602e0";
-    return "#eeff00"; // DRAW
+    return "#fff200"; // DRAW (nuevo amarillo unificado)
   };
 
   const getText = () => {
@@ -1279,21 +1279,20 @@ bottom: 0,
 
         {/* MAIN TEXT */}
         <div
-          style={{
-            color: color,
-            fontWeight: 900,
-            fontSize: "clamp(60px, 10vw, 160px)",
-            WebkitTextStroke: "1px rgb(90, 88, 88)",
-            letterSpacing: "0.08em",
-            
-            textShadow: `
-  0 0 2px ${color},
-  0 0 13px ${color},
-  0 0 3px ${color}
-`,
-            animation: "winnerEnter 0.6s ease-out, winnerPulsePro 1.6s ease-in-out 0.6s infinite",
-          }}
-        >
+  style={{
+    color: color,
+    fontWeight: 900,
+    fontSize: "clamp(60px, 10vw, 160px)",
+    WebkitTextStroke: `1px ${color}`,
+    letterSpacing: "0.08em",
+    textShadow: `
+      0 0 6px ${color},
+      0 0 18px ${color},
+      0 0 42px ${color}
+    `,
+    animation: "winnerEnter 0.6s ease-out, winnerPulsePro 1.6s ease-in-out 0.6s infinite",
+  }}
+>
           {getText()}
         </div>
 
@@ -3874,7 +3873,8 @@ let gpStateText = "";
 if (meta?.goldenPoint?.state === "judging") {
   gpStateText = "JUDGES DECIDING";
 } else if (meta?.goldenPoint?.state === "noDecision") {
-  gpStateText = "NO DECISION";
+  gpStateText =
+  meta?.goldenPoint?.mode === "B" ? "DRAW" : "NO DECISION";
 } else if (meta?.goldenPoint?.state === "running") {
   gpStateText = "";
 }
@@ -6256,7 +6256,7 @@ meta?.goldenPoint?.state === "draw") && (
 : meta?.goldenPoint?.state === "resolved" && meta?.goldenPoint?.result === "chongWinner"
 ? "CHONG WINNER"
 : isGPBDraw
-? "NO DECISION"
+? "DRAW"
 : meta?.goldenPoint?.state === "resolved" && meta?.goldenPoint?.result === "noDecision"
 ? "NO DECISION"
 : meta?.goldenPoint?.state === "draw"
@@ -7244,14 +7244,17 @@ const gpDecisionText =
   });
 };
 
-  const gpJudgeWinner =
-  meta?.goldenPoint?.result === "hongWinner"
+  const isGPB = meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "B";
+
+const gpJudgeWinner =
+  isGPB && meta?.goldenPoint?.result === "hongWinner"
     ? "hong"
-    : meta?.goldenPoint?.result === "chongWinner"
+    : isGPB && meta?.goldenPoint?.result === "chongWinner"
     ? "chong"
-    : meta?.goldenPoint?.result === "draw"
-    ? "draw"
     : null;
+
+const isGPBDraw =
+  isGPB && meta?.goldenPoint?.result === "noDecision";
 
 const judgeWinner =
   gpJudgeWinner ||
@@ -7685,6 +7688,26 @@ const showJudgeWinner =
           </div>
         </div>
 
+        {/* DEBUG GPB */}
+        <div
+          style={{
+            background: "#111827",
+            color: "#facc15",
+            padding: 12,
+            borderRadius: 12,
+            fontSize: 14,
+            fontWeight: 700,
+            marginTop: 10,
+          }}
+        >
+          <div>showJudgeWinner: {String(showJudgeWinner)}</div>
+          <div>judgeWinner: {String(judgeWinner)}</div>
+          <div>gp result: {String(meta?.goldenPoint?.result)}</div>
+          <div>gp mode: {String(meta?.goldenPoint?.mode)}</div>
+          <div>gp active: {String(meta?.goldenPoint?.active)}</div>
+          <div>showResult: {String(meta?.showResult)}</div>
+        </div>
+
         <AppButton
           feedback="judge"
           style={{
@@ -7699,8 +7722,92 @@ const showJudgeWinner =
           UNDO
         </AppButton>
       </div>
+{isGPBDraw && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      zIndex: 9999,
+      background: "rgba(0,0,0,0.92)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 20,
+    }}
+  >
+    <div
+      style={{
+        width: "100%",
+        maxWidth: 420,
+        borderRadius: 24,
+        border: "4px solid #FFD700",
+        background: "#1a1a1a",
+        color: "#FFD700",
+        textAlign: "center",
+        padding: "36px 20px",
+        fontWeight: 900,
+        boxShadow: "0 0 30px rgba(255, 215, 0, 0.45)",
+      }}
+    >
+      <div style={{ fontSize: 20, letterSpacing: 2, marginBottom: 12 }}>
+        GOLDEN POINT B
+      </div>
 
-      {showJudgeWinner && <WinnerFullScreen winner={judgeWinner} />}
+      <div style={{ fontSize: 56, lineHeight: 1 }}>
+        DRAW
+      </div>
+
+      <div style={{ fontSize: 18, marginTop: 12, color: "#fff" }}>
+        No decision
+      </div>
+    </div>
+  </div>
+)}
+      {showJudgeWinner && judgeWinner !== "draw" && (
+  <WinnerFullScreen winner={judgeWinner} />
+)}
+
+{showJudgeWinner && judgeWinner === "draw" && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      zIndex: 9999,
+      background: "rgba(0,0,0,0.92)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 20,
+    }}
+  >
+    <div
+      style={{
+        width: "100%",
+        maxWidth: 420,
+        borderRadius: 24,
+        border: "4px solid #FFD700",
+        background: "#1a1a1a",
+        color: "#FFD700",
+        textAlign: "center",
+        padding: "36px 20px",
+        fontWeight: 900,
+        boxShadow: "0 0 30px rgba(255, 215, 0, 0.45)",
+      }}
+    >
+      <div style={{ fontSize: 20, letterSpacing: 2, marginBottom: 12 }}>
+        GOLDEN POINT
+      </div>
+
+      <div style={{ fontSize: 56, lineHeight: 1 }}>
+        DRAW
+      </div>
+
+      <div style={{ fontSize: 18, marginTop: 12, color: "#fff" }}>
+        No decision
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
