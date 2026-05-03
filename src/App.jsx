@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { db, getMatchMetaRef, getJudgesColRef, getJudgeRef } from "./firebase";
 import { QRCodeCanvas } from "qrcode.react";
+import JudgeMobileNext from "./JudgeMobileNext";
 
 if (typeof document !== "undefined" && !document.getElementById("winnerPulseStyle")) {
   const style = document.createElement("style");
@@ -8032,7 +8033,7 @@ export default function App() {
 
     if (n >= 1 && n <= COMBAT_JUDGES) {
       return (
-        <><GlobalAppStyle /><JudgeScreen
+        <><GlobalAppStyle /><JudgeMobileNext
           meta={meta}
           judges={judges}
           writeJudge={writeJudge}
