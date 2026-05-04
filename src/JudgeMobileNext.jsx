@@ -6,8 +6,21 @@ export default function JudgeMobileNext({ meta, judges, writeJudge, judgeId, roo
   4: "/backgrounds/judge-gold.jpg",
 };
 
+const judgeStatusLabel =
+  meta?.phase === "finished"
+    ? "FINISHED"
+    : meta?.phase === "break"
+    ? "BREAK"
+    : meta?.status === "running"
+    ? "FIGHT"
+    : "PAUSED";
+
 const activeBg =
   judgeBackgrounds[Number(judgeId)] || "/backgrounds/judge-red.jpg";
+
+const inputsLocked =
+  meta?.phase === "break" ||
+  meta?.phase === "finished";  
 
 const btn = {
   background: "rgba(0,0,0,0.35)",
@@ -36,34 +49,43 @@ const isGPA =
   meta?.goldenPoint?.mode === "A";
 
 const handlePoint = (side, value) => {
-  writeJudge(judgeId, (j) => ({
-    ...j,
-    hongPoints: side === "hong" ? j.hongPoints + value : j.hongPoints,
-    chongPoints: side === "chong" ? j.chongPoints + value : j.chongPoints,
-  }));
+  writeJudge(judgeId, (j) => {
+    const before = structuredClone(j);
+    const next = structuredClone(j);
+
+    next.history = [...(j.history || []), before];
+
+    if (side === "hong") next.hongPoints += value;
+    if (side === "chong") next.chongPoints += value;
+
+    return next;
+  });
 };
 
 const handleUndo = () => {
-  writeJudge(judgeId, (j) => ({
-    ...j,
-    hongPoints: 0,
-    chongPoints: 0,
-    gpDecision: null,
-  }));
+  writeJudge(judgeId, (j) => {
+    if (!j.history?.length) return j;
+    return j.history[j.history.length - 1];
+  });
 };
 
 const handleGPDecision = (side) => {
-  writeJudge(judgeId, (j) => ({
-    ...j,
-    gpDecision: side,
-  }));
+  writeJudge(judgeId, (j) => {
+    const before = structuredClone(j);
+    const next = structuredClone(j);
+
+    next.history = [...(j.history || []), before];
+    next.gpDecision = side;
+
+    return next;
+  });
 };
 
 // ===== GPA / GPB / RESULT =====
 
 const judge =
   (judges || []).find((j) => j.id === Number(judgeId)) ||
-  (judges || [])[Number(judgeId) - 1];
+  makeJudge(Number(judgeId));
 
 const isGPB =
   meta?.goldenPoint?.active &&
@@ -100,8 +122,7 @@ const showJudgeWinner =
   (
     meta?.showResult === true ||
     !!gpJudgeWinner ||
-    !!gpJudgeDraw ||
-    meta?.phase === "finished"
+    !!gpJudgeDraw
   ) &&
   judgeWinner &&
   judgeWinner !== "en_curso";
@@ -122,6 +143,13 @@ const showJudgeWinner =
   >
       <style>
         {`
+
+          @keyframes statusPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); }
+  50% { transform: scale(1.06); box-shadow: 0 0 22px rgba(255,255,255,0.45); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); }
+}
+
           @keyframes neonLinePulse {
             0% { opacity: 0.35; transform: scaleX(0.92); }
             50% { opacity: 0.75; transform: scaleX(1); }
@@ -247,10 +275,16 @@ const showJudgeWinner =
               <div style={statValue}>02:00</div>
             </div>
 
-            <div style={statBox}>
-              STATUS
-              <div style={statValue}>FIGHT</div>
-            </div>
+            <div
+  key={`status-${judgeStatusLabel}`}
+  style={{
+    ...statBox,
+    animation: "statusPulse 0.35s ease-out",
+  }}
+>
+  STATUS
+  <div style={statValue}>{judgeStatusLabel}</div>
+</div>
           </div>
 
           {/* BANNERS */}
@@ -324,7 +358,7 @@ const showJudgeWinner =
       HONG
 
       <div style={score}>
-        {isGPA ? "-" : judges?.[judgeId - 1]?.hongPoints ?? 0}
+        {isGPA ? (judge.gpDecision === "hong" ? "✓" : "—") : judge.hongPoints}
       </div>
 
       {isGPA ? (
@@ -341,7 +375,10 @@ const showJudgeWinner =
             <div
               key={i}
               style={btn}
-              onClick={() => handlePoint("hong", v)}
+              onClick={() => {
+  if (inputsLocked) return;
+  handlePoint("hong", v);
+}}
               {...pressFx}
             >
               +{v}
@@ -356,7 +393,7 @@ const showJudgeWinner =
       CHONG
 
       <div style={score}>
-        {isGPA ? "-" : judges?.[judgeId - 1]?.chongPoints ?? 0}
+        {isGPA ? (judge.gpDecision === "chong" ? "✓" : "—") : judge.chongPoints}
       </div>
 
       {isGPA ? (
