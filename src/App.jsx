@@ -1301,7 +1301,7 @@ bottom: 0,
       opacity: 0.9,
     }}
   >
-    HWARANG SCORING UNIVERSE
+    HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
   </div>
 
   {/* LÍNEA IDENTIDAD */}
@@ -2308,7 +2308,7 @@ const winner = gpaWinner || (meta.showResult ? s.winner : null);
                 opacity: 0.92,
               }}
             >
-              HWARANG SCORING
+              HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
             </div>
 
             <div
@@ -3606,19 +3606,97 @@ const handleInvertSides = async () => {
     marginTop: 20,   // 👈 BAJA LAS 4 JUNTAS
   }}
 >
-            {judges.slice(0, COMBAT_JUDGES).map((j) => (
-              <div
-  key={j.id}
-  style={{
-    height: 200,          // 👈 ACHICA DESDE ABAJO
-    minHeight: 200,
-    display: "flex",
-    alignItems: "flex-start",
-  }}
->
-  <JudgeReadOnlyCard judge={j} meta={meta} />
-</div>
-            ))}
+            {judges.slice(0, COMBAT_JUDGES).map((j) => {
+  const gpText =
+    j.gpDecision === "hong"
+      ? "HONG"
+      : j.gpDecision === "chong"
+      ? "CHONG"
+      : "NO SELECTION";
+
+  const gpColor =
+    j.gpDecision === "hong"
+      ? "#ff1a1a"
+      : j.gpDecision === "chong"
+      ? "#3b82f6"
+      : "#9ca3af";
+
+  return (
+    <div
+      key={j.id}
+      style={{
+        height: 200,
+        minHeight: 200,
+        display: "flex",
+        alignItems: "flex-start",
+      }}
+    >
+      {isGPA ? (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            borderRadius: 14,
+            background: "rgba(0,0,0,0.62)",
+            border: `2px solid ${
+              j.gpDecision ? gpColor : "rgba(255,255,255,0.16)"
+            }`,
+            boxShadow: j.gpDecision
+              ? `0 0 18px ${gpColor}88`
+              : "0 0 10px rgba(255,255,255,0.08)",
+            display: "grid",
+            gridTemplateRows: "42px 1fr 42px",
+            overflow: "hidden",
+            color: "white",
+            textAlign: "center",
+            fontWeight: 900,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 18,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              letterSpacing: "0.08em",
+              background: "rgba(255,255,255,0.06)",
+            }}
+          >
+            JUDGE {j.id}
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: j.gpDecision ? 42 : 28,
+              color: gpColor,
+              letterSpacing: "0.04em",
+            }}
+          >
+            {gpText}
+          </div>
+
+          <div
+            style={{
+              fontSize: 15,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: j.gpDecision ? "#39FF14" : "rgba(255,255,255,0.45)",
+              background: "rgba(255,255,255,0.05)",
+            }}
+          >
+            {j.gpDecision ? "✓ VOTE RECEIVED" : "WAITING"}
+          </div>
+        </div>
+      ) : (
+        <JudgeReadOnlyCard judge={j} meta={meta} />
+      )}
+    </div>
+  );
+})}
           </div>
         </div>
 
@@ -4727,7 +4805,7 @@ const rightSide = isSwapped ? "hong" : "chong";
     animation: "hwarangFlow 4.2s linear infinite, hwarangShift 2.2s ease-in-out infinite, hwarangStrike 3.2s ease-in-out infinite",
   }}
 >
-  HWARANG SCORING UNIVERSE
+  HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
 </div>
 </div>
 
@@ -7850,7 +7928,7 @@ animation:
           fontWeight: 800,
         }}
       >
-        HWARANG SCORING UNIVERSE
+        HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
       </div>
 
       <div
@@ -8033,15 +8111,21 @@ export default function App() {
 
     if (n >= 1 && n <= COMBAT_JUDGES) {
       return (
-        <><GlobalAppStyle /><JudgeMobileNext
-          meta={meta}
-          judges={judges}
-          writeJudge={writeJudge}
-          writeMeta={writeMeta}
-          judgeId={n}
-          navigate={navigate}
-          roomId={roomId}
-        /></>
+        <>
+  <GlobalAppStyle />
+  <JudgeMobileNext
+    meta={{
+      ...meta,
+      judgeWinner: summary(meta, judges).winner,
+    }}
+    judges={judges}
+    writeJudge={writeJudge}
+    writeMeta={writeMeta}
+    judgeId={n}
+    navigate={navigate}
+    roomId={roomId}
+  />
+</>
       );
     }
   }
