@@ -8106,7 +8106,7 @@ export default function App() {
     const rawJudgeId = parts.length >= 3 ? parts[2] : parts[1];
     const n = Number(rawJudgeId);
 
-    
+    if (isNaN(n)) return <><GlobalAppStyle /><div style={styles.page}>Loading...</div></>;
 
     if (n >= 1 && n <= COMBAT_JUDGES) {
       return (
