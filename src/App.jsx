@@ -1146,17 +1146,57 @@ function Frame16x9({ children }) {
   const baseWidth = 1920;
   const baseHeight = 1080;
   const [scale, setScale] = useState(1);
+  const [isMobileFrame, setIsMobileFrame] = useState(false);
 
   useEffect(() => {
     const recalc = () => {
+      const mobile = window.innerWidth < 900;
+      setIsMobileFrame(mobile);
+
+      if (mobile) {
+        setScale(0.55);
+        return;
+      }
+
       const scaleX = window.innerWidth / baseWidth;
       const scaleY = window.innerHeight / baseHeight;
       setScale(Math.min(scaleX, scaleY));
     };
+
     recalc();
     window.addEventListener("resize", recalc);
     return () => window.removeEventListener("resize", recalc);
   }, []);
+
+  if (isMobileFrame) {
+    return (
+      <div
+        style={{
+          width: "100%",
+          height: "100dvh",
+          overflow: "auto",
+          background: "#000",
+          fontFamily: "Arial, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            width: baseWidth,
+            height: baseHeight,
+            position: "relative",
+            background: "#000000",
+            overflow: "hidden",
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            boxSizing: "border-box",
+            marginTop: "100px",
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.frameBg}>
@@ -1180,18 +1220,44 @@ function Frame16x9({ children }) {
 
 function BrandHeaderLarge() {
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 30, marginBottom: 14 }}>
-      <img src="/logo-universe.png" alt="Hwarang Universe" style={{ height: 220, maxWidth: 420, objectFit: "contain" }} />
-      <img src="/logo-combat.png" alt="Hwarang Combat" style={{ height: 220, maxWidth: 420, objectFit: "contain" }} />
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 30, marginBottom: 0 }}>
+      <img src="/logo-universe.png" alt="Hwarang Universe" style={{ height: 330, maxWidth: 420, objectFit: "contain" }} />
+      
     </div>
   );
 }
 
 function BrandHeaderSmall() {
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 14, margin: "8px 0 12px" }}>
-      <img src="/logo-universe.png" alt="Hwarang Universe" style={{ height: 92, maxWidth: 240, objectFit: "contain" }} />
-      <img src="/logo-combat.png" alt="Hwarang Combat" style={{ height: 92, maxWidth: 240, objectFit: "contain" }} />
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 14,
+        margin: "8px 0 12px",
+      }}
+    >
+      <img
+        src="/logo-universe.png"
+        alt="Hwarang Universe"
+        style={{
+          height: 92,
+          maxWidth: 240,
+          objectFit: "contain",
+        }}
+      />
+
+      <img
+        src="/logo-combat.png"
+        alt="Hwarang Combat"
+        style={{
+          height: 92,
+          maxWidth: 240,
+          objectFit: "contain",
+          transform: "translateY(10px)", // 👈 ESTE ES EL QUE FUNCIONA
+        }}
+      />
     </div>
   );
 }
@@ -1591,8 +1657,67 @@ function QRSection({ roomId = "combat" }) {
 }
 
 function Home({ navigate, meta, roomId = "combat" }) {
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 900;
+
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          width: "100%",
+          minHeight: "100dvh",
+          background: "#000",
+          overflowY: "auto",
+          padding: 16,
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <BrandHeaderLarge />
+          <h1 style={{ fontSize: 32 }}>Hwarang Scoring Combat</h1>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <AppButton
+  style={{ background: "#2563eb", color: "white" }}
+  onClick={() => navigate(`/president/${roomId}`)}
+>
+  President
+</AppButton>
+
+<AppButton
+  style={{ background: "#16a34a", color: "white" }}
+  onClick={() => navigate(`/public/${roomId}`)}
+>
+  Public Screen
+</AppButton>
+
+{Array.from({ length: COMBAT_JUDGES }, (_, i) => i + 1).map((n) => (
+  <AppButton
+    key={n}
+    style={{
+      background:
+        n === 1
+          ? "#b91c1c"
+          : n === 2
+          ? "#b91c1c"
+          : n === 3
+          ? "#b91c1c"
+          : "#b91c1c",
+      color: "white",
+    }}
+    onClick={() => navigate(`/judge/${roomId}/${n}`)}
+  >
+    Judge {n}
+  </AppButton>
+))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Frame16x9>
+      {/* DEJÁ TU CONTENIDO ORIGINAL TAL CUAL */}
       <div
         style={{
           ...styles.page,
@@ -3776,6 +3901,8 @@ const handleInvertSides = async () => {
 {/*==============================PRESIDENTSCREENV2NUEVOOOOOOO=========================*/}
 
 function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navigate, roomId }) {
+
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 900;
 
   async function handleActivateGPA() {
   // 1. ACTIVAR GPA INMEDIATO (UI responde rápido)
@@ -8046,6 +8173,8 @@ export default function App() {
   const { path, navigate, roomId } = useRoute();
   const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(roomId);
   const mobileTime = useClock(meta || {});
+
+  
 
   useEffect(() => {
     if (!meta) return;
