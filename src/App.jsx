@@ -8045,6 +8045,7 @@ animation:
 export default function App() {
   const { path, navigate, roomId } = useRoute();
   const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(roomId);
+  const mobileTime = useClock(meta || {});
 
   useEffect(() => {
     if (!meta) return;
@@ -8102,12 +8103,10 @@ export default function App() {
   if (path.startsWith("/judge/")) {
     const parts = path.split("/").filter(Boolean);
 
-    // soporta:
-    // /judge/1          → sala default combat
-    // /judge/papa/1     → sala papa
-    const n = parts.length >= 3
-      ? Number(parts[2])
-      : Number(parts[1]);
+    const rawJudgeId = parts.length >= 3 ? parts[2] : parts[1];
+    const n = Number(rawJudgeId);
+
+    
 
     if (n >= 1 && n <= COMBAT_JUDGES) {
       return (
@@ -8124,7 +8123,7 @@ export default function App() {
     judgeId={n}
     navigate={navigate}
     roomId={roomId}
-    time={useClock(meta)}
+    time={mobileTime}
     mobileWarningText={
   secondFoulWarning(meta)
     ? secondFoulWarning(meta)
