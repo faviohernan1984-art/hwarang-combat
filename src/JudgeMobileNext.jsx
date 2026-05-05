@@ -1,4 +1,34 @@
-export default function JudgeMobileNext({ meta, judges, writeJudge, judgeId, roomId }) {
+export default function JudgeMobileNext({ meta, judges, writeJudge, judgeId, roomId, time, mobileWarningText }) {
+
+  const gpBannerText =
+  meta?.goldenPoint?.active
+    ? meta?.goldenPoint?.mode === "A"
+      ? "GOLDEN POINT A"
+      : `GOLDEN POINT B · ROUND ${meta?.goldenPoint?.gpRound || 1}`
+    : null;
+
+  const showGoldenPointFinalDraw =
+  meta?.goldenPoint?.active &&
+  meta?.phase === "finished" &&
+  (
+    meta?.goldenPoint?.result === "draw" ||
+    meta?.goldenPoint?.result === "noDecision" ||
+    meta?.combatForcedWinner === "draw"
+  );
+
+  const showCallJudgesBanner =
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "A" &&
+  meta?.goldenPoint?.state === "judging";
+
+  const showNoDecisionBanner =
+  meta?.goldenPoint?.active &&
+  (meta?.goldenPoint?.mode === "A" || meta?.goldenPoint?.mode === "B") &&
+  (
+    meta?.goldenPoint?.state === "noDecision" ||
+    meta?.goldenPoint?.result === "noDecision"
+  );  
+
   const judgeBackgrounds = {
   1: "/backgrounds/judge-red.jpg",
   2: "/backgrounds/judge-blue.jpg",
@@ -109,7 +139,7 @@ const gpJudgeWinner =
     ? "chong"
     : null;
 
-const gpJudgeDraw = isGoldenPointDraw ? "draw" : null;
+const gpJudgeDraw = null;
 
 const judgeWinner =
   gpJudgeWinner ||
@@ -148,6 +178,18 @@ const showJudgeWinner =
   0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); }
   50% { transform: scale(1.06); box-shadow: 0 0 22px rgba(255,255,255,0.45); }
   100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); }
+}
+
+@keyframes callPulse {
+  0% { opacity: 0.7; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 0.7; transform: scale(0.98); }
+}
+
+@keyframes decisionPulse {
+  0% { opacity: 0.75; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.75; transform: scale(0.98); }
 }
 
           @keyframes neonLinePulse {
@@ -249,7 +291,7 @@ const showJudgeWinner =
             style={{
               position: "absolute",
               top: 18,
-              left: "50%",
+              left: "39%",
               transform: "translateX(50%)",
               fontSize: 28,
               fontWeight: 900,
@@ -258,7 +300,7 @@ const showJudgeWinner =
               zIndex: 5,
             }}
           >
-            JUDGE
+            JUDGE {judgeId}
           </div>
 
           {/* TIME / STATUS */}
@@ -272,7 +314,9 @@ const showJudgeWinner =
           >
             <div style={statBox}>
               TIME
-              <div style={statValue}>02:00</div>
+              <div style={statValue}>
+  {Math.floor(time / 60)}:{String(time % 60).padStart(2, "0")}
+</div>
             </div>
 
             <div
@@ -288,24 +332,43 @@ const showJudgeWinner =
           </div>
 
           {/* BANNERS */}
-          <div
-            style={{
-              position: "absolute",
-              top: 140,
-              left: 16,
-              right: 16,
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-              zIndex: 3,
-            }}
-          >
-            <div style={gpBanner}>GOLDEN POINT A</div>
-            <div style={warnBanner}>
-              HONG WARNING: Next grave foul = disqualification
-            </div>
-            <div style={decisionBanner}>NO DECISION</div>
-          </div>
+{(gpBannerText || mobileWarningText || meta?.phase === "break") && (
+  <div
+    style={{
+      position: "absolute",
+      top: 140,
+      left: 16,
+      right: 16,
+      display: "flex",
+      flexDirection: "column",
+      gap: 8,
+      zIndex: 3,
+    }}
+  >
+    {gpBannerText && (
+      <div style={gpBanner}>
+        {gpBannerText}
+      </div>
+    )}
+
+    {mobileWarningText && (
+      <div style={warnBanner}>
+        {mobileWarningText}
+      </div>
+    )}
+
+    {(meta?.phase === "break" || showNoDecisionBanner || showCallJudgesBanner) && (
+  <div style={showCallJudgesBanner ? callJudgesBanner : decisionBanner}>
+    {meta?.phase === "break"
+      ? "BREAK · DO NOT OPERATE"
+      : showCallJudgesBanner
+      ? "JUDGES · SELECT WINNER"
+      : "NO DECISION"}
+  </div>
+)}
+  </div>
+)}
+          
 
           {/* NEON LINE - CAPA 2 */}
           <div
@@ -399,7 +462,10 @@ const showJudgeWinner =
       {isGPA ? (
         <div
           style={{ ...btn, height: 100, fontSize: 24 }}
-          onClick={() => handleGPDecision("chong")}
+          onClick={() => {
+  if (inputsLocked) return;
+  handleGPDecision("chong");
+}}
           {...pressFx}
         >
           SELECT
@@ -410,7 +476,10 @@ const showJudgeWinner =
             <div
               key={i}
               style={btn}
-              onClick={() => handlePoint("chong", v)}
+              onClick={() => {
+  if (inputsLocked) return;
+  handlePoint("chong", v);
+}}
               {...pressFx}
             >
               +{v}
@@ -527,8 +596,7 @@ const showJudgeWinner =
           fontWeight: 800,
         }}
       >
-        HWARANG SCORING UNIVERSE
-        <span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
+        HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
       </div>
 
       <div
@@ -563,12 +631,12 @@ const showJudgeWinner =
           fontWeight: 800,
         }}
       >
-        WWW.HWARANGSCORING.ORG
+        {isGoldenPointDraw ? "NO DECISION" : "WWW.HWARANGSCORING.ORG"}
       </div>
     </div>
   </div>
 )}
-{showJudgeWinner && judgeWinner === "draw" && (
+{((showJudgeWinner && judgeWinner === "draw" && !meta?.goldenPoint?.active) || showGoldenPointFinalDraw) && (
   <div
     style={{
       position: "fixed",
@@ -610,18 +678,20 @@ const showJudgeWinner =
           fontWeight: 800,
         }}
       >
-        {isGoldenPointDraw ? "GOLDEN POINT" : "HWARANG SCORING UNIVERSE"}
+        {meta?.goldenPoint?.active
+  ? "GOLDEN POINT"
+  : <>
+      HWARANG SCORING UNIVERSE
+      <span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
+    </>
+}
       </div>
 
       <div style={{ fontSize: 56, lineHeight: 1 }}>
         DRAW
       </div>
 
-      {isGoldenPointDraw && (
-  <div style={{ fontSize: 18, marginTop: 12, color: "#fff" }}>
-    No decision
-  </div>
-)}
+      
 
       <div
         style={{
@@ -632,7 +702,7 @@ const showJudgeWinner =
           fontWeight: 800,
         }}
       >
-        WWW.HWARANGSCORING.ORG
+        {meta?.goldenPoint?.active ? "NO DECISION" : "WWW.HWARANGSCORING.ORG"}
       </div>
     </div>
   </div>
@@ -673,13 +743,30 @@ const warnBanner = {
   fontWeight: 900,
 };
 
+const callJudgesBanner = {
+  padding: 10,
+  borderRadius: 14,
+  border: "2px solid #00e5ff",
+  background: "#001a1f",
+  color: "#00e5ff",
+  textAlign: "center",
+  fontWeight: 900,
+  letterSpacing: 2,
+  boxShadow: "0 0 18px rgba(0,229,255,0.45)",
+  animation: "callPulse 0.9s ease-in-out infinite",
+};
+
 const decisionBanner = {
   padding: 10,
   borderRadius: 14,
-  border: "1px solid rgba(255, 3, 3, 0.38)",
-  background: "rgba(255,255,255,0.15)",
+  border: "2px solid #FFD700",
+  background: "#000000",
+  color: "#FFD700",
   textAlign: "center",
-  fontWeight: 800,
+  fontWeight: 900,
+  letterSpacing: 2,
+  boxShadow: "0 0 18px rgba(255,215,0,0.45)",
+  animation: "decisionPulse 1.2s ease-in-out infinite",
 };
 
 const hongBox = {

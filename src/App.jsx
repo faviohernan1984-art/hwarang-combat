@@ -8124,6 +8124,17 @@ export default function App() {
     judgeId={n}
     navigate={navigate}
     roomId={roomId}
+    time={useClock(meta)}
+    mobileWarningText={
+  secondFoulWarning(meta)
+    ? secondFoulWarning(meta)
+        .replace("WARNING: Next grave foul = disqualification.", "WARNING · NEXT FOUL = DQ")
+        .replace("WARNING: Next grave foul = disqualification", "WARNING · NEXT FOUL = DQ")
+    : preDecisionAdvantage(meta)
+        ? preDecisionAdvantage(meta)
+            .replace("ADVANTAGE - DECISION PENDING", "ADVANTAGE · PENDING")
+        : null
+}
   />
 </>
       );
