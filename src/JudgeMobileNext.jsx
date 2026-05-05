@@ -52,6 +52,10 @@ const inputsLocked =
   meta?.phase === "break" ||
   meta?.phase === "finished";  
 
+
+
+
+
 const btn = {
   background: "rgba(0,0,0,0.35)",
   borderRadius: 12,
@@ -66,11 +70,20 @@ const btn = {
   transition: "0.1s",
 };
 
+const vibrateJudge = () => {
+  if (typeof navigator !== "undefined" && navigator.vibrate) {
+    navigator.vibrate([40, 20, 40]);
+  }
+};
+
 const pressFx = {
   onMouseDown: (e) => (e.currentTarget.style.transform = "scale(0.95)"),
   onMouseUp: (e) => (e.currentTarget.style.transform = "scale(1)"),
   onMouseLeave: (e) => (e.currentTarget.style.transform = "scale(1)"),
-  onTouchStart: (e) => (e.currentTarget.style.transform = "scale(0.95)"),
+  onTouchStart: (e) => {
+  e.currentTarget.style.transform = "scale(0.95)";
+  vibrateJudge();
+},
   onTouchEnd: (e) => (e.currentTarget.style.transform = "scale(1)"),
 };
 
@@ -498,50 +511,7 @@ const showJudgeWinner =
 </div>
         </div>
       </div>
-      {/* GPB DRAW BLOQUE DESACTIVADO */}
-{/* 
-{isGPBDraw && (
-  <div
-    style={{
-      position: "fixed",
-      inset: 0,
-      zIndex: 9999,
-      background: "rgba(0,0,0,0.92)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: 20,
-    }}
-  >
-    <div
-      style={{
-        width: "100%",
-        maxWidth: 420,
-        borderRadius: 24,
-        border: "4px solid #FFD700",
-        background: "#ff0000",
-        color: "#FFD700",
-        textAlign: "center",
-        padding: "36px 20px",
-        fontWeight: 900,
-        boxShadow: "0 0 30px rgba(255, 215, 0, 0.45)",
-      }}
-    >
-      <div style={{ fontSize: 20, letterSpacing: 2, marginBottom: 12 }}>
-        GOLDEN POINT B
-      </div>
-
-      <div style={{ fontSize: 56, lineHeight: 1 }}>
-        DRAW
-      </div>
-
-      <div style={{ fontSize: 18, marginTop: 12, color: "#fff" }}>
-        No decision
-      </div>
-    </div>
-  </div>
-)}
-*/}
+      
 {showJudgeWinner && judgeWinner !== "draw" && (
   
   <div
