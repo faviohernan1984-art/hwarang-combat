@@ -8,6 +8,7 @@ import {
   getDocs,
   query,
 } from "firebase/firestore";
+import { trackVisit } from "./usageTracking";
 import { db, getMatchMetaRef, getJudgesColRef, getJudgeRef } from "./firebase";
 import { QRCodeCanvas } from "qrcode.react";
 import JudgeMobileNext from "./JudgeMobileNext";
@@ -8311,7 +8312,105 @@ animation:
   );
 }
 
+function UsageConsentModal({ onAccept, onExit }) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 999999,
+        background: "rgba(0,0,0,0.92)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 20,
+        boxSizing: "border-box",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 420,
+          background: "#050505",
+          border: "1px solid rgba(255,215,0,0.45)",
+          borderRadius: 22,
+          padding: 24,
+          textAlign: "center",
+          color: "white",
+          boxShadow: "0 0 30px rgba(255,215,0,0.18)",
+        }}
+      >
+        <h2 style={{ marginTop: 0, color: "#FFD700" }}>
+          Hwarang Scoring
+        </h2>
+
+        <p style={{ fontSize: 15, lineHeight: 1.45 }}>
+          Hwarang Scoring uses anonymous usage tracking to improve the system.
+          <br />
+          We do not collect personal data.
+          <br />
+          Do you accept and continue?
+        </p>
+
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 22 }}>
+          <button
+            onClick={onAccept}
+            style={{
+              padding: "12px 18px",
+              borderRadius: 12,
+              border: "none",
+              background: "#FFD700",
+              color: "#000",
+              fontWeight: 900,
+              cursor: "pointer",
+            }}
+          >
+            ACCEPT
+          </button>
+
+          <button
+            onClick={onExit}
+            style={{
+              padding: "12px 18px",
+              borderRadius: 12,
+              border: "1px solid rgba(255,255,255,0.25)",
+              background: "#222",
+              color: "#fff",
+              fontWeight: 900,
+              cursor: "pointer",
+            }}
+          >
+            EXIT
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
+  const [usageConsent, setUsageConsent] = useState(() => {
+  return localStorage.getItem("hwarang_usage_consent");
+});
+
+useEffect(() => {
+  if (usageConsent === "accepted") {
+    trackVisit();
+  }
+}, [usageConsent]);
+
+function acceptUsageConsent() {
+  localStorage.setItem("hwarang_usage_consent", "accepted");
+  setUsageConsent("accepted");
+  trackVisit();
+}
+
+function exitApp() {
+  window.location.href = "https://google.com";
+  }
+
+  
+
   const { path, navigate, roomId } = useRoute();
   const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(roomId);
   const mobileTime = useClock(meta || {});
@@ -8342,9 +8441,22 @@ export default function App() {
     return <><GlobalAppStyle /><div style={styles.page}>Cargando...</div></>;
   }
 
+  const consentLayer =
+  usageConsent !== "accepted" ? (
+    <UsageConsentModal
+      onAccept={acceptUsageConsent}
+      onExit={exitApp}
+    />
+  ) : null;
+
   if (path === "/president" || path.startsWith("/president/")) {
-    return (
-      <><GlobalAppStyle /><PresidentScreenV2
+  return (
+    <>
+      <GlobalAppStyle />
+
+      {consentLayer}
+
+      <PresidentScreenV2
         meta={meta}
         judges={judges}
         writeMeta={writeMeta}
@@ -8352,64 +8464,93 @@ export default function App() {
         resetAll={resetAll}
         navigate={navigate}
         roomId={roomId}
-      /></>
-    );
-  }
+      />
+    </>
+  );
+}
 
   if (path === "/public" || path.startsWith("/public/")) {
+  return (
+    <>
+      <GlobalAppStyle />
+
+      {consentLayer}
+
+      <PublicScreen
+        meta={meta}
+        judges={judges}
+        navigate={navigate}
+        writeMeta={writeMeta}
+        roomId={roomId}
+      />
+    </>
+  );
+}
+
+if (path.startsWith("/judge/")) {
+  const parts = path.split("/").filter(Boolean);
+
+  const rawJudgeId = parts.length >= 3 ? parts[2] : parts[1];
+  const n = Number(rawJudgeId);
+
+  if (isNaN(n))
     return (
       <>
         <GlobalAppStyle />
-        <PublicScreen
-          meta={meta}
+        <div style={styles.page}>Loading...</div>
+      </>
+    );
+
+  if (n >= 1 && n <= COMBAT_JUDGES) {
+    return (
+      <>
+        <GlobalAppStyle />
+
+        {consentLayer}
+
+        <JudgeMobileNext
+          meta={{
+            ...meta,
+            judgeWinner: summary(meta, judges).winner,
+          }}
           judges={judges}
-          navigate={navigate}
+          writeJudge={writeJudge}
           writeMeta={writeMeta}
+          judgeId={n}
+          navigate={navigate}
           roomId={roomId}
+          time={mobileTime}
+          mobileWarningText={
+            secondFoulWarning(meta)
+              ? secondFoulWarning(meta)
+                  .replace(
+                    "WARNING: Next grave foul = disqualification.",
+                    "WARNING · NEXT FOUL = DQ"
+                  )
+                  .replace(
+                    "WARNING: Next grave foul = disqualification",
+                    "WARNING · NEXT FOUL = DQ"
+                  )
+              : preDecisionAdvantage(meta)
+              ? preDecisionAdvantage(meta).replace(
+                  "ADVANTAGE - DECISION PENDING",
+                  "ADVANTAGE · PENDING"
+                )
+              : null
+          }
         />
       </>
     );
   }
-
-  if (path.startsWith("/judge/")) {
-    const parts = path.split("/").filter(Boolean);
-
-    const rawJudgeId = parts.length >= 3 ? parts[2] : parts[1];
-    const n = Number(rawJudgeId);
-
-    if (isNaN(n)) return <><GlobalAppStyle /><div style={styles.page}>Loading...</div></>;
-
-    if (n >= 1 && n <= COMBAT_JUDGES) {
-      return (
-        <>
-  <GlobalAppStyle />
-  <JudgeMobileNext
-    meta={{
-      ...meta,
-      judgeWinner: summary(meta, judges).winner,
-    }}
-    judges={judges}
-    writeJudge={writeJudge}
-    writeMeta={writeMeta}
-    judgeId={n}
-    navigate={navigate}
-    roomId={roomId}
-    time={mobileTime}
-    mobileWarningText={
-  secondFoulWarning(meta)
-    ? secondFoulWarning(meta)
-        .replace("WARNING: Next grave foul = disqualification.", "WARNING · NEXT FOUL = DQ")
-        .replace("WARNING: Next grave foul = disqualification", "WARNING · NEXT FOUL = DQ")
-    : preDecisionAdvantage(meta)
-        ? preDecisionAdvantage(meta)
-            .replace("ADVANTAGE - DECISION PENDING", "ADVANTAGE · PENDING")
-        : null
 }
-  />
-</>
-      );
-    }
-  }
 
-  return <><GlobalAppStyle /><Home navigate={navigate} meta={meta} roomId={roomId} /></>;
+return (
+  <>
+    <GlobalAppStyle />
+
+    {consentLayer}
+
+    <Home navigate={navigate} meta={meta} roomId={roomId} />
+  </>
+);
 }
