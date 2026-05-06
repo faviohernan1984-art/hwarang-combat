@@ -1066,7 +1066,7 @@ function useRoute() {
 
   const parts = path.split("/").filter(Boolean);
 
-  let roomId = "combat";
+  let roomId = "demo";
 
   if (parts[0] === "judge" && parts.length >= 3) {
     roomId = parts[1];
@@ -8312,6 +8312,112 @@ animation:
   );
 }
 
+function DemoWatermark() {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        left: 0,
+        right: 0,
+        top: "72%",
+        zIndex: 999998,
+        pointerEvents: "none",
+        overflow: "hidden",
+        background: "rgba(0,0,0,0.55)",
+        borderTop: "5px solid rgba(255,215,0,0.75)",
+        borderBottom: "5px solid rgba(255,215,0,0.75)",
+        boxShadow: "0 0 18px rgba(255,215,0,0.18)",
+        padding: "33px 0",
+      }}
+    >
+      <div
+        style={{
+          display: "inline-block",
+          whiteSpace: "nowrap",
+          paddingLeft: "100%",
+          animation: "demoTickerMove 18s linear infinite",
+          color: "#FFD700",
+          fontSize: "clamp(16px, 2vw, 34px)",
+          fontWeight: 900,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          textShadow: "0 0 10px rgba(255,215,0,0.45)",
+        }}
+      >
+        HWARANG SCORING UNIVERSE™ · DEMO MODE · THIS SPACE IS RESERVED FOR SPONSORS & EVENT ADVERTISING · PROFESSIONAL LICENSE REQUIRED · WWW.HWARANGSCORING.ORG
+      </div>
+
+      <style>
+        {`
+          @keyframes demoTickerMove {
+            0% {
+              transform: translateX(0);
+            }
+            100% {
+              transform: translateX(-100%);
+            }
+          }
+        `}
+      </style>
+    </div>
+  );
+}
+
+function DemoWatermarkJudge() {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        left: 0,
+        right: 0,
+        top: "82%",
+        zIndex: 999998,
+        pointerEvents: "none",
+        overflow: "hidden",
+        background: "rgba(0,0,0,0.72)",
+        borderTop: "2px solid rgba(255,215,0,0.45)",
+        borderBottom: "2px solid rgba(255,215,0,0.45)",
+        padding: "14px 0",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          width: "max-content",
+          animation: "judgeDemoTickerMove 13s linear infinite",
+          color: "rgba(255,215,0,0.98)",
+          fontSize: "clamp(14px, 2vw, 24px)",
+          fontWeight: 900,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          textShadow: "0 0 12px rgba(255,215,0,0.65)",
+          whiteSpace: "nowrap",
+        }}
+      >
+        <span style={{ paddingRight: 60 }}>
+          DEMO MODE · NOT FOR OFFICIAL USE · HWARANG SCORING UNIVERSE™
+        </span>
+        <span style={{ paddingRight: 60 }}>
+          DEMO MODE · NOT FOR OFFICIAL USE · HWARANG SCORING UNIVERSE™
+        </span>
+      </div>
+
+      <style>
+        {`
+          @keyframes judgeDemoTickerMove {
+            0% {
+              transform: translateX(0);
+            }
+            100% {
+              transform: translateX(-50%);
+            }
+          }
+        `}
+      </style>
+    </div>
+  );
+}
+
 function UsageConsentModal({ onAccept, onExit }) {
   return (
     <div
@@ -8397,7 +8503,7 @@ useEffect(() => {
   if (usageConsent === "accepted") {
     trackVisit();
   }
-}, [usageConsent]);
+}, [usageConsent, window.location.pathname]);
 
 function acceptUsageConsent() {
   localStorage.setItem("hwarang_usage_consent", "accepted");
@@ -8456,6 +8562,8 @@ function exitApp() {
 
       {consentLayer}
 
+      {roomId === "demo" && <DemoWatermark />}
+
       <PresidentScreenV2
         meta={meta}
         judges={judges}
@@ -8475,6 +8583,7 @@ function exitApp() {
       <GlobalAppStyle />
 
       {consentLayer}
+      {roomId === "demo" && <DemoWatermark />}
 
       <PublicScreen
         meta={meta}
@@ -8507,6 +8616,7 @@ if (path.startsWith("/judge/")) {
         <GlobalAppStyle />
 
         {consentLayer}
+        {roomId === "demo" && <DemoWatermarkJudge />}
 
         <JudgeMobileNext
           meta={{
