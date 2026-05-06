@@ -1050,6 +1050,28 @@ function useFightData(roomId = "combat") {
   return { meta, judges, writeMeta, writeJudge, resetAll };
 }
 
+function makeDemoRoomId() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+
+  for (let i = 0; i < 5; i += 1) {
+    code += chars[Math.floor(Math.random() * chars.length)].toLowerCase();
+  }
+
+  return `demo-hsu-${code}`;
+}
+
+function getOrCreateDemoRoomId() {
+  const key = "hwarang_demo_room_id";
+  const existing = localStorage.getItem(key);
+
+  if (existing) return existing;
+
+  const next = makeDemoRoomId();
+  localStorage.setItem(key, next);
+  return next;
+}
+
 function useRoute() {
   const [path, setPath] = useState(window.location.pathname || "/");
 
@@ -1066,7 +1088,7 @@ function useRoute() {
 
   const parts = path.split("/").filter(Boolean);
 
-  let roomId = "demo";
+  let roomId = getOrCreateDemoRoomId();
 
   if (parts[0] === "judge" && parts.length >= 3) {
     roomId = parts[1];
@@ -8562,7 +8584,7 @@ function exitApp() {
 
       {consentLayer}
 
-      {roomId === "demo" && <DemoWatermark />}
+      {roomId.startsWith("demo-") && <DemoWatermark />}
 
       <PresidentScreenV2
         meta={meta}
@@ -8583,7 +8605,7 @@ function exitApp() {
       <GlobalAppStyle />
 
       {consentLayer}
-      {roomId === "demo" && <DemoWatermark />}
+      {roomId.startsWith("demo-") && <DemoWatermark />}
 
       <PublicScreen
         meta={meta}
@@ -8616,7 +8638,7 @@ if (path.startsWith("/judge/")) {
         <GlobalAppStyle />
 
         {consentLayer}
-        {roomId === "demo" && <DemoWatermarkJudge />}
+        {roomId.startsWith("demo-") && <DemoWatermark />}
 
         <JudgeMobileNext
           meta={{
