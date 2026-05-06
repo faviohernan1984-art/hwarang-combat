@@ -31,6 +31,11 @@ if (typeof document !== "undefined" && !document.getElementById("winnerPulseStyl
   document.head.appendChild(style);
 }
 
+const DEMO_LIMIT_MS = 10 * 60 * 1000
+
+function isDemoRoom(roomId = "") {
+  return roomId.startsWith("demo-hsu-")
+}
 const HONG = "Hong";
 const CHONG = "Chong";
 const MAX_JUDGES = 5;
@@ -632,6 +637,12 @@ function makeInitialMeta() {
     combatForcedWinner: null,
     publicSwapSides: false,
     presidentSwapSides: false,
+    demoLimit: {
+  totalMs: DEMO_LIMIT_MS,
+  usedMs: 0,
+  expired: false,
+},
+    
     goldenPoint: makeEmptyGoldenPoint(),
     showResult: false,
     updatedAt: Date.now(),
