@@ -978,6 +978,13 @@ function useFightData(roomId = "combat") {
     return (id) => getJudgeRef(roomId, id);
   }, [roomId]);
   const [meta, setMeta] = useState(makeInitialMeta());
+  const remainingDemoMs = Math.max(
+  0,
+  (meta?.demoLimit?.totalMs || DEMO_LIMIT_MS) -
+    (meta?.demoLimit?.usedMs || 0)
+)
+
+const isDemoExpired = remainingDemoMs <= 0
   const [judges, setJudges] = useState(
     Array.from({ length: MAX_JUDGES }, (_, i) => makeJudge(i + 1))
   );
@@ -991,6 +998,35 @@ function useFightData(roomId = "combat") {
 
   return () => clearInterval(i);
 }, [meta?.medicalActive, meta?.medicalRunning]);
+
+  useEffect(() => {
+  if (!isDemoRoom(roomId)) return;
+  if (!meta?.demoLimit) return;
+  if (meta.demoLimit.expired) return;
+  if (meta.status !== "running") return;
+
+  const interval = setInterval(() => {
+    writeMeta((current) => {
+      if (!isDemoRoom(roomId)) return current;
+      if (!current?.demoLimit) return current;
+      if (current.demoLimit.expired) return current;
+      if (current.status !== "running") return current;
+
+      const usedMs = Math.min(
+        current.demoLimit.totalMs || DEMO_LIMIT_MS,
+        (current.demoLimit.usedMs || 0) + 1000
+      );
+
+      current.demoLimit.usedMs = usedMs;
+      current.demoLimit.expired =
+        usedMs >= (current.demoLimit.totalMs || DEMO_LIMIT_MS);
+
+      return current;
+    });
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [roomId, meta?.status, meta?.demoLimit?.expired]);
   
    useEffect(() => {
   let unsubMeta = () => {};
@@ -1052,13 +1088,37 @@ function useFightData(roomId = "combat") {
   };
 
   const resetAll = async () => {
-    await setDoc(matchMetaRef, makeInitialMeta());
-    for (let i = 1; i <= MAX_JUDGES; i += 1) {
-      await setDoc(judgeRef(i), makeJudge(i));
-    }
-  };
+  const snap = await getDoc(matchMetaRef);
+  const current = ensureMetaShape(
+    snap.exists() ? snap.data() : makeInitialMeta()
+  );
 
-  return { meta, judges, writeMeta, writeJudge, resetAll };
+  const next = makeInitialMeta();
+
+  if (isDemoRoom(roomId)) {
+    next.demoLimit = current.demoLimit || {
+      totalMs: DEMO_LIMIT_MS,
+      usedMs: 0,
+      expired: false,
+    };
+  }
+
+  await setDoc(matchMetaRef, next);
+
+  for (let i = 1; i <= MAX_JUDGES; i += 1) {
+    await setDoc(judgeRef(i), makeJudge(i));
+  }
+};
+
+  return {
+  meta,
+  judges,
+  writeMeta,
+  writeJudge,
+  resetAll,
+  remainingDemoMs,
+  isDemoExpired,
+};
 }
 
 function makeDemoRoomId() {
