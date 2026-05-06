@@ -1660,60 +1660,202 @@ function Home({ navigate, meta, roomId = "combat" }) {
   const isMobile = typeof window !== "undefined" && window.innerWidth < 900;
 
   if (isMobile) {
-    return (
+  return (
+    <div
+      style={{
+        width: "100%",
+        minHeight: "100dvh",
+        background: "#000",
+        overflowY: "auto",
+        padding: "8px 14px 14px",
+        boxSizing: "border-box",
+      }}
+    >
       <div
         style={{
-          width: "100%",
-          minHeight: "100dvh",
-          background: "#000",
-          overflowY: "auto",
-          padding: 16,
-          boxSizing: "border-box",
+          textAlign: "center",
+          marginBottom: 10,
+          transform: "translateY(-8px)",
         }}
       >
-        <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <div
+          style={{
+            transform: "scale(0.9)",
+            transformOrigin: "top center",
+            marginBottom: -18,
+          }}
+        >
           <BrandHeaderLarge />
-          <h1 style={{ fontSize: 32 }}>Hwarang Scoring Combat</h1>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <AppButton
-  style={{ background: "#2563eb", color: "white" }}
-  onClick={() => navigate(`/president/${roomId}`)}
->
-  President
-</AppButton>
+        <h1
+          style={{
+            margin: "0 0 10px",
+            fontSize: 28,
+            lineHeight: 1.05,
+            fontFamily: "'Orbitron', sans-serif",
+            fontWeight: 800,
+            letterSpacing: "0.12em",
+            textRendering: "geometricPrecision",
+            transformStyle: "preserve-3d",
+            color: "#f8fafc",
+            textTransform: "uppercase",
+            background:
+              "linear-gradient(90deg, #e0f2fe 0%, #38bdf8 18%, #ffffff 36%, #fde68a 50%, #ffffff 64%, #38bdf8 82%, #e0f2fe 100%)",
+            backgroundSize: "240% auto",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            filter:
+              "drop-shadow(0 0 10px rgba(56,189,248,0.35)) drop-shadow(0 0 18px rgba(255,255,255,0.15))",
+            animation:
+              "combatTitleEnter 0.9s ease-out both, combatTitleShine 3.2s ease-in-out infinite 0.9s",
+          }}
+        >
+          Hwarang Scoring Combat
+        </h1>
 
-<AppButton
-  style={{ background: "#16a34a", color: "white" }}
-  onClick={() => navigate(`/public/${roomId}`)}
->
-  Public Screen
-</AppButton>
+        <style>
+          {`
+            @keyframes combatTitleEnter {
+              0% {
+                opacity: 0;
+                transform: translateY(18px) scale(0.94);
+                filter: blur(8px) drop-shadow(0 0 0 rgba(56,189,248,0));
+              }
 
-{Array.from({ length: COMBAT_JUDGES }, (_, i) => i + 1).map((n) => (
-  <AppButton
-    key={n}
-    style={{
-      background:
-        n === 1
-          ? "#b91c1c"
-          : n === 2
-          ? "#b91c1c"
-          : n === 3
-          ? "#b91c1c"
-          : "#b91c1c",
-      color: "white",
-    }}
-    onClick={() => navigate(`/judge/${roomId}/${n}`)}
-  >
-    Judge {n}
-  </AppButton>
-))}
-        </div>
+              60% {
+                opacity: 1;
+                transform: translateY(-2px) scale(1.02);
+                filter: blur(0) drop-shadow(0 0 14px rgba(56,189,248,0.55));
+              }
+
+              100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0) drop-shadow(0 0 10px rgba(56,189,248,0.35));
+              }
+            }
+
+            @keyframes combatTitleShine {
+              0% {
+                background-position: 220% center;
+                filter:
+                  drop-shadow(0 0 8px rgba(56,189,248,0.25))
+                  drop-shadow(0 0 12px rgba(255,255,255,0.08));
+              }
+
+              35% {
+                filter:
+                  drop-shadow(0 0 18px rgba(56,189,248,0.55))
+                  drop-shadow(0 0 24px rgba(255,255,255,0.22));
+              }
+
+              65% {
+                filter:
+                  drop-shadow(0 0 16px rgba(253,224,71,0.30))
+                  drop-shadow(0 0 18px rgba(255,255,255,0.15));
+              }
+
+              100% {
+                background-position: -220% center;
+                filter:
+                  drop-shadow(0 0 8px rgba(56,189,248,0.25))
+                  drop-shadow(0 0 12px rgba(255,255,255,0.08));
+              }
+            }
+
+            
+          `}
+        </style>
       </div>
-    );
-  }
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          transform: "translateY(-6px)",
+          
+        }}
+      >
+        <AppButton
+          style={{
+  background: "#2563eb",
+  color: "white",
+
+  boxShadow:
+    `
+    0 0 12px rgba(37,99,235,0.75),
+    0 0 28px rgba(37,99,235,0.45),
+    0 10px 30px rgba(0,0,0,0.65),
+    inset 0 0 12px rgba(255,255,255,0.08)
+    `,
+
+  border: "1px solid rgba(96,165,250,0.65)",
+
+  backdropFilter: "blur(6px)",
+
+  transform: "translateZ(0)",
+
+  transition: "all 0.25s ease",
+}}
+          onClick={() => navigate(`/president/${roomId}`)}
+        >
+          President
+        </AppButton>
+
+        <AppButton
+          style={{
+            background: "#16a34a",
+            color: "white",
+            boxShadow:
+  `
+  0 0 12px rgba(34,197,94,0.75),
+  0 0 28px rgba(34,197,94,0.45),
+  0 10px 30px rgba(0,0,0,0.65),
+  inset 0 0 12px rgba(255,255,255,0.08)
+  `,
+
+border: "1px solid rgba(74,222,128,0.65)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            backdropFilter: "blur(6px)",
+            transform: "translateZ(0)",
+            transition: "all 0.25s ease",
+          }}
+          onClick={() => navigate(`/public/${roomId}`)}
+        >
+          Public Screen
+        </AppButton>
+
+        {Array.from({ length: COMBAT_JUDGES }, (_, i) => i + 1).map((n) => (
+          <AppButton
+            key={n}
+            style={{
+              background: "#b91c1c",
+              color: "white",
+              boxShadow:
+  `
+  0 0 12px rgba(239,68,68,0.75),
+  0 0 28px rgba(239,68,68,0.45),
+  0 10px 30px rgba(0,0,0,0.65),
+  inset 0 0 12px rgba(255,255,255,0.08)
+  `,
+
+border: "1px solid rgba(248,113,113,0.65)",
+              backdropFilter: "blur(6px)",
+              transform: "translateZ(0)",
+              transition: "all 0.25s ease",
+            }}
+            onClick={() => navigate(`/judge/${roomId}/${n}`)}
+          >
+            Judge {n}
+          </AppButton>
+        ))}
+      </div>
+    </div>
+  );
+}
 
   return (
     <Frame16x9>
