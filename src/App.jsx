@@ -1523,6 +1523,84 @@ bottom: 0,
   );
 }
 
+function DemoExpiredOverlay({ onLicense }) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 999999,
+        background: "rgba(0,0,0,0.96)",
+
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+
+        textAlign: "center",
+        padding: 40,
+      }}
+    >
+      <div
+        style={{
+          fontSize: "clamp(34px, 5vw, 82px)",
+          fontWeight: 900,
+          color: "#ff3b30",
+          letterSpacing: "0.08em",
+          marginBottom: 24,
+          textTransform: "uppercase",
+        }}
+      >
+        <>
+  Demo Session
+  <br />
+  Completed
+</>
+      </div>
+
+      <div
+        style={{
+          fontSize: "clamp(18px, 2vw, 34px)",
+          color: "white",
+          opacity: 0.9,
+          marginBottom: 42,
+          maxWidth: 900,
+          lineHeight: 1.4,
+        }}
+      >
+        Professional License Required
+      </div>
+
+      <div
+  style={{
+    fontSize: "clamp(14px, 1.3vw, 22px)",
+    color: "#cbd5e1",
+    opacity: 0.82,
+    marginBottom: 42,
+    maxWidth: 820,
+    lineHeight: 1.5,
+    padding: "0 12px",
+  }}
+>
+  Continue with Hwarang Scoring Combat Pro
+</div>
+
+      <AppButton
+        style={{
+          background: "#16a34a",
+          fontSize: 24,
+          padding: "18px 34px",
+          borderRadius: 18,
+          boxShadow: "0 0 24px rgba(34,197,94,0.45)",
+        }}
+        onClick={onLicense}
+      >
+        GET PROFESSIONAL LICENSE
+      </AppButton>
+    </div>
+  );
+}
+
 function JudgePanel({ judge, onPoint, onUndo }) {
   const pointButton = (label, side, value, bg) => (
     <AppButton style={{ background: bg, minWidth: 130, fontSize: 22 }} onClick={() => onPoint(side, value)}>
@@ -1751,11 +1829,22 @@ function QRSection({ roomId = "combat" }) {
 }
 
 function Home({ navigate, meta, roomId = "combat" }) {
+  const isExpiredDemo =
+  isDemoRoom(roomId) && meta?.demoLimit?.expired;
   const isMobile = typeof window !== "undefined" && window.innerWidth < 900;
 
   if (isMobile) {
   return (
-    <div
+    <>
+      {isExpiredDemo && (
+        <DemoExpiredOverlay
+          onLicense={() => {
+            window.location.href = "/license";
+          }}
+        />
+      )}
+
+      <div
       style={{
         width: "100%",
         minHeight: "100dvh",
@@ -1947,7 +2036,8 @@ border: "1px solid rgba(248,113,113,0.65)",
           </AppButton>
         ))}
       </div>
-    </div>
+        </div>
+    </>
   );
 }
 
@@ -8640,6 +8730,15 @@ function exitApp() {
     return <><GlobalAppStyle /><div style={styles.page}>Cargando...</div></>;
   }
 
+  const demoExpiredLayer =
+  isDemoRoom(roomId) && meta?.demoLimit?.expired ? (
+    <DemoExpiredOverlay
+      onLicense={() => {
+        window.location.href = "/license";
+      }}
+    />
+  ) : null;
+
   const consentLayer =
   usageConsent !== "accepted" ? (
     <UsageConsentModal
@@ -8654,6 +8753,7 @@ function exitApp() {
       <GlobalAppStyle />
 
       {consentLayer}
+      {demoExpiredLayer}
 
       {roomId.startsWith("demo-") && <DemoWatermark />}
 
@@ -8676,6 +8776,8 @@ function exitApp() {
       <GlobalAppStyle />
 
       {consentLayer}
+      {demoExpiredLayer}
+
       {roomId.startsWith("demo-") && <DemoWatermark />}
 
       <PublicScreen
@@ -8709,6 +8811,8 @@ if (path.startsWith("/judge/")) {
         <GlobalAppStyle />
 
         {consentLayer}
+        {demoExpiredLayer}
+
         {roomId.startsWith("demo-") && <DemoWatermark />}
 
         <JudgeMobileNext
@@ -8752,6 +8856,7 @@ return (
     <GlobalAppStyle />
 
     {consentLayer}
+    {demoExpiredLayer}
 
     <Home navigate={navigate} meta={meta} roomId={roomId} />
   </>
