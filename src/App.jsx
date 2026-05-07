@@ -641,10 +641,11 @@ function makeInitialMeta() {
     demoLimit: {
   totalMs: DEMO_LIMIT_MS,
   usedMs: 0,
+  startedAt: null,
   expired: false,
 },
-    
-    goldenPoint: makeEmptyGoldenPoint(),
+
+goldenPoint: makeEmptyGoldenPoint(),
     showResult: false,
     updatedAt: Date.now(),
   };
@@ -1013,14 +1014,17 @@ const isDemoExpired = remainingDemoMs <= 0
       if (current.demoLimit.expired) return current;
       if (current.status !== "running") return current;
 
-      const usedMs = Math.min(
-        current.demoLimit.totalMs || DEMO_LIMIT_MS,
-        (current.demoLimit.usedMs || 0) + 1000
-      );
+      const totalMs = current.demoLimit.totalMs || DEMO_LIMIT_MS;
+const now = Date.now();
 
-      current.demoLimit.usedMs = usedMs;
-      current.demoLimit.expired =
-        usedMs >= (current.demoLimit.totalMs || DEMO_LIMIT_MS);
+if (!current.demoLimit.startedAt) {
+  current.demoLimit.startedAt = now - (current.demoLimit.usedMs || 0);
+}
+
+const usedMs = Math.min(totalMs, now - current.demoLimit.startedAt);
+
+current.demoLimit.usedMs = usedMs;
+current.demoLimit.expired = usedMs >= totalMs;
 
       return current;
     });
