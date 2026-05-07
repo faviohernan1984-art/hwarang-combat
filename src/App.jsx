@@ -1,5 +1,6 @@
 console.log("ESTOY EN EL APP CORRECTO");
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useWakeLock } from "./useWakeLock";
 import {
   onSnapshot,
   runTransaction,
@@ -8870,6 +8871,7 @@ function UsageConsentModal({ onAccept, onExit }) {
 }
 
 export default function App() {
+  useWakeLock(true);
   const [usageConsent, setUsageConsent] = useState(() => {
   return localStorage.getItem("hwarang_usage_consent");
 });
