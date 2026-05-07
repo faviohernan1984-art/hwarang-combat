@@ -1530,73 +1530,265 @@ function DemoExpiredOverlay({ onLicense }) {
         position: "fixed",
         inset: 0,
         zIndex: 999999,
-        background: "rgba(0,0,0,0.96)",
-
+        background: "rgba(0,0,0,0.94)",
+        backdropFilter: "blur(5px)",
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
         alignItems: "center",
-
+        justifyContent: "center",
+        padding: 18,
         textAlign: "center",
-        padding: 40,
+        overflow: "hidden",
       }}
     >
-      <div
-        style={{
-          fontSize: "clamp(34px, 5vw, 82px)",
-          fontWeight: 900,
-          color: "#ff3b30",
-          letterSpacing: "0.08em",
-          marginBottom: 24,
-          textTransform: "uppercase",
-        }}
-      >
-        <>
-  Demo Session
-  <br />
-  Completed
-</>
-      </div>
+      <style>{`
+        @keyframes goldSweep {
+          0% { background-position: -220% center; }
+          100% { background-position: 220% center; }
+        }
 
-      <div
-        style={{
-          fontSize: "clamp(18px, 2vw, 34px)",
-          color: "white",
-          opacity: 0.9,
-          marginBottom: 42,
-          maxWidth: 900,
-          lineHeight: 1.4,
-        }}
-      >
-        Professional License Required
-      </div>
+        @keyframes starGlint {
+          0%, 88%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+          92% { opacity: 1; transform: scale(1.15) rotate(45deg); }
+          96% { opacity: 0.65; transform: scale(0.8) rotate(90deg); }
+        }
+
+        @keyframes softPulseGold {
+          0%, 100% { filter: brightness(1); }
+          50% { filter: brightness(1.22); }
+        }
+
+        @keyframes borderSpark {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) rotate(45deg);
+  }
+
+  10% {
+    opacity: 1;
+    transform: scale(1.2) rotate(45deg);
+  }
+
+  20% {
+    opacity: 0;
+    transform: scale(0.7) rotate(45deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.7) rotate(45deg);
+  }
+}
+
+@keyframes lineGlow {
+  0%, 100% {
+    opacity: 0.7;
+    filter: brightness(1);
+  }
+
+  50% {
+    opacity: 1;
+    filter: brightness(1.4);
+  }
+}
+
+        @keyframes buttonGoldPulse {
+          0%, 100% {
+            box-shadow:
+              0 0 18px rgba(245,197,66,0.45),
+              inset 0 0 18px rgba(255,255,255,0.16);
+          }
+          50% {
+            box-shadow:
+              0 0 34px rgba(245,197,66,0.82),
+              inset 0 0 24px rgba(255,255,255,0.25);
+          }
+        }
+      `}</style>
 
       <div
   style={{
-    fontSize: "clamp(14px, 1.3vw, 22px)",
-    color: "#cbd5e1",
-    opacity: 0.82,
-    marginBottom: 42,
-    maxWidth: 820,
-    lineHeight: 1.5,
-    padding: "0 12px",
+    position: "absolute",
+    inset: 12,
+    border: "1px solid rgba(245,197,66,0.72)",
+    borderRadius: 22,
+    boxShadow: "0 0 28px rgba(245,197,66,0.18)",
+    pointerEvents: "none",
   }}
 >
-  Continue with Hwarang Scoring Combat Pro
+  {[
+  { top: -9, left: "50%", transform: "translateX(-50%)", delay: "0s" },
+  { top: "50%", left: -9, transform: "translateY(-50%)", delay: "0.9s" },
+  { top: "50%", right: -9, transform: "translateY(-50%)", delay: "1.8s" },
+  { bottom: -9, left: "50%", transform: "translateX(-50%)", delay: "2.7s" },
+].map((p, i) => (
+    <div
+      key={i}
+      style={{
+  position: "absolute",
+
+  width: 10,
+  height: 20,
+
+  ...p,
+  transform: p.transform,
+
+  opacity: 1,
+
+  background:
+    "radial-gradient(circle, rgba(255,245,200,1) 0%, rgba(245,197,66,0.95) 25%, rgba(245,197,66,0) 72%)",
+
+  clipPath:
+    "polygon(50% 0%, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0% 50%, 42% 42%)",
+
+  filter:
+    "drop-shadow(0 0 6px #fff7cc) drop-shadow(0 0 14px #f5c542)",
+
+  animation: "borderSpark 3.6s infinite",
+  animationDelay: p.delay,
+
+  pointerEvents: "none",
+}}
+    />
+  ))}
 </div>
 
-      <AppButton
-        style={{
-          background: "#16a34a",
-          fontSize: 24,
-          padding: "18px 34px",
-          borderRadius: 18,
-          boxShadow: "0 0 24px rgba(34,197,94,0.45)",
-        }}
-        onClick={onLicense}
-      >
-        GET PROFESSIONAL LICENSE
-      </AppButton>
+      
+
+      <div style={{ width: "min(1100px, 94vw)", transform: "translateY(-10px)" }}>
+        <img
+          src="/logo-universe.png"
+          alt="Hwarang Scoring Universe"
+          style={{
+            width: "clamp(80px, 10vw, 150px)",
+            opacity: 0.92,
+            marginBottom: 10,
+            filter: "drop-shadow(0 0 18px rgba(245,197,66,0.35))",
+          }}
+        />
+
+        <div
+          style={{
+            color: "#f5c542",
+            fontSize: "clamp(10px, 1vw, 15px)",
+letterSpacing: "0.55em",
+textTransform: "uppercase",
+marginBottom: 22,
+fontWeight: 300,
+            textShadow: "0 0 8px rgba(245,197,66,0.28)",
+          }}
+        >
+          Hwarang Scoring Universe™
+        </div>
+
+        <div
+          style={{
+            width: "min(420px, 70vw)",
+            height: 1,
+            margin: "0 auto 32px",
+            background:
+              "linear-gradient(90deg, transparent, rgba(245,197,66,0.95), transparent)",
+            boxShadow: "0 0 14px rgba(245,197,66,0.8)",
+          }}
+        />
+
+        <div
+          style={{
+            fontSize: "clamp(34px, 5.4vw, 82px)",
+lineHeight: 0.88,
+            fontWeight: 700,
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+            marginBottom: 28,
+            background:
+              "linear-gradient(90deg, #8a5f08 0%, #f5c542 24%, #fff3b0 50%, #f5c542 76%, #8a5f08 100%)",
+            backgroundSize: "220% auto",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            animation: "softPulseGold 4s ease-in-out infinite",
+            textShadow: "0 0 28px rgba(245,197,66,0.25)",
+          }}
+        >
+          Demo Session
+          <br />
+          Completed
+        </div>
+
+        <div
+          style={{
+            width: "min(220px, 46vw)",
+            height: 1,
+            margin: "0 auto 26px",
+            background:
+              "linear-gradient(90deg, transparent, rgba(245,197,66,0.9), transparent)",
+            boxShadow: "0 0 12px rgba(245,197,66,0.75)",
+          }}
+        />
+
+        <div
+          style={{
+            fontSize: "clamp(18px, 1.9vw, 30px)",
+color: "#ffffff",
+fontWeight: 400,
+marginBottom: 10,
+lineHeight: 1.05,
+letterSpacing: "0.04em",
+            textShadow: "0 0 14px rgba(255,255,255,0.2)",
+          }}
+        >
+          Professional License Required
+        </div>
+
+        <div
+          style={{
+            fontSize: "clamp(15px, 1.5vw, 26px)",
+            color: "#cbd5e1",
+            marginBottom: 34,
+marginTop: -2,
+lineHeight: 1.1,
+            fontWeight: 400,
+          }}
+        >
+          Continue with Hwarang Scoring Combat Pro
+        </div>
+
+        <AppButton
+          style={{
+            width: "min(620px, 86vw)",
+            background:
+  "linear-gradient(180deg, #7e5805 0%, #3a2802 100%)",
+            color: "#ffffff",
+            fontSize: "clamp(17px, 2vw, 28px)",
+            fontWeight: 900,
+            padding: "16px 28px",
+            borderRadius: 18,
+            border: "1px solid rgba(255,220,120,0.58)",
+            letterSpacing: "0.04em",
+            animation: "buttonGoldPulse 2.8s ease-in-out infinite",
+            position: "relative",
+            overflow: "hidden",
+          }}
+          onClick={onLicense}
+        >
+          <>
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      background:
+        "linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.18) 50%, transparent 80%)",
+      transform: "translateX(-120%)",
+      animation: "goldSweep 3.6s linear infinite",
+      pointerEvents: "none",
+    }}
+  />
+
+  <span style={{ position: "relative", zIndex: 2 }}>
+    GET PROFESSIONAL LICENSE
+  </span>
+</>
+        </AppButton>
+      </div>
     </div>
   );
 }
