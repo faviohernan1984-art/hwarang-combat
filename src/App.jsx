@@ -1,4 +1,5 @@
 console.log("ESTOY EN EL APP CORRECTO");
+import LicensePage from "./LicensePage.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
 import {
@@ -8944,6 +8945,15 @@ function exitApp() {
       onExit={exitApp}
     />
   ) : null;
+
+  if (path === "/license") {
+  return (
+    <>
+      <GlobalAppStyle />
+      <LicensePage />
+    </>
+  );
+}
 
   if (path === "/president" || path.startsWith("/president/")) {
   return (
