@@ -31,6 +31,7 @@ export default function LicensePage() {
 
       <main style={styles.main}>
         <section style={styles.leftPanel}>
+        <div style={styles.leftContent}>
           <div style={styles.hero}>
             <div style={styles.heroGlow} />
             <div style={styles.kicker}>GET YOUR PROFESSIONAL LICENSE</div>
@@ -93,6 +94,7 @@ export default function LicensePage() {
 
           <div style={styles.note}>
             All licenses include continuous updates and platform improvements.
+          </div>
           </div>
         </section>
 
@@ -164,7 +166,37 @@ function Feature({ icon, title, text }) {
 
 function PlanCard({ title, desc, price, small, items, button, featured, variant, buttonOffset = 0 }) {
   return (
-    <div style={{ ...styles.planCard, ...(featured ? styles.featuredCard : {}) }}>
+    <div
+  style={{
+    ...styles.planCard,
+
+    ...(title === "DEMO"
+      ? {
+          background:
+  "linear-gradient(180deg, rgba(8,47,73,0.72) 0%, rgba(2,6,23,0.98) 100%)",
+border: "1px solid rgba(56,189,248,0.28)",
+        }
+      : {}),
+
+    ...(title === "SINGLE EVENT"
+      ? {
+          background:
+  "linear-gradient(180deg, rgba(37,99,235,0.52) 0%, rgba(2,6,23,1) 100%)",
+border: "1px solid rgba(96,165,250,0.72)",
+        }
+      : {}),
+
+    ...(title === "CLUB / ANNUAL"
+      ? {
+          background:
+  "linear-gradient(180deg, rgba(146,100,22,0.62) 0%, rgba(2,6,23,1) 100%)",
+border: "1px solid rgba(246,195,106,0.46)",
+        }
+      : {}),
+
+    ...(featured ? styles.featuredCard : {}),
+  }}
+>
       {featured && <div style={styles.badge}>MOST POPULAR</div>}
       <h3>{title}</h3>
       <p style={styles.planDesc}>{desc}</p>
@@ -261,13 +293,23 @@ const styles = {
     fontWeight: 900,
   },
   main: {
+    border: "1px solid rgba(246,195,106,0.28)",
+    boxShadow: "inset -1px 0 rgba(246,195,106,0.22)",
     display: "grid",
-    gridTemplateColumns: "1.9fr 1fr",
+    gridTemplateColumns: "70% 30%",
     minHeight: "calc(100vh - 88px)",
   },
   leftPanel: {
+    left: 60,
+    top: 12,
+    position: "relative",
+    width: "100%",
+    height: "87%",
+    overflow: "hidden",
+    borderRadius: 18,
+    border: "1px solid rgba(59,130,246,0.10)",
     padding: "20px 40px 18px 58px",
-    background: "rgba(0, 4, 24, 0.93)",
+    background: "rgba(0, 4, 24, 0.88)",
   },
   hero: {
   textAlign: "center",
@@ -370,11 +412,19 @@ top: -7,
   display: "grid",
   gridTemplateColumns: "repeat(3, 1fr)",
   gap: 14,
-  marginTop: 12,
-  padding: "8px",
-  borderRadius: 12,
-  background: "rgba(2, 8, 28, 0.18)",
-  border: "1px solid rgba(59,130,246,0.06)",
+  marginTop: 14,
+  padding: "14px",
+  borderRadius: 18,
+
+  background:
+    "linear-gradient(135deg, rgba(15,23,42,0.96) 0%, rgba(30,64,175,0.22) 45%, rgba(2,6,23,0.98) 100%)",
+
+  border: "1px solid rgba(96,165,250,0.42)",
+
+  boxShadow:
+    "0 0 55px rgba(37,99,235,0.30), inset 0 0 40px rgba(96,165,250,0.10)",
+
+  backdropFilter: "blur(12px)",
 },
   planCard: {
   position: "relative",
@@ -382,8 +432,10 @@ top: -7,
   border: "1px solid rgba(148,163,184,0.20)",
   borderRadius: 8,
   padding: "18px 16px 14px",
+  transform: "translateY(-6px)",
   background: "rgba(15,23,42,0.54)",
-  boxShadow: "inset 0 0 34px rgba(59,130,246,0.035)",
+  boxShadow:
+  "0 26px 55px rgba(0,0,0,0.55), 0 18px 38px rgba(37,99,235,0.16), inset 0 0 22px rgba(255,255,255,0.03)",
   textAlign: "center",
 },
   featuredCard: {
@@ -441,10 +493,22 @@ planList: {
 },
   note: { textAlign: "center", color: "#cbd5e1", marginTop: 18 },
   checkout: {
+    width: 500,
+    
+    flexShrink: 0,
+    zIndex: 5,
+    position: "absolute",
+    right: 33,
+    top: 100,
+    
+    borderRadius: 18,
+    overflow: "hidden",
+    transform: "scale(0.84)",
+    transformOrigin: "top center",
     borderLeft: "1px solid rgba(59,130,246,0.14)",
     padding: "18px 24px",
     background:
-      "linear-gradient(180deg, rgba(7, 22, 59, 0.96) 0%, rgba(2, 16, 48, 0.98) 100%)",
+  "linear-gradient(180deg, rgba(26, 40, 73, 0.96) 0%, rgba(5, 13, 51, 0.98) 100%)",
     boxShadow:
       "-25px 0 60px rgba(0,0,0,0.42), inset 1px 0 rgba(59,130,246,0.06)",
   },
@@ -524,4 +588,11 @@ planList: {
     color: "#e2e8f0",
     lineHeight: 1.8,
   },
+  leftContent: {  
+  transform: "scale(0.999)",
+  transformOrigin: "top left",
+  position: "relative",
+  left: -10,
+  top: -20,
+},
 };
