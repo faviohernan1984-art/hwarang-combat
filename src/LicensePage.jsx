@@ -1,4 +1,22 @@
 import React from "react";
+import {
+  ShieldCheck,
+  Globe,
+  Trophy,
+  Smartphone,
+  Lock,
+  Zap,
+  Crown,
+  CalendarDays,
+Clock,
+Monitor,
+Cloud,
+ShoppingCart,
+Mail,
+KeyRound,
+BadgeCheck,
+CreditCard,
+} from "lucide-react";
 
 
 
@@ -48,10 +66,29 @@ export default function LicensePage() {
           </div>
 
           <div style={styles.features}>
-            <Feature icon={<span style={styles.svgIcon}>♢</span>} title="OFFICIAL STANDARD" text="Professional system built to ITF standards" />
-<Feature icon={<span style={styles.svgIcon}>ϟ</span>} title="REAL-TIME SYSTEM" text="Instant synchronization across all devices" />
-<Feature icon={<span style={styles.svgIcon}>☁</span>} title="CLOUD PLATFORM" text="Your data always secure and accessible" />
-<Feature icon={<span style={styles.svgIcon}>◔</span>} title="PREMIUM SUPPORT" text="Dedicated technical assistance" />
+<Feature
+  icon={<ShieldCheck size={18} style={styles.lucideIcon} />}
+  title="OFFICIAL STANDARD"
+  text="Professional system built to ITF standards"
+/>
+
+<Feature
+  icon={<Zap size={18} style={styles.lucideIcon} />}
+  title="REAL-TIME SYSTEM"
+  text="Instant synchronization across all devices"
+/>
+
+<Feature
+  icon={<Globe size={18} style={styles.lucideIcon} />}
+  title="CLOUD PLATFORM"
+  text="Your data always secure and accessible"
+/>
+
+<Feature
+  icon={<Smartphone size={18} style={styles.lucideIcon} />}
+  title="PREMIUM SUPPORT"
+  text="Dedicated technical assistance"
+/>
           </div>
 
           <div style={styles.sectionTitle}>CHOOSE YOUR LICENSE PLAN</div>
@@ -102,77 +139,109 @@ export default function LicensePage() {
 
 <div style={styles.statsStrip}>
   <div style={styles.statItem}>
-  <span style={styles.bottomMonoIcon}>◉</span>
-  TRUSTED BY<br />
-  PROFESSIONAL ORGANIZATIONS WORLDWIDE
-</div>
+    <ShieldCheck size={18} style={styles.bottomLucideIcon} />
+    TRUSTED BY<br />
+    PROFESSIONAL ORGANIZATIONS WORLDWIDE
+  </div>
 
-<div style={styles.statItem}>
-  <span style={styles.bottomMonoIcon}>◈</span>
-  OFFICIAL SYSTEM USED IN<br />
-  NATIONAL & INTERNATIONAL EVENTS
-</div>
+  <div style={styles.statItem}>
+    <Trophy size={18} style={styles.bottomLucideIcon} />
+    OFFICIAL SYSTEM USED IN<br />
+    NATIONAL & INTERNATIONAL EVENTS
+  </div>
 
-<div style={styles.statItem}>
-  <span style={styles.bottomMonoIcon}>⬡</span>
-  ENGINEERED BY EXPERTS IN<br />
-  ITF TAEKWONDO & COMPETITIVE TECHNOLOGY
-</div>
+  <div style={styles.statItem}>
+    <Globe size={18} style={styles.bottomLucideIcon} />
+    ENGINEERED BY EXPERTS IN<br />
+    ITF TAEKWONDO & COMPETITIVE TECHNOLOGY
+  </div>
 </div>
 
 </section>
 
         <aside style={styles.checkout}>
-          <h2 style={styles.checkoutTitle}>YOUR ORDER</h2>
+  <h2 style={styles.checkoutTitle}>YOUR ORDER</h2>
 
-          <div style={styles.selectedBox}>
-            <div style={styles.trophyBox}>🏆</div>
-            <div style={{ flex: 1 }}>
-              <div style={styles.muted}>Selected license</div>
-              <div style={styles.selectedTitle}>SINGLE EVENT</div>
-              <div style={styles.muted}>Single-event license</div>
-            </div>
-            <div style={styles.priceSide}>USD 49</div>
-          </div>
+  <div style={styles.selectedBox}>
+    <div style={styles.trophyBox}>
+      <Trophy size={34} style={styles.checkoutMainIcon} />
+    </div>
 
-          <div style={styles.detailList}>
-            <Row label="Validity" value="1 event" />
-            <Row label="Duration" value="Unlimited" />
-            <Row label="Devices" value="Unlimited" />
-            <Row label="Storage" value="Included" />
-          </div>
+    <div style={{ flex: 1 }}>
+      <div style={styles.muted}>SELECTED LICENSE</div>
+      <div style={styles.selectedTitle}>SINGLE EVENT</div>
+      <div style={styles.muted}>Single-event license</div>
+    </div>
 
-          <div style={styles.totalRow}>
-            <span>TOTAL</span>
-            <strong>USD 49</strong>
-          </div>
+    <div style={styles.priceSide}>USD 49</div>
+  </div>
 
-          <button style={styles.buyBtn}>🔒 BUY NOW</button>
+  <div style={styles.detailList}>
+    <Row icon={<CalendarDays size={18} style={styles.rowIcon} />} label="Validity" value="1 event" />
+    <Row icon={<Clock size={18} style={styles.rowIcon} />} label="Duration" value="Unlimited" />
+    <Row icon={<Monitor size={18} style={styles.rowIcon} />} label="Devices" value="Unlimited" />
+    <Row icon={<Cloud size={18} style={styles.rowIcon} />} label="Storage" value="Included" />
+  </div>
 
-          <div style={styles.secure}>🛡 100% secure payment</div>
+  <div style={styles.totalRow}>
+    <span>TOTAL</span>
+    <strong>USD 49</strong>
+  </div>
 
-          <div style={styles.payments}>
-            <div style={styles.payTitle}>PAYMENT METHODS</div>
-            <div style={styles.payLogos}>
-              <span>VISA</span>
-              <span>MC</span>
-              <span>AMEX</span>
-              <span>PayPal</span>
-              <span>MP</span>
-            </div>
-            <p>Your license is automatically activated after payment confirmation.</p>
-          </div>
+  <button style={styles.buyBtn}>
+    <Lock size={18} style={styles.buyIcon} />
+    BUY NOW
+  </button>
 
-          <div style={styles.howBox}>
-            <h3>HOW IT WORKS?</h3>
-            <ol>
-              <li>Complete your purchase securely</li>
-              <li>Your license will be delivered instantly by email</li>
-              <li>Enter your license code in the platform</li>
-              <li>Your system will be fully activated</li>
-            </ol>
-          </div>
-        </aside>
+  <div style={styles.secure}>
+    <ShieldCheck size={16} style={styles.secureIcon} />
+    100% secure payment
+  </div>
+
+  <div style={styles.payments}>
+    <div style={styles.payTitle}>PAYMENT METHODS</div>
+
+    <div style={styles.payLogos}>
+  <div style={styles.payCard}>VISA</div>
+  <div style={styles.payCard}>MC</div>
+  <div style={styles.payCard}>AMEX</div>
+  <div style={styles.payCard}>PayPal</div>
+  <div style={styles.payCard}>MP</div>
+</div>
+
+    <p style={{ marginTop: 5 }}>
+  Your license is automatically activated after payment confirmation.
+</p>
+  </div>
+
+  <div style={styles.howBox}>
+    <h3>HOW IT WORKS?</h3>
+
+    <div style={styles.howStep}>
+      <ShoppingCart size={18} style={styles.howIcon} />
+      <span style={styles.stepNumber}>1</span>
+      <p>Complete your purchase securely</p>
+    </div>
+
+    <div style={styles.howStep}>
+      <Mail size={18} style={styles.howIcon} />
+      <span style={styles.stepNumber}>2</span>
+      <p>Your license will be delivered instantly by email</p>
+    </div>
+
+    <div style={styles.howStep}>
+      <KeyRound size={18} style={styles.howIcon} />
+      <span style={styles.stepNumber}>3</span>
+      <p>Enter your license code in the platform</p>
+    </div>
+
+    <div style={styles.howStep}>
+      <BadgeCheck size={18} style={styles.howIcon} />
+      <span style={styles.stepNumber}>4</span>
+      <p>Your system will be fully activated</p>
+    </div>
+  </div>
+</aside>
       </main>
     </div>
   );
@@ -223,8 +292,14 @@ function PlanCard({ title, desc, price, small, items, button, featured, variant,
       {featured && <div style={styles.badge}>MOST POPULAR</div>}
 
       <div style={{ ...styles.planIcon, ...iconStyle }}>
-        {tone === "cyan" ? "◇" : tone === "gold" ? "◔" : "ϟ"}
-      </div>
+  {tone === "cyan" ? (
+    <ShieldCheck size={20} style={styles.planLucideIcon} />
+  ) : tone === "gold" ? (
+    <Crown size={20} style={styles.planLucideIcon} />
+  ) : (
+    <Zap size={20} style={styles.planLucideIcon} />
+  )}
+</div>
 
       <h3 style={styles.planTitle}>{title}</h3>
       <p style={styles.planDesc}>{desc}</p>
@@ -287,10 +362,13 @@ function PlanCard({ title, desc, price, small, items, button, featured, variant,
   );
 }
 
-function Row({ label, value }) {
+function Row({ icon, label, value }) {
   return (
     <div style={styles.row}>
-      <span>{label}</span>
+      <div style={styles.rowLabel}>
+        {icon}
+        <span>{label}</span>
+      </div>
       <strong>{value}</strong>
     </div>
   );
@@ -423,7 +501,7 @@ zIndex: 2,
     fontSize: 42,
     margin: 0,
     letterSpacing: 1,
-    fontWeight: 640,
+    fontWeight: 700,
     color: "#e5e7eb",
     textShadow:
   "0 3px 8px rgba(0,0,0,0.75)",
@@ -432,7 +510,7 @@ zIndex: 2,
   subtitle: {
     maxWidth: 760,
     margin: "14px auto 0",
-    fontSize: 20,
+    fontSize: 18,
     lineHeight: 1.45,
     color: "#e2e8f0",
     
@@ -472,7 +550,30 @@ top: -7,
   textShadow:
     "0 0 8px rgba(77,163,255,1), 0 0 20px rgba(0,102,255,0.65)",
 },
+lucideIcon: {
+  color: "#e4e4eb",
+  opacity: 0.98,
+  transform: "scale(1.08)",
+  filter:
+    `
+    drop-shadow(0 0 2px rgba(255,255,255,0.95))
+    drop-shadow(0 0 8px rgba(120,180,255,0.95))
+    drop-shadow(0 0 18px rgba(0,102,255,0.65))
+    drop-shadow(0 0 34px rgba(0,102,255,0.28))
+    `,
+},
+bottomLucideIcon: {
+  color: "#60a5fa",
+  minWidth: 18,
+  marginTop: 2,
+  filter:
+    `
+    drop-shadow(0 0 6px rgba(96,165,250,0.9))
+    drop-shadow(0 0 16px rgba(37,99,235,0.45))
+    `,
+},
   sectionTitle: {
+    marginBottom: 10,
     marginLeft: 10,
     marginTop: 18,
     fontSize: 17,
@@ -483,6 +584,7 @@ top: -7,
     fontFamily: "Arial, sans-serif",
   },
   featureText: {
+    letterSpacing: 0.4,
     fontSize: 12,
     color: "#cbd5e1",
     lineHeight: 1.45,
@@ -491,20 +593,17 @@ top: -7,
   cards: {
   display: "grid",
   gridTemplateColumns: "repeat(3, 1fr)",
-  gap: 14,
-  paddingBottom: 50,
+  gap: 50,
+  paddingBottom: 0,
   overflow: "visible",
   alignItems: "flex-start",
   marginTop: 10,
   padding: "14px",
   borderRadius: 18,
 
-  background:
-    "linear-gradient(180deg, rgba(0,0,0,0.94) 0%, rgba(2,6,23,0.98) 100%)",
+  background: "rgba(255,0,0,0.18)",
 
-  border: "1px solid rgba(59,130,246,0.16)",
-boxShadow:
-    "0 0 60px rgba(0,0,0,0.75), inset 0 0 30px rgba(255,255,255,0.02)",
+background: "linear-gradient(180deg, rgba(0,0,0,0.94) 0%, rgba(2,6,23,0.98) 100%)", border: "1px solid rgba(59,130,246,0.16)",
 
   
 },
@@ -574,42 +673,71 @@ planList: {
   color: "#60a5fa",
   fontWeight: 900,
 },
-  note: { textAlign: "center", color: "#cbd5e1", marginTop: 18 },
+  note: { textAlign: "center", color: "#cbd5e1", marginTop: 30 },
   checkout: {
-    width: 500,
-    
-    flexShrink: 0,
-    zIndex: 5,
-    position: "absolute",
-    right: 33,
-    top: 100,
-    
-    borderRadius: 18,
-    overflow: "hidden",
-    transform: "scale(0.84)",
-    transformOrigin: "top center",
-    borderLeft: "1px solid rgba(59,130,246,0.14)",
-    padding: "18px 24px",
-    background:
-  "linear-gradient(180deg, rgba(26, 40, 73, 0.96) 0%, rgba(5, 13, 51, 0.98) 100%)",
-    boxShadow:
-      "-25px 0 60px rgba(0,0,0,0.42), inset 1px 0 rgba(59,130,246,0.06)",
-  },
+  width: 600,
+  flexShrink: 0,
+  zIndex: 5,
+  position: "absolute",
+  right: -25,
+  top: -230,
+
+  borderRadius: 24,
+  overflow: "hidden",
+
+  transform: "scale(0.70",
+  transformOrigin: "bottom center",
+
+  padding: "18px 24px",
+
+  border: "2.5px solid transparent",
+
+background:
+  `
+  linear-gradient(180deg, rgba(3,8,20,0.98) 0%, rgba(2,6,23,1) 100%) padding-box,
+  linear-gradient(180deg, rgba(0,170,255,0.95) 0%, rgba(6, 81, 243, 0.59) 45%, rgba(0,170,255,0.85) 100%) border-box
+  `,
+
+  boxShadow:
+  `
+  0 0 140px rgba(0,0,0,0.96),
+
+  0 0 25px rgba(0,140,255,0.38),
+  0 0 60px rgba(0,140,255,0.32),
+  0 0 120px rgba(0,102,255,0.24),
+  0 0 220px rgba(0,102,255,0.18),
+
+  0 0 320px rgba(0,102,255,0.14),
+
+  inset 0 0 90px rgba(37,99,235,0.08)
+  `,
+},
   checkoutTitle: {
+  
   fontSize: 18,
   marginBottom: 12,
+  color: "#c7d8f0", fontSize: 13
 },
   selectedBox: {
-    display: "flex",
-    alignItems: "center",
-    gap: 18,
-    padding: "0px 0",
-    borderTop: "1px solid rgba(148,163,184,0.22)",
-    borderBottom: "1px solid rgba(148,163,184,0.22)",
-  },
+  display: "flex",
+  alignItems: "center",
+  gap: 18,
+
+  padding: "10px 12px",
+
+  borderRadius: 18,
+
+  border: "1px solid rgba(59,130,246,0.16)",
+
+  background:
+    "linear-gradient(180deg, rgba(8,15,35,0.95) 0%, rgba(2,6,23,0.98) 100%)",
+
+  marginTop: 14,
+  marginBottom: 10,
+},
   trophyBox: {
-    width: 74,
-    height: 74,
+    width: 58,
+    height: 58,
     borderRadius: 8,
     border: "1px solid rgba(59,130,246,0.58)",
     display: "grid",
@@ -621,15 +749,32 @@ planList: {
   selectedTitle: { fontWeight: 900, margin: "9px 0", fontSize: 18 },
   priceSide: { fontWeight: 900, fontSize: 20 },
   detailList: {
-    padding: "5px 0",
-    borderBottom: "1px solid rgba(148,163,184,0.22)",
-  },
+  padding: "6px 0 18px",
+  borderBottom: "1px solid rgba(148,163,184,0.16)",
+},
   row: {
-    display: "flex",
-    justifyContent: "space-between",
-    color: "#cbd5e1",
-    padding: "9px 0",
-  },
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+
+  color: "#dbeafe",
+
+  padding: "16px 0",
+
+  borderBottom: "1px solid rgba(255,255,255,0.03)",
+},
+rowLabel: {
+  display: "flex",
+  alignItems: "center",
+  gap: 16,
+  color: "#e2e8f0",
+},
+
+rowIcon: {
+  color: "#00aaff",
+  filter:
+    "drop-shadow(0 0 6px rgba(0,170,255,0.85)) drop-shadow(0 0 14px rgba(37,99,235,0.45))",
+},
   totalRow: {
     display: "flex",
     justifyContent: "space-between",
@@ -638,23 +783,63 @@ planList: {
     padding: "14px 0",
   },
   buyBtn: {
-    width: "100%",
-    padding: "17px",
-    borderRadius: 7,
-    border: "none",
-    background: "linear-gradient(90deg,#2563eb,#2563eb,#1d4ed8)",
-    color: "white",
-    fontSize: 16,
-    fontWeight: 900,
-  },
-  secure: { textAlign: "center", marginTop: 18, color: "#cbd5e1" },
-  payments: {
-    marginTop: 14,
-    paddingTop: 12,
-    borderTop: "1px solid rgba(148,163,184,0.22)",
-    textAlign: "center",
-    color: "#cbd5e1",
-  },
+  width: "100%",
+  height: 62,
+
+  borderRadius: 14,
+
+  border: "1px solid rgba(96,165,250,0.95)",
+
+  background:
+    "linear-gradient(90deg,#2563eb 0%, #2563eb 35%, #3b82f6 100%)",
+
+  color: "white",
+
+  fontSize: 18,
+  fontWeight: 900,
+  letterSpacing: 1,
+
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 12,
+
+  boxShadow:
+    `
+    0 0 20px rgba(37,99,235,0.45),
+    0 0 40px rgba(37,99,235,0.22),
+    inset 0 0 18px rgba(255,255,255,0.08)
+    `,
+},
+  secure: {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+
+  marginTop: 20,
+
+  color: "#cbd5e1",
+
+  fontSize: 15,
+},
+payments: {
+  marginTop: 26,
+  paddingTop: 24,
+  borderTop: "1px solid rgba(148,163,184,0.14)",
+  textAlign: "center",
+  color: "#cbd5e1",
+},
+checkoutMainIcon: {
+  color: "#00aaff",
+
+  filter:
+    `
+    drop-shadow(0 0 6px rgb(0, 38, 255))
+    drop-shadow(0 0 16px rgba(37,99,235,0.55))
+    drop-shadow(0 0 34px rgba(0,102,255,0.28))
+    `,
+},
   payTitle: { fontWeight: 800, color: "#cbd5e1", marginBottom: 14 },
   payLogos: {
     display: "flex",
@@ -663,15 +848,84 @@ planList: {
     fontWeight: 900,
     color: "#dbeafe",
   },
+  payCard: {
+  minWidth: 74,
+  height: 46,
+
+  padding: "0 14px",
+
+  borderRadius: 12,
+
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+
+  background:
+    "linear-gradient(180deg, rgba(8,15,35,0.96) 0%, rgba(2,6,23,1) 100%)",
+
+  border: "1px solid rgba(59,130,246,0.24)",
+
+  color: "#f8fafc",
+
+  fontWeight: 900,
+  fontSize: 16,
+
+  letterSpacing: 0.4,
+
+  boxShadow:
+    `
+    0 0 14px rgba(37,99,235,0.12),
+    inset 0 0 18px rgba(255,255,255,0.03)
+    `,
+},
   howBox: {
-    marginTop: 24,
-    border: "1px solid rgba(148,163,184,0.18)",
-    borderRadius: 8,
-    padding: "18px",
-    color: "#e2e8f0",
-    lineHeight: 1.8,
-  },
-  leftContent: {  
+  marginTop: 28,
+
+  border: "1px solid rgba(59,130,246,0.14)",
+
+  borderRadius: 18,
+
+  padding: "22px 22px 10px",
+
+  background:
+    "linear-gradient(180deg, rgba(5,10,24,0.96) 0%, rgba(2,6,23,0.98) 100%)",
+
+  color: "#e2e8f0",
+},
+howStep: {
+  display: "grid",
+  gridTemplateColumns: "48px 42px 1fr",
+  alignItems: "center",
+  gap: 14,
+  marginBottom: 18,
+},
+
+howIcon: {
+  width: 42,
+  height: 42,
+  padding: 10,
+  borderRadius: "50%",
+  color: "#00aaff",
+  border: "1px solid rgba(0,170,255,0.45)",
+  background: "rgba(0,40,90,0.20)",
+  filter:
+    "drop-shadow(0 0 8px rgba(0,170,255,0.85))",
+},
+
+stepNumber: {
+  width: 36,
+  height: 36,
+  borderRadius: "50%",
+  display: "grid",
+  placeItems: "center",
+  color: "#3b82f6",
+  border: "1px solid rgba(59,130,246,0.5)",
+  background: "rgba(37,99,235,0.12)",
+  fontSize: 22,
+  fontWeight: 900,
+},
+  leftContent: { 
+     
   transform: "scale(0.88)",
 transformOrigin: "top center",
   position: "relative",
@@ -786,9 +1040,10 @@ floorCore: {
   zIndex: 0,
 },
 statsStrip: {
+  
   position: "absolute",
   left: 133,
-  bottom: 5,
+  bottom: 30,
   right: 133,
   display: "grid",
   gridTemplateColumns: "repeat(3, 1fr)",
@@ -797,20 +1052,18 @@ statsStrip: {
 },
 
 statItem: {
-  
   borderRadius: 12,
-  padding: "12px 10px",
-  top: 760,
-  left: 30,
-  textAlign: "justify",
-  color: "#dbeafe",
-  textShadow: "0 0 12px rgba(59,130,246,0.35)",
+  padding: "12px 18px",
+  display: "flex",
+  alignItems: "flex-start",
+  gap: 10,
+  textAlign: "left",
   color: "#cbd5e1",
-  fontSize: 11,
+  textShadow: "0 0 12px rgba(59,130,246,0.22)",
+  fontSize: 9,
   fontWeight: 800,
-  lineHeight: 1.35,
+  lineHeight: 1.45,
   letterSpacing: 0.8,
-  
 },
 goldBtn: {
   background: "linear-gradient(90deg,#d4a017,#f6c36a)",
