@@ -58,20 +58,22 @@ export default function LicensePage() {
 
           <div style={styles.cards}>
             <PlanCard
-  title="DEMO"
-  desc="Ideal for testing and evaluation"
-  price="FREE"
-  items={[
-    "20-minute demo session",
-    "Maximum 2 rounds",
-    "Basic scoring features"
-  ]}
-  button="TRY DEMO"
-  variant="outline"
-  buttonOffset={25}
-/>
+            tone="cyan"
+            title="DEMO"
+            desc="Ideal for testing and evaluation"
+            price="FREE"
+            items={[
+            "20-minute demo session",
+            "Maximum 2 rounds",
+            "Basic scoring features"
+            ]}
+            button="TRY DEMO"
+            variant="outline"
+            buttonOffset={25}
+            />
 
             <PlanCard
+              tone="blue"
               title="SINGLE EVENT"
               desc="Designed for official tournaments and events"
               price="USD 49"
@@ -82,6 +84,7 @@ export default function LicensePage() {
             />
 
             <PlanCard
+              tone="gold"
               title="CLUB / ANNUAL"
               desc="For academies and organizations"
               price="USD 199"
@@ -96,7 +99,28 @@ export default function LicensePage() {
             All licenses include continuous updates and platform improvements.
           </div>
           </div>
-        </section>
+
+<div style={styles.statsStrip}>
+  <div style={styles.statItem}>
+  <span style={styles.bottomMonoIcon}>◉</span>
+  TRUSTED BY<br />
+  PROFESSIONAL ORGANIZATIONS WORLDWIDE
+</div>
+
+<div style={styles.statItem}>
+  <span style={styles.bottomMonoIcon}>◈</span>
+  OFFICIAL SYSTEM USED IN<br />
+  NATIONAL & INTERNATIONAL EVENTS
+</div>
+
+<div style={styles.statItem}>
+  <span style={styles.bottomMonoIcon}>⬡</span>
+  ENGINEERED BY EXPERTS IN<br />
+  ITF TAEKWONDO & COMPETITIVE TECHNOLOGY
+</div>
+</div>
+
+</section>
 
         <aside style={styles.checkout}>
           <h2 style={styles.checkoutTitle}>YOUR ORDER</h2>
@@ -155,6 +179,7 @@ export default function LicensePage() {
 }
 
 function Feature({ icon, title, text }) {
+  
   return (
     <div style={styles.feature}>
       <div style={styles.featureIcon}>{icon}</div>
@@ -164,57 +189,100 @@ function Feature({ icon, title, text }) {
   );
 }
 
-function PlanCard({ title, desc, price, small, items, button, featured, variant, buttonOffset = 0 }) {
+function PlanCard({ title, desc, price, small, items, button, featured, variant, tone = "blue", buttonOffset = 0 }) {
+  const toneStyle =
+    tone === "cyan"
+      ? styles.demoCard
+      : tone === "gold"
+      ? styles.clubCard
+      : styles.singleCard;
+
+  const iconStyle =
+    tone === "cyan"
+      ? styles.iconCyan
+      : tone === "gold"
+      ? styles.iconGold
+      : styles.iconBlue;
+
+  const priceStyle =
+    tone === "cyan"
+      ? styles.priceCyan
+      : tone === "gold"
+      ? styles.priceGold
+      : styles.priceBlue;
+
+  const checkStyle =
+    tone === "cyan"
+      ? styles.checkCyan
+      : tone === "gold"
+      ? styles.checkGold
+      : styles.checkBlue;
+
   return (
-    <div
-  style={{
-    ...styles.planCard,
-
-    ...(title === "DEMO"
-      ? {
-          background:
-  "linear-gradient(180deg, rgba(8,47,73,0.72) 0%, rgba(2,6,23,0.98) 100%)",
-border: "1px solid rgba(56,189,248,0.28)",
-        }
-      : {}),
-
-    ...(title === "SINGLE EVENT"
-      ? {
-          background:
-  "linear-gradient(180deg, rgba(37,99,235,0.52) 0%, rgba(2,6,23,1) 100%)",
-border: "1px solid rgba(96,165,250,0.72)",
-        }
-      : {}),
-
-    ...(title === "CLUB / ANNUAL"
-      ? {
-          background:
-  "linear-gradient(180deg, rgba(146,100,22,0.62) 0%, rgba(2,6,23,1) 100%)",
-border: "1px solid rgba(246,195,106,0.46)",
-        }
-      : {}),
-
-    ...(featured ? styles.featuredCard : {}),
-  }}
->
+    <div style={{ ...styles.planCard, ...toneStyle }}>
       {featured && <div style={styles.badge}>MOST POPULAR</div>}
-      <h3>{title}</h3>
+
+      <div style={{ ...styles.planIcon, ...iconStyle }}>
+        {tone === "cyan" ? "◇" : tone === "gold" ? "◔" : "ϟ"}
+      </div>
+
+      <h3 style={styles.planTitle}>{title}</h3>
       <p style={styles.planDesc}>{desc}</p>
-      <div style={styles.planPrice}>{price}</div>
+
+      <div style={{ ...styles.planPrice, ...priceStyle }}>{price}</div>
       {small && <div style={styles.planSmall}>{small}</div>}
+
       <ul style={styles.planList}>
         {items.map((item) => (
-          <li key={item}>✓ {item}</li>
-        ))}
-      </ul>
-      <button
+          <li
+  key={item}
   style={{
-    ...(variant === "outline" ? styles.outlineBtn : styles.primaryBtn),
-    marginTop: buttonOffset,
+    width: 220,
+    margin: "0 auto 6px",
+    display: "grid",
+    gridTemplateColumns: "14px 1fr",
+    columnGap: 8,
+    alignItems: "start",
+    textAlign: "left",
   }}
 >
-  {button}
-</button>
+            <span style={checkStyle}>✓</span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+
+      <button
+        style={{
+          ...(variant === "outline" ? styles.outlineBtn : styles.primaryBtn),
+          ...(tone === "cyan" ? styles.cyanBtn : {}),
+          ...(tone === "gold" ? styles.goldBtn : {}),
+          marginTop: buttonOffset,
+        }}
+      >
+        {button}
+      </button>
+            <div
+        style={{
+          ...styles.floorGlow,
+          ...(tone === "cyan"
+            ? styles.floorGlowCyan
+            : tone === "gold"
+            ? styles.floorGlowGold
+            : styles.floorGlowBlue),
+        }}
+      />
+
+            <div
+        style={{
+          ...styles.floorCore,
+          ...(tone === "cyan"
+            ? styles.floorGlowCyan
+            : tone === "gold"
+            ? styles.floorGlowGold
+            : styles.floorGlowBlue),
+        }}
+      />
     </div>
   );
 }
@@ -293,23 +361,33 @@ const styles = {
     fontWeight: 900,
   },
   main: {
+    background:
+    "linear-gradient(180deg, #020617 0%, #000000 100%)",
     border: "1px solid rgba(246,195,106,0.28)",
-    boxShadow: "inset -1px 0 rgba(246,195,106,0.22)",
+    boxShadow:
+    "inset 0 0 120px rgba(0,0,0,0.85)",
     display: "grid",
     gridTemplateColumns: "70% 30%",
     minHeight: "calc(100vh - 88px)",
   },
   leftPanel: {
+    paddingTop: 24,
     left: 60,
     top: 12,
     position: "relative",
     width: "100%",
-    height: "87%",
-    overflow: "hidden",
+    
+    overflow: "visible",
+    maxHeight: 840,
     borderRadius: 18,
-    border: "1px solid rgba(59,130,246,0.10)",
+    
     padding: "20px 40px 18px 58px",
-    background: "rgba(0, 4, 24, 0.88)",
+    leftPanel: {
+  background:
+    "radial-gradient(circle at top center, rgba(37,99,235,0.16) 0%, rgba(2,6,23,0.96) 42%, rgba(0,0,0,1) 100%)",
+  boxShadow:
+    "inset 0 0 140px rgba(37,99,235,0.08), inset 0 -80px 120px rgba(0,0,0,0.92)",
+}
   },
   hero: {
   textAlign: "center",
@@ -388,12 +466,14 @@ top: -7,
     fontSize: 24,
   },
   svgIcon: {
-  color: "#60a5fa",
+  color: "#4da3ff",
   fontSize: 25,
   fontWeight: 900,
-  textShadow: "0 0 18px rgba(96,165,250,0.75)",
+  textShadow:
+    "0 0 8px rgba(77,163,255,1), 0 0 20px rgba(0,102,255,0.65)",
 },
   sectionTitle: {
+    marginLeft: 10,
     marginTop: 18,
     fontSize: 17,
     fontWeight: 700,
@@ -412,19 +492,21 @@ top: -7,
   display: "grid",
   gridTemplateColumns: "repeat(3, 1fr)",
   gap: 14,
-  marginTop: 14,
+  paddingBottom: 50,
+  overflow: "visible",
+  alignItems: "flex-start",
+  marginTop: 10,
   padding: "14px",
   borderRadius: 18,
 
   background:
-    "linear-gradient(135deg, rgba(15,23,42,0.96) 0%, rgba(30,64,175,0.22) 45%, rgba(2,6,23,0.98) 100%)",
+    "linear-gradient(180deg, rgba(0,0,0,0.94) 0%, rgba(2,6,23,0.98) 100%)",
 
-  border: "1px solid rgba(96,165,250,0.42)",
+  border: "1px solid rgba(59,130,246,0.16)",
+boxShadow:
+    "0 0 60px rgba(0,0,0,0.75), inset 0 0 30px rgba(255,255,255,0.02)",
 
-  boxShadow:
-    "0 0 55px rgba(37,99,235,0.30), inset 0 0 40px rgba(96,165,250,0.10)",
-
-  backdropFilter: "blur(12px)",
+  
 },
   planCard: {
   position: "relative",
@@ -433,6 +515,7 @@ top: -7,
   borderRadius: 8,
   padding: "18px 16px 14px",
   transform: "translateY(-6px)",
+  overflow: "visible",
   background: "rgba(15,23,42,0.54)",
   boxShadow:
   "0 26px 55px rgba(0,0,0,0.55), 0 18px 38px rgba(37,99,235,0.16), inset 0 0 22px rgba(255,255,255,0.03)",
@@ -465,7 +548,7 @@ top: -7,
   fontSize: 13,
 },
 planList: {
-  textAlign: "left",
+  textAlign: "justify",
   lineHeight: 1.48,
   color: "#e2e8f0",
   listStyle: "none",
@@ -589,10 +672,165 @@ planList: {
     lineHeight: 1.8,
   },
   leftContent: {  
-  transform: "scale(0.999)",
-  transformOrigin: "top left",
+  transform: "scale(0.88)",
+transformOrigin: "top center",
   position: "relative",
   left: -10,
   top: -20,
+},
+demoCard: {
+  background:
+    "linear-gradient(180deg, rgba(0,28,42,0.98) 0%, rgba(0,6,14,1) 100%)",
+
+  border: "1px solid rgba(0,238,255,1)",
+
+  boxShadow:
+    "0 0 1px rgba(0,238,255,1), 0 0 1px rgba(0,238,255,1), 0 0 3px rgba(0,170,255,0.65), 0 0 3px rgba(0,170,255,0.22), inset 0 0 5px rgba(0,238,255,0.10)",
+},
+
+singleCard: {
+  background:
+    "linear-gradient(180deg, rgba(0,18,120,0.98) 0%, rgba(0,6,38,1) 100%)",
+
+  border: "2px solid rgba(45,110,255,1)",
+
+  boxShadow:
+    "0 0 1px rgb(0, 6, 19), 0 0 9px rgb(5, 66, 197), 0 0 3px rgba(0,68,255,0.88), 0 0 2px rgba(8, 65, 221, 0.34), inset 0 0 2px rgba(3, 56, 172, 0.14)",
+},
+
+clubCard: {
+  background:
+    "linear-gradient(180deg, rgba(70,46,0,0.98) 0%, rgba(12,8,2,1) 100%)",
+
+  border: "1px solid rgba(255,196,56,1)",
+
+  boxShadow:
+    "0 0 1px rgba(255,196,56,1), 0 0 1px rgba(255,196,56,0.95), 0 0 2px rgba(255,174,0,0.65), 0 0 0px rgba(255,174,0,0.22), inset 0 0 58px rgba(255,196,56,0.10)",
+},
+
+planIcon: {
+  width: 74,
+  height: 74,
+  borderRadius: "50%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  margin: "0 auto 28px",
+  fontSize: 38,
+  fontWeight: 700,
+},
+
+iconCyan: {
+  color: "#00eeff",
+  border: "1px solid rgba(0,238,255,0.95)",
+  boxShadow:
+    "0 0 10px rgba(0,238,255,1), 0 0 26px rgba(0,170,255,0.55)",
+},
+
+iconBlue: {
+  color: "#4da3ff",
+  border: "1px solid rgba(77,163,255,1)",
+
+  boxShadow:
+    "0 0 8px rgba(77,163,255,1), 0 0 18px rgba(0,102,255,1), 0 0 38px rgba(0,102,255,0.72)",
+},
+
+iconGold: {
+  color: "#ffc438",
+  border: "1px solid rgba(255,196,56,0.95)",
+  boxShadow:
+    "0 0 10px rgba(255,196,56,1), 0 0 26px rgba(255,174,0,0.58)",
+},
+floorGlow: {
+  position: "absolute",
+  left: "50%",
+  bottom: -48,
+  transform: "translateX(-50%)",
+  width: "72%",
+  height: 30,
+  borderRadius: "50%",
+  filter: "blur(8px)",
+  opacity: 1,
+  zIndex: -1,
+},
+
+floorGlowCyan: {
+  background:
+    "linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,170,255,0.10) 10%, rgba(0,238,255,1) 30%, rgba(120,255,255,1) 50%, rgba(0,238,255,1) 70%, rgba(0,170,255,0.10) 90%, rgba(0,0,0,0) 100%)",
+    width: "100%",
+},
+
+floorGlowBlue: {
+  background:
+    "linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,68,255,0.08) 18%, rgba(45,110,255,1) 38%, rgba(120,180,255,1) 50%, rgba(45,110,255,1) 62%, rgba(0,68,255,0.08) 82%, rgba(0,0,0,0) 100%)",
+
+  width: "140%",
+},
+
+floorGlowGold: {
+  background:
+    "linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(255,196,56,0.18) 18%, rgba(255,215,90,1) 50%, rgba(255,196,56,0.18) 82%, rgba(0,0,0,0) 100%)",
+
+  width: "100%",
+},
+floorCore: {
+  position: "absolute",
+  left: "50%",
+  bottom: -35,
+  transform: "translateX(-50%)",
+  width: "54%",
+  height: 5,
+  borderRadius: "999px",
+  filter: "blur(2px)",
+  opacity: 1,
+  zIndex: 0,
+},
+statsStrip: {
+  position: "absolute",
+  left: 133,
+  bottom: 5,
+  right: 133,
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 0,
+  zIndex: 20,
+},
+
+statItem: {
+  
+  borderRadius: 12,
+  padding: "12px 10px",
+  top: 760,
+  left: 30,
+  textAlign: "justify",
+  color: "#dbeafe",
+  textShadow: "0 0 12px rgba(59,130,246,0.35)",
+  color: "#cbd5e1",
+  fontSize: 11,
+  fontWeight: 800,
+  lineHeight: 1.35,
+  letterSpacing: 0.8,
+  
+},
+goldBtn: {
+  background: "linear-gradient(90deg,#d4a017,#f6c36a)",
+  color: "#111827",
+  border: "1px solid rgba(255,215,120,0.95)",
+  boxShadow:
+    "0 0 12px rgba(246,195,106,0.45), inset 0 0 12px rgba(255,255,255,0.12)",
+},
+cyanBtn: {
+  background: "linear-gradient(90deg,#00b7ff,#00eeff)",
+  color: "#02111b",
+  border: "1px solid rgba(120,255,255,0.95)",
+  boxShadow:
+    "0 0 12px rgba(0,238,255,0.45), inset 0 0 12px rgba(255,255,255,0.10)",
+},
+bottomMonoIcon: {
+  color: "#4da3ff",
+  fontSize: 12,
+  marginRight: 6,
+  textShadow:
+    "0 0 8px rgba(77,163,255,0.9), 0 0 18px rgba(37,99,235,0.55)",
 },
 };
