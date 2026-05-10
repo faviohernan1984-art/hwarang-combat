@@ -824,9 +824,9 @@ rowIcon: {
   fontSize: 15,
 },
 payments: {
-  marginTop: 26,
-  paddingTop: 24,
-  borderTop: "1px solid rgba(148,163,184,0.14)",
+  marginTop: 18,
+  paddingTop: 14,
+  borderTop: "1px solid rgba(148,163,184,0.10)",
   textAlign: "center",
   color: "#cbd5e1",
 },
@@ -840,21 +840,25 @@ checkoutMainIcon: {
     drop-shadow(0 0 34px rgba(0,102,255,0.28))
     `,
 },
-  payTitle: { fontWeight: 800, color: "#cbd5e1", marginBottom: 14 },
+  payTitle: {
+  fontWeight: 800,
+  color: "#cbd5e1",
+  marginBottom: 10,
+  letterSpacing: 1.4,
+  fontSize: 13,
+},
   payLogos: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: 8,
-    fontWeight: 900,
-    color: "#dbeafe",
-  },
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 6,
+  alignItems: "center",
+},
   payCard: {
-  minWidth: 74,
-  height: 46,
+  flex: 1,
 
-  padding: "0 14px",
+  height: 40,
 
-  borderRadius: 12,
+  borderRadius: 10,
 
   display: "flex",
   alignItems: "center",
@@ -863,19 +867,19 @@ checkoutMainIcon: {
   background:
     "linear-gradient(180deg, rgba(8,15,35,0.96) 0%, rgba(2,6,23,1) 100%)",
 
-  border: "1px solid rgba(59,130,246,0.24)",
+  border: "1px solid rgba(59,130,246,0.18)",
 
   color: "#f8fafc",
 
   fontWeight: 900,
-  fontSize: 16,
+  fontSize: 13,
 
-  letterSpacing: 0.4,
+  letterSpacing: 0.3,
 
   boxShadow:
     `
-    0 0 14px rgba(37,99,235,0.12),
-    inset 0 0 18px rgba(255,255,255,0.03)
+    0 0 10px rgba(37,99,235,0.10),
+    inset 0 0 12px rgba(255,255,255,0.03)
     `,
 },
   howBox: {
