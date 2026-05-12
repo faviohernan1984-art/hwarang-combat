@@ -1168,14 +1168,14 @@ function useRoute() {
   let roomId = getOrCreateDemoRoomId();
 
   if (parts[0] === "judge" && parts.length >= 3) {
-    roomId = parts[1];
-  } else if (parts[0] === "president" && parts.length >= 2) {
-    roomId = parts[1];
-  } else if (parts[0] === "public" && parts.length >= 2) {
-    roomId = parts[1];
-  } else if (
+  roomId = parts[1];
+} else if (parts[0] === "president" && parts.length >= 2) {
+  roomId = parts[1];
+} else if (parts[0] === "public" && parts.length >= 2) {
+  roomId = parts[1];
+} else if (
   parts.length === 1 &&
-  parts[0] !== "license"
+  isDemoRoom(parts[0])
 ) {
   roomId = parts[0];
 }
