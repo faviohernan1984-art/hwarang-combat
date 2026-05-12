@@ -2889,22 +2889,54 @@ const winner = gpaWinner || (meta.showResult ? s.winner : null);
 
   return (
     <Frame16x9>
-      <AppButton
+      <div
   style={{
-    ...styles.gray,
     position: "absolute",
     right: 26,
-    bottom: 18,
+    bottom: 15,
     zIndex: 20,
-    fontSize: 18,
-    padding: "10px 18px",
-    opacity: 0.78,
-    boxShadow: "0 0 18px rgba(255,255,255,0.16)",
+    display: "flex",
+    gap: 12,
+  }}
+>
+  <AppButton
+    style={{
+      background: "linear-gradient(135deg, #f5d76e, #b8860b)",
+      color: "#111",
+      border: "1px solid rgba(255, 230, 120, 0.9)",
+      borderRadius: 14,
+      fontSize: 15,
+      fontWeight: 700,
+      letterSpacing: 1.2,
+      padding: "11px 18px",
+      textTransform: "uppercase",
+      boxShadow:
+        "0 0 18px rgba(255, 215, 0, 0.45), inset 0 0 10px rgba(255,255,255,0.25)",
+    }}
+    onClick={() => navigate(`/public/${roomId}?tv=1`)}
+  >
+    TV SCREEN
+  </AppButton>
+
+  <AppButton
+  style={{
+    background: "linear-gradient(135deg, #3a3a3a, #1a1a1a)",
+    color: "#ffffff",
+    border: "1px solid rgba(255,255,255,0.38)",
+    borderRadius: 14,
+    fontSize: 15,
+    fontWeight: 700,
+    letterSpacing: 1,
+    padding: "11px 18px",
+    textTransform: "uppercase",
+    boxShadow:
+      "0 0 18px rgba(255,255,255,0.18), inset 0 0 10px rgba(255,255,255,0.10)",
   }}
   onClick={() => navigate(`/${roomId}`)}
 >
-  Inicio
+  HOME
 </AppButton>
+</div>
 
       <div
         style={{
@@ -8958,6 +8990,15 @@ function exitApp() {
     <>
       <GlobalAppStyle />
       <LicenseComingSoon />
+    </>
+  );
+}
+
+if (path === "/license-dev") {
+  return (
+    <>
+      <GlobalAppStyle />
+      <LicensePage />
     </>
   );
 }
