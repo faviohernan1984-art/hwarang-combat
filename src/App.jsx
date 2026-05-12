@@ -1,5 +1,6 @@
 console.log("ESTOY EN EL APP CORRECTO");
 import LicensePage from "./LicensePage.jsx";
+import LicenseComingSoon from "./LicenseComingSoon.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
 import {
@@ -8956,7 +8957,7 @@ function exitApp() {
   return (
     <>
       <GlobalAppStyle />
-      <LicensePage />
+      <LicenseComingSoon />
     </>
   );
 }
