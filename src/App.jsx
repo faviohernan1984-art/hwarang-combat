@@ -1160,11 +1160,14 @@ function useRoute() {
   }, []);
 
   const navigate = (p) => {
-    window.history.pushState({}, "", p);
-    setPath(p);
-  };
+  window.history.pushState({}, "", p);
+  setPath(window.location.pathname || "/");
+};
 
   const parts = path.split("/").filter(Boolean);
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const isTvMode = searchParams.get("tv") === "1";
 
   let roomId = getOrCreateDemoRoomId();
 
@@ -1181,7 +1184,7 @@ function useRoute() {
   roomId = parts[0];
 }
 
-  return { path, navigate, roomId };
+  return { path, navigate, roomId, isTvMode };
 }
 
 const styles = {
@@ -1246,15 +1249,17 @@ const styles = {
   dangerBlue: { background: "#1e3a8a" },
 };
 
-function Frame16x9({ children }) {
+function Frame16x9({ children, tvMode = false }) {
   const baseWidth = 1920;
   const baseHeight = 1080;
+
   const [scale, setScale] = useState(1);
   const [isMobileFrame, setIsMobileFrame] = useState(false);
 
   useEffect(() => {
     const recalc = () => {
       const mobile = window.innerWidth < 900;
+
       setIsMobileFrame(mobile);
 
       if (mobile) {
@@ -1264,13 +1269,23 @@ function Frame16x9({ children }) {
 
       const scaleX = window.innerWidth / baseWidth;
       const scaleY = window.innerHeight / baseHeight;
-      setScale(Math.min(scaleX, scaleY));
+
+      let nextScale = Math.min(scaleX, scaleY);
+
+      // SAFE TV MODE
+      if (tvMode) {
+        nextScale *= 0.95;
+      }
+
+      setScale(nextScale);
     };
 
     recalc();
+
     window.addEventListener("resize", recalc);
+
     return () => window.removeEventListener("resize", recalc);
-  }, []);
+  }, [tvMode]);
 
   if (isMobileFrame) {
     return (
@@ -2460,7 +2475,14 @@ function PublicFighterPanel({ title, fighter, score, warnings, fouls }) {
 
 {/*==================================publicScreen===================*/}
 
-function PublicScreen({ meta, judges, navigate, writeMeta, roomId }){
+function PublicScreen({
+  meta,
+  judges,
+  navigate,
+  writeMeta,
+  roomId,
+  isTvMode = false,
+}){
   meta = ensureMetaShape(meta);
   const time = useClock(meta || {});
   const displayTime =
@@ -2888,7 +2910,7 @@ const winner = gpaWinner || (meta.showResult ? s.winner : null);
   };
 
   return (
-    <Frame16x9>
+    <Frame16x9 tvMode={isTvMode}>
       <div
   style={{
     position: "absolute",
@@ -2900,23 +2922,34 @@ const winner = gpaWinner || (meta.showResult ? s.winner : null);
   }}
 >
   <AppButton
-    style={{
-      background: "linear-gradient(135deg, #f5d76e, #b8860b)",
-      color: "#111",
-      border: "1px solid rgba(255, 230, 120, 0.9)",
-      borderRadius: 14,
-      fontSize: 15,
-      fontWeight: 700,
-      letterSpacing: 1.2,
-      padding: "11px 18px",
-      textTransform: "uppercase",
-      boxShadow:
-        "0 0 18px rgba(255, 215, 0, 0.45), inset 0 0 10px rgba(255,255,255,0.25)",
-    }}
-    onClick={() => navigate(`/public/${roomId}?tv=1`)}
-  >
-    TV SCREEN
-  </AppButton>
+  style={{
+    background: isTvMode
+      ? "linear-gradient(135deg, #38bdf8, #1d4ed8)"
+      : "linear-gradient(135deg, #f5d76e, #b8860b)",
+    color: isTvMode ? "#ffffff" : "#111",
+    border: isTvMode
+      ? "1px solid rgba(125, 211, 252, 0.9)"
+      : "1px solid rgba(255, 230, 120, 0.9)",
+    borderRadius: 14,
+    fontSize: 15,
+    fontWeight: 700,
+    letterSpacing: 1.2,
+    padding: "11px 18px",
+    textTransform: "uppercase",
+    boxShadow: isTvMode
+      ? "0 0 18px rgba(56,189,248,0.45), inset 0 0 10px rgba(255,255,255,0.20)"
+      : "0 0 18px rgba(255, 215, 0, 0.45), inset 0 0 10px rgba(255,255,255,0.25)",
+  }}
+  onClick={() =>
+    navigate(
+      isTvMode
+        ? `/public/${roomId}`
+        : `/public/${roomId}?tv=1`
+    )
+  }
+>
+  {isTvMode ? "NORMAL SCREEN" : "TV SCREEN"}
+</AppButton>
 
   <AppButton
   style={{
@@ -8938,7 +8971,7 @@ function exitApp() {
 
   
 
-  const { path, navigate, roomId } = useRoute();
+  const { path, navigate, roomId, isTvMode } = useRoute();
   const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(roomId);
   const mobileTime = useClock(meta || {});
 
@@ -9037,12 +9070,13 @@ if (path === "/license-dev") {
       {roomId.startsWith("demo-") && <DemoWatermark />}
 
       <PublicScreen
-        meta={meta}
-        judges={judges}
-        navigate={navigate}
-        writeMeta={writeMeta}
-        roomId={roomId}
-      />
+  meta={meta}
+  judges={judges}
+  navigate={navigate}
+  writeMeta={writeMeta}
+  roomId={roomId}
+  isTvMode={isTvMode}
+/>
     </>
   );
 }
