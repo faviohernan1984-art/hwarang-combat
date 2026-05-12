@@ -1173,9 +1173,12 @@ function useRoute() {
     roomId = parts[1];
   } else if (parts[0] === "public" && parts.length >= 2) {
     roomId = parts[1];
-  } else if (parts.length === 1) {
-    roomId = parts[0];
-  }
+  } else if (
+  parts.length === 1 &&
+  parts[0] !== "license"
+) {
+  roomId = parts[0];
+}
 
   return { path, navigate, roomId };
 }
@@ -3759,9 +3762,12 @@ const handleInvertSides = async () => {
             alignItems: "center",
           }}
         >
-          <AppButton style={styles.gray} onClick={() => navigate("/")}>
-            Home Page
-          </AppButton>
+          <AppButton
+  style={styles.gray}
+  onClick={() => navigate("/license")}
+>
+  Activate License
+</AppButton>
 
           <AppButton style={styles.green} onClick={prepareNextMatch}>
             Next Combat
