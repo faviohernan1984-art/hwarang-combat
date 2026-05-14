@@ -2473,7 +2473,972 @@ function PublicFighterPanel({ title, fighter, score, warnings, fouls }) {
   );
 }
 
-{/*==================================publicScreen===================*/}
+const combatScanKeyframes = `
+@keyframes combatScan {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(620%);
+  }
+}
+`;
+
+const livePulseKeyframes = `
+@keyframes livePulse {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+
+  100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+}
+`;
+
+const roundPulseKeyframes = `
+@keyframes roundPulse {
+  0% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+}
+`;
+
+const roundGlowKeyframes = `
+@keyframes roundGlow {
+  0% {
+    opacity: 0.82;
+    filter: brightness(0.95);
+  }
+
+  50% {
+    opacity: 1;
+    filter: brightness(1.35);
+  }
+
+  100% {
+    opacity: 0.82;
+    filter: brightness(0.95);
+  }
+}
+`;
+
+{/*==================================publicTVScreen===================*/}
+
+function PublicTVScreen({ meta, judges, navigate, roomId }) {
+  meta = ensureMetaShape(meta);
+
+  const time = useClock(meta);
+  const s = summary(meta, judges);
+  const { left, right } = getDisplaySides(meta, "public");
+
+  const getSideScore = (fighter) => {
+    return fighter.pointsLabel === "hong" ? s.hongVotes : s.chongVotes;
+  };
+
+  const getWarnings = (fighter) => {
+    return fighter.pointsLabel === "hong"
+      ? meta.hongWarnings || 0
+      : meta.chongWarnings || 0;
+  };
+
+  const getFouls = (fighter) => {
+    return fighter.pointsLabel === "hong"
+      ? meta.hongFouls || 0
+      : meta.chongFouls || 0;
+  };
+
+  return (
+    <>
+  <style>
+  {
+    combatScanKeyframes +
+    livePulseKeyframes +
+    roundPulseKeyframes +
+    roundGlowKeyframes
+  }
+</style>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        width: "100vw",
+        height: "100dvh",
+        background: "#000",
+        color: "#fff",
+        overflow: "hidden",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      
+
+      {/* HEADER CINEMATIC */}
+<div
+  style={{
+    position: "absolute",
+    top: "1.5vh",
+    left: "2vw",
+    right: "2vw",
+    height: "18vh",
+    zIndex: 20,
+    pointerEvents: "none",
+  }}
+>
+  
+  {/* BANDA SUPERIOR */}
+  <div
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+    }}
+  >
+    {/* LIVE */}
+    <div
+      style={{
+        marginTop: "4vh",
+        color: "#fff",
+        fontWeight: 900,
+        textAlign: "left",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "Orbitron, sans-serif",
+          textTransform: "uppercase",
+          borderLeft: "2px solid #ff0000",
+          paddingLeft: "0.8vw",
+          fontSize: "clamp(12px,0.95vw,18px)",
+          letterSpacing: "0.05em",
+          textShadow: `
+  0 0 6px rgba(255,255,255,0.35),
+  0 0 18px rgba(255,255,255,0.14)
+`,
+        }}
+      >
+        PUBLIC TV SCREEN
+      </div>
+
+      <div
+        style={{
+          fontFamily: "Orbitron, sans-serif",
+          letterSpacing: "0.08em",
+          marginTop: "0.4vh",
+          paddingLeft: "1vw",
+          color: "#ff3b3b",
+          fontSize: "clamp(14px,1.1vw,22px)",
+          textShadow: `
+  0 0 8px rgba(255,0,0,0.75),
+  0 0 18px rgba(255,0,0,0.28)
+`,
+        }}
+      >
+        <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "0.45vw",
+  }}
+>
+  <div
+    style={{
+      width: "0.7vw",
+      height: "0.7vw",
+      minWidth: 8,
+      minHeight: 8,
+      borderRadius: "50%",
+      background: "#ff2b2b",
+      boxShadow: `
+        0 0 8px rgba(255,0,0,0.95),
+        0 0 18px rgba(255,0,0,0.55)
+      `,
+      animation: "livePulse 1.1s ease-in-out infinite",
+    }}
+  />
+
+  <div>LIVE</div>
+</div>
+      </div>
+    </div>
+
+    {/* TECH LINE TOP */}
+<div
+  style={{
+    position: "absolute",
+    top: "17vh",
+    left: "4vw",
+    right: "4vw",
+    height: "2px",
+
+    background:
+      "linear-gradient(90deg, transparent, rgba(245,197,66,0.85), transparent)",
+
+    boxShadow: `
+      0 0 12px rgba(245,197,66,0.28)
+    `,
+
+    pointerEvents: "none",
+  }}
+>
+  <div
+    style={{
+      position: "absolute",
+      top: 0,
+      left: "-20%",
+      width: "20%",
+      height: "100%",
+
+      background:
+        "linear-gradient(90deg, transparent, #f5c542, #ffffff, #f5c542, transparent)",
+
+      boxShadow: `
+        0 0 10px rgba(245,197,66,0.9),
+        0 0 22px rgba(255,255,255,0.45)
+      `,
+
+      animation: "combatScan 3s linear infinite",
+    }}
+  />
+</div>
+
+    {/* ROUND */}
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+background: "linear-gradient(180deg, #f6d67a, #c6922e 55%, #fff0b0)",
+WebkitBackgroundClip: "text",
+WebkitTextFillColor: "transparent",
+textTransform: "uppercase",
+textShadow: `
+  0 0 4px rgba(245,197,66,0.95),
+  0 0 10px rgba(245,197,66,0.45),
+  0 0 24px rgba(245,197,66,0.18)
+`,
+        marginTop: "3.5vh",
+        display: "flex",
+        alignItems: "center",
+        gap: "0.7vw",
+      }}
+    >
+      <div
+        style={{
+          color: "#f5c542",
+          fontWeight: 900,
+          fontSize: "clamp(18px,1.4vw,30px)",
+          letterSpacing: "0.08em",
+        }}
+      >
+        ROUND
+      </div>
+
+      <div
+        style={{
+          fontFamily: "Orbitron, sans-serif",
+fontWeight: 1000,
+          background: "linear-gradient(180deg, #ffffff, #d9d9d9 60%, #ffffff)",
+WebkitBackgroundClip: "text",
+WebkitTextFillColor: "transparent",
+          fontWeight: 1000,
+          fontSize: "clamp(44px,4vw,82px)",
+          lineHeight: 1,
+          textShadow: "0 0 14px rgba(255,255,255,0.28)",
+          animation: "roundPulse 1.8s ease-in-out infinite",
+        }}
+      >
+        {meta.round || 1}
+      </div>
+    </div>
+  </div>
+
+  {/* CENTRO */}
+  <div
+    style={{
+      position: "absolute",
+      top: 0,
+      left: "50%",
+      transform: "translateX(-50%)",
+      textAlign: "center",
+      width: "70vw",
+    }}
+  >
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+        textTransform: "uppercase",
+        background: "linear-gradient(180deg, #f6d67a, #c6922e 55%, #fff0b0)",
+WebkitBackgroundClip: "text",
+WebkitTextFillColor: "transparent",
+        fontSize: "clamp(11px,0.9vw,18px)",
+        fontWeight: 900,
+        letterSpacing: "0.38em",
+        textShadow: `
+  0 0 4px rgba(245,197,66,0.95),
+  0 0 10px rgba(245,197,66,0.55),
+  0 0 22px rgba(245,197,66,0.24)
+`,
+      }}
+    >
+      HWARANG SCORING UNIVERSE™
+    </div>
+
+    <div
+      style={{
+        marginTop: "0.8vh",
+        color: "#f8f8f8",
+        fontSize: "clamp(42px,5vw,104px)",
+        fontWeight: 1000,
+        fontStyle: "italic",
+        fontFamily: "Orbitron, sans-serif",
+        textTransform: "uppercase",
+        lineHeight: 0.82,
+        letterSpacing: "-0.02em",
+        transform: "skewX(-10deg)",
+        textShadow: `
+  0 0 4px rgba(255,255,255,0.95),
+  0 0 12px rgba(255,255,255,0.45),
+  0 0 26px rgba(255,255,255,0.18),
+  0 1px 0 rgb(4, 0, 255)
+`,
+      }}
+    >
+
+    <div
+  style={{
+    position: "absolute",
+top: "-1vh",
+left: "50%",
+transform: "translateX(-52%)",
+    width: "33vw",
+    height: "2px",
+    overflow: "hidden",
+    borderRadius: 999,
+    background: "rgba(255,255,255,0.08)",
+  }}
+>
+  <div
+    style={{
+      position: "absolute",
+      top: 0,
+      left: "-20%",
+      width: "20%",
+      height: "100%",
+      background:
+        "linear-gradient(90deg, transparent, #f5c542, #ffffff, #f5c542, transparent)",
+      boxShadow: `
+        0 0 10px rgba(245,197,66,0.9),
+        0 0 22px rgba(255,255,255,0.45)
+      `,
+      animation: "combatScan 3s linear infinite",
+    }}
+  />
+</div>
+
+      COMBAT PRO
+    </div>
+
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+        textTransform: "uppercase",
+        marginTop: "0.4vh",
+        background: "linear-gradient(180deg, #f6d67a, #c6922e 55%, #fff0b0)",
+WebkitBackgroundClip: "text",
+WebkitTextFillColor: "transparent",
+        fontSize: "clamp(16px,1.3vw,28px)",
+        fontWeight: 900,
+        letterSpacing: "0.18em",
+        
+      }}
+    >
+      MATCH
+    </div>
+
+    {/* LINEAS DESACTIVADAS */}
+{false && (
+<div
+      style={{
+        marginTop: "1vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "1vw",
+      }}
+    >
+      <div
+        style={{
+          width: "12vw",
+          height: 1,
+          background:
+            "linear-gradient(90deg, transparent, rgba(245,197,66,0.9))",
+        }}
+      />
+
+      <div
+        style={{
+          width: "1vw",
+          height: "0.35vh",
+          borderRadius: 999,
+          background: "#f5c542",
+          boxShadow: "0 0 12px rgba(245,197,66,0.8)",
+        }}
+      />
+
+      <div
+        style={{
+          width: "12vw",
+          height: 1,
+          background:
+            "linear-gradient(90deg, rgba(245,197,66,0.9), transparent)",
+        }}
+      />
+    </div>
+    )}
+  </div>
+</div>
+
+      {/* ROUND */}
+<div
+  style={{
+    position: "absolute",
+    top: "30vh",
+    left: "50%",
+    transform: "translateX(-50%)",
+    textAlign: "center",
+
+    fontFamily: "Orbitron, sans-serif",
+    background:
+      "linear-gradient(180deg, #f6d67a, #c6922e 55%, #fff0b0)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    textTransform: "uppercase",
+
+    
+
+    fontWeight: 900,
+    letterSpacing: "0.12em",
+  }}
+>
+  <div
+    style={{
+      fontSize: "clamp(17px, 1.5vw, 29px)",
+    }}
+  >
+    ROUND
+  </div>
+
+  <div
+    style={{
+      marginTop: "1.8vh",
+
+      fontSize: "clamp(30px, 2vw, 85px)",
+      fontWeight: 1000,
+
+      background: "none",
+WebkitBackgroundClip: "initial",
+WebkitTextFillColor: "#ffffff",
+color: "#ffffff",
+
+      textShadow: `
+        0 0 6px rgba(255,255,255,0.95),
+        0 0 16px rgba(255,255,255,0.35),
+        0 0 34px rgba(255,255,255,0.12)
+      `,
+
+      animation: "roundGlow 1.8s ease-in-out infinite",
+    }}
+  >
+    {meta.round || 1}
+  </div>
+</div>
+
+      {/* TIMER */}
+      <div
+        style={{
+          fontFamily: "Orbitron, sans-serif",
+fontWeight: 1000,
+letterSpacing: "0.02em",
+          position: "absolute",
+          top: "48vh",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          fontSize: "clamp(43px, 7vw, 130px)",
+          fontWeight: 900,
+          letterSpacing: "0.04em",
+          lineHeight: 1,
+        }}
+      >
+        {formatTime(time)}
+      </div>
+
+      {/* STATUS */}
+      <div
+        style={{
+          position: "absolute",
+          top: "55vh",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "#f5c542",
+          color: "#000",
+          padding: "0.8vh 2.2vw",
+          borderRadius: 8,
+          fontSize: "clamp(18px, 2vw, 38px)",
+          fontWeight: 900,
+          fontFamily: "Orbitron, sans-serif",
+          border: "1px solid rgba(245,197,66,0.35)",
+          background: "rgba(255,255,255,0.03)",
+
+backdropFilter: "blur(6px)",
+
+boxShadow: `
+  inset 0 0 12px rgba(245,197,66,0.08),
+  0 0 18px rgba(245,197,66,0.12)
+`,
+
+background:
+  "linear-gradient(180deg, #f6d67a, #c6922e 55%, #fff0b0)",
+
+WebkitBackgroundClip: "text",
+WebkitTextFillColor: "transparent",
+
+textTransform: "uppercase",
+
+letterSpacing: "0.18em",
+
+
+        }}
+      >
+        {meta.status === "running" ? "FIGHTING" : meta.status || "PAUSED"}
+      </div>
+
+      {/* JUDGES LIVE VOTES */}
+<div
+  style={{
+    position: "absolute",
+    top: "63vh",
+    left: "50%",
+    transform: "translateX(-50%)",
+
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  }}
+>
+  <div
+    style={{
+      fontFamily: "Orbitron, sans-serif",
+      fontSize: "clamp(10px,0.75vw,14px)",
+      letterSpacing: "0.18em",
+      textAlign: "center",
+      color: "rgba(255,255,255,0.72)",
+      marginBottom: "1.2vh",
+      textTransform: "uppercase",
+    }}
+  >
+    JUDGES VOTES
+  </div>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(4, 1fr)",
+      gap: "1vw",
+      alignItems: "end",
+    }}
+  >
+    {[
+      { id: "J1", vote: "H" },
+      { id: "J2", vote: "N" },
+      { id: "J3", vote: "C" },
+      { id: "J4", vote: "H" },
+    ].map((j) => {
+      const isHong = j.vote === "H";
+      const isChong = j.vote === "C";
+      const neutral = j.vote === "N";
+
+      return (
+        <div
+          key={j.id}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "0.6vh",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "Orbitron, sans-serif",
+              fontSize: "clamp(10px,0.7vw,14px)",
+              fontWeight: 900,
+              color: "rgba(255,255,255,0.72)",
+              letterSpacing: "0.08em",
+            }}
+          >
+            {j.id}
+          </div>
+
+          <div
+            style={{
+              width: "3vw",
+              minWidth: 12,
+
+              height: "6vh",
+
+              borderRadius: 2,
+
+              background: neutral
+                ? "rgba(255,255,255,0.12)"
+                : isHong
+                ? "linear-gradient(180deg, #ff2a2a, #7a0000)"
+                : "linear-gradient(180deg, #2f7cff, #001d68)",
+
+              border: neutral
+                ? "1px solid rgba(255,255,255,0.12)"
+                : isHong
+                ? "1px solid rgba(255,0,0,0.35)"
+                : "1px solid rgba(0,102,255,0.35)",
+
+              boxShadow: neutral
+                ? "none"
+                : isHong
+                ? `
+                  0 0 10px rgba(255,0,0,0.35),
+                  0 0 24px rgba(255,0,0,0.12)
+                `
+                : `
+                  0 0 10px rgba(0,102,255,0.35),
+                  0 0 24px rgba(0,102,255,0.12)
+                `,
+            }}
+          />
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+      {/* PANEL IZQUIERDO */}
+      <TVFighterPanel
+        fighter={left}
+        score={getSideScore(left)}
+        warnings={getWarnings(left)}
+        fouls={getFouls(left)}
+        side="left"
+      />
+
+      {/* PANEL DERECHO */}
+      <TVFighterPanel
+        fighter={right}
+        score={getSideScore(right)}
+        warnings={getWarnings(right)}
+        fouls={getFouls(right)}
+        side="right"
+      />
+
+      
+    </div>
+    </>
+  );
+}
+
+function TVFighterPanel({ fighter, score, warnings, fouls, side }) {
+  const isHong = fighter.color === "hong";
+
+  const mainColor = isHong ? "#c81010" : "#0d47a1";
+  const darkColor = isHong ? "#120000" : "#020617";
+  const glowColor = isHong ? "rgba(255,0,0,0.38)" : "rgba(37,99,235,0.42)";
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "19vh",
+        bottom: "7vh",
+        [side === "left" ? "left" : "right"]: "1.8vw",
+        width: "35vw",
+        borderRadius: 12,
+        overflow: "hidden",
+        background: darkColor,
+        border: `2px solid ${mainColor}`,
+        boxShadow: `0 0 34px ${glowColor}`,
+      }}
+    >
+      {/* BANDA SUPERIOR */}
+      <div
+        style={{
+          fontFamily: "Orbitron, sans-serif",
+textTransform: "uppercase",
+textShadow: `
+  0 0 6px rgba(255,255,255,0.35),
+  0 0 18px rgba(255,255,255,0.14)
+`,
+          height: "8vh",
+          background: `linear-gradient(180deg, ${mainColor}, ${darkColor})`,
+          borderBottom: `2px solid ${mainColor}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "clamp(20px, 2.3vw, 48px)",
+          fontWeight: 900,
+          letterSpacing: "0.04em",
+        }}
+      >
+        {fighter.visualLabel}
+      </div>
+
+      {/* ZONA NOMBRE */}
+
+      <img
+  src="/fighter-silhouette.png"
+  alt=""
+  style={{
+    position: "absolute",
+    bottom: "-1vh",
+    [side === "left" ? "right" : "left"]: "0.1vw",
+    width: "12vw",
+    height: "118vh",
+    objectFit: "contain",
+    opacity: 0.16,
+    filter: `
+  drop-shadow(0 0 8px rgba(255,255,255,0.35))
+  drop-shadow(0 0 22px ${glowColor})
+  drop-shadow(0 0 48px ${glowColor})
+`,
+
+    pointerEvents: "none",
+    zIndex: 1,
+  }}
+/>
+      
+      <div
+        style={{
+          fontFamily: "Orbitron, sans-serif",
+          letterSpacing: "0.01em",
+          height: "21vh",
+          position: "relative",
+          borderBottom: `2px solid ${mainColor}`,
+          background: isHong
+            ? "radial-gradient(circle at 28% 55%, rgba(255,0,0,0.45), rgba(0,0,0,0.92) 58%)"
+            : "radial-gradient(circle at 72% 55%, rgba(0,76,255,0.45), rgba(0,0,0,0.92) 58%)",
+          display: "flex",
+alignItems: "flex-start",
+justifyContent: side === "left" ? "flex-start" : "flex-end",
+padding: "1vh 0.5vw 0",
+textAlign: side === "left" ? "left" : "right",
+overflow: "hidden",
+        }}
+      >
+
+      
+
+        
+        <div
+  style={{
+    position: "relative",
+    zIndex: 3,
+
+    fontSize: "clamp(46px, 4.8vw, 96px)",
+    fontWeight: 1000,
+    lineHeight: 0.88,
+    letterSpacing: "-0.03em",
+
+    color: "#ffffff",
+
+    textTransform: "uppercase",
+
+    textShadow: `
+      0 2px 0 rgba(255,255,255,0.05),
+      0 0 10px rgba(255,255,255,0.25),
+      0 0 24px rgba(255,255,255,0.18),
+      0 0 54px rgba(255,255,255,0.10)
+    `,
+  }}
+>
+  <>
+  <div>
+    {fighter.name || fighter.visualLabel}
+  </div>
+
+  <div
+    style={{
+      fontFamily: "Orbitron, sans-serif",
+      marginTop: "1.2vh",
+      fontSize: "clamp(19px, 1.2vw, 26px)",
+      fontWeight: 700,
+      letterSpacing: "0.12em",
+      color: "rgba(255,255,255,0.58)",
+      textTransform: "uppercase",
+    }}
+  >
+    {fighter.team || fighter.club || "Hwarang Team"}
+  </div>
+</>
+</div>
+      </div>
+
+      {/* ZONA PUNTAJE */}
+      <div
+        style={{
+          height: "34.5vh",
+          borderBottom: `2px solid ${mainColor}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: isHong
+            ? "linear-gradient(180deg, rgba(80,0,0,0.72), rgba(20,0,0,0.95))"
+            : "linear-gradient(180deg, rgba(0,20,90,0.72), rgba(0,4,24,0.95))",
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "Orbitron, sans-serif",
+letterSpacing: "-0.04em",
+            fontSize: "clamp(120px, 14vw, 280px)",
+            fontWeight: 900,
+            lineHeight: 0.85,
+            color: "#fff",
+            textShadow: "0 0 18px rgba(255,255,255,0.24)",
+          }}
+        >
+          {score}
+        </div>
+      </div>
+
+      {/* ZONA NUMÉRICA PREMIUM */}
+<div
+  style={{
+    height: "4vh",
+    display: "grid",
+    gridTemplateColumns: "1fr 1px 1fr",
+    alignItems: "center",
+    padding: "0 2vw",
+    background: isHong
+  ? "linear-gradient(180deg, rgba(255,0,0,0.92), rgba(0,0,0,0.78))"
+  : "linear-gradient(180deg, rgba(0,90,255,0.92), rgba(0,0,0,0.78))",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+  }}
+>
+  <div style={{ textAlign: "center" }}>
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+textTransform: "uppercase",
+        fontSize: "clamp(19px, 1vw, 26px)",
+        fontWeight: 900,
+        letterSpacing: "0.12em",
+        color: "rgba(255,255,255,0.72)",
+        textShadow: `
+  0 0 6px rgba(255,255,255,0.18)
+`,
+      }}
+    >
+      FOULS
+    </div>
+
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+letterSpacing: "-0.03em",
+  marginTop: 2,
+  fontSize: "clamp(30px, 3vw, 58px)",
+  fontWeight: 900,
+  background:
+  "linear-gradient(180deg, #f6d67a, #c6922e 55%, #fff0b0)",
+
+WebkitBackgroundClip: "text",
+WebkitTextFillColor: "transparent",
+  lineHeight: 0.9,
+  textShadow: `
+    0 0 6px rgba(255,210,63,0.9),
+    0 0 18px rgba(255,210,63,0.75),
+    0 0 34px rgba(255,180,0,0.55)
+  `,
+  filter: "brightness(1.15)",
+  letterSpacing: "0.02em",
+}}
+    >
+      {fouls}
+    </div>
+  </div>
+
+  <div
+    style={{
+      width: 1,
+      height: "70%",
+      background:
+        "linear-gradient(180deg, transparent, rgba(255,255,255,0.32), transparent)",
+    }}
+  />
+
+  <div style={{ textAlign: "center" }}>
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+textTransform: "uppercase",
+        fontSize: "clamp(19px, 1vw, 26px)",
+        fontWeight: 900,
+        letterSpacing: "0.12em",
+        color: "rgba(255,255,255,0.72)",
+        textShadow: `
+  0 0 6px rgba(255,255,255,0.18)
+`,
+      }}
+    >
+      WARNINGS
+    </div>
+
+    <div
+  style={{
+    fontFamily: "Orbitron, sans-serif",
+letterSpacing: "-0.03em",
+    marginTop: 1,
+    fontSize: "clamp(30px, 3vw, 58px)",
+    fontWeight: 900,
+    background:
+  "linear-gradient(180deg, #f6d67a, #c6922e 55%, #fff0b0)",
+
+WebkitBackgroundClip: "text",
+WebkitTextFillColor: "transparent",
+    lineHeight: 0.9,
+    textShadow: `
+      0 0 6px rgba(255,210,63,0.9),
+      0 0 18px rgba(255,210,63,0.75),
+      0 0 34px rgba(255,180,0,0.55)
+    `,
+    filter: "brightness(1.15)",
+    letterSpacing: "0.02em",
+  }}
+>
+  {warnings}
+</div>
+  </div>
+</div>
+    </div>
+  );
+}
 
 function PublicScreen({
   meta,
@@ -2484,6 +3449,18 @@ function PublicScreen({
   isTvMode = false,
 }){
   meta = ensureMetaShape(meta);
+
+  if (isTvMode) {
+  return (
+    <PublicTVScreen
+      meta={meta}
+      judges={judges}
+      navigate={navigate}
+      roomId={roomId}
+    />
+  );
+}
+
   const time = useClock(meta || {});
   const displayTime =
   meta.status === "running"
