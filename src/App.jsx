@@ -2542,6 +2542,46 @@ const roundGlowKeyframes = `
 }
 `;
 
+const panelScanKeyframes = `
+@keyframes centerPulse {
+  0% {
+    transform: translateX(-50%) scale(0.72);
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: translateX(-50%) scale(1.25);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-50%) scale(0.72);
+    opacity: 0.55;
+  }
+}
+@keyframes panelScanFull {
+  0% {
+    transform: translateX(0) translateY(2px);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(430%) translateY(2px);
+    opacity: 0;
+  }
+}
+`;
+
+
+
 {/*==================================publicTVScreen===================*/}
 
 function PublicTVScreen({ meta, judges, navigate, roomId }) {
@@ -2573,6 +2613,7 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
   {
     combatScanKeyframes +
     livePulseKeyframes +
+    panelScanKeyframes +
     roundPulseKeyframes +
     roundGlowKeyframes
   }
@@ -3158,7 +3199,122 @@ letterSpacing: "0.18em",
         side="right"
       />
 
-      
+      {/* MEDICAL TIME OVERLAY */}
+{meta.medicalActive && (
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 40,
+      pointerEvents: "none",
+    }}
+  >
+    {[
+      {
+        side: "chong",
+        label: "CHONG",
+        time: meta.medicalChong,
+        left: "1.8vw",
+        color: "blue",
+      },
+      {
+        side: "hong",
+        label: "HONG",
+        time: meta.medicalHong,
+        right: "1.8vw",
+        color: "red",
+      },
+    ]
+  .filter((box) => box.side === meta.medicalSide)
+  .map((box) => {
+      const isHong = box.side === "hong";
+
+      return (
+        <div
+          key={box.side}
+          style={{
+            position: "absolute",
+            top: "27%",
+            bottom: "7%",
+            width: "35%",
+
+            left: box.left,
+            right: box.right,
+
+            borderRadius: "10px",
+
+            background: isHong
+              ? "linear-gradient(180deg, rgba(120,0,0,0.92), rgba(30,0,0,0.82))"
+              : "linear-gradient(180deg, rgba(0,40,120,0.92), rgba(0,10,40,0.82))",
+
+            border: isHong
+              ? "2px solid rgba(255,60,60,0.9)"
+              : "2px solid rgba(60,140,255,0.9)",
+
+            boxShadow: isHong
+              ? `
+                0 0 30px rgba(255,0,0,0.65),
+                inset 0 0 60px rgba(255,0,0,0.18)
+              `
+              : `
+                0 0 30px rgba(0,102,255,0.65),
+                inset 0 0 60px rgba(0,102,255,0.18)
+              `,
+
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+
+            backdropFilter: "blur(8px)",
+
+            animation: isHong
+              ? "winnerBorderPulseRed 1.8s ease-in-out infinite"
+              : "winnerBorderPulseBlue 1.8s ease-in-out infinite",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "Orbitron, sans-serif",
+              fontSize: "2vw",
+              fontWeight: 900,
+              letterSpacing: "0.18em",
+              color: "#ffffff",
+              marginBottom: "5vh",
+              textShadow: `
+                0 0 10px rgba(255,255,255,0.9),
+                0 0 24px rgba(255,255,255,0.35)
+              `,
+            }}
+          >
+            MEDICAL TIME
+          </div>
+
+          <div
+            style={{
+              fontFamily: "Orbitron, sans-serif",
+              fontSize: "7vw",
+              fontWeight: 900,
+              color: "#ffffff",
+              textShadow: isHong
+                ? `
+                  0 0 20px rgba(255,0,0,0.95),
+                  0 0 40px rgba(255,0,0,0.45)
+                `
+                : `
+                  0 0 20px rgba(0,102,255,0.95),
+                  0 0 40px rgba(0,102,255,0.45)
+                `,
+            }}
+          >
+            {formatTime(box.time)}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+)}
+
     </div>
     </>
   );
@@ -3435,6 +3591,78 @@ WebkitTextFillColor: "transparent",
   {warnings}
 </div>
   </div>
+</div>
+
+{/* BOTTOM NEON SCAN */}
+<div
+  style={{
+    position: "absolute",
+    bottom: "-2px",
+    left: 0,
+    width: "100%",
+    height: "8px",
+    overflow: "hidden",
+
+    background: isHong
+      ? "rgba(255,0,0,0.08)"
+      : "rgba(0,102,255,0.08)",
+  }}
+>
+  {/* LINEA BASE */}
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+
+      background: isHong
+        ? "rgba(255,0,0,0.22)"
+        : "rgba(0,140,255,0.22)",
+
+      boxShadow: isHong
+        ? `
+          0 0 12px rgba(255,0,0,0.65),
+          0 0 26px rgba(255,0,0,0.35)
+        `
+        : `
+          0 0 12px rgba(0,140,255,0.65),
+          0 0 26px rgba(0,140,255,0.35)
+        `,
+    }}
+  />
+
+  {/* SCAN CENTRAL */}
+  <div
+    style={{
+      position: "absolute",
+      top: "-2px",
+      left: "50%",
+
+      width: "16px",
+      height: "16px",
+
+      borderRadius: "50%",
+
+      transform: "translateX(-50%)",
+
+      background: "#ffffff",
+
+      boxShadow: isHong
+        ? `
+          0 0 12px rgba(255,255,255,1),
+          0 0 30px rgba(255,0,0,1),
+          0 0 70px rgba(255,0,0,0.95),
+          0 0 140px rgba(255,0,0,0.55)
+        `
+        : `
+          0 0 12px rgba(255,255,255,1),
+          0 0 30px rgba(0,140,255,1),
+          0 0 70px rgba(0,140,255,0.95),
+          0 0 140px rgba(0,140,255,0.55)
+        `,
+
+      animation: "centerPulse 1.6s ease-in-out infinite",
+    }}
+  />
 </div>
     </div>
   );
