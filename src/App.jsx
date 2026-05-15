@@ -975,7 +975,7 @@ async function ensureInitialDocs(roomId = "combat") {
   }
 }
 
-function useFightData(roomId = "combat") {
+function useFightData(roomId = "combat", canWriteMedicalClock = false) {
     const matchMetaRef = useMemo(() => getMatchMetaRef(roomId), [roomId]);
   const judgesColRef = useMemo(() => getJudgesColRef(roomId), [roomId]);
   const judgeRef = useMemo(() => {
@@ -994,14 +994,20 @@ const isDemoExpired = remainingDemoMs <= 0
   );
 
   useEffect(() => {
-  if (!meta?.medicalActive || !meta?.medicalRunning) return;
+  if (!canWriteMedicalClock) return;
+  if (!meta?.medicalActive || !meta?.medicalRunning || !meta?.medicalSide) return;
 
   const i = setInterval(() => {
     writeMeta((prev) => tickMedical(prev));
-  }, 500);
+  }, 1000);
 
   return () => clearInterval(i);
-}, [meta?.medicalActive, meta?.medicalRunning]);
+}, [
+  canWriteMedicalClock,
+  meta?.medicalActive,
+  meta?.medicalRunning,
+  meta?.medicalSide,
+]);
 
   useEffect(() => {
   if (!isDemoRoom(roomId)) return;
@@ -10177,7 +10183,12 @@ function exitApp() {
   
 
   const { path, navigate, roomId, isTvMode } = useRoute();
-  const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(roomId);
+  const isPresidentRoute = path === "/president" || path.startsWith("/president/");
+
+const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
+  roomId,
+  isPresidentRoute
+);
   const mobileTime = useClock(meta || {});
 
   
