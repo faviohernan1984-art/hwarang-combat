@@ -619,6 +619,16 @@ function makeInitialMeta() {
     medicalChong: 300,
     medicalLast: 0,
 
+    medicalOverlay: {
+  active: false,
+  side: null,
+  startedAt: null,
+  durationMs: null,
+  paused: false,
+  remainingMs: null,
+  status: "idle",
+},
+
     // compatibilidad temporal con lógica vieja
     round: 1,
     phase: "fight",
@@ -686,6 +696,31 @@ function formatTime(totalSeconds) {
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
+const MEDICAL_ENGINE_STATUS = {
+  IDLE: "idle",
+  RUNNING: "running",
+  PAUSED: "paused",
+  EXPIRED: "expired",
+};
+
+function createMedicalAdminEngine({ side = null, durationSeconds = 300 } = {}) {
+  const durationMs = Math.max(0, Number(durationSeconds || 300)) * 1000;
+
+  return {
+    status: MEDICAL_ENGINE_STATUS.IDLE,
+    side,
+    durationMs,
+    remainingMs: durationMs,
+    startedAt: null,
+    pausedAt: null,
+    expired: false,
+  };
+}
+
+function getMedicalAdminSeconds(engine) {
+  return Math.max(0, Math.ceil((engine?.remainingMs || 0) / 1000));
+}
+
 function ensureMedical(meta) {
   const preset = Math.min(300, Math.max(0, meta?.medicalPreset || 300));
 
@@ -743,14 +778,24 @@ function startMedical(meta, side) {
     side === "hong" ? m.hong : m.chong;
 
   return {
-    ...meta,
-    medicalActive: true,
-    medicalRunning: true,
-    medicalSide: side,
-    medicalLast: now,
-    medicalHong: side === "hong" ? remaining : m.hong,
-    medicalChong: side === "chong" ? remaining : m.chong,
-  };
+  ...meta,
+  medicalActive: true,
+  medicalRunning: true,
+  medicalSide: side,
+  medicalLast: now,
+  medicalHong: side === "hong" ? remaining : m.hong,
+  medicalChong: side === "chong" ? remaining : m.chong,
+
+  medicalOverlay: {
+    active: true,
+    side,
+    startedAt: now,
+    durationMs: (meta.medicalPreset || 300) * 1000,
+    paused: false,
+    remainingMs: (meta.medicalPreset || 300) * 1000,
+    status: "running",
+  },
+};
 }
 
 function pauseMedical(meta) {
@@ -989,6 +1034,11 @@ function useFightData(roomId = "combat", canWriteMedicalClock = false) {
 )
 
 const isDemoExpired = remainingDemoMs <= 0
+const [medicalAdminEngine, setMedicalAdminEngine] = useState(
+  createMedicalAdminEngine({
+    durationSeconds: 300,
+  })
+);
   const [judges, setJudges] = useState(
     Array.from({ length: MAX_JUDGES }, (_, i) => makeJudge(i + 1))
   );
@@ -1008,6 +1058,8 @@ const isDemoExpired = remainingDemoMs <= 0
   meta?.medicalRunning,
   meta?.medicalSide,
 ]);
+
+  
 
   useEffect(() => {
   if (!isDemoRoom(roomId)) return;
@@ -1079,6 +1131,129 @@ current.demoLimit.expired = usedMs >= totalMs;
   };
 }, [roomId, matchMetaRef, judgesColRef]);
 
+  /*
+useEffect(() => {
+  if (medicalAdminEngine.status !== MEDICAL_ENGINE_STATUS.RUNNING) return;
+
+  const interval = setInterval(() => {
+    setMedicalAdminEngine((current) => {
+      if (current.status !== MEDICAL_ENGINE_STATUS.RUNNING) {
+        return current;
+      }
+
+      const now = Date.now();
+
+      const elapsed =
+        now - (current.startedAt || now);
+
+      const nextRemaining =
+        Math.max(0, current.durationMs - elapsed);
+
+      if (nextRemaining <= 0) {
+        writeMeta((draft) => {
+          draft.medicalDecisionPending = true;
+          draft.inputsLocked = true;
+          draft.medicalStatus = "expired";
+          return draft;
+        });
+
+        return {
+          ...current,
+          remainingMs: 0,
+          status: MEDICAL_ENGINE_STATUS.EXPIRED,
+          expired: true,
+        };
+      }
+
+      return {
+        ...current,
+        remainingMs: nextRemaining,
+      };
+    });
+  }, 250);
+
+  return () => clearInterval(interval);
+}, [medicalAdminEngine.status]);
+*/
+/*
+function startMedicalAdmin(side, durationSeconds = 300) {
+  const durationMs =
+    Math.max(0, Number(durationSeconds || 300)) * 1000;
+
+  setMedicalAdminEngine({
+    status: MEDICAL_ENGINE_STATUS.RUNNING,
+    side,
+    durationMs,
+    remainingMs: durationMs,
+    startedAt: Date.now(),
+    pausedAt: null,
+    expired: false,
+  });
+
+  writeMeta((draft) => {
+    draft.medicalStatus = "running";
+    draft.medicalSide = side;
+    draft.medicalDecisionPending = false;
+    draft.inputsLocked = false;
+    return draft;
+  });
+}
+
+function pauseMedicalAdmin() {
+  setMedicalAdminEngine((current) => {
+    if (current.status !== MEDICAL_ENGINE_STATUS.RUNNING) {
+      return current;
+    }
+
+    return {
+      ...current,
+      status: MEDICAL_ENGINE_STATUS.PAUSED,
+      pausedAt: Date.now(),
+    };
+  });
+
+  writeMeta((draft) => {
+    draft.medicalStatus = "paused";
+    return draft;
+  });
+}
+
+function resumeMedicalAdmin() {
+  setMedicalAdminEngine((current) => {
+    if (current.status !== MEDICAL_ENGINE_STATUS.PAUSED) {
+      return current;
+    }
+
+    return {
+      ...current,
+      status: MEDICAL_ENGINE_STATUS.RUNNING,
+      startedAt: Date.now() - (current.durationMs - current.remainingMs),
+      pausedAt: null,
+    };
+  });
+
+  writeMeta((draft) => {
+    draft.medicalStatus = "running";
+    return draft;
+  });
+}
+
+function stopMedicalAdmin() {
+  setMedicalAdminEngine(
+    createMedicalAdminEngine({
+      durationSeconds: 300,
+    })
+  );
+
+  writeMeta((draft) => {
+    draft.medicalStatus = "idle";
+    draft.medicalSide = null;
+    draft.medicalDecisionPending = false;
+    draft.inputsLocked = false;
+    return draft;
+  });
+}
+  */
   const writeMeta = async (mutator) => {
   const snap = await getDoc(matchMetaRef);
   const current = ensureMetaShape(snap.exists() ? snap.data() : makeInitialMeta());
@@ -2586,7 +2761,62 @@ const panelScanKeyframes = `
 }
 `;
 
+function FloatingManualCountdown({ meta }) {
+  const overlay = meta?.medicalOverlay || {};
 
+const visible = overlay.active;
+const startedAt = overlay.startedAt || 0;
+const durationMs = overlay.durationMs || 0;
+
+const [remaining, setRemaining] = useState(
+  Math.ceil(durationMs / 1000)
+);
+
+  useEffect(() => {
+    if (!visible) return;
+    if (remaining <= 0) return;
+
+    const id = setInterval(() => {
+      setRemaining((prev) => Math.max(0, prev - 1));
+    }, 1000);
+
+    return () => clearInterval(id);
+  }, [visible, remaining]);
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 30,
+        right: 30,
+        zIndex: 99999,
+        background: "rgba(0,0,0,0.78)",
+        border: "1px solid rgba(255,255,255,0.35)",
+        borderRadius: 14,
+        padding: 12,
+        color: "white",
+        fontFamily: "Arial, sans-serif",
+        textAlign: "center",
+        minWidth: 170,
+      }}
+    >
+      {/* BOTON MANUAL TEMPORAL DESACTIVADO */}
+
+      {visible && (
+        <div
+          style={{
+            marginTop: 10,
+            fontSize: 42,
+            fontWeight: 900,
+            letterSpacing: "0.06em",
+          }}
+        >
+          {formatTime(remaining)}
+        </div>
+      )}
+    </div>
+  );
+}
 
 {/*==================================publicTVScreen===================*/}
 
@@ -2596,6 +2826,7 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
   const time = useClock(meta);
   const s = summary(meta, judges);
   const { left, right } = getDisplaySides(meta, "public");
+  console.log("MEDICAL OVERLAY TEST:", meta.medicalOverlay);
 
   const getSideScore = (fighter) => {
     return fighter.pointsLabel === "hong" ? s.hongVotes : s.chongVotes;
@@ -2615,6 +2846,8 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
 
   return (
     <>
+  <FloatingManualCountdown meta={meta} />
+
   <style>
   {
     combatScanKeyframes +
@@ -7463,10 +7696,10 @@ const rightSide = isSwapped ? "hong" : "chong";
 >
   <button
   onClick={() => {
-    if (inputsLocked) return;
-    playButtonSound();
-    handleMedicalStart(leftSide);
-  }}
+  if (inputsLocked) return;
+  playButtonSound();
+  handleMedicalStart(leftSide);
+}}
 
   onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
   onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
@@ -7515,8 +7748,8 @@ const rightSide = isSwapped ? "hong" : "chong";
 
   <span style={{ fontSize: 18 }}>
     {formatTime(
-      (isSwapped ? meta.medicalChong : meta.medicalHong) || 0
-    )}
+  (isSwapped ? meta.medicalChong : meta.medicalHong) || 0
+)}
   </span>
 </button>
 
