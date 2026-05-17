@@ -1175,13 +1175,7 @@ const [medicalAdminEngine, setMedicalAdminEngine] = useState(
 // No escribir reloj medical viejo.
 // Próxima fase: crear dos relojes independientes hong/chong desde cero.
 
- useEffect(() => {
-  const interval = setInterval(() => {
-    writeMeta((current) => tickMedicalV2(current));
-  }, 1000);
-
-  return () => clearInterval(interval);
-}, []); 
+ 
 
   useEffect(() => {
   if (!isDemoRoom(roomId)) return;
@@ -5018,6 +5012,27 @@ function MedicalPanel({ meta, writeMeta }) {
         {m.active
           ? `MEDICAL ${m.side?.toUpperCase()} · ${formatTime(activeTime)}`
           : "SIN TIEMPO MÉDICO"}
+
+      <div
+  style={{
+    marginTop: 10,
+    padding: 12,
+    borderRadius: 12,
+    background: "#111827",
+    border: "2px solid #ef4444",
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: 28,
+    color: "white",
+  }}
+>
+  HONG V2 · {formatTime(meta.medicalV2?.hong?.remaining || 0)}
+<br />
+RUNNING: {String(meta.medicalV2?.hong?.running)}
+<br />
+LAST: {String(meta.medicalV2?.lastTick || "NO")}
+</div>
+
       </div>
     </div>
   );
