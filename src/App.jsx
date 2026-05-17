@@ -5051,7 +5051,8 @@ function PresidentScreen({ meta, judges, writeMeta, writeJudge, resetAll, naviga
   const [secondsInput, setSecondsInput] = useState(String(meta.config.roundSeconds || 120));
   const [roundsInput, setRoundsInput] = useState(String(meta.config.rounds || 2));
   const [breakSecondsInput, setBreakSecondsInput] = useState(String(meta.config.breakSeconds || BREAK_SECONDS));
-
+  const [testMedicalSeconds, setTestMedicalSeconds] = useState(300);
+  const [testMedicalRunning, setTestMedicalRunning] = useState(false);
   const [editor, setEditor] = useState({
     hongName: meta.hong?.name || "",
     hongClub: meta.hong?.club || "",
@@ -6363,8 +6364,28 @@ useEffect(() => {
 
   
   const [secondsInput, setSecondsInput] = useState(String(meta.config.roundSeconds || 120));
-  const [roundsInput, setRoundsInput] = useState(String(meta.config.rounds || 2));
-  const [breakSecondsInput, setBreakSecondsInput] = useState(String(meta.config.breakSeconds || BREAK_SECONDS));
+const [roundsInput, setRoundsInput] = useState(String(meta.config.rounds || 2));
+const [breakSecondsInput, setBreakSecondsInput] = useState(String(meta.config.breakSeconds || BREAK_SECONDS));
+
+const [testMedicalSeconds, setTestMedicalSeconds] = useState(300);
+const [testMedicalRunning, setTestMedicalRunning] = useState(false);
+
+useEffect(() => {
+  if (!testMedicalRunning) return;
+
+  const interval = setInterval(() => {
+    setTestMedicalSeconds((prev) => {
+      if (prev <= 1) {
+        setTestMedicalRunning(false);
+        return 0;
+      }
+
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [testMedicalRunning]);
   
   const [editor, setEditor] = useState({
     hongName: meta.hong?.name || "",
@@ -7050,6 +7071,49 @@ const rightSide = isSwapped ? "hong" : "chong";
         position: "relative",
       }}
     >
+      <div
+  style={{
+    position: "absolute",
+    top: 150,
+left: 690,
+width: 260,
+height: 70,
+    background: "red",
+    zIndex: 999999,
+    color: "white",
+    fontWeight: 900,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+  }}
+>
+  <div>{formatTime(testMedicalSeconds)}</div>
+
+<button
+  onClick={() => setTestMedicalRunning(true)}
+  style={{ marginTop: 8, fontWeight: 900 }}
+>
+  START
+</button>
+
+<button
+  onClick={() => setTestMedicalRunning(false)}
+  style={{ marginTop: 8, marginLeft: 6, fontWeight: 900 }}
+>
+  PAUSE
+</button>
+
+<button
+  onClick={() => {
+    setTestMedicalRunning(false);
+    setTestMedicalSeconds(300);
+  }}
+  style={{ marginTop: 8, marginLeft: 6, fontWeight: 900 }}
+>
+  RESET
+</button>
+</div>
 
       <div
   style={{
