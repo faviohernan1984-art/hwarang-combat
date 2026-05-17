@@ -1043,21 +1043,9 @@ const [medicalAdminEngine, setMedicalAdminEngine] = useState(
     Array.from({ length: MAX_JUDGES }, (_, i) => makeJudge(i + 1))
   );
 
-  useEffect(() => {
-  if (!canWriteMedicalClock) return;
-  if (!meta?.medicalActive || !meta?.medicalRunning || !meta?.medicalSide) return;
-
-  const i = setInterval(() => {
-    writeMeta((prev) => tickMedical(prev));
-  }, 1000);
-
-  return () => clearInterval(i);
-}, [
-  canWriteMedicalClock,
-  meta?.medicalActive,
-  meta?.medicalRunning,
-  meta?.medicalSide,
-]);
+ // MEDICAL TIME LEGACY DISABLED
+// No escribir reloj medical viejo.
+// Próxima fase: crear dos relojes independientes hong/chong desde cero.
 
   
 
