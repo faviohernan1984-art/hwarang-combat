@@ -8029,7 +8029,8 @@ const rightSide = isSwapped ? "hong" : "chong";
         display: "grid",
         gridTemplateRows: "auto 1fr",
         gap: 2,
-        background: "white",
+        background: "transparent",
+        border: "none",
         
       }}
     >
@@ -8069,96 +8070,10 @@ const rightSide = isSwapped ? "hong" : "chong";
     
   }}
 >
-  <button
-  onClick={() => {
-  if (inputsLocked) return;
-  playButtonSound();
-  handleMedicalStart(leftSide);
-}}
+  
 
-  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
-  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-
-  style={{
-    background: isSwapped ? "#1d4ed8" : "#c81e1e",
-    border: "none",
-    borderRadius: 10,
-    color: "white",
-    fontWeight: 900,
-    fontSize: 16,
-    padding: 6,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    width: "100%",
-    position: "relative",
-    zIndex: 10,
-
-    transform: "scale(1)",
-    transition: "transform 0.05s ease",
-
-    cursor: inputsLocked ? "not-allowed" : "pointer",
-    opacity: inputsLocked ? 0.4 : 1,
-    pointerEvents: inputsLocked ? "none" : "auto",
-  }}
->
-  <span
-    style={{
-      background: isSwapped ? "#1e3a8a" : "#a31212",
-      borderRadius: "50%",
-      width: 24,
-      height: 24,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: 16,
-    }}
-  >
-    +
-  </span>
-
-  <span>{isSwapped ? "CHONG" : "HONG"}</span>
-
-  <span style={{ fontSize: 18 }}>
-    {formatTime(
-  (isSwapped ? meta.medicalChong : meta.medicalHong) || 0
-)}
-  </span>
-</button>
-
-  <button
-  onClick={() => {
-    if (inputsLocked) return;
-    playButtonSound();
-    handleMedicalBreak();
-  }}
-
-  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
-  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-
-  style={{
-    background: "#3f3f3f",
-    border: "none",
-    borderRadius: 10,
-    color: "white",
-    fontWeight: 900,
-    fontSize: 12,
-    padding: 6,
-    width: "100%",
-    cursor: "pointer",
-
-    transform: "scale(1)",
-    transition: "transform 0.05s ease",
-
-    opacity: inputsLocked ? 0.4 : 1,
-    pointerEvents: inputsLocked ? "none" : "auto",
-  }}
->
-  MEDICAL TIME BREAK
-</button>
+  
+  
 </div>
       </div>
     </div>
@@ -8174,7 +8089,8 @@ const rightSide = isSwapped ? "hong" : "chong";
   display: "grid",
   gridTemplateRows: "auto 1fr",
   gap: 2,
-  background: "white",
+  background: "transparent",
+  border: "none",
 }}
     >
       <div
@@ -8212,94 +8128,9 @@ const rightSide = isSwapped ? "hong" : "chong";
     width: "100%",
   }}
 >
-  <button
-  onClick={() => {
-    if (inputsLocked) return;
-    playButtonSound();
-    handleMedicalStart(rightSide);
-  }}
+  
 
-  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
-  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-
-  style={{
-    background: isSwapped ? "#c81e1e" : "#1d4ed8",
-    border: "none",
-    borderRadius: 10,
-    color: "white",
-    fontWeight: 900,
-    fontSize: 16,
-    padding: 6,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    width: "100%",
-
-    transform: "scale(1)",
-    transition: "transform 0.05s ease",
-
-    opacity: inputsLocked ? 0.4 : 1,
-    pointerEvents: inputsLocked ? "none" : "auto",
-    cursor: inputsLocked ? "not-allowed" : "pointer",
-  }}
->
-  <span
-    style={{
-      background: isSwapped ? "#a31212" : "#1e3a8a",
-      borderRadius: "50%",
-      width: 24,
-      height: 24,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: 16,
-    }}
-  >
-    +
-  </span>
-
-  <span>{isSwapped ? "HONG" : "CHONG"}</span>
-
-  <span style={{ fontSize: 18 }}>
-    {formatTime(
-      (isSwapped ? meta.medicalHong : meta.medicalChong) || 0
-    )}
-  </span>
-</button>
-
-  <button
-  onClick={() => {
-    if (inputsLocked) return;
-    playButtonSound();
-    handleMedicalBreak();
-  }}
-
-  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")}
-  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-
-  style={{
-    background: "#3f3f3f",
-    border: "none",
-    borderRadius: 10,
-    color: "white",
-    fontWeight: 900,
-    fontSize: 12,
-    padding: 6,
-    width: "100%",
-
-    transform: "scale(1)",
-    transition: "transform 0.05s ease",
-
-    cursor: inputsLocked ? "not-allowed" : "pointer",
-    opacity: inputsLocked ? 0.4 : 1,
-    pointerEvents: inputsLocked ? "none" : "auto",
-  }}
->
-  MEDICAL TIME BREAK
-</button>
+  
 </div>
       </div>
     </div>
