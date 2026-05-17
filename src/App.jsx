@@ -4925,7 +4925,11 @@ function MedicalPanel({ meta, writeMeta }) {
             justifyContent: "center",
             gap: 10,
           }}
-          onClick={() => {}}
+          onClick={() =>
+  writeMeta((current) =>
+    startMedicalV2(current, "hong")
+  )
+}
         >
           <MedicalBadge active={m.side === "hong" && m.active} />
           <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.05 }}>
