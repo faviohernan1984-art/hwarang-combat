@@ -2985,6 +2985,107 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
         fontFamily: "Arial, sans-serif",
       }}
     >
+      {meta?.medicalV2Display?.hongRunning && (
+  <div
+    style={{
+      position: "absolute",
+      top: "27%",
+      bottom: "7%",
+      right: "1.8vw",
+      width: "35%",
+      zIndex: 60,
+
+      borderRadius: "10px",
+
+      background:
+        "linear-gradient(180deg, rgba(120,0,0,0.92), rgba(30,0,0,0.82))",
+
+      border: "2px solid rgba(255,60,60,0.9)",
+
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+
+      boxShadow: "0 0 30px rgba(255,0,0,0.65)",
+    }}
+  >
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+        fontSize: "2vw",
+        fontWeight: 900,
+        letterSpacing: "0.18em",
+        color: "#ffffff",
+        marginBottom: "5vh",
+      }}
+    >
+      MEDICAL TIME
+    </div>
+
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+        fontSize: "7vw",
+        fontWeight: 900,
+        color: "#ffffff",
+      }}
+    >
+      {formatTime(meta?.medicalV2Display?.hongSeconds || 0)}
+    </div>
+  </div>
+)}
+
+{meta?.medicalV2Display?.chongRunning && (
+  <div
+    style={{
+      position: "absolute",
+      top: "27%",
+      bottom: "7%",
+      left: "1.8vw",
+      width: "35%",
+      zIndex: 60,
+
+      borderRadius: "10px",
+
+      background:
+        "linear-gradient(180deg, rgba(0,40,120,0.92), rgba(0,10,40,0.82))",
+
+      border: "2px solid rgba(60,140,255,0.9)",
+
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+
+      boxShadow: "0 0 30px rgba(0,102,255,0.65)",
+    }}
+  >
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+        fontSize: "2vw",
+        fontWeight: 900,
+        letterSpacing: "0.18em",
+        color: "#ffffff",
+        marginBottom: "5vh",
+      }}
+    >
+      MEDICAL TIME
+    </div>
+
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+        fontSize: "7vw",
+        fontWeight: 900,
+        color: "#ffffff",
+      }}
+    >
+      {formatTime(meta?.medicalV2Display?.chongSeconds || 0)}
+    </div>
+  </div>
+)}
       
 
       {/* HEADER CINEMATIC */}
@@ -4195,26 +4296,39 @@ if (
   </span>
 </div>
   ) : null;
-  const medicalBanner = medical.active ? (
-    <div
-      style={{
-        position: "absolute",
-        top: 790,
-        left: 20,
-        right: 20,
-        zIndex: 20,
-        background: medical.side === "hong" ? "#b91c1c" : "#1d4ed8",
-        borderRadius: 20,
-        padding: 20,
-        textAlign: "center",
-        fontSize: 60,
-        fontWeight: 900,
-      }}
-    >
-      MEDICAL {medical.side?.toUpperCase()}{" "}
-      {formatTime(medical.side === "hong" ? medical.hong : medical.chong)}
-    </div>
-  ) : null;
+  const medicalV2Side =
+  meta?.medicalV2Display?.hongRunning
+    ? "hong"
+    : meta?.medicalV2Display?.chongRunning
+    ? "chong"
+    : null;
+
+const medicalV2Seconds =
+  medicalV2Side === "hong"
+    ? meta?.medicalV2Display?.hongSeconds
+    : medicalV2Side === "chong"
+    ? meta?.medicalV2Display?.chongSeconds
+    : 0;
+
+const medicalBanner = medicalV2Side ? (
+  <div
+    style={{
+      position: "absolute",
+      top: 790,
+      left: 20,
+      right: 20,
+      zIndex: 20,
+      background: medicalV2Side === "hong" ? "#b91c1c" : "#1d4ed8",
+      borderRadius: 20,
+      padding: 20,
+      textAlign: "center",
+      fontSize: 60,
+      fontWeight: 900,
+    }}
+  >
+    MEDICAL {medicalV2Side.toUpperCase()} {formatTime(medicalV2Seconds)}
+  </div>
+) : null;
 
 const foulWarningBanner =
   !medical.active &&
@@ -6369,6 +6483,8 @@ const [breakSecondsInput, setBreakSecondsInput] = useState(String(meta.config.br
 
 const [testMedicalSeconds, setTestMedicalSeconds] = useState(300);
 const [testMedicalRunning, setTestMedicalRunning] = useState(false);
+const [testMedicalChongSeconds, setTestMedicalChongSeconds] = useState(300);
+const [testMedicalChongRunning, setTestMedicalChongRunning] = useState(false);
 
 useEffect(() => {
   if (!testMedicalRunning) return;
@@ -6387,6 +6503,41 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, [testMedicalRunning]);
   
+  useEffect(() => {
+  if (!testMedicalChongRunning) return;
+
+  const interval = setInterval(() => {
+    setTestMedicalChongSeconds((prev) => {
+      if (prev <= 1) {
+        setTestMedicalChongRunning(false);
+        return 0;
+      }
+
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [testMedicalChongRunning]);
+
+useEffect(() => {
+  writeMeta((current) => ({
+    ...current,
+    medicalV2Display: {
+      ...(current.medicalV2Display || {}),
+      hongSeconds: testMedicalSeconds,
+      hongRunning: testMedicalRunning,
+      chongSeconds: testMedicalChongSeconds,
+      chongRunning: testMedicalChongRunning,
+    },
+  }));
+}, [
+  testMedicalSeconds,
+  testMedicalRunning,
+  testMedicalChongSeconds,
+  testMedicalChongRunning,
+]);
+
   const [editor, setEditor] = useState({
     hongName: meta.hong?.name || "",
     hongClub: meta.hong?.club || "",
@@ -7089,6 +7240,16 @@ height: 70,
   }}
 >
   <div>{formatTime(testMedicalSeconds)}</div>
+  <div style={{ fontSize: 12, marginTop: 6 }}>
+  META H: {meta.medicalV2Display?.hongSeconds}
+</div>
+
+<div style={{ fontSize: 12 }}>
+  META C: {meta.medicalV2Display?.chongSeconds}
+</div>
+<div style={{ fontSize: 10 }}>
+  META EXISTS: {String(!!meta.medicalV2Display)}
+</div>
 
 <button
   onClick={() => setTestMedicalRunning(true)}
@@ -7107,12 +7268,58 @@ height: 70,
 <button
   onClick={() => {
     setTestMedicalRunning(false);
-    setTestMedicalSeconds(300);
+    setTestMedicalSeconds(meta.medicalPreset || 300);
   }}
   style={{ marginTop: 8, marginLeft: 6, fontWeight: 900 }}
 >
   RESET
 </button>
+</div>
+<div
+  style={{
+    position: "absolute",
+    top: 230,
+    left: 690,
+    width: 260,
+    height: 120,
+    background: "#003b8a",
+    zIndex: 999999,
+    color: "white",
+    fontWeight: 900,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+  }}
+>
+  <div>{formatTime(testMedicalChongSeconds)}</div>
+
+  <div style={{ marginTop: 8 }}>
+    <button
+      onClick={() => setTestMedicalChongRunning(true)}
+      style={{ fontWeight: 900 }}
+    >
+      START
+    </button>
+
+    <button
+      onClick={() => setTestMedicalChongRunning(false)}
+      style={{ marginLeft: 6, fontWeight: 900 }}
+    >
+      PAUSE
+    </button>
+
+    <button
+      onClick={() => {
+        setTestMedicalChongRunning(false);
+        setTestMedicalChongSeconds(meta.medicalPreset || 300);
+      }}
+      style={{ marginLeft: 6, fontWeight: 900 }}
+    >
+      RESET
+    </button>
+  </div>
 </div>
 
       <div
