@@ -1,3 +1,5 @@
+
+import { useState } from "react";
 export default function JudgeMobileNext({ meta, judges, writeJudge, judgeId, roomId, time, mobileWarningText }) {
 
   const gpBannerText =
@@ -50,7 +52,20 @@ const activeBg =
 
 const inputsLocked =
   meta?.phase === "break" ||
-  meta?.phase === "finished";  
+  meta?.phase === "finished";
+  
+/*============================== MEDICAL EMERGENCY DETECTOR / JUDGE ==============================*/
+
+const medicalEmergencySide =
+  meta?.medicalV2Display?.hongSeconds === 0
+    ? "hong"
+    : meta?.medicalV2Display?.chongSeconds === 0
+    ? "chong"
+    : null;  
+
+  /*============================== MEDICAL EXPIRED OVERLAY STATE ==============================*/
+
+const [medicalExpiredOverlay, setMedicalExpiredOverlay] = useState(false);
 
 
 
@@ -210,7 +225,15 @@ const showJudgeWinner =
             50% { opacity: 0.75; transform: scaleX(1); }
             100% { opacity: 0.35; transform: scaleX(0.92); }
           }
+            @keyframes medicalEmergencyPulse {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.35); }
+  100% { filter: brightness(1); }
+}
         `}
+           
+
+        
       </style>
 
       {/* CONTENEDOR GENERAL / MARCO MOBILE */}
@@ -233,6 +256,82 @@ const showJudgeWinner =
           boxShadow: "0 0 55px rgba(255, 0, 0, 0.61), 0 0 110px rgba(255,0,0,0.18)",
         }}
       >
+        {/*============================== MEDICAL EXPIRED OVERLAY ==============================*/}
+
+{/*============================== MEDICAL EMERGENCY OVERLAY / JUDGE ==============================*/}
+
+{medicalEmergencySide && (
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 999999,
+      background:
+        medicalEmergencySide === "hong"
+          ? "radial-gradient(circle, rgba(120,0,0,0.96), rgba(0,0,0,0.96))"
+          : "radial-gradient(circle, rgba(0,35,120,0.96), rgba(0,0,0,0.96))",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      color: "white",
+      fontFamily: "'Orbitron', sans-serif",
+      textAlign: "center",
+      letterSpacing: "0.08em",
+      animation: "medicalEmergencyPulse 0.8s ease-in-out infinite",
+    }}
+  >
+    <div
+      style={{
+        fontSize: 22,
+        marginBottom: 18,
+        color: "#facc15",
+        fontWeight: 900,
+        
+      }}
+    >
+      MEDICAL EMERGENCY
+    </div>
+
+    <div
+      style={{
+        fontSize: 46,
+        fontWeight: 900,
+        color: medicalEmergencySide === "hong" ? "#ff2a2a" : "#2f7cff",
+        textShadow:
+          medicalEmergencySide === "hong"
+            ? "0 0 22px rgba(255,0,0,0.9)"
+            : "0 0 22px rgba(47,124,255,0.9)",
+            
+      }}
+    >
+      {medicalEmergencySide === "hong" ? "HONG" : "CHONG"}
+    </div>
+
+    <div
+      style={{
+        fontSize: 32,
+        fontWeight: 900,
+        marginTop: 8,
+      }}
+    >
+      TIME EXPIRED
+    </div>
+
+    <div
+      style={{
+        marginTop: 22,
+        fontSize: 17,
+        lineHeight: 1.35,
+        color: "rgba(255,255,255,0.82)",
+      }}
+    >
+      INPUTS LOCKED
+      <br />
+      WAITING FOR PRESIDENT DECISION
+    </div>
+  </div>
+)}
         {/* HOME */}
 <div
   style={{
