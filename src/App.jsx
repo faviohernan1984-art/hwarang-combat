@@ -7225,88 +7225,104 @@ const rightSide = isSwapped ? "hong" : "chong";
       <div
   style={{
     position: "absolute",
-    top: 150,
-left: 690,
-width: 260,
-height: 70,
-    background: "red",
+    top: 250,
+    left: 651,
+    width: 300,
+    height: 130,
     zIndex: 999999,
+
+    background:
+      "linear-gradient(180deg, rgba(255,42,42,0.96), rgba(122,0,0,0.92))",
+    border: "1px solid rgba(255,80,80,0.95)",
+    boxShadow:
+      "0 0 18px rgba(255,0,0,0.55), inset 0 0 28px rgba(255,0,0,0.20)",
+
     color: "white",
+    fontFamily: "Orbitron, sans-serif",
     fontWeight: 900,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 12,
-  }}
->
-  <div>{formatTime(testMedicalSeconds)}</div>
-  <div style={{ fontSize: 12, marginTop: 6 }}>
-  META H: {meta.medicalV2Display?.hongSeconds}
-</div>
+    letterSpacing: "0.04em",
 
-<div style={{ fontSize: 12 }}>
-  META C: {meta.medicalV2Display?.chongSeconds}
-</div>
-<div style={{ fontSize: 10 }}>
-  META EXISTS: {String(!!meta.medicalV2Display)}
-</div>
-
-<button
-  onClick={() => setTestMedicalRunning(true)}
-  style={{ marginTop: 8, fontWeight: 900 }}
->
-  START
-</button>
-
-<button
-  onClick={() => setTestMedicalRunning(false)}
-  style={{ marginTop: 8, marginLeft: 6, fontWeight: 900 }}
->
-  PAUSE
-</button>
-
-<button
-  onClick={() => {
-    setTestMedicalRunning(false);
-    setTestMedicalSeconds(meta.medicalPreset || 300);
-  }}
-  style={{ marginTop: 8, marginLeft: 6, fontWeight: 900 }}
->
-  RESET
-</button>
-</div>
-<div
-  style={{
-    position: "absolute",
-    top: 230,
-    left: 690,
-    width: 260,
-    height: 120,
-    background: "#003b8a",
-    zIndex: 999999,
-    color: "white",
-    fontWeight: 900,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 12,
+
+    borderRadius: 9,
   }}
 >
-  <div>{formatTime(testMedicalChongSeconds)}</div>
+  <div
+    style={{
+      fontSize: 30,
+      textShadow: "0 0 10px rgba(255,255,255,0.75)",
+    }}
+  >
+    {formatTime(testMedicalSeconds)}
+  </div>
 
-  <div style={{ marginTop: 8 }}>
-    <button
-      onClick={() => setTestMedicalChongRunning(true)}
-      style={{ fontWeight: 900 }}
-    >
+  <div style={{ marginTop: 10, display: "flex", gap: 6 }}>
+    <button onClick={() => setTestMedicalRunning(true)} style={{ fontWeight: 900 }}>
       START
     </button>
 
+    <button onClick={() => setTestMedicalRunning(false)} style={{ fontWeight: 900 }}>
+      PAUSE
+    </button>
+
     <button
-      onClick={() => setTestMedicalChongRunning(false)}
-      style={{ marginLeft: 6, fontWeight: 900 }}
+      onClick={() => {
+        setTestMedicalRunning(false);
+        setTestMedicalSeconds(meta.medicalPreset || 300);
+      }}
+      style={{ fontWeight: 900 }}
     >
+      RESET
+    </button>
+  </div>
+</div>
+
+<div
+  style={{
+    position: "absolute",
+    top: 250,
+    left: 960,
+    width: 300,
+    height: 130,
+    zIndex: 999999,
+
+    background:
+      "linear-gradient(180deg, rgba(47,124,255,0.96), rgba(0,29,104,0.92))",
+    border: "1px solid rgba(60,140,255,0.95)",
+    boxShadow:
+      "0 0 18px rgba(0,102,255,0.55), inset 0 0 28px rgba(0,102,255,0.20)",
+
+    color: "white",
+    fontFamily: "Orbitron, sans-serif",
+    fontWeight: 900,
+    letterSpacing: "0.04em",
+
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+
+    borderRadius: 9,
+  }}
+>
+  <div
+    style={{
+      fontSize: 30,
+      textShadow: "0 0 10px rgba(255,255,255,0.75)",
+    }}
+  >
+    {formatTime(testMedicalChongSeconds)}
+  </div>
+
+  <div style={{ marginTop: 10, display: "flex", gap: 6 }}>
+    <button onClick={() => setTestMedicalChongRunning(true)} style={{ fontWeight: 900 }}>
+      START
+    </button>
+
+    <button onClick={() => setTestMedicalChongRunning(false)} style={{ fontWeight: 900 }}>
       PAUSE
     </button>
 
@@ -7315,7 +7331,7 @@ height: 70,
         setTestMedicalChongRunning(false);
         setTestMedicalChongSeconds(meta.medicalPreset || 300);
       }}
-      style={{ marginLeft: 6, fontWeight: 900 }}
+      style={{ fontWeight: 900 }}
     >
       RESET
     </button>
