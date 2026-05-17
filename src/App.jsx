@@ -3427,7 +3427,7 @@ letterSpacing: "0.18em",
       />
 
       {/* MEDICAL TIME OVERLAY */}
-{meta.medicalActive && (
+{false && meta.medicalActive && (
   <div
     style={{
       position: "absolute",
