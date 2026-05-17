@@ -843,6 +843,115 @@ function stopMedical(meta) {
   };
 }
 
+function startMedicalV2(meta, side) {
+  const current = meta.medicalV2 || {};
+
+  return {
+    ...meta,
+
+    medicalV2: {
+      ...current,
+
+      activeSide: side,
+
+      [side]: {
+        ...current[side],
+        running: true,
+        expired: false,
+      },
+
+      pendingDecision: false,
+      expiredSide: null,
+      suggestedWinner: null,
+      inputsLocked: false,
+      lastTick: Date.now(),
+    },
+  };
+}
+
+function pauseMedicalV2(meta, side) {
+  const current = meta.medicalV2 || {};
+
+  return {
+    ...meta,
+
+    medicalV2: {
+      ...current,
+
+      [side]: {
+        ...current[side],
+        running: false,
+      },
+    },
+  };
+}
+
+function stopMedicalV2(meta, side) {
+  const current = meta.medicalV2 || {};
+  const preset = current.preset || 300;
+
+  return {
+    ...meta,
+
+    medicalV2: {
+      ...current,
+
+      activeSide: null,
+
+      [side]: {
+        remaining: preset,
+        running: false,
+        expired: false,
+      },
+    },
+  };
+}
+
+function tickMedicalV2(meta) {
+  const current = meta.medicalV2;
+
+  if (!current) return meta;
+
+  const now = Date.now();
+  const last = current.lastTick || now;
+  const diff = Math.floor((now - last) / 1000);
+
+  if (diff <= 0) return meta;
+
+  let next = { ...current };
+
+  ["hong", "chong"].forEach((side) => {
+    const fighter = next[side];
+
+    if (!fighter?.running) return;
+    if (fighter?.expired) return;
+
+    const remaining = Math.max(0, fighter.remaining - diff);
+
+    fighter.remaining = remaining;
+
+    if (remaining <= 0) {
+      fighter.running = false;
+      fighter.expired = true;
+
+      next.pendingDecision = true;
+      next.expiredSide = side;
+
+      next.suggestedWinner =
+        side === "hong" ? "chong" : "hong";
+
+      next.inputsLocked = true;
+    }
+  });
+
+  next.lastTick = now;
+
+  return {
+    ...meta,
+    medicalV2: next,
+  };
+}
+
 function getDerivedTime(meta, now = Date.now()) {
   if (!meta) return 0;
   if (meta.status !== "running" || !meta.phaseStartedAt) {
