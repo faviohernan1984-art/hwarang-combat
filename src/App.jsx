@@ -629,6 +629,25 @@ function makeInitialMeta() {
   status: "idle",
 },
 
+medicalV2: {
+  preset: 300,
+  activeSide: null,
+  hong: {
+    remaining: 300,
+    running: false,
+    expired: false,
+  },
+  chong: {
+    remaining: 300,
+    running: false,
+    expired: false,
+  },
+  pendingDecision: false,
+  expiredSide: null,
+  suggestedWinner: null,
+  inputsLocked: false,
+},
+
     // compatibilidad temporal con lógica vieja
     round: 1,
     phase: "fight",
