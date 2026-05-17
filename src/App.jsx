@@ -4791,7 +4791,7 @@ function MedicalPanel({ meta, writeMeta }) {
             justifyContent: "center",
             gap: 10,
           }}
-          onClick={() => writeMeta((p) => startMedical(p, "hong"))}
+          onClick={() => {}}
         >
           <MedicalBadge active={m.side === "hong" && m.active} />
           <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.05 }}>
@@ -4815,7 +4815,7 @@ function MedicalPanel({ meta, writeMeta }) {
             justifyContent: "center",
             gap: 10,
           }}
-          onClick={() => writeMeta((p) => startMedical(p, "chong"))}
+          onClick={() => {}}
         >
           <MedicalBadge active={m.side === "chong" && m.active} />
           <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.05 }}>
@@ -4840,7 +4840,7 @@ function MedicalPanel({ meta, writeMeta }) {
             fontSize: 20,
             fontWeight: 900,
           }}
-          onClick={() => writeMeta((p) => pauseMedical(p))}
+          onClick={() => {}}
         >
           PAUSE SAVE MEDICAL TIME
         </AppButton>
@@ -4852,7 +4852,7 @@ function MedicalPanel({ meta, writeMeta }) {
             fontSize: 20,
             fontWeight: 900,
           }}
-          onClick={() => writeMeta((p) => stopMedical(p))}
+          onClick={() => {}}
         >
           STOP RESET MEDICAL TIME
         </AppButton>
