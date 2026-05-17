@@ -1175,7 +1175,13 @@ const [medicalAdminEngine, setMedicalAdminEngine] = useState(
 // No escribir reloj medical viejo.
 // Próxima fase: crear dos relojes independientes hong/chong desde cero.
 
-  
+ useEffect(() => {
+  const interval = setInterval(() => {
+    writeMeta((current) => tickMedicalV2(current));
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, []); 
 
   useEffect(() => {
   if (!isDemoRoom(roomId)) return;
