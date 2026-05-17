@@ -305,6 +305,34 @@ function GlobalAppStyle() {
     transform: scale(1);
   }
 }
+
+@keyframes medicalHeartbeat {
+  0% {
+    transform: scale(1);
+    opacity: 0.96;
+  }
+
+  50% {
+    transform: scale(1.012);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0.96;
+  }
+}
+
+  50% {
+    opacity: 0.82;
+    transform: scale(1.01);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 @keyframes winnerEnter {
   0% {
     opacity: 0;
@@ -2891,6 +2919,16 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
   const { left, right } = getDisplaySides(meta, "public");
   console.log("MEDICAL OVERLAY TEST:", meta.medicalOverlay);
 
+
+  /*============================== PUBLIC TV MEDICAL EMERGENCY DETECTOR ==============================*/
+
+const publicMedicalEmergencySide =
+  meta?.medicalV2Display?.hongSeconds === 0
+    ? "hong"
+    : meta?.medicalV2Display?.chongSeconds === 0
+    ? "chong"
+    : null;
+
   const getSideScore = (fighter) => {
     return fighter.pointsLabel === "hong" ? s.hongVotes : s.chongVotes;
   };
@@ -2945,7 +2983,7 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
       borderRadius: "10px",
 
       background:
-        "linear-gradient(180deg, rgba(120,0,0,0.92), rgba(30,0,0,0.82))",
+  "linear-gradient(180deg, rgba(120,0,0,0.98), rgba(20,0,0,0.96))",
 
       border: "2px solid rgba(255,60,60,0.9)",
 
@@ -2954,7 +2992,14 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
       alignItems: "center",
       justifyContent: "center",
 
-      boxShadow: "0 0 30px rgba(255,0,0,0.65)",
+      boxShadow: `
+  0 0 30px rgba(255,0,0,0.85),
+  0 0 70px rgba(255,0,0,0.45),
+  inset 0 0 55px rgba(255,0,0,0.22)
+`,
+      transformOrigin: "center center",
+      animation: "medicalHeartbeat 1.8s ease-in-out infinite",
+
     }}
   >
     <div
@@ -2972,11 +3017,16 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
 
     <div
       style={{
-        fontFamily: "Orbitron, sans-serif",
-        fontSize: "7vw",
-        fontWeight: 900,
-        color: "#ffffff",
-      }}
+  fontFamily: "Orbitron, sans-serif",
+  fontSize: "7vw",
+  fontWeight: 900,
+  color: "#ffffff",
+  textShadow: `
+    0 0 10px rgba(255,255,255,0.9),
+    0 0 22px rgba(255,80,80,0.9),
+    0 0 42px rgba(255,0,0,0.75)
+  `,
+}}
     >
       {formatTime(meta?.medicalV2Display?.hongSeconds || 0)}
     </div>
@@ -2996,7 +3046,7 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
       borderRadius: "10px",
 
       background:
-        "linear-gradient(180deg, rgba(0,40,120,0.92), rgba(0,10,40,0.82))",
+  "linear-gradient(180deg, rgba(0,40,120,0.98), rgba(0,10,40,0.96))",
 
       border: "2px solid rgba(60,140,255,0.9)",
 
@@ -3005,7 +3055,13 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
       alignItems: "center",
       justifyContent: "center",
 
-      boxShadow: "0 0 30px rgba(0,102,255,0.65)",
+      boxShadow: `
+  0 0 30px rgba(0,102,255,0.85),
+  0 0 70px rgba(0,102,255,0.45),
+  inset 0 0 55px rgba(0,102,255,0.22)
+`,
+      transformOrigin: "center center",
+      animation: "medicalHeartbeat 1.8s ease-in-out infinite",
     }}
   >
     <div
@@ -3023,11 +3079,16 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
 
     <div
       style={{
-        fontFamily: "Orbitron, sans-serif",
-        fontSize: "7vw",
-        fontWeight: 900,
-        color: "#ffffff",
-      }}
+  fontFamily: "Orbitron, sans-serif",
+  fontSize: "7vw",
+  fontWeight: 900,
+  color: "#ffffff",
+  textShadow: `
+    0 0 10px rgba(255,255,255,0.9),
+    0 0 22px rgba(120,180,255,0.9),
+    0 0 42px rgba(0,102,255,0.75)
+  `,
+}}
     >
       {formatTime(meta?.medicalV2Display?.chongSeconds || 0)}
     </div>
