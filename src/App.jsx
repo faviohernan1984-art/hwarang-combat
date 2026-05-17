@@ -2877,61 +2877,8 @@ const panelScanKeyframes = `
 }
 `;
 
-function FloatingManualCountdown({ meta }) {
-  const overlay = meta?.medicalOverlay || {};
-
-const visible = overlay.active;
-const startedAt = overlay.startedAt || 0;
-const durationMs = overlay.durationMs || 0;
-
-const [remaining, setRemaining] = useState(
-  Math.ceil(durationMs / 1000)
-);
-
-  useEffect(() => {
-    if (!visible) return;
-    if (remaining <= 0) return;
-
-    const id = setInterval(() => {
-      setRemaining((prev) => Math.max(0, prev - 1));
-    }, 1000);
-
-    return () => clearInterval(id);
-  }, [visible, remaining]);
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        top: 30,
-        right: 30,
-        zIndex: 99999,
-        background: "rgba(0,0,0,0.78)",
-        border: "1px solid rgba(255,255,255,0.35)",
-        borderRadius: 14,
-        padding: 12,
-        color: "white",
-        fontFamily: "Arial, sans-serif",
-        textAlign: "center",
-        minWidth: 170,
-      }}
-    >
-      {/* BOTON MANUAL TEMPORAL DESACTIVADO */}
-
-      {visible && (
-        <div
-          style={{
-            marginTop: 10,
-            fontSize: 42,
-            fontWeight: 900,
-            letterSpacing: "0.06em",
-          }}
-        >
-          {formatTime(remaining)}
-        </div>
-      )}
-    </div>
-  );
+function FloatingManualCountdown() {
+  return null;
 }
 
 {/*==================================publicTVScreen===================*/}
@@ -2993,7 +2940,7 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
       bottom: "7%",
       right: "1.8vw",
       width: "35%",
-      zIndex: 60,
+      zIndex: 18,
 
       borderRadius: "10px",
 
@@ -3044,7 +2991,7 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
       bottom: "7%",
       left: "1.8vw",
       width: "35%",
-      zIndex: 60,
+      zIndex: 18,
 
       borderRadius: "10px",
 
@@ -7229,7 +7176,7 @@ const rightSide = isSwapped ? "hong" : "chong";
     left: 651,
     width: 300,
     height: 130,
-    zIndex: 999999,
+    zIndex: 18,
 
     background:
       "linear-gradient(180deg, rgba(255,42,42,0.96), rgba(122,0,0,0.92))",
@@ -7287,7 +7234,7 @@ const rightSide = isSwapped ? "hong" : "chong";
     left: 960,
     width: 300,
     height: 130,
-    zIndex: 999999,
+    zIndex: 18,
 
     background:
       "linear-gradient(180deg, rgba(47,124,255,0.96), rgba(0,29,104,0.92))",
