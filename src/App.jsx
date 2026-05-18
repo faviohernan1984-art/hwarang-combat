@@ -7959,7 +7959,6 @@ const rightSide = isSwapped ? "hong" : "chong";
   >
     <div
       style={{
-        
         borderRadius: 8,
         padding: 8,
         boxSizing: "border-box",
@@ -7971,107 +7970,45 @@ const rightSide = isSwapped ? "hong" : "chong";
         gap: 6,
       }}
     >
-      <div
-        style={{
-          fontSize: 13,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-        }}
-      >
+      <div style={{ fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
         COMBAT TIME
       </div>
 
-      <div
-        style={{
-          
-          borderRadius: 6,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 12,
-          textAlign: "center",
-          padding: 4,
-          minWidth: 0,
-          minHeight: 0,
-        }}
-      >
-        <div
-  style={{
-    display: "grid",
-    gridTemplateRows: "auto auto",
-    gap: 6,
-  }}
->
-  <div
-    style={{
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 6,
-  flexWrap: "nowrap",
-  minWidth: 0,
-}}
-  >
-    <button
-  onClick={() =>
-    setSecondsInput(String(Math.max(1, (parseInt(secondsInput, 10) || 0) - 10)))
-  }
-  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
->
-  -
-</button>
+      <div style={{ borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, textAlign: "center", padding: 4, minWidth: 0, minHeight: 0 }}>
+        <div style={{ display: "grid", gridTemplateRows: "auto auto", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, flexWrap: "nowrap", minWidth: 0 }}>
+            <button
+              disabled={inputsLocked}
+              onClick={() => setSecondsInput(String(Math.max(1, (parseInt(secondsInput, 10) || 0) - 10)))}
+              style={{ minWidth: 50, height: 25, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}
+            >
+              -
+            </button>
 
-<div style={{ fontSize: 18, fontWeight: 900 }}>
-  {formatTime(parseInt(secondsInput, 10) || 0)}
-</div>
+            <div style={{ fontSize: 18, fontWeight: 900 }}>
+              {formatTime(parseInt(secondsInput, 10) || 0)}
+            </div>
 
-<button
-  onClick={() =>
-    setSecondsInput(String((parseInt(secondsInput, 10) || 0) + 10))
-  }
-  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
->
-  +
-</button>
-  </div>
+            <button
+              disabled={inputsLocked}
+              onClick={() => setSecondsInput(String((parseInt(secondsInput, 10) || 0) + 10))}
+              style={{ minWidth: 50, height: 25, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}
+            >
+              +
+            </button>
+          </div>
 
-  <div
-    style={{
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr 1fr",
-      gap: 4,
-    }}
-  >
-    <button
-  onClick={() => setSecondsInput("60")}
-  style={{ height: 25, fontSize: 15, fontWeight: 900 }}
->
-  1:00
-</button>
-
-<button
-  onClick={() => setSecondsInput("90")}
-  style={{ height: 25, fontSize: 15, fontWeight: 900 }}
->
-  1:30
-</button>
-
-<button
-  onClick={() => setSecondsInput("120")}
-  style={{ height: 25, fontSize: 15, fontWeight: 900 }}
->
-  2:00
-</button>
-  </div>
-</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4 }}>
+            <button disabled={inputsLocked} onClick={() => setSecondsInput("60")} style={{ height: 25, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>1:00</button>
+            <button disabled={inputsLocked} onClick={() => setSecondsInput("90")} style={{ height: 25, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>1:30</button>
+            <button disabled={inputsLocked} onClick={() => setSecondsInput("120")} style={{ height: 25, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>2:00</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <div
       style={{
-        
         borderRadius: 8,
         padding: 8,
         boxSizing: "border-box",
@@ -8083,107 +8020,45 @@ const rightSide = isSwapped ? "hong" : "chong";
         gap: 6,
       }}
     >
-      <div
-        style={{
-          fontSize: 13,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-        }}
-      >
+      <div style={{ fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
         BREAK TIME
       </div>
 
-      <div
-        style={{
-          
-          borderRadius: 6,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 12,
-          textAlign: "center",
-          padding: 4,
-          minWidth: 0,
-          minHeight: 0,
-        }}
-      >
-        <div
-  style={{
-    display: "grid",
-    gridTemplateRows: "auto auto",
-    gap: 6,
-  }}
->
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 6,
-      flexWrap: "nowrap",
-      minWidth: 0,
-    }}
-  >
-    <button
-  onClick={() =>
-    setBreakSecondsInput(String(Math.max(1, (parseInt(breakSecondsInput, 10) || 0) - 5)))
-  }
-  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
->
-  -
-</button>
+      <div style={{ borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, textAlign: "center", padding: 4, minWidth: 0, minHeight: 0 }}>
+        <div style={{ display: "grid", gridTemplateRows: "auto auto", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, flexWrap: "nowrap", minWidth: 0 }}>
+            <button
+              disabled={inputsLocked}
+              onClick={() => setBreakSecondsInput(String(Math.max(1, (parseInt(breakSecondsInput, 10) || 0) - 5)))}
+              style={{ minWidth: 50, height: 25, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}
+            >
+              -
+            </button>
 
-<div style={{ fontSize: 18, fontWeight: 900 }}>
-  {formatTime(parseInt(breakSecondsInput, 10) || 0)}
-</div>
+            <div style={{ fontSize: 18, fontWeight: 900 }}>
+              {formatTime(parseInt(breakSecondsInput, 10) || 0)}
+            </div>
 
-<button
-  onClick={() =>
-    setBreakSecondsInput(String((parseInt(breakSecondsInput, 10) || 0) + 5))
-  }
-  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
->
-  +
-</button>
-  </div>
+            <button
+              disabled={inputsLocked}
+              onClick={() => setBreakSecondsInput(String((parseInt(breakSecondsInput, 10) || 0) + 5))}
+              style={{ minWidth: 50, height: 25, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}
+            >
+              +
+            </button>
+          </div>
 
-  <div
-    style={{
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr 1fr",
-      gap: 4,
-    }}
-  >
-    <button
-  onClick={() => setBreakSecondsInput("30")}
-  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
->
-  0:30
-</button>
-
-<button
-  onClick={() => setBreakSecondsInput("45")}
-  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
->
-  0:45
-</button>
-
-<button
-  onClick={() => setBreakSecondsInput("60")}
-  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
->
-  1:00
-</button>
-  </div>
-</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4 }}>
+            <button disabled={inputsLocked} onClick={() => setBreakSecondsInput("30")} style={{ height: 26, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>0:30</button>
+            <button disabled={inputsLocked} onClick={() => setBreakSecondsInput("45")} style={{ height: 26, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>0:45</button>
+            <button disabled={inputsLocked} onClick={() => setBreakSecondsInput("60")} style={{ height: 26, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>1:00</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <div
       style={{
-        
         borderRadius: 8,
         padding: 8,
         boxSizing: "border-box",
@@ -8195,102 +8070,44 @@ const rightSide = isSwapped ? "hong" : "chong";
         gap: 6,
       }}
     >
-      <div
-        style={{
-          fontSize: 13,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-        }}
-      >
+      <div style={{ fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
         ROUNDS
       </div>
 
-      <div
-        style={{
-          
-          borderRadius: 6,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 12,
-          textAlign: "center",
-          padding: 4,
-          minWidth: 0,
-          minHeight: 0,
-        }}
-      >
-        <div
-  style={{
-    display: "grid",
-    gridTemplateRows: "auto auto",
-    gap: 6,
-  }}
->
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 20,
-    }}
-  >
-    <button
-  onClick={() =>
-    setRoundsInput(String(Math.max(1, (parseInt(roundsInput, 10) || 0) - 1)))
-  }
-  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
->
-  -
-</button>
+      <div style={{ borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, textAlign: "center", padding: 4, minWidth: 0, minHeight: 0 }}>
+        <div style={{ display: "grid", gridTemplateRows: "auto auto", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
+            <button
+              disabled={inputsLocked}
+              onClick={() => setRoundsInput(String(Math.max(1, (parseInt(roundsInput, 10) || 0) - 1)))}
+              style={{ minWidth: 50, height: 25, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}
+            >
+              -
+            </button>
 
-<div style={{ fontSize: 18, fontWeight: 900 }}>
-  {parseInt(roundsInput, 10) || 1}
-</div>
+            <div style={{ fontSize: 18, fontWeight: 900 }}>
+              {parseInt(roundsInput, 10) || 1}
+            </div>
 
-<button
-  onClick={() =>
-    setRoundsInput(String((parseInt(roundsInput, 10) || 0) + 1))
-  }
-  style={{ minWidth: 50, height: 25, fontWeight: 900 }}
->
-  +
-</button>
-  </div>
+            <button
+              disabled={inputsLocked}
+              onClick={() => setRoundsInput(String((parseInt(roundsInput, 10) || 0) + 1))}
+              style={{ minWidth: 50, height: 25, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}
+            >
+              +
+            </button>
+          </div>
 
-  <div
-    style={{
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr 1fr",
-      gap: 4,
-    }}
-  >
-    <button
-  onClick={() => setRoundsInput("1")}
-  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
->
-  1
-</button>
-
-<button
-  onClick={() => setRoundsInput("2")}
-  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
->
-  2
-</button>
-
-<button
-  onClick={() => setRoundsInput("3")}
-  style={{ height: 26, fontSize: 15, fontWeight: 900 }}
->
-  3
-</button>
-  </div>
-</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4 }}>
+            <button disabled={inputsLocked} onClick={() => setRoundsInput("1")} style={{ height: 26, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>1</button>
+            <button disabled={inputsLocked} onClick={() => setRoundsInput("2")} style={{ height: 26, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>2</button>
+            <button disabled={inputsLocked} onClick={() => setRoundsInput("3")} style={{ height: 26, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>3</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
 <div
   style={{
     display: "grid",
@@ -8300,22 +8117,26 @@ const rightSide = isSwapped ? "hong" : "chong";
   }}
 >
   <AppButton
-  feedback="none"
-  style={{
-    ...styles.green,
-    height: 28,
-    fontSize: 14,
-    borderRadius: 4,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  }}
-  onClick={startTimer}
->
-  START
-</AppButton>
+    disabled={inputsLocked}
+    feedback="none"
+    style={{
+      ...styles.green,
+      height: 28,
+      fontSize: 14,
+      borderRadius: 4,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      opacity: inputsLocked ? 0.35 : 1,
+      pointerEvents: inputsLocked ? "none" : "auto",
+    }}
+    onClick={startTimer}
+  >
+    START
+  </AppButton>
 
   <AppButton
+    disabled={inputsLocked}
     style={{
       ...styles.amber,
       height: 28,
@@ -8324,6 +8145,8 @@ const rightSide = isSwapped ? "hong" : "chong";
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      opacity: inputsLocked ? 0.35 : 1,
+      pointerEvents: inputsLocked ? "none" : "auto",
     }}
     onClick={pauseTimer}
   >
@@ -8331,6 +8154,7 @@ const rightSide = isSwapped ? "hong" : "chong";
   </AppButton>
 
   <AppButton
+    disabled={inputsLocked}
     style={{
       ...styles.purple,
       height: 28,
@@ -8339,6 +8163,8 @@ const rightSide = isSwapped ? "hong" : "chong";
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      opacity: inputsLocked ? 0.35 : 1,
+      pointerEvents: inputsLocked ? "none" : "auto",
     }}
     onClick={finishMatch}
   >
