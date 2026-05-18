@@ -4108,6 +4108,39 @@ letterSpacing: "0.18em",
   </div>
 )}
 
+         {/* WINNER / DRAW LEGACY OVERLAYS */}
+{(
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "B" &&
+  meta?.goldenPoint?.state === "noDecision"
+) && (
+  <WinnerFullScreen
+    winner="draw"
+    zIndex={95}
+    mode="public"
+  />
+)}
+
+{(
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "A" &&
+  meta?.goldenPoint?.result === "draw"
+) && (
+  <WinnerFullScreen
+    winner="draw"
+    zIndex={95}
+    mode="public"
+  />
+)}
+
+{meta.showResult && s.winner && (
+  <WinnerFullScreen
+    winner={s.winner}
+    zIndex={100}
+    mode="public"
+  />
+)}
+
     </div>
         </div>
   
