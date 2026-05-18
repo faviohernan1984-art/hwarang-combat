@@ -2981,11 +2981,12 @@ const publicMedicalExpiredSide =
     width: "100%",
     height: isMobilePublicTV ? "100dvh" : "100%",
 
-    overflowX: isMobilePublicTV ? "auto" : "hidden",
-overflowY:
+    overflowX:
   isMobilePublicTV && window.innerWidth > window.innerHeight
-    ? "auto"
-    : "hidden",
+    ? "hidden"
+    : "auto",
+
+overflowY: "hidden",
 
     background: "#000",
     WebkitOverflowScrolling: "touch",
@@ -3009,7 +3010,7 @@ inset: 0,
 width:
   isMobilePublicTV
     ? window.innerWidth > window.innerHeight
-      ? "240vw"
+      ? "150vw"
       : "200vw"
     : "100vw",
 
@@ -3023,6 +3024,12 @@ background: "#000",
 color: "#fff",
 overflow: "hidden",
 fontFamily: "Arial, sans-serif",
+transform:
+  isMobilePublicTV && window.innerWidth > window.innerHeight
+    ? "scale(0.65)"
+    : "none",
+
+transformOrigin: "top left",
       }}
     >
       {meta?.medicalV2Display?.hongRunning && (
@@ -3747,7 +3754,10 @@ WebkitTextFillColor: "transparent",
 <div
   style={{
     position: "absolute",
-    top: "30vh",
+    top:
+  isMobilePublicTV && window.innerWidth > window.innerHeight
+    ? "25vh"
+    : "30vh",
     left: "50%",
     transform: "translateX(-50%)",
     textAlign: "center",
@@ -4121,10 +4131,22 @@ const isMobilePublicTV =
     <div
       style={{
         position: "absolute",
-        top: "19vh",
-        bottom: "7vh",
+        top:
+  isMobilePublicTV && window.innerWidth > window.innerHeight
+    ? "19vh"
+    : "19vh",
+
+bottom:
+  isMobilePublicTV && window.innerWidth > window.innerHeight
+    ? "4vh"
+    : "7vh",
         [side === "left" ? "left" : "right"]: "1.8vw",
-        width: isMobilePublicTV ? "76vw" : "35vw",
+        width:
+  isMobilePublicTV
+    ? window.innerWidth > window.innerHeight
+      ? "50vw"
+      : "76vw"
+    : "35vw",
         borderRadius: 12,
         overflow: "hidden",
         background: darkColor,
