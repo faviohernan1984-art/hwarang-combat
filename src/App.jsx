@@ -6744,8 +6744,28 @@ const isGPAWinner =
     meta?.goldenPoint?.result === "chongWinner"
   );
 
+
+
+const medicalDisplayExpired =
+  (
+    meta?.medicalV2Display?.hongSeconds === 0 &&
+    !meta?.medicalV2Display?.hongRunning
+  ) ||
+  (
+    meta?.medicalV2Display?.chongSeconds === 0 &&
+    !meta?.medicalV2Display?.chongRunning
+  );
+
+const medicalDecisionLocked =
+  meta?.medicalV2?.pendingDecision === true ||
+  meta?.medicalV2?.inputsLocked === true ||
+  medicalDisplayExpired;
+
 const inputsLocked =
-  meta.phase === "finished" || isGPAWinner;
+  meta.phase === "finished" ||
+  isGPAWinner ||
+  medicalDecisionLocked;  
+
 const [goldenPointAState, setGoldenPointAState] = useState("idle");
 const [hidePresidentWinner, setHidePresidentWinner] = useState(false);
 
@@ -7539,24 +7559,45 @@ const rightSide = isSwapped ? "hong" : "chong";
   </div>
 
   <div style={{ marginTop: 10, display: "flex", gap: 6 }}>
-    <button onClick={() => setTestMedicalRunning(true)} style={{ fontWeight: 900 }}>
-      START
-    </button>
+  <button
+    disabled={inputsLocked}
+    onClick={() => setTestMedicalRunning(true)}
+    style={{
+      fontWeight: 900,
+      opacity: inputsLocked ? 0.35 : 1,
+      pointerEvents: inputsLocked ? "none" : "auto",
+    }}
+  >
+    START
+  </button>
 
-    <button onClick={() => setTestMedicalRunning(false)} style={{ fontWeight: 900 }}>
-      PAUSE
-    </button>
+  <button
+    disabled={inputsLocked}
+    onClick={() => setTestMedicalRunning(false)}
+    style={{
+      fontWeight: 900,
+      opacity: inputsLocked ? 0.35 : 1,
+      pointerEvents: inputsLocked ? "none" : "auto",
+    }}
+  >
+    PAUSE
+  </button>
 
-    <button
-      onClick={() => {
-        setTestMedicalRunning(false);
-        setTestMedicalSeconds(meta.medicalPreset || 300);
-      }}
-      style={{ fontWeight: 900 }}
-    >
-      RESET
-    </button>
-  </div>
+  <button
+    disabled={inputsLocked}
+    onClick={() => {
+      setTestMedicalRunning(false);
+      setTestMedicalSeconds(meta.medicalPreset || 300);
+    }}
+    style={{
+      fontWeight: 900,
+      opacity: inputsLocked ? 0.35 : 1,
+      pointerEvents: inputsLocked ? "none" : "auto",
+    }}
+  >
+    RESET
+  </button>
+</div>
 </div>
 
 <div
@@ -7597,23 +7638,44 @@ const rightSide = isSwapped ? "hong" : "chong";
   </div>
 
   <div style={{ marginTop: 10, display: "flex", gap: 6 }}>
-    <button onClick={() => setTestMedicalChongRunning(true)} style={{ fontWeight: 900 }}>
-      START
-    </button>
-
-    <button onClick={() => setTestMedicalChongRunning(false)} style={{ fontWeight: 900 }}>
-      PAUSE
-    </button>
-
     <button
-      onClick={() => {
-        setTestMedicalChongRunning(false);
-        setTestMedicalChongSeconds(meta.medicalPreset || 300);
-      }}
-      style={{ fontWeight: 900 }}
-    >
-      RESET
-    </button>
+  disabled={inputsLocked}
+  onClick={() => setTestMedicalChongRunning(true)}
+  style={{
+    fontWeight: 900,
+    opacity: inputsLocked ? 0.35 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
+  }}
+>
+  START
+</button>
+
+<button
+  disabled={inputsLocked}
+  onClick={() => setTestMedicalChongRunning(false)}
+  style={{
+    fontWeight: 900,
+    opacity: inputsLocked ? 0.35 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
+  }}
+>
+  PAUSE
+</button>
+
+<button
+  disabled={inputsLocked}
+  onClick={() => {
+    setTestMedicalChongRunning(false);
+    setTestMedicalChongSeconds(meta.medicalPreset || 300);
+  }}
+  style={{
+    fontWeight: 900,
+    opacity: inputsLocked ? 0.35 : 1,
+    pointerEvents: inputsLocked ? "none" : "auto",
+  }}
+>
+  RESET
+</button>
   </div>
 </div>
 
