@@ -2935,6 +2935,12 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
   const s = summary(meta, judges);
   const { left, right } = getDisplaySides(meta, "public");
   console.log("MEDICAL OVERLAY TEST:", meta.medicalOverlay);
+  // PUBLIC TV MOBILE SCROLL GATE
+// Maintenance:
+// TV / PC / 1920x1080 remain locked cinematic.
+// Mobile only enables safe manual scroll without resizing the broadcast layout.
+const isMobilePublicTV =
+  typeof window !== "undefined" && window.innerWidth < 900;
 
 
   /*============================== PUBLIC TV MEDICAL EMERGENCY DETECTOR ==============================*/
@@ -2970,8 +2976,22 @@ const publicMedicalExpiredSide =
   };
 
   return (
-    <>
-  <FloatingManualCountdown meta={meta} />
+  <div
+  style={{
+    width: "100%",
+    height: isMobilePublicTV ? "100dvh" : "100%",
+
+    overflowX: isMobilePublicTV ? "auto" : "hidden",
+overflowY:
+  isMobilePublicTV && window.innerWidth > window.innerHeight
+    ? "auto"
+    : "hidden",
+
+    background: "#000",
+    WebkitOverflowScrolling: "touch",
+  }}
+>
+    <FloatingManualCountdown meta={meta} />
 
   <style>
   {
@@ -2984,14 +3004,25 @@ const publicMedicalExpiredSide =
 </style>
     <div
       style={{
-        position: "fixed",
-        inset: 0,
-        width: "100vw",
-        height: "100dvh",
-        background: "#000",
-        color: "#fff",
-        overflow: "hidden",
-        fontFamily: "Arial, sans-serif",
+position: isMobilePublicTV ? "relative" : "fixed",
+inset: 0,
+width:
+  isMobilePublicTV
+    ? window.innerWidth > window.innerHeight
+      ? "240vw"
+      : "200vw"
+    : "100vw",
+
+height:
+  isMobilePublicTV
+    ? window.innerWidth > window.innerHeight
+      ? "155dvh"
+      : "105dvh"
+    : "100dvh",
+background: "#000",
+color: "#fff",
+overflow: "hidden",
+fontFamily: "Arial, sans-serif",
       }}
     >
       {meta?.medicalV2Display?.hongRunning && (
@@ -4068,8 +4099,9 @@ letterSpacing: "0.18em",
 )}
 
     </div>
-    </>
-  );
+        </div>
+  
+);
 }
 
 function TVFighterPanel({ fighter, score, warnings, fouls, side }) {
@@ -4078,6 +4110,12 @@ function TVFighterPanel({ fighter, score, warnings, fouls, side }) {
   const mainColor = isHong ? "#c81010" : "#0d47a1";
   const darkColor = isHong ? "#120000" : "#020617";
   const glowColor = isHong ? "rgba(255,0,0,0.38)" : "rgba(37,99,235,0.42)";
+  // PUBLIC TV MOBILE PANEL WIDTH
+// Maintenance:
+// Desktop/TV keeps cinematic vw sizing.
+// Mobile widens fighter cards only, preserving height and broadcast layout.
+const isMobilePublicTV =
+  typeof window !== "undefined" && window.innerWidth < 900;
 
   return (
     <div
@@ -4086,7 +4124,7 @@ function TVFighterPanel({ fighter, score, warnings, fouls, side }) {
         top: "19vh",
         bottom: "7vh",
         [side === "left" ? "left" : "right"]: "1.8vw",
-        width: "35vw",
+        width: isMobilePublicTV ? "76vw" : "35vw",
         borderRadius: 12,
         overflow: "hidden",
         background: darkColor,
