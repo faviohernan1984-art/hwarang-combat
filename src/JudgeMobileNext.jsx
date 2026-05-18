@@ -1,6 +1,34 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useWakeLock } from "./useWakeLock";
 export default function JudgeMobileNext({ meta, judges, writeJudge, judgeId, roomId, time, mobileWarningText }) {
+  useWakeLock();
+  
+  useEffect(() => {
+  const keepAwake = async () => {
+    try {
+      if ("wakeLock" in navigator) {
+        await navigator.wakeLock.request("screen");
+      }
+    } catch {}
+  };
+
+  keepAwake();
+
+  const onVisibilityChange = () => {
+    if (document.visibilityState === "visible") {
+      keepAwake();
+    }
+  };
+
+  document.addEventListener("visibilitychange", onVisibilityChange);
+  window.addEventListener("focus", keepAwake);
+
+  return () => {
+    document.removeEventListener("visibilitychange", onVisibilityChange);
+    window.removeEventListener("focus", keepAwake);
+  };
+}, []);
 
   const gpBannerText =
   meta?.goldenPoint?.active
@@ -56,12 +84,21 @@ const inputsLocked =
   
 /*============================== MEDICAL EMERGENCY DETECTOR / JUDGE ==============================*/
 
-const medicalEmergencySide =
-  meta?.medicalV2Display?.hongSeconds === 0
+const medicalRunningSide =
+  meta?.medicalV2Display?.hongRunning
     ? "hong"
-    : meta?.medicalV2Display?.chongSeconds === 0
+    : meta?.medicalV2Display?.chongRunning
     ? "chong"
-    : null;  
+    : null;
+
+const medicalEmergencySide =
+  meta?.medicalV2Display?.hongSeconds === 0 &&
+  !meta?.medicalV2Display?.hongRunning
+    ? "hong"
+    : meta?.medicalV2Display?.chongSeconds === 0 &&
+      !meta?.medicalV2Display?.chongRunning
+    ? "chong"
+    : null;
 
   /*============================== MEDICAL EXPIRED OVERLAY STATE ==============================*/
 
@@ -258,18 +295,18 @@ const showJudgeWinner =
       >
         {/*============================== MEDICAL EXPIRED OVERLAY ==============================*/}
 
-{/*============================== MEDICAL EMERGENCY OVERLAY / JUDGE ==============================*/}
+{/*============================== MEDICAL RUNNING OVERLAY / JUDGE ==============================*/}
 
-{medicalEmergencySide && (
+{medicalRunningSide && !medicalEmergencySide && (
   <div
     style={{
       position: "absolute",
       inset: 0,
-      zIndex: 999999,
+      zIndex: 70,
       background:
-        medicalEmergencySide === "hong"
-          ? "radial-gradient(circle, rgba(120,0,0,0.96), rgba(0,0,0,0.96))"
-          : "radial-gradient(circle, rgba(0,35,120,0.96), rgba(0,0,0,0.96))",
+        medicalRunningSide === "hong"
+          ? "radial-gradient(circle, rgba(90,0,0,0.86), rgba(0,0,0,0.90))"
+          : "radial-gradient(circle, rgba(0,28,95,0.86), rgba(0,0,0,0.90))",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -278,49 +315,48 @@ const showJudgeWinner =
       fontFamily: "'Orbitron', sans-serif",
       textAlign: "center",
       letterSpacing: "0.08em",
-      animation: "medicalEmergencyPulse 0.8s ease-in-out infinite",
+      animation: "medicalEmergencyPulse 1.8s ease-in-out infinite",
+      pointerEvents: "auto",
     }}
   >
     <div
       style={{
-        fontSize: 22,
-        marginBottom: 18,
+        fontSize: 19,
+        marginBottom: 16,
         color: "#facc15",
         fontWeight: 900,
-        
       }}
     >
-      MEDICAL EMERGENCY
+      MEDICAL TIME
     </div>
 
     <div
       style={{
-        fontSize: 46,
+        fontSize: 42,
         fontWeight: 900,
-        color: medicalEmergencySide === "hong" ? "#ff2a2a" : "#2f7cff",
+        color: medicalRunningSide === "hong" ? "#ff2a2a" : "#2f7cff",
         textShadow:
-          medicalEmergencySide === "hong"
+          medicalRunningSide === "hong"
             ? "0 0 22px rgba(255,0,0,0.9)"
             : "0 0 22px rgba(47,124,255,0.9)",
-            
       }}
     >
-      {medicalEmergencySide === "hong" ? "HONG" : "CHONG"}
+      {medicalRunningSide === "hong" ? "HONG" : "CHONG"}
     </div>
 
     <div
       style={{
-        fontSize: 32,
+        fontSize: 29,
         fontWeight: 900,
         marginTop: 8,
       }}
     >
-      TIME EXPIRED
+      IN PROGRESS
     </div>
 
     <div
       style={{
-        marginTop: 22,
+        marginTop: 20,
         fontSize: 17,
         lineHeight: 1.35,
         color: "rgba(255,255,255,0.82)",
@@ -328,7 +364,144 @@ const showJudgeWinner =
     >
       INPUTS LOCKED
       <br />
-      WAITING FOR PRESIDENT DECISION
+      MEDICAL TIME RUNNING
+    </div>
+  </div>
+)}
+
+{/*============================== MEDICAL FORCED EXIT OVERLAY / JUDGE ==============================*/}
+
+{medicalEmergencySide && (
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 80,
+      background:
+        medicalEmergencySide === "hong"
+          ? `
+            radial-gradient(circle at center,
+              rgba(160,0,0,0.95) 0%,
+              rgba(55,0,0,0.96) 42%,
+              rgba(0,0,0,0.98) 100%)
+          `
+          : `
+            radial-gradient(circle at center,
+              rgba(0,55,160,0.95) 0%,
+              rgba(0,16,70,0.96) 42%,
+              rgba(0,0,0,0.98) 100%)
+          `,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      color: "white",
+      fontFamily: "'Orbitron', sans-serif",
+      textAlign: "center",
+      letterSpacing: "0.08em",
+      animation: "medicalEmergencyPulse 0.9s ease-in-out infinite",
+      pointerEvents: "auto",
+      padding: 22,
+      boxSizing: "border-box",
+    }}
+  >
+    <div
+      style={{
+        width: "100%",
+        maxWidth: 340,
+        borderRadius: 26,
+        overflow: "hidden",
+        padding: "30px 18px",
+        background:
+          "linear-gradient(180deg, rgba(20,12,2,0.92), rgba(0,0,0,0.96))",
+        border: "2px solid rgba(255,215,90,0.95)",
+        boxShadow: `
+          0 0 24px rgba(255,215,0,0.62),
+          0 0 62px rgba(255,190,0,0.28),
+          inset 0 0 28px rgba(255,215,0,0.12)
+        `,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 16,
+          fontWeight: 900,
+          letterSpacing: "0.24em",
+          color: "#f5c542",
+          marginBottom: 18,
+          textShadow: "0 0 12px rgba(245,197,66,0.85)",
+        }}
+      >
+        ⚖ FORCED MEDICAL EXIT
+      </div>
+
+      <div
+        style={{
+          fontSize: 42,
+          lineHeight: 0.95,
+          fontWeight: 900,
+          color: medicalEmergencySide === "hong" ? "#ff2a2a" : "#2f7cff",
+          textShadow:
+            medicalEmergencySide === "hong"
+              ? "0 0 18px rgba(255,0,0,0.95)"
+              : "0 0 18px rgba(47,124,255,0.95)",
+        }}
+      >
+        {medicalEmergencySide === "hong" ? "HONG" : "CHONG"}
+      </div>
+
+      <div
+        style={{
+          fontSize: 31,
+          lineHeight: 1,
+          fontWeight: 900,
+          marginTop: 8,
+          color: "#ffffff",
+          textShadow: "0 0 14px rgba(255,255,255,0.45)",
+        }}
+      >
+        TIME EXPIRED
+      </div>
+
+      <div
+        style={{
+          width: "72%",
+          height: 2,
+          margin: "22px auto 18px",
+          background:
+            "linear-gradient(90deg, transparent, rgba(255,215,90,0.95), transparent)",
+          boxShadow: "0 0 12px rgba(255,215,90,0.75)",
+        }}
+      />
+
+      <div
+        style={{
+          fontSize: 18,
+          fontWeight: 900,
+          letterSpacing: "0.12em",
+          color: "#fff7cc",
+          lineHeight: 1.25,
+        }}
+      >
+        REGULATION
+        <br />
+        DECISION REQUIRED
+      </div>
+
+      <div
+        style={{
+          marginTop: 18,
+          fontSize: 13,
+          lineHeight: 1.45,
+          color: "rgba(255,255,255,0.72)",
+          fontWeight: 800,
+          letterSpacing: "0.08em",
+        }}
+      >
+        INPUTS LOCKED
+        <br />
+        WAIT FOR PRESIDENT
+      </div>
     </div>
   </div>
 )}
@@ -369,7 +542,7 @@ const showJudgeWinner =
             alignItems: "flex-start",
             paddingTop: 133,
             justifyContent: "center",
-            pointerEvents: "none",
+            pointerEvents: "auto",
             zIndex: 1,
           }}
         >

@@ -11,18 +11,33 @@ export function useWakeLock(enabled = true) {
     async function requestWakeLock() {
       try {
         if (!("wakeLock" in navigator)) {
-          console.log("Wake Lock no soportado en este navegador");
+          console.log("Wake Lock no soportado");
           return;
         }
 
-        if (wakeLockRef.current) return;
+        if (wakeLockRef.current) {
+          try {
+            await wakeLockRef.current.release();
+          } catch {}
+          wakeLockRef.current = null;
+        }
 
-        wakeLockRef.current = await navigator.wakeLock.request("screen");
+        const sentinel = await navigator.wakeLock.request("screen");
+
+        wakeLockRef.current = sentinel;
+
         console.log("Wake Lock activo");
 
-        wakeLockRef.current.addEventListener("release", () => {
-          wakeLockRef.current = null;
+        sentinel.addEventListener("release", () => {
           console.log("Wake Lock liberado");
+          wakeLockRef.current = null;
+
+          if (
+            document.visibilityState === "visible" &&
+            !cancelled
+          ) {
+            requestWakeLock();
+          }
         });
       } catch (err) {
         console.log("Wake Lock error:", err);
@@ -37,14 +52,25 @@ export function useWakeLock(enabled = true) {
 
     requestWakeLock();
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    window.addEventListener("focus", requestWakeLock);
 
     return () => {
       cancelled = true;
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+
+      window.removeEventListener("focus", requestWakeLock);
 
       if (wakeLockRef.current) {
-        wakeLockRef.current.release();
+        wakeLockRef.current.release().catch(() => {});
         wakeLockRef.current = null;
       }
     };
