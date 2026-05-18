@@ -181,6 +181,23 @@ function GlobalAppStyle() {
         }
       }
 
+@keyframes medicalDecisionPulse {
+  0% {
+    transform: translateX(-50%) scale(1);
+    filter: brightness(1);
+  }
+
+  50% {
+    transform: translateX(-50%) scale(1.015);
+    filter: brightness(1.12);
+  }
+
+  100% {
+    transform: translateX(-50%) scale(1);
+    filter: brightness(1);
+  }
+}
+
 @keyframes winnerBorderPulseRed {
   0% {
     box-shadow: 0 0 10px rgba(255, 26, 26, 0.4),
@@ -7287,11 +7304,29 @@ if (
   };
 
   const closeMatch = async () => {
-    await writeMeta((current) => {
-      current.showResult = true;
-      return current;
-    });
-  };
+  await writeMeta((current) => {
+    const hongMedicalExpired =
+      current?.medicalV2Display?.hongSeconds === 0 &&
+      !current?.medicalV2Display?.hongRunning;
+
+    const chongMedicalExpired =
+      current?.medicalV2Display?.chongSeconds === 0 &&
+      !current?.medicalV2Display?.chongRunning;
+
+    if (hongMedicalExpired && !chongMedicalExpired) {
+      current.combatForcedWinner = "chong";
+    }
+
+    if (chongMedicalExpired && !hongMedicalExpired) {
+      current.combatForcedWinner = "hong";
+    }
+
+    current.showResult = true;
+    current.phase = "finished";
+
+    return current;
+  });
+};
 
   const applyCombatForcedWinner = async (winnerSide) => {
     setHidePresidentWinner(false);
@@ -9770,6 +9805,80 @@ onMouseLeave={(e) => {
 </div>
       </div>
     </div>
+
+{/* ================= MEDICAL REGULATION DECISION BANNER ================= */}
+
+{medicalDecisionLocked && (
+  <div
+    style={{
+      position: "absolute",
+      top: 415,
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: 470,
+      height: 153,
+      minHeight: 92,
+      zIndex: 40,
+      animation: "medicalDecisionPulse 2.4s ease-in-out infinite",
+      background:
+        "linear-gradient(180deg, rgba(38,28,5,0.96), rgba(8,6,2,0.96))",
+      border: "1px solid rgba(255,215,90,0.9)",
+      borderRadius: 10,
+
+      boxShadow: `
+        0 0 22px rgba(255,215,0,0.55),
+        0 0 52px rgba(255,190,0,0.24),
+        inset 0 0 26px rgba(255,215,0,0.12)
+      `,
+
+      color: "#fff7cc",
+      fontFamily: "Orbitron, sans-serif",
+      textAlign: "center",
+      padding: "12px 18px",
+      pointerEvents: "none",
+    }}
+  >
+    <div
+      style={{
+        fontSize: 14,
+        fontWeight: 900,
+        letterSpacing: "0.22em",
+        color: "#f5c542",
+        marginBottom: 6,
+        textShadow: "0 0 10px rgba(245,197,66,0.75)",
+      }}
+    >
+      ⚖ MEDICAL TIME EXPIRED
+    </div>
+
+    <div
+      style={{
+        fontSize: 21,
+        fontWeight: 900,
+        letterSpacing: "0.08em",
+        color: "#ffffff",
+        marginBottom: 4,
+        textShadow: "0 0 12px rgba(255,255,255,0.35)",
+      }}
+    >
+      {meta?.medicalV2Display?.hongSeconds === 0 &&
+      !meta?.medicalV2Display?.hongRunning
+        ? "SUGGESTED DECISION: CHONG WINNER"
+        : "SUGGESTED DECISION: HONG WINNER"}
+    </div>
+
+    <div
+      style={{
+        fontSize: 12,
+        fontWeight: 700,
+        letterSpacing: "0.18em",
+        color: "rgba(255,247,204,0.78)",
+      }}
+    >
+      PRESS SET DECISION TO CONFIRM RESULT
+    </div>
+  </div>
+)}
 
     {presidentWinner && !hidePresidentWinner && (
   <WinnerFullScreen
