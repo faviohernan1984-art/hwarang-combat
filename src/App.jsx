@@ -4118,91 +4118,127 @@ letterSpacing: "0.18em",
   </div>
 </div>
 
-{/*============================== PUBLIC TV SIDE ALERT - CHONG WARNING TEST ==============================*/}
+{/*============================== PUBLIC TV SIDE ALERTS DIRECT EDGE TEST ==============================*/}
 
-{true && (
+{/*============================== PUBLIC TV FOUL DANGER INDICATORS ==============================*/}
+
+{getFouls(left) === 2 && (
   <div
     style={{
       position: "absolute",
-      top: "42vh",
-      left: "7.6vw",
+      top: "76.5vh",
+      left: "calc(50% - 38.4vw)",
+      transform: "translateX(-100%)",
+
       zIndex: 35,
-      padding: "1vh 1.5vw",
-      borderRadius: "10px",
+
+      padding: "0.3vh 0.3vw",
+
+      borderRadius: "999px",
+
       background: "rgba(0,0,0,0.88)",
-      border: "2px solid rgba(255,215,70,0.95)",
+
+      border: "1px solid rgba(255,215,70,0.75)",
+
       boxShadow: `
         0 0 18px rgba(255,215,70,0.45),
         0 0 36px rgba(0,102,255,0.28)
       `,
+
       animation: "gpaAttentionPulse 1.2s ease-in-out infinite",
     }}
   >
-    <div
+    <span
       style={{
-        fontFamily: "Orbitron, sans-serif",
-        fontSize: "clamp(16px,1.2vw,28px)",
-        fontWeight: 1000,
-        letterSpacing: "0.12em",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+
+        width: "100%",
+        height: "100%",
+
+        transform: "translateY(-7%)",
+
+        fontSize: "clamp(24px,2.2vw,52px)",
+        lineHeight: 1,
+
         color: "#ffd84d",
+
+        filter: "drop-shadow(0 0 10px rgba(255,216,77,0.85))",
       }}
     >
-      WARNING
-    </div>
+      ⚠
+    </span>
   </div>
 )}
 
-      {/* PANEL IZQUIERDO */}
-      <TVFighterPanel
-        fighter={left}
-        score={getSideScore(left)}
-        warnings={getWarnings(left)}
-        fouls={getFouls(left)}
-        side="left"
-      />
-
-{/*============================== PUBLIC TV SIDE ALERT - HONG WARNING TEST ==============================*/}
-
-{true && (
+{getFouls(right) === 2 && (
   <div
     style={{
       position: "absolute",
-      top: "42vh",
-      right: "-3.3vw",
+      top: "76.5vh",
+      left: "calc(50% + 22.8vw)",
+      transform: "translateX(0)",
+
       zIndex: 35,
-      padding: "1vh 1.5vw",
-      borderRadius: "10px",
+
+      padding: "0.3vh 0.3vw",
+
+      borderRadius: "999px",
+
       background: "rgba(0,0,0,0.88)",
-      border: "2px solid rgba(255,215,70,0.95)",
+
+      border: "1px solid rgba(255,215,70,0.75)",
+
       boxShadow: `
         0 0 18px rgba(255,215,70,0.45),
         0 0 36px rgba(255,0,0,0.28)
       `,
+
       animation: "gpaAttentionPulse 1.2s ease-in-out infinite",
     }}
   >
-    <div
+    <span
       style={{
-        fontFamily: "Orbitron, sans-serif",
-        fontSize: "clamp(16px,1.2vw,28px)",
-        fontWeight: 1000,
-        letterSpacing: "0.12em",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+
+        width: "100%",
+        height: "100%",
+
+        transform: "translateY(-7%)",
+
+        fontSize: "clamp(24px,2.2vw,52px)",
+        lineHeight: 1,
+
         color: "#ffd84d",
+
+        filter: "drop-shadow(0 0 10px rgba(255,216,77,0.85))",
       }}
     >
-      WARNING
-    </div>
+      ⚠
+    </span>
   </div>
 )}
 
-      {/* PANEL DERECHO */}
-      <TVFighterPanel
-        fighter={right}
-        score={getSideScore(right)}
-        warnings={getWarnings(right)}
-        fouls={getFouls(right)}
-        side="right"
-      />
+{/* PANEL IZQUIERDO */}
+<TVFighterPanel
+  fighter={left}
+  score={getSideScore(left)}
+  warnings={getWarnings(left)}
+  fouls={getFouls(left)}
+  side="left"
+/>
+
+{/* PANEL DERECHO */}
+<TVFighterPanel
+  fighter={right}
+  score={getSideScore(right)}
+  warnings={getWarnings(right)}
+  fouls={getFouls(right)}
+  side="right"
+/>
 
       {/* MEDICAL TIME OVERLAY */}
 {false && meta.medicalActive && (
