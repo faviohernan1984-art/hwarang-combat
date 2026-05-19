@@ -4118,6 +4118,40 @@ letterSpacing: "0.18em",
   </div>
 </div>
 
+{/*============================== PUBLIC TV SIDE ALERT - CHONG WARNING TEST ==============================*/}
+
+{true && (
+  <div
+    style={{
+      position: "absolute",
+      top: "42vh",
+      left: "7.6vw",
+      zIndex: 35,
+      padding: "1vh 1.5vw",
+      borderRadius: "10px",
+      background: "rgba(0,0,0,0.88)",
+      border: "2px solid rgba(255,215,70,0.95)",
+      boxShadow: `
+        0 0 18px rgba(255,215,70,0.45),
+        0 0 36px rgba(0,102,255,0.28)
+      `,
+      animation: "gpaAttentionPulse 1.2s ease-in-out infinite",
+    }}
+  >
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+        fontSize: "clamp(16px,1.2vw,28px)",
+        fontWeight: 1000,
+        letterSpacing: "0.12em",
+        color: "#ffd84d",
+      }}
+    >
+      WARNING
+    </div>
+  </div>
+)}
+
       {/* PANEL IZQUIERDO */}
       <TVFighterPanel
         fighter={left}
@@ -4126,6 +4160,40 @@ letterSpacing: "0.18em",
         fouls={getFouls(left)}
         side="left"
       />
+
+{/*============================== PUBLIC TV SIDE ALERT - HONG WARNING TEST ==============================*/}
+
+{true && (
+  <div
+    style={{
+      position: "absolute",
+      top: "42vh",
+      right: "-3.3vw",
+      zIndex: 35,
+      padding: "1vh 1.5vw",
+      borderRadius: "10px",
+      background: "rgba(0,0,0,0.88)",
+      border: "2px solid rgba(255,215,70,0.95)",
+      boxShadow: `
+        0 0 18px rgba(255,215,70,0.45),
+        0 0 36px rgba(255,0,0,0.28)
+      `,
+      animation: "gpaAttentionPulse 1.2s ease-in-out infinite",
+    }}
+  >
+    <div
+      style={{
+        fontFamily: "Orbitron, sans-serif",
+        fontSize: "clamp(16px,1.2vw,28px)",
+        fontWeight: 1000,
+        letterSpacing: "0.12em",
+        color: "#ffd84d",
+      }}
+    >
+      WARNING
+    </div>
+  </div>
+)}
 
       {/* PANEL DERECHO */}
       <TVFighterPanel
