@@ -3019,6 +3019,31 @@ overflowY: "hidden",
     panelScanKeyframes +
     roundPulseKeyframes +
     roundGlowKeyframes
+    + `
+@keyframes gpaAttentionPulse {
+  0% {
+    transform: translateX(-50%) scale(1);
+    box-shadow:
+      0 0 10px rgba(245,197,66,0.18),
+      inset 0 0 10px rgba(245,197,66,0.05);
+  }
+
+  50% {
+    transform: translateX(-50%) scale(1.06);
+    box-shadow:
+      0 0 26px rgba(245,197,66,0.75),
+      0 0 55px rgba(245,197,66,0.38),
+      inset 0 0 18px rgba(245,197,66,0.16);
+  }
+
+  100% {
+    transform: translateX(-50%) scale(1);
+    box-shadow:
+      0 0 10px rgba(245,197,66,0.18),
+      inset 0 0 10px rgba(245,197,66,0.05);
+  }
+}
+`
   }
 </style>
     <div
@@ -3722,7 +3747,11 @@ WebkitTextFillColor: "transparent",
         
       }}
     >
-      MATCH
+      {meta.goldenPoint?.active
+  ? meta.goldenPoint.mode === "A"
+    ? "GOLDEN POINT A"
+    : `GOLDEN POINT B / ROUND ${meta.goldenPoint.gpRound || 1}`
+  : "MATCH"}
     </div>
 
     {/* LINEAS DESACTIVADAS */}
@@ -3882,8 +3911,73 @@ letterSpacing: "0.18em",
 
         }}
       >
-        {meta.status === "running" ? "FIGHTING" : meta.status || "PAUSED"}
+        {meta.phase === "finished"
+  ? "FINISHED"
+  : meta.phase === "break"
+  ? "BREAK TIME"
+  : meta.status === "running"
+  ? "FIGHTING"
+  : "PAUSED"}
       </div>
+
+      {meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "A" &&
+  meta?.goldenPoint?.result === "noDecision" && (
+    <div
+      style={{
+        position: "absolute",
+        top: "83vh",
+        left: "50%",
+        transform: "translateX(-50%)",
+
+        zIndex: 32,
+
+        padding: "2.5vh 1.6vw",
+
+        borderRadius: "10px",
+
+        background: "rgba(0,0,0,0.82)",
+
+        border: "2px solid rgba(245,197,66,0.95)",
+
+        boxShadow: `
+          0 0 18px rgba(245,197,66,0.32),
+          inset 0 0 16px rgba(245,197,66,0.08)
+        `,
+
+        backdropFilter: "blur(8px)",
+
+        animation: "gpaAttentionPulse 1.15s ease-in-out infinite",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "Orbitron, sans-serif",
+
+          fontSize: "clamp(22px,2vw,46px)",
+
+          fontWeight: 1000,
+
+          letterSpacing: "0.14em",
+
+          textTransform: "uppercase",
+
+          background:
+            "linear-gradient(180deg, #f6d67a, #c6922e 55%, #fff0b0)",
+
+          WebkitBackgroundClip: "text",
+
+          WebkitTextFillColor: "transparent",
+
+          textShadow: `
+            0 0 8px rgba(245,197,66,0.35)
+          `,
+        }}
+      >
+        NO DECISION
+      </div>
+    </div>
+)}
 
       {/* JUDGES LIVE VOTES */}
 <div
@@ -3897,6 +3991,9 @@ letterSpacing: "0.18em",
     flexDirection: "column",
     alignItems: "center",
   }}
+
+
+  
 >
   <div
     style={{
@@ -3921,7 +4018,14 @@ letterSpacing: "0.18em",
     }}
   >
     {judges.slice(0, 4).map((judge, index) => {
-  const trend = judgeRawTrend(judge);
+  const trend =
+  meta?.goldenPoint?.active && meta?.goldenPoint?.mode === "A"
+    ? judge.gpDecision === "hong"
+      ? "H"
+      : judge.gpDecision === "chong"
+      ? "C"
+      : "D"
+    : judgeRawTrend(judge);
 
   const j = {
     id: `J${index + 1}`,
@@ -4169,6 +4273,32 @@ letterSpacing: "0.18em",
   <WinnerFullScreen
     winner="draw"
     zIndex={95}
+    mode="public"
+  />
+)}
+
+{(
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "A" &&
+  meta?.goldenPoint?.state === "resolved" &&
+  meta?.goldenPoint?.result === "hongWinner"
+) && (
+  <WinnerFullScreen
+    winner="hong"
+    zIndex={100}
+    mode="public"
+  />
+)}
+
+{(
+  meta?.goldenPoint?.active &&
+  meta?.goldenPoint?.mode === "A" &&
+  meta?.goldenPoint?.state === "resolved" &&
+  meta?.goldenPoint?.result === "chongWinner"
+) && (
+  <WinnerFullScreen
+    winner="chong"
+    zIndex={100}
     mode="public"
   />
 )}
