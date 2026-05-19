@@ -1054,6 +1054,24 @@ function judgeNet(judge, meta) {
   };
 }
 
+// TENDENCIA VISUAL CRUDA DEL JUEZ
+// Uso exclusivo para PublicTV.
+// Muestra a quién ve ganador cada juez según puntos crudos.
+// NO aplica warnings.
+// NO aplica fouls.
+// NO modifica el fallo oficial.
+// El procesamiento reglamentario final ocurre únicamente en President.
+
+function judgeRawTrend(judge) {
+  const hong = Number(judge?.hongPoints || 0);
+  const chong = Number(judge?.chongPoints || 0);
+
+  if (hong > chong) return "H";
+  if (chong > hong) return "C";
+
+  return "D";
+}
+
 // ⚠️ LEGACY - NO USAR EN GOLDEN POINT A
 // GPA ahora usa j.gpDecision directamente
 
@@ -3891,7 +3909,7 @@ letterSpacing: "0.18em",
       textTransform: "uppercase",
     }}
   >
-    JUDGES VOTES
+    JUDGE ANALYSIS
   </div>
 
   <div
@@ -3902,15 +3920,16 @@ letterSpacing: "0.18em",
       alignItems: "end",
     }}
   >
-    {[
-      { id: "J1", vote: "H" },
-      { id: "J2", vote: "N" },
-      { id: "J3", vote: "C" },
-      { id: "J4", vote: "H" },
-    ].map((j) => {
+    {judges.slice(0, 4).map((judge, index) => {
+  const trend = judgeRawTrend(judge);
+
+  const j = {
+    id: `J${index + 1}`,
+    vote: trend,
+  };
       const isHong = j.vote === "H";
       const isChong = j.vote === "C";
-      const neutral = j.vote === "N";
+      const neutral = j.vote === "D";
 
       return (
         <div
@@ -3935,39 +3954,60 @@ letterSpacing: "0.18em",
           </div>
 
           <div
-            style={{
-              width: "3vw",
-              minWidth: 12,
+  style={{
+    width: "3vw",
+    minWidth: 12,
 
-              height: "6vh",
+    height: "6vh",
 
-              borderRadius: 2,
+    borderRadius: 2,
 
-              background: neutral
-                ? "rgba(255,255,255,0.12)"
-                : isHong
-                ? "linear-gradient(180deg, #ff2a2a, #7a0000)"
-                : "linear-gradient(180deg, #2f7cff, #001d68)",
+    background: neutral
+      ? "rgba(120,120,120,0.32)"
+      : isHong
+      ? "linear-gradient(180deg, #ff2a2a, #7a0000)"
+      : "linear-gradient(180deg, #2f7cff, #001d68)",
 
-              border: neutral
-                ? "1px solid rgba(255,255,255,0.12)"
-                : isHong
-                ? "1px solid rgba(255,0,0,0.35)"
-                : "1px solid rgba(0,102,255,0.35)",
+    border: neutral
+      ? "1px solid rgba(255,255,255,0.22)"
+      : isHong
+      ? "1px solid rgba(255,0,0,0.35)"
+      : "1px solid rgba(0,102,255,0.35)",
 
-              boxShadow: neutral
-                ? "none"
-                : isHong
-                ? `
-                  0 0 10px rgba(255,0,0,0.35),
-                  0 0 24px rgba(255,0,0,0.12)
-                `
-                : `
-                  0 0 10px rgba(0,102,255,0.35),
-                  0 0 24px rgba(0,102,255,0.12)
-                `,
-            }}
-          />
+    boxShadow: neutral
+      ? "0 0 10px rgba(255,255,255,0.08)"
+      : isHong
+      ? `
+        0 0 10px rgba(255,0,0,0.35),
+        0 0 24px rgba(255,0,0,0.12)
+      `
+      : `
+        0 0 10px rgba(0,102,255,0.35),
+        0 0 24px rgba(0,102,255,0.12)
+      `,
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }}
+>
+  <div
+    style={{
+      color: "#ffffff",
+      fontFamily: "Arial Black, Arial, sans-serif",
+      fontSize: "clamp(14px,1.2vw,24px)",
+      fontWeight: 1000,
+      lineHeight: 1,
+
+      textShadow: `
+        0 0 6px rgba(255,255,255,0.65),
+        0 0 12px rgba(255,255,255,0.25)
+      `,
+    }}
+  >
+    {j.vote}
+  </div>
+</div>
         </div>
       );
     })}
