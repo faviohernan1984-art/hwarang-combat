@@ -637,6 +637,22 @@ function makeEmptyGoldenPoint() {
   };
 }
 
+// ======================================================
+// DISQUALIFICATION PHASE STATE
+// Estado auxiliar para manejar descalificación pendiente.
+// No modifica summary(), judgeVote() ni cálculo oficial.
+// ======================================================
+function makeEmptyDisqualification() {
+  return {
+    pending: false,
+    disqualifiedSide: null,
+    suggestedWinner: null,
+    decisionType: null,
+    inputsLocked: false,
+    resolved: false,
+  };
+}
+
 function makeInitialMeta() {
   return {
     mode: "combat",
@@ -721,9 +737,16 @@ medicalV2: {
   expired: false,
 },
 
+// ======================================================
+// GOLDEN POINT / DISQUALIFICATION STATES
+// Estados auxiliares reglamentarios.
+// No modifican summary(), judgeVote() ni cálculo oficial.
+// ======================================================
 goldenPoint: makeEmptyGoldenPoint(),
-    showResult: false,
-    updatedAt: Date.now(),
+disqualification: makeEmptyDisqualification(),
+
+showResult: false,
+updatedAt: Date.now(),
   };
 }
 
@@ -750,6 +773,15 @@ function ensureMetaShape(raw) {
       ...base.goldenPoint,
       ...(current.goldenPoint || {}),
     },
+    // ======================================================
+// DISQUALIFICATION PHASE SHAPE PROTECTION
+// Asegura que rooms viejas tengan estado DQ sin romper Firebase.
+// No modifica summary(), judgeVote() ni cálculo oficial.
+// ======================================================
+disqualification: {
+  ...base.disqualification,
+  ...(current.disqualification || {}),
+},
   };
 }
 
@@ -7078,10 +7110,20 @@ const medicalDecisionLocked =
   meta?.medicalV2?.inputsLocked === true ||
   medicalDisplayExpired;
 
+// ======================================================
+// DISQUALIFICATION INPUT LOCK
+// Bloquea inputs durante decisión reglamentaria DQ.
+// NO usa phase="finished".
+// ======================================================
+const disqualificationDecisionLocked =
+  meta?.disqualification?.pending === true ||
+  meta?.disqualification?.inputsLocked === true;
+
 const inputsLocked =
   meta.phase === "finished" ||
   isGPAWinner ||
-  medicalDecisionLocked;  
+  medicalDecisionLocked ||
+  disqualificationDecisionLocked;  
 
 const [goldenPointAState, setGoldenPointAState] = useState("idle");
 const [hidePresidentWinner, setHidePresidentWinner] = useState(false);
@@ -10180,6 +10222,80 @@ onMouseLeave={(e) => {
   </div>
 )}
 
+{/* ======================================================
+    DISQUALIFICATION REGULATORY BOX
+    Caja reglamentaria para decisión pendiente por 3er foul.
+    No modifica summary(), judgeVote() ni cálculo oficial.
+====================================================== */}
+{preDecisionAdvantage(meta) && (
+  <div
+    style={{
+  position: "absolute",
+  top: 415,
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: 470,
+  minHeight: 153,
+  zIndex: 41,
+  padding: "12px 18px",
+  borderRadius: 10,
+  fontFamily: "Orbitron, sans-serif",
+  pointerEvents: "none",
+      border: "1px solid rgba(245,197,66,0.85)",
+      animation: "medicalDecisionPulse 2.4s ease-in-out infinite",
+
+background:
+  "linear-gradient(180deg, rgba(38,28,5,0.96), rgba(8,6,2,0.96))",
+
+boxShadow: `
+  0 0 22px rgba(255,215,0,0.55),
+  0 0 52px rgba(255,190,0,0.24),
+  inset 0 0 26px rgba(255,215,0,0.12)
+`,
+
+color: "#fff7cc",
+
+textAlign: "center",
+    }}
+  >
+    <div
+      style={{
+        fontSize: 14,
+        fontWeight: 900,
+        letterSpacing: "0.16em",
+        color: "#f5c542",
+        marginBottom: 4,
+      }}
+    >
+      ⚖ DISQUALIFICATION - FOUL LIMIT
+    </div>
+
+    <div
+      style={{
+        fontSize: 21,
+        fontWeight: 900,
+        letterSpacing: "0.08em",
+        color: "#ffffff",
+        marginBottom: 4,
+        textShadow: "0 0 12px rgba(255,255,255,0.35)",
+      }}
+    >
+      {preDecisionAdvantage(meta)}
+    </div>
+
+    <div
+      style={{
+        fontSize: 12,
+        fontWeight: 700,
+        letterSpacing: "0.18em",
+        color: "rgba(255,247,204,0.78)",
+      }}
+    >
+      PRESS SET DECISION TO CONFIRM RESULT
+    </div>
+  </div>
+)}
+
     {presidentWinner && !hidePresidentWinner && (
   <WinnerFullScreen
     winner={presidentWinner}
@@ -10219,37 +10335,7 @@ onMouseLeave={(e) => {
     </div>
 )}
 
-{preDecisionAdvantage(meta) && (
-  <div
-    style={{
-      position: "absolute",
-      top: 21,
-      left: 650,
-      zIndex: 30,
-      width: 680,
-      minHeight: 34,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
 
-      background: "#78350f",
-      border: "1px solid #facc15",
-      borderRadius: 8,
-      color: "#fef9c3",
-
-      fontWeight: 900,
-      fontSize: 17,
-      lineHeight: 1.1,
-      padding: "4px 10px",
-      boxSizing: "border-box",
-      textAlign: "center",
-
-      animation: "winnerPulsePro 1.4s ease-in-out infinite",
-    }}
-  >
-    {preDecisionAdvantage(meta)}
-  </div>
-)}
 
   </Frame16x9>
 );
