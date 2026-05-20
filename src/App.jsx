@@ -3025,6 +3025,34 @@ const publicMedicalExpiredSide =
       : meta.chongFouls || 0;
   };
 
+  // ======================================================
+// PUBLIC TV — DISQUALIFICATION LOGIC FLAGS
+// Conecta DQ visual con lado real en pantalla.
+// No modifica summary(), judgeVote() ni cálculo oficial.
+// ======================================================
+const dqLoserSide =
+  (meta.hongFouls || 0) >= 3
+    ? "hong"
+    : (meta.chongFouls || 0) >= 3
+    ? "chong"
+    : null;
+
+const dqWinnerSide =
+  dqLoserSide === "hong"
+    ? "chong"
+    : dqLoserSide === "chong"
+    ? "hong"
+    : null;
+
+const showDqBroadcast =
+  !!dqLoserSide && !meta.showResult;
+
+const dqLoserPosition =
+  left.pointsLabel === dqLoserSide ? "left" : "right";
+
+const dqWinnerPosition =
+  left.pointsLabel === dqWinnerSide ? "left" : "right";
+
   return (
   <div
   style={{
@@ -4388,6 +4416,177 @@ letterSpacing: "0.18em",
       );
     })}
   </div>
+)}
+
+{/* ======================================================
+    PUBLIC TV — DISQUALIFICATION OVERLAYS
+    Broadcast cinematic DQ phase.
+    Se conecta al lado visual real en pantalla.
+    No modifica summary(), judgeVote() ni cálculo oficial.
+====================================================== */}
+
+{showDqBroadcast && (
+  <>
+    {/* DISQUALIFIED SIDE */}
+    <div
+      style={{
+        position: "absolute",
+        [dqLoserPosition === "left" ? "left" : "right"]: "1.8vw",
+        top: "27%",
+        bottom: "7%",
+        width: "35%",
+        borderRadius: "10px",
+
+        zIndex: 90,
+
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+
+        background:
+          "linear-gradient(180deg, rgba(14, 10, 2, 0.98), rgba(10, 8, 1, 0.98))",
+
+        border: "2px solid rgba(245,197,66,0.92)",
+
+        boxShadow: `
+          0 0 26px rgba(245,197,66,0.42),
+          0 0 60px rgba(245,197,66,0.16),
+          inset 0 0 24px rgba(245,197,66,0.10)
+        `,
+
+        animation: "medicalHeartbeat 2.6s ease-in-out infinite",
+      }}
+    >
+      <div
+        style={{
+          color: "#fff2a6",
+          fontSize: "3.8vw",
+          fontWeight: 900,
+          letterSpacing: "0.08em",
+          textAlign: "center",
+          textTransform: "uppercase",
+
+          textShadow: `
+  0 0 2px rgba(255,255,255,0.95),
+  0 0 8px rgba(245,197,66,0.55),
+  0 0 18px rgba(245,197,66,0.22)
+`,
+        }}
+      >
+        <div
+          style={{
+            fontSize: "0.72vw",
+            marginBottom: "2vh",
+
+            color: "rgba(255,240,190,0.86)",
+
+            textShadow: `
+              0 0 8px rgba(245,197,66,0.75),
+              0 0 18px rgba(245,197,66,0.35)
+            `,
+
+            letterSpacing: "0.18em",
+          }}
+        >
+          ⚖ REGULATORY DECISION
+        </div>
+
+        DISQUALIFIED
+
+        <div
+          style={{
+            marginTop: 20,
+            fontSize: "1.7vw",
+            letterSpacing: "0.22em",
+            color: "rgba(255,240,190,0.86)",
+          }}
+        >
+          BY FOUL LIMIT
+        </div>
+      </div>
+    </div>
+
+    {/* WINNER BY DQ */}
+    <div
+      style={{
+        position: "absolute",
+        [dqWinnerPosition === "left" ? "left" : "right"]: "1.8vw",
+        top: "27%",
+        bottom: "7%",
+        width: "35%",
+        borderRadius: "10px",
+
+        zIndex: 90,
+
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+
+        background:
+          dqWinnerSide === "hong"
+            ? "linear-gradient(180deg, rgba(120,0,0,0.98), rgba(20,0,0,0.96))"
+            : "linear-gradient(180deg, rgba(0,40,120,0.98), rgba(0,10,40,0.96))",
+
+        border:
+          dqWinnerSide === "hong"
+            ? "2px solid rgba(255,60,60,0.9)"
+            : "2px solid rgba(60,140,255,0.9)",
+
+        boxShadow:
+          dqWinnerSide === "hong"
+            ? `
+              0 0 30px rgba(255,0,0,0.85),
+              0 0 70px rgba(255,0,0,0.45),
+              inset 0 0 55px rgba(255,0,0,0.22)
+            `
+            : `
+              0 0 30px rgba(0,102,255,0.85),
+              0 0 70px rgba(0,102,255,0.45),
+              inset 0 0 55px rgba(0,102,255,0.22)
+            `,
+
+        animation: "medicalHeartbeat 2.6s ease-in-out infinite",
+      }}
+    >
+      <div
+        style={{
+          color: dqWinnerSide === "hong" ? "#ff6b6b" : "#6fb0ff",
+          fontSize: "3.8vw",
+          fontWeight: 900,
+          letterSpacing: "0.06em",
+          textAlign: "center",
+          textTransform: "uppercase",
+
+          textShadow:
+            dqWinnerSide === "hong"
+              ? `
+                0 0 12px rgba(255,0,0,0.75),
+                0 0 28px rgba(255,0,0,0.35)
+              `
+              : `
+                0 0 12px rgba(0,120,255,0.75),
+                0 0 28px rgba(0,120,255,0.35)
+              `,
+        }}
+      >
+        WINNER
+
+        <div
+          style={{
+            marginTop: 20,
+            fontSize: "1.7vw",
+            letterSpacing: "0.16em",
+            color:
+              dqWinnerSide === "hong"
+                ? "rgba(255,220,220,0.88)"
+                : "rgba(220,235,255,0.88)",
+          }}
+        >
+          BY DISQUALIFICATION
+        </div>
+      </div>
+    </div>
+  </>
 )}
 
          {/* WINNER / DRAW LEGACY OVERLAYS */}
