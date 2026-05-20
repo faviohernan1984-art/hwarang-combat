@@ -3043,7 +3043,9 @@ overflowY: "hidden",
       inset 0 0 10px rgba(245,197,66,0.05);
   }
 }
+  
 `
+
   }
 </style>
     <div
@@ -4138,10 +4140,10 @@ letterSpacing: "0.18em",
 
       background: "rgba(0,0,0,0.88)",
 
-      border: "1px solid rgba(255,215,70,0.75)",
+      border: "0.5px solid rgba(245, 229, 12)",
 
       boxShadow: `
-        0 0 18px rgba(255,215,70,0.45),
+        0 0 10px rgba(255,215,70,0.45),
         0 0 36px rgba(0,102,255,0.28)
       `,
 
@@ -4188,10 +4190,10 @@ letterSpacing: "0.18em",
 
       background: "rgba(0,0,0,0.88)",
 
-      border: "1px solid rgba(255,215,70,0.75)",
+      border: "0.5px solid rgb(245, 229, 12)",
 
       boxShadow: `
-        0 0 18px rgba(255,215,70,0.45),
+        0 0 10px rgba(255,215,70,0.45),
         0 0 36px rgba(255,0,0,0.28)
       `,
 
@@ -4507,6 +4509,7 @@ textShadow: `
     zIndex: 1,
   }}
 />
+
       
       <div
         style={{
@@ -4712,77 +4715,7 @@ WebkitTextFillColor: "transparent",
   </div>
 </div>
 
-{/* BOTTOM NEON SCAN */}
-<div
-  style={{
-    position: "absolute",
-    bottom: "-2px",
-    left: 0,
-    width: "100%",
-    height: "8px",
-    overflow: "hidden",
 
-    background: isHong
-      ? "rgba(255,0,0,0.08)"
-      : "rgba(0,102,255,0.08)",
-  }}
->
-  {/* LINEA BASE */}
-  <div
-    style={{
-      position: "absolute",
-      inset: 0,
-
-      background: isHong
-        ? "rgba(255,0,0,0.22)"
-        : "rgba(0,140,255,0.22)",
-
-      boxShadow: isHong
-        ? `
-          0 0 12px rgba(255,0,0,0.65),
-          0 0 26px rgba(255,0,0,0.35)
-        `
-        : `
-          0 0 12px rgba(0,140,255,0.65),
-          0 0 26px rgba(0,140,255,0.35)
-        `,
-    }}
-  />
-
-  {/* SCAN CENTRAL */}
-  <div
-    style={{
-      position: "absolute",
-      top: "-2px",
-      left: "50%",
-
-      width: "16px",
-      height: "16px",
-
-      borderRadius: "50%",
-
-      transform: "translateX(-50%)",
-
-      background: "#ffffff",
-
-      boxShadow: isHong
-        ? `
-          0 0 12px rgba(255,255,255,1),
-          0 0 30px rgba(255,0,0,1),
-          0 0 70px rgba(255,0,0,0.95),
-          0 0 140px rgba(255,0,0,0.55)
-        `
-        : `
-          0 0 12px rgba(255,255,255,1),
-          0 0 30px rgba(0,140,255,1),
-          0 0 70px rgba(0,140,255,0.95),
-          0 0 140px rgba(0,140,255,0.55)
-        `,
-
-      animation: "centerPulse 1.6s ease-in-out infinite",
-    }}
-  />
-</div>
     </div>
   );
 }
