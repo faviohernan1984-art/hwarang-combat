@@ -3301,13 +3301,13 @@ transformOrigin: "top left",
 
     top: isMobilePublicTV
   ? window.innerWidth > window.innerHeight
-    ? "115vh"
+    ? "0vh"
     : "83vh"
   : "89vh",
 
 left: isMobilePublicTV
   ? window.innerWidth > window.innerHeight
-    ? "73vw"
+    ? "2vw"
     : "96vw"
   : isLikelyTVPublic
   ? "49%"
