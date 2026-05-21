@@ -3319,7 +3319,8 @@ transform: isMobilePublicTV
   ? "none"
   : "translateX(-50%)",
 
-    zIndex: Z_PUBLIC_TV.winnerOverlay + 10,
+    zIndex: 2147483647,
+pointerEvents: "auto",
 
     width: "2vw",
     height: "2vw",
