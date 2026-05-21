@@ -2980,7 +2980,6 @@ function FloatingManualCountdown() {
 
 function PublicTVScreen({ meta, judges, navigate, roomId }) {
   meta = ensureMetaShape(meta);
-
   const time = useClock(meta);
   const s = summary(meta, judges);
   const { left, right } = getDisplaySides(meta, "public");
@@ -2991,6 +2990,27 @@ function PublicTVScreen({ meta, judges, navigate, roomId }) {
 // Mobile only enables safe manual scroll without resizing the broadcast layout.
 const isMobilePublicTV =
   typeof window !== "undefined" && window.innerWidth < 900;
+
+const isLikelyTVPublic =
+  typeof window !== "undefined" &&
+  window.innerWidth >= 1200 &&
+  window.innerHeight >= 700;
+  
+  // ======================================================
+// PUBLIC TV — OFFICIAL Z-INDEX MAP
+// Jerarquía visual centralizada para overlays broadcast.
+// No modifica lógica, cálculo ni flujo reglamentario.
+// ======================================================
+const Z_PUBLIC_TV = {
+  baseHud: 10,
+  medical: 18,
+  header: 20,
+  judgeAnalysis: 25,
+  foulWarning: 35,
+  gpaAttention: 40,
+  dqCinematic: 90,
+  winnerOverlay: 100,
+};
 
 
   /*============================== PUBLIC TV MEDICAL EMERGENCY DETECTOR ==============================*/
@@ -3137,6 +3157,106 @@ transform:
 transformOrigin: "top left",
       }}
     >
+
+    {/* ======================================================
+    PUBLIC TV — LIQUID GLASS HOME BUTTON
+    Botón Home flotante estilo acrílico / vidrio líquido.
+    No modifica lógica ni cálculo.
+====================================================== */}
+<button
+  onClick={() => navigate(`/${roomId}`)}
+  style={{
+    position: "absolute",
+
+    top: isMobilePublicTV
+  ? window.innerWidth > window.innerHeight
+    ? "115vh"
+    : "83vh"
+  : "89vh",
+
+left: isMobilePublicTV
+  ? window.innerWidth > window.innerHeight
+    ? "73vw"
+    : "96vw"
+  : isLikelyTVPublic
+  ? "49%"
+  : "50%",
+
+right: "auto",
+
+transform: isMobilePublicTV
+  ? "none"
+  : "translateX(-50%)",
+
+    zIndex: Z_PUBLIC_TV.winnerOverlay + 10,
+
+    width: "2vw",
+    height: "2vw",
+    minWidth: 24,
+    minHeight: 24,
+
+    borderRadius: "50%",
+    border: "2px solid rgba(247, 7, 7, 0.34)",
+
+    background: `
+      linear-gradient(
+        180deg,
+        rgba(14, 1, 1, 0.24),
+        rgba(68, 1, 1, 0.04)
+      )
+    `,
+
+    backdropFilter: "blur(5px)",
+    WebkitBackdropFilter: "blur(5px)",
+
+    color: "#ff2b2b",
+    fontSize: isMobilePublicTV ? "18px" : "1.5vw",
+    fontWeight: 1000,
+    lineHeight: 1,
+
+    cursor: "pointer",
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    boxShadow: `
+      0 0 18px rgba(255,255,255,0.12),
+      0 8px 28px rgba(0,0,0,0.38),
+      inset 0 1px 1px rgba(255,255,255,0.58),
+      inset 0 -8px 18px rgba(255,255,255,0.05)
+    `,
+
+    textShadow: `
+      0 0 6px rgba(255,0,0,0.85),
+      0 0 14px rgba(255,0,0,0.35)
+    `,
+
+    transition: "transform 0.12s ease, filter 0.12s ease",
+  }}
+  onMouseDown={(e) => {
+    e.currentTarget.style.transform = "scale(0.94)";
+    e.currentTarget.style.filter = "brightness(1.25)";
+  }}
+  onMouseUp={(e) => {
+    e.currentTarget.style.transform = "scale(1)";
+    e.currentTarget.style.filter = "brightness(1)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "scale(1)";
+    e.currentTarget.style.filter = "brightness(1)";
+  }}
+>
+  <span
+    style={{
+      display: "block",
+      transform: "translateY(-2.3px)",
+    }}
+  >
+    ⌂
+  </span>
+</button>
+
       {meta?.medicalV2Display?.hongRunning && (
   <div
     style={{
@@ -3145,7 +3265,7 @@ transformOrigin: "top left",
       bottom: "7%",
       right: "1.8vw",
       width: "35%",
-      zIndex: 18,
+      zIndex: Z_PUBLIC_TV.medical,
 
       borderRadius: "10px",
 
@@ -3208,7 +3328,7 @@ transformOrigin: "top left",
       bottom: "7%",
       left: "1.8vw",
       width: "35%",
-      zIndex: 18,
+      zIndex: Z_PUBLIC_TV.medical,
 
       borderRadius: "10px",
 
@@ -3270,7 +3390,7 @@ transformOrigin: "top left",
       bottom: "7%",
       right: "1.8vw",
       width: "35%",
-      zIndex: 18,
+      zIndex: Z_PUBLIC_TV.medical,
 
       borderRadius: "10px",
 
@@ -3334,7 +3454,7 @@ transformOrigin: "top left",
         bottom: "7%",
         right: "1.8vw",
         width: "35%",
-        zIndex: 18,
+        zIndex: Z_PUBLIC_TV.medical,
 
         borderRadius: "10px",
 
@@ -3402,7 +3522,7 @@ transformOrigin: "top left",
       bottom: "7%",
       left: "1.8vw",
       width: "35%",
-      zIndex: 18,
+      zIndex: Z_PUBLIC_TV.medical,
 
       borderRadius: "10px",
 
@@ -3466,7 +3586,7 @@ transformOrigin: "top left",
         bottom: "7%",
         left: "1.8vw",
         width: "35%",
-        zIndex: 18,
+        zIndex: Z_PUBLIC_TV.medical,
 
         borderRadius: "10px",
 
@@ -3535,7 +3655,7 @@ transformOrigin: "top left",
     left: "2vw",
     right: "2vw",
     height: "18vh",
-    zIndex: 20,
+    zIndex: Z_PUBLIC_TV.header,
     pointerEvents: "none",
   }}
 >
@@ -4437,7 +4557,7 @@ letterSpacing: "0.18em",
         width: "35%",
         borderRadius: "10px",
 
-        zIndex: 90,
+        zIndex: Z_PUBLIC_TV.dqCinematic,
 
         display: "flex",
         alignItems: "center",
@@ -4459,8 +4579,9 @@ letterSpacing: "0.18em",
     >
       <div
         style={{
+          fontFamily: "Orbitron, sans-serif",
           color: "#fff2a6",
-          fontSize: "3.8vw",
+          fontSize: "3.5vw",
           fontWeight: 900,
           letterSpacing: "0.08em",
           textAlign: "center",
@@ -4516,7 +4637,7 @@ letterSpacing: "0.18em",
         width: "35%",
         borderRadius: "10px",
 
-        zIndex: 90,
+        zIndex: Z_PUBLIC_TV.dqCinematic,
 
         display: "flex",
         alignItems: "center",
@@ -4550,8 +4671,9 @@ letterSpacing: "0.18em",
     >
       <div
         style={{
+          fontFamily: "Orbitron, sans-serif",
           color: dqWinnerSide === "hong" ? "#ff6b6b" : "#6fb0ff",
-          fontSize: "3.8vw",
+          fontSize: "3.5vw",
           fontWeight: 900,
           letterSpacing: "0.06em",
           textAlign: "center",
@@ -4597,7 +4719,7 @@ letterSpacing: "0.18em",
 ) && (
   <WinnerFullScreen
     winner="draw"
-    zIndex={95}
+    zIndex={Z_PUBLIC_TV.winnerOverlay}
     mode="public"
   />
 )}
@@ -4609,7 +4731,7 @@ letterSpacing: "0.18em",
 ) && (
   <WinnerFullScreen
     winner="draw"
-    zIndex={95}
+    zIndex={Z_PUBLIC_TV.winnerOverlay}
     mode="public"
   />
 )}
@@ -4622,7 +4744,7 @@ letterSpacing: "0.18em",
 ) && (
   <WinnerFullScreen
     winner="hong"
-    zIndex={100}
+    zIndex={Z_PUBLIC_TV.winnerOverlay}
     mode="public"
   />
 )}
@@ -4635,7 +4757,7 @@ letterSpacing: "0.18em",
 ) && (
   <WinnerFullScreen
     winner="chong"
-    zIndex={100}
+    zIndex={Z_PUBLIC_TV.winnerOverlay}
     mode="public"
   />
 )}
@@ -4643,7 +4765,7 @@ letterSpacing: "0.18em",
 {meta.showResult && s.winner && (
   <WinnerFullScreen
     winner={s.winner}
-    zIndex={100}
+    zIndex={Z_PUBLIC_TV.winnerOverlay}
     mode="public"
   />
 )}
@@ -4958,10 +5080,15 @@ function PublicScreen({
   writeMeta,
   roomId,
   isTvMode = false,
-}){
+}) {
   meta = ensureMetaShape(meta);
 
-  if (isTvMode) {
+  // ======================================================
+  // PUBLIC SCREEN BYPASS — COMBAT PRO BROADCAST DEFAULT
+  // La PublicTV nueva pasa a ser la pantalla pública principal.
+  // La Public vieja queda archivada debajo para futura versión económica.
+  // No borra código legacy.
+  // ======================================================
   return (
     <PublicTVScreen
       meta={meta}
@@ -4970,7 +5097,6 @@ function PublicScreen({
       roomId={roomId}
     />
   );
-}
 
   const time = useClock(meta || {});
   const displayTime =
@@ -7025,7 +7151,11 @@ const handleInvertSides = async () => {
 
 function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navigate, roomId }) {
 
+  
+
   const isMobile = typeof window !== "undefined" && window.innerWidth < 900;
+
+  
 
   async function handleActivateGPA() {
   // 1. ACTIVAR GPA INMEDIATO (UI responde rápido)
@@ -10359,7 +10489,7 @@ onMouseLeave={(e) => {
       width: 470,
       height: 153,
       minHeight: 92,
-      zIndex: 40,
+      zIndex: Z_PUBLIC_TV.gpaAttention,
       animation: "medicalDecisionPulse 2.4s ease-in-out infinite",
       background:
         "linear-gradient(180deg, rgba(38,28,5,0.96), rgba(8,6,2,0.96))",
