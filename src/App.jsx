@@ -3366,17 +3366,28 @@ transform: isMobilePublicTV
     transition: "transform 0.12s ease, filter 0.12s ease",
   }}
   onMouseDown={(e) => {
-    e.currentTarget.style.transform = "scale(0.94)";
-    e.currentTarget.style.filter = "brightness(1.25)";
-  }}
-  onMouseUp={(e) => {
-    e.currentTarget.style.transform = "scale(1)";
-    e.currentTarget.style.filter = "brightness(1)";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "scale(1)";
-    e.currentTarget.style.filter = "brightness(1)";
-  }}
+  e.currentTarget.style.transform = isMobilePublicTV
+    ? "scale(0.94)"
+    : "translateX(-50%) scale(0.94)";
+
+  e.currentTarget.style.filter = "brightness(1.25)";
+}}
+
+onMouseUp={(e) => {
+  e.currentTarget.style.transform = isMobilePublicTV
+    ? "scale(1)"
+    : "translateX(-50%) scale(1)";
+
+  e.currentTarget.style.filter = "brightness(1)";
+}}
+
+onMouseLeave={(e) => {
+  e.currentTarget.style.transform = isMobilePublicTV
+    ? "scale(1)"
+    : "translateX(-50%) scale(1)";
+
+  e.currentTarget.style.filter = "brightness(1)";
+}}
 >
   <span
     style={{
