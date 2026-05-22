@@ -26,7 +26,25 @@ export default function LicensePage() {
     <div style={styles.page}>
       <header style={styles.navbar}>
         <div style={styles.brand}>
-          <div style={styles.logoBox}>H</div>
+          <div style={styles.logoOrb}>
+  <style>{`
+    @keyframes licenseOrbSpin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  `}</style>
+
+  <div style={styles.logoOrbRing} />
+
+  <div style={styles.logoOrbCore}>
+    H
+  </div>
+</div>
           <div>
             <div style={styles.brandTitle}>HWARANG</div>
             <div style={styles.brandSub}>SCORING UNIVERSE™</div>
@@ -393,17 +411,74 @@ const styles = {
     backdropFilter: "blur(14px)",
   },
   brand: { display: "flex", alignItems: "center", gap: 14 },
-  logoBox: {
-    width: 44,
-    height: 44,
-    border: "2px solid #f6c36a",
-    color: "#f6c36a",
-    borderRadius: 12,
-    display: "grid",
-    placeItems: "center",
-    fontWeight: 900,
-    boxShadow: "0 0 20px rgba(246,195,106,0.18)",
-  },
+  logoOrb: {
+  position: "relative",
+  width: 50,
+  height: 50,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+logoOrbRing: {
+  position: "absolute",
+  inset: 0,
+
+  borderRadius: "50%",
+
+  border: "2px solid rgba(245,197,66,0.22)",
+  borderTop: "3px solid rgba(255,255,255,0.22)",
+borderRight: "2px solid rgb(255, 0, 0)",
+filter:
+  `
+  drop-shadow(0 0 4px rgba(255,255,255,0.38))
+  drop-shadow(0 0 10px rgba(255,0,0,0.22))
+  `,
+
+  background:
+    "radial-gradient(circle, rgba(22, 4, 4, 0.08) 0%, rgba(255,255,255,0.02) 35%, rgba(0,0,0,0) 70%)",
+
+  boxShadow:
+    `
+    0 0 1px rgba(255,255,255,0.28),
+    0 0 2px rgba(255,255,255,0.12),
+
+    0 0 12px rgba(245,197,66,0.22),
+    0 0 26px rgba(255,0,0,0.16),
+
+    inset 0 0 2px rgba(0, 0, 0, 0.86)
+    `,
+
+  animation: "licenseOrbSpin 2.8s linear infinite",
+},
+
+logoOrbCore: {
+  position: "relative",
+
+  color: "#ff0000",
+
+  fontSize: 24,
+  fontWeight: 1000,
+
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+
+  textShadow: `
+    0 0 8px rgba(255,0,0,1),
+    0 0 18px rgba(255,0,0,0.85),
+    0 0 4px rgba(245,197,66,0.45)
+  `,
+
+  filter:
+    `
+    drop-shadow(0 0 12px rgba(255,0,0,0.75))
+    drop-shadow(0 0 28px rgba(255,255,255,0.18))
+    `,
+
+  zIndex: 2,
+},
+
   brandTitle: {
     fontSize: 24,
     fontWeight: 900,
