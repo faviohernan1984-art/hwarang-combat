@@ -219,12 +219,33 @@ export default function LicensePage() {
   <div style={styles.payments}>
     <div style={styles.payTitle}>PAYMENT METHODS</div>
 
-    <div style={styles.payLogos}>
-  <div style={styles.payCard}>VISA</div>
-  <div style={styles.payCard}>MC</div>
-  <div style={styles.payCard}>AMEX</div>
-  <div style={styles.payCard}>PayPal</div>
-  <div style={styles.payCard}>MP</div>
+    {/* ==============================
+    PAYMENT METHODS LOGOS
+    ============================== */}
+<div style={styles.payLogos}>
+  <div style={styles.payCard}>
+    <img src="/payments/paypal.png" alt="PayPal" style={styles.payLogoImg} />
+  </div>
+
+  <div style={styles.payCard}>
+    <img src="/payments/amex.png" alt="AMEX" style={styles.payLogoImg} />
+  </div>
+
+  <div style={styles.payCard}>
+    <img src="/payments/mastercard.png" alt="Mastercard" style={styles.payLogoImg} />
+  </div>
+
+  <div style={styles.payCard}>
+    <img src="/payments/visa.png" alt="Visa" style={styles.payLogoImg} />
+  </div>
+
+  <div style={styles.payCard}>
+    <img src="/payments/mercadopago.png" alt="Mercado Pago" style={styles.payLogoImg} />
+  </div>
+
+  <div style={styles.payCard}>
+    <img src="/payments/nx.png" alt="NX" style={styles.payLogoImg} />
+  </div>
 </div>
 
     <p style={{ marginTop: 5 }}>
@@ -393,6 +414,19 @@ function Row({ icon, label, value }) {
 }
 
 const styles = {
+  /* ==============================
+   PAYMENT LOGO IMAGE
+   ============================== */
+payLogoImg: {
+  maxWidth: "92%",
+  maxHeight: "82%",
+  objectFit: "contain",
+  display: "block",
+  filter: `
+    drop-shadow(0 0 4px rgba(255,255,255,0.08))
+    drop-shadow(0 0 10px rgba(0,140,255,0.12))
+  `,
+},
   page: {
     minHeight: "100vh",
     background:
@@ -413,8 +447,8 @@ const styles = {
   brand: { display: "flex", alignItems: "center", gap: 14 },
   logoOrb: {
   position: "relative",
-  width: 50,
-  height: 50,
+  width: 54,
+  height: 54,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -423,59 +457,22 @@ const styles = {
 logoOrbRing: {
   position: "absolute",
   inset: 0,
-
   borderRadius: "50%",
-
-  border: "2px solid rgba(245,197,66,0.22)",
-  borderTop: "3px solid rgba(255,255,255,0.22)",
-borderRight: "2px solid rgb(255, 0, 0)",
-filter:
-  `
-  drop-shadow(0 0 4px rgba(255,255,255,0.38))
-  drop-shadow(0 0 10px rgba(255,0,0,0.22))
-  `,
-
-  background:
-    "radial-gradient(circle, rgba(22, 4, 4, 0.08) 0%, rgba(255,255,255,0.02) 35%, rgba(0,0,0,0) 70%)",
-
-  boxShadow:
-    `
-    0 0 1px rgba(255,255,255,0.28),
-    0 0 2px rgba(255,255,255,0.12),
-
-    0 0 12px rgba(245,197,66,0.22),
-    0 0 26px rgba(255,0,0,0.16),
-
-    inset 0 0 2px rgba(0, 0, 0, 0.86)
-    `,
-
+  border: "3px solid rgba(245,197,66,0.22)",
+  borderTop: "3px solid #ff0000",
+  boxShadow: "0 0 28px rgb(255,253,253)",
   animation: "licenseOrbSpin 2.8s linear infinite",
 },
 
 logoOrbCore: {
   position: "relative",
-
   color: "#ff0000",
-
-  fontSize: 24,
+  fontSize: 28,
   fontWeight: 1000,
-
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-
   textShadow: `
-    0 0 8px rgba(255,0,0,1),
-    0 0 18px rgba(255,0,0,0.85),
-    0 0 4px rgba(245,197,66,0.45)
+    0 0 12px rgba(245,197,66,1),
+    0 0 28px rgba(245,197,66,0.75)
   `,
-
-  filter:
-    `
-    drop-shadow(0 0 12px rgba(255,0,0,0.75))
-    drop-shadow(0 0 28px rgba(255,255,255,0.18))
-    `,
-
   zIndex: 2,
 },
 
@@ -922,40 +919,26 @@ checkoutMainIcon: {
   letterSpacing: 1.4,
   fontSize: 13,
 },
-  payLogos: {
-  display: "flex",
-  justifyContent: "space-between",
+  /* ==============================
+   PAYMENT LOGOS GRID
+   ============================== */
+payLogos: {
+  display: "grid",
+  gridTemplateColumns: "repeat(6, 1fr)",
   gap: 6,
   alignItems: "center",
 },
   payCard: {
-  flex: 1,
-
-  height: 40,
-
+  height: 58,
   borderRadius: 10,
-
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-
   background:
     "linear-gradient(180deg, rgba(8,15,35,0.96) 0%, rgba(2,6,23,1) 100%)",
-
   border: "1px solid rgba(59,130,246,0.18)",
-
-  color: "#f8fafc",
-
-  fontWeight: 900,
-  fontSize: 13,
-
-  letterSpacing: 0.3,
-
   boxShadow:
-    `
-    0 0 10px rgba(37,99,235,0.10),
-    inset 0 0 12px rgba(255,255,255,0.03)
-    `,
+    "0 0 10px rgba(37,99,235,0.10), inset 0 0 12px rgba(255,255,255,0.03)",
 },
   howBox: {
   marginTop: 28,
