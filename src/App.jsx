@@ -1641,7 +1641,7 @@ const styles = {
   dangerBlue: { background: "#1e3a8a" },
 };
 
-function Frame16x9({ children, tvMode = false }) {
+function Frame16x9({ children, tvMode = false, mobileHorizontalOnly = false }) {
   const baseWidth = 1920;
   const baseHeight = 1080;
 
@@ -1655,7 +1655,15 @@ function Frame16x9({ children, tvMode = false }) {
       setIsMobileFrame(mobile);
 
       if (mobile) {
-        setScale(0.55);
+        const isLandscape = window.innerWidth > window.innerHeight;
+
+setScale(
+  mobileHorizontalOnly
+    ? isLandscape
+      ? Math.min(window.innerWidth / baseWidth, window.innerHeight / baseHeight)
+      : window.innerHeight / baseHeight
+    : 0.55
+);
         return;
       }
 
@@ -1674,40 +1682,82 @@ function Frame16x9({ children, tvMode = false }) {
 
     recalc();
 
-    window.addEventListener("resize", recalc);
+    const recalcStable = () => {
+  recalc();
+  setTimeout(recalc, 120);
+  setTimeout(recalc, 350);
+  setTimeout(recalc, 700);
+};
 
-    return () => window.removeEventListener("resize", recalc);
-  }, [tvMode]);
+window.addEventListener("resize", recalcStable);
+window.addEventListener("orientationchange", recalcStable);
+window.visualViewport?.addEventListener("resize", recalcStable);
+
+return () => {
+  window.removeEventListener("resize", recalcStable);
+  window.removeEventListener("orientationchange", recalcStable);
+  window.visualViewport?.removeEventListener("resize", recalcStable);
+};
+  }, [tvMode, mobileHorizontalOnly]);
 
   if (isMobileFrame) {
-    return (
+  const scaledWidth = baseWidth * scale;
+  const scaledHeight = baseHeight * scale;
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100dvh",
+
+        overflowX: mobileHorizontalOnly ? "auto" : "auto",
+        overflowY: mobileHorizontalOnly ? "hidden" : "auto",
+
+        touchAction: mobileHorizontalOnly ? "pan-x" : "auto",
+        overscrollBehaviorY: "none",
+
+        background: "#000",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
       <div
         style={{
-          width: "100%",
-          height: "100dvh",
-          overflow: "auto",
+          width: mobileHorizontalOnly ? scaledWidth : baseWidth,
+          height: mobileHorizontalOnly ? scaledHeight : baseHeight,
+          marginLeft:
+  mobileHorizontalOnly && window.innerWidth > window.innerHeight
+    ? Math.max(0, (window.innerWidth - scaledWidth) / 2)
+    : 0,
+          marginTop:
+  mobileHorizontalOnly && window.innerWidth > window.innerHeight
+    ? Math.max(0, (window.innerHeight - scaledHeight) / 2)
+    : 0,
+          position: "relative",
           background: "#000",
-          fontFamily: "Arial, sans-serif",
+          boxSizing: "border-box",
+          marginTop: mobileHorizontalOnly ? 0 : "100px",
         }}
       >
         <div
           style={{
             width: baseWidth,
             height: baseHeight,
-            position: "relative",
+            position: "absolute",
+            left: 0,
+            top: 0,
             background: "#000000",
             overflow: "hidden",
             transform: `scale(${scale})`,
             transformOrigin: "top left",
             boxSizing: "border-box",
-            marginTop: "100px",
           }}
         >
           {children}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div style={styles.frameBg}>
@@ -8482,7 +8532,7 @@ const leftSide = isSwapped ? "chong" : "hong";
 const rightSide = isSwapped ? "hong" : "chong";
 
   return (
-  <Frame16x9>
+  <Frame16x9 mobileHorizontalOnly>
     <div
       style={{
         width: "100%",
