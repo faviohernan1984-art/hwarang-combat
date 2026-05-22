@@ -291,7 +291,7 @@ function Feature({ icon, title, text }) {
   return (
     <div style={styles.feature}>
       <div style={styles.featureIcon}>{icon}</div>
-      <strong>{title}</strong>
+      <div style={styles.featureTitle}>{title}</div>
       <p style={styles.featureText}>{text}</p>
     </div>
   );
@@ -487,7 +487,7 @@ logoOrbCore: {
   letterSpacing: 2.2,
   color: "#d6dee9",
 },
-  navLinks: { display: "flex", gap: 36, fontSize: 14, fontWeight: 800 },
+  navLinks: { display: "flex", gap: 36, fontSize: 14, fontWeight: 600 },
   activeNav: {
     color: "#60a5fa",
     borderBottom: "3px solid #3b82f6",
@@ -499,7 +499,7 @@ logoOrbCore: {
     color: "white",
     border: "1px solid rgba(148,163,184,0.25)",
     borderRadius: 8,
-    padding: "12px 22px",
+    padding: "10px 18px",
     fontWeight: 800,
   },
   loginBtn: {
@@ -507,7 +507,7 @@ logoOrbCore: {
     color: "white",
     border: "none",
     borderRadius: 8,
-    padding: "13px 24px",
+    padding: "5px 10px",
     fontWeight: 900,
   },
   main: {
@@ -572,7 +572,7 @@ heroGlow: {
 zIndex: 2,
     fontSize: 42,
     margin: 0,
-    letterSpacing: 1,
+    letterSpacing: 3,
     fontWeight: 700,
     color: "#e5e7eb",
     textShadow:
@@ -597,15 +597,15 @@ top: -7,
   features: {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
-    gap: 28,
-    marginTop: 22,
+    gap: 52,
+    marginTop: 34,
   },
   feature: {
     textAlign: "center",
   },
   featureIcon: {
-    width: 58,
-    height: 58,
+    width: 50,
+    height: 50,
     margin: "0 auto 14px",
     borderRadius: "50%",
     display: "grid",
@@ -631,7 +631,7 @@ lucideIcon: {
     drop-shadow(0 0 2px rgba(255,255,255,0.95))
     drop-shadow(0 0 8px rgba(120,180,255,0.95))
     drop-shadow(0 0 18px rgba(0,102,255,0.65))
-    drop-shadow(0 0 34px rgba(0,102,255,0.28))
+    drop-shadow(0 0 18px rgba(0,102,255,0.18))
     `,
 },
 bottomLucideIcon: {
@@ -647,7 +647,7 @@ bottomLucideIcon: {
   sectionTitle: {
     marginBottom: 10,
     marginLeft: 10,
-    marginTop: 18,
+    marginTop: 30,
     fontSize: 17,
     fontWeight: 700,
     letterSpacing: 2,
@@ -655,10 +655,21 @@ bottomLucideIcon: {
     textTransform: "uppercase",
     fontFamily: "Arial, sans-serif",
   },
+  /* ==============================
+   FEATURE TITLE
+   ============================== */
+featureTitle: {
+  fontSize: 14,
+  fontWeight: 800,
+  letterSpacing: 0.6,
+  color: "#f3f4f6",
+  marginTop: 2,
+},
   featureText: {
     letterSpacing: 0.4,
-    fontSize: 12,
-    color: "#cbd5e1",
+    fontSize: 11,
+    fontWeight: 500,
+    color: "rgba(226,232,240,0.72)",
     lineHeight: 1.45,
     marginTop: 8,
   },
@@ -684,7 +695,7 @@ background: "linear-gradient(180deg, rgba(0,0,0,0.94) 0%, rgba(2,6,23,0.98) 100%
   minHeight: 250,
   border: "1px solid rgba(148,163,184,0.20)",
   borderRadius: 8,
-  padding: "18px 16px 14px",
+  padding: "24px 18px 20px",
   transform: "translateY(-6px)",
   overflow: "visible",
   background: "rgba(15,23,42,0.54)",
@@ -745,7 +756,14 @@ planList: {
   color: "#60a5fa",
   fontWeight: 900,
 },
-  note: { textAlign: "center", color: "#cbd5e1", marginTop: 30 },
+  note: {
+  textAlign: "center",
+  color: "#cbd5e1",
+  marginTop: 29,
+  marginBottom: 10,
+  fontSize: 15,
+  letterSpacing: 0.4,
+},
   checkout: {
   width: 600,
   flexShrink: 0,
@@ -776,8 +794,8 @@ background:
 
   0 0 25px rgba(0,140,255,0.38),
   0 0 60px rgba(0,140,255,0.32),
-  0 0 120px rgba(0,102,255,0.24),
-  0 0 220px rgba(0,102,255,0.18),
+  0 0 80px rgba(0,102,255,0.16),
+  0 0 140px rgba(0,102,255,0.10),
 
   0 0 320px rgba(0,102,255,0.14),
 
@@ -998,7 +1016,7 @@ demoCard: {
   background:
     "linear-gradient(180deg, rgba(0,28,42,0.98) 0%, rgba(0,6,14,1) 100%)",
 
-  border: "1px solid rgba(0,238,255,1)",
+  border: "2px solid rgba(0,238,255,1)",
 
   boxShadow:
     "0 0 1px rgba(0,238,255,1), 0 0 1px rgba(0,238,255,1), 0 0 3px rgba(0,170,255,0.65), 0 0 3px rgba(0,170,255,0.22), inset 0 0 5px rgba(0,238,255,0.10)",
@@ -1018,7 +1036,7 @@ clubCard: {
   background:
     "linear-gradient(180deg, rgba(70,46,0,0.98) 0%, rgba(12,8,2,1) 100%)",
 
-  border: "1px solid rgba(255,196,56,1)",
+  border: "2px solid rgba(255,196,56,1)",
 
   boxShadow:
     "0 0 1px rgba(255,196,56,1), 0 0 1px rgba(255,196,56,0.95), 0 0 2px rgba(255,174,0,0.65), 0 0 0px rgba(255,174,0,0.22), inset 0 0 58px rgba(255,196,56,0.10)",
@@ -1072,8 +1090,9 @@ floorGlow: {
 
 floorGlowCyan: {
   background:
-    "linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,170,255,0.10) 10%, rgba(0,238,255,1) 30%, rgba(120,255,255,1) 50%, rgba(0,238,255,1) 70%, rgba(0,170,255,0.10) 90%, rgba(0,0,0,0) 100%)",
-    width: "100%",
+    "linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,170,255,0.08) 18%, rgba(0,238,255,1) 38%, rgba(120,255,255,1) 50%, rgba(0,238,255,1) 62%, rgba(0,170,255,0.08) 82%, rgba(0,0,0,0) 100%)",
+
+  width: "140%",
 },
 
 floorGlowBlue: {
@@ -1102,10 +1121,10 @@ floorCore: {
   zIndex: 0,
 },
 statsStrip: {
-  
+  marginTop: 26,
   position: "absolute",
   left: 133,
-  bottom: 30,
+  bottom: 9,
   right: 133,
   display: "grid",
   gridTemplateColumns: "repeat(3, 1fr)",
