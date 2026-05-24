@@ -10809,7 +10809,7 @@ onMouseLeave={(e) => {
       width: 470,
       height: 153,
       minHeight: 92,
-      zIndex: Z_PUBLIC_TV.gpaAttention,
+      zIndex: 41,
       animation: "medicalDecisionPulse 2.4s ease-in-out infinite",
       background:
         "linear-gradient(180deg, rgba(38,28,5,0.96), rgba(8,6,2,0.96))",
@@ -12019,6 +12019,14 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
   if (!meta) {
     return <><GlobalAppStyle /><div style={styles.page}>Cargando...</div></>;
   }
+
+  if (path === "/license-dev") {
+  return <LicensePage />;
+}
+
+if (path === "/license") {
+  return <LicenseComingSoon />;
+}
 
   const demoExpiredLayer =
   isDemoRoom(roomId) && meta?.demoLimit?.expired ? (
