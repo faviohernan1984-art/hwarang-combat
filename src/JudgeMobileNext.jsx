@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 export default function JudgeMobileNext({ meta, judges, writeJudge, judgeId, roomId, time, mobileWarningText }) {
   useWakeLock();
@@ -79,6 +79,58 @@ const judgeStatusLabel =
 
 const activeBg =
   judgeBackgrounds[Number(judgeId)] || "/backgrounds/judge-red.jpg";
+
+// ======================================================
+// JUDGE MOBILE — ACTIVE SESSION GUARD
+// Verifica que este dispositivo siga siendo dueño del slot.
+// Si el juez salió y otro dispositivo ocupó el lugar,
+// este joystick queda expulsado automáticamente.
+// No modifica scoring, puntos, timer ni lógica de combate.
+// ======================================================
+useEffect(() => {
+  if (!roomId || !judgeId) return;
+
+  const localSessionId = localStorage.getItem(
+    `hwarang_judge_session_${roomId}_${judgeId}`
+  );
+
+  if (!localSessionId) {
+    window.location.replace("/judge-exit");
+    return;
+  }
+
+  const slotRef = doc(
+    db,
+    "matches",
+    roomId,
+    "judgeSlots",
+    String(judgeId)
+  );
+
+  const unsub = onSnapshot(slotRef, (snap) => {
+    const slot = snap.exists() ? snap.data() : null;
+
+    if (!slot) {
+      window.location.replace("/judge-exit");
+      return;
+    }
+
+    const slotSessionId = slot?.sessionId || null;
+    const slotStatus = slot?.status || null;
+    const slotSignal = Number(slot?.signal || 0);
+
+    const isValidOwner =
+      slotStatus === "online" &&
+      slotSignal === 1 &&
+      slotSessionId === localSessionId;
+
+    if (!isValidOwner) {
+      window.location.replace("/judge-exit");
+    }
+  });
+
+  return () => unsub();
+}, [roomId, judgeId]);
 
 const inputsLocked =
   meta?.phase === "break" ||
