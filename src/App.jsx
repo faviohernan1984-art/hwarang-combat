@@ -12021,21 +12021,61 @@ async function enterJudgePortal() {
     return;
   }
 
-  await setDoc(
-    doc(db, "matches", joinRoomId, "judgeSlots", String(judgeId)),
-    {
-      name: cleanName,
-      status: "online",
-      signal: 1,
-      joinedAt: Date.now(),
-      exitedAt: null,
-      role: "judge",
-      judgeId: Number(judgeId),
-    },
-    { merge: true }
+  const sessionId =
+    crypto?.randomUUID?.() ||
+    `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+  const slotRef = doc(
+    db,
+    "matches",
+    joinRoomId,
+    "judgeSlots",
+    String(judgeId)
   );
 
-  window.location.href = `/judge/${joinRoomId}/${judgeId}`;
+  try {
+    await runTransaction(db, async (transaction) => {
+      const slotSnap = await transaction.get(slotRef);
+      const slot = slotSnap.exists() ? slotSnap.data() : null;
+
+      if (slot?.status === "online" && slot?.signal === 1) {
+        throw new Error("SLOT_ALREADY_IN_USE");
+      }
+
+      transaction.set(
+        slotRef,
+        {
+          name: cleanName,
+          status: "online",
+          signal: 1,
+          sessionId,
+          joinedAt: Date.now(),
+          lastSeen: Date.now(),
+          exitedAt: null,
+          role: "judge",
+          judgeId: Number(judgeId),
+        },
+        { merge: true }
+      );
+    });
+
+    localStorage.setItem(
+      `hwarang_judge_session_${joinRoomId}_${judgeId}`,
+      sessionId
+    );
+
+    window.location.href = `/judge/${joinRoomId}/${judgeId}`;
+  } catch (error) {
+    if (error.message === "SLOT_ALREADY_IN_USE") {
+      alert(
+        `JUDGE ${judgeId} SLOT ALREADY IN USE\n\nContact President to release this slot.`
+      );
+      return;
+    }
+
+    console.error(error);
+    alert("Access error. Please try again.");
+  }
 }
 
   const isPresidentRoute = path === "/president" || path.startsWith("/president/");
@@ -12376,6 +12416,303 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
             }}
           >
             SECURE JUDGE ACCESS PORTAL
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ======================================================
+// JUDGE EXIT — SAFE BRAND LANDING PAGE / ORBITAL IDENTITY
+// Pantalla final segura para jueces.
+// Usa isotipo clonado + estética Combat/PublicTV.
+// No vuelve a Home porque Home pertenece al Presidente.
+// No libera slot todavía.
+// No modifica scoring, jueces, timer ni Firebase.
+// ======================================================
+if (path === "/judge-exit") {
+  const isJudgeExitMobileLandscape =
+    typeof window !== "undefined" &&
+    window.innerWidth < 900 &&
+    window.innerWidth > window.innerHeight;
+
+  if (isJudgeExitMobileLandscape) {
+    return (
+      <>
+        <GlobalAppStyle />
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 2147483647,
+            background:
+              "radial-gradient(circle at center, rgba(245,197,66,0.10), #000 58%)",
+            color: "#fff",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 22,
+            textAlign: "center",
+            fontFamily: "Orbitron, Arial, sans-serif",
+            overflow: "hidden",
+          }}
+        >
+          <style>{`
+            @keyframes judgeExitSpin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+
+          <div
+            style={{
+              position: "absolute",
+              inset: 18,
+              border: "1px solid rgba(245,197,66,0.45)",
+              borderRadius: 24,
+              boxShadow: "0 0 28px rgba(245,197,66,0.18)",
+            }}
+          />
+
+          <div
+            style={{
+              position: "relative",
+              width: "10vw",
+              height: "10vw",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "50%",
+                border: "3px solid rgba(245,197,66,0.22)",
+                borderTop: "3px solid #ff0000",
+                boxShadow: "0 0 28px rgb(255,253,253)",
+                animation: "judgeExitSpin 2.8s linear infinite",
+              }}
+            />
+
+            <div
+              style={{
+                color: "#ff0000",
+                fontSize: "5vw",
+                fontWeight: 1000,
+                textShadow:
+                  "0 0 12px rgba(245,197,66,1), 0 0 28px rgba(245,197,66,0.75)",
+              }}
+            >
+              H
+            </div>
+          </div>
+
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 900,
+              letterSpacing: "0.34em",
+              color: "#f5c542",
+            }}
+          >
+            HWARANG SCORING UNIVERSE™
+          </div>
+
+          <div
+            style={{
+              fontSize: 20,
+              fontWeight: 1000,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+            }}
+          >
+            Rotate Device
+          </div>
+
+          <div
+            style={{
+              maxWidth: 320,
+              fontSize: 14,
+              lineHeight: 1.45,
+              color: "rgba(255,255,255,0.72)",
+              fontWeight: 700,
+              letterSpacing: "0.04em",
+            }}
+          >
+            Turn your phone vertically to view the session closed screen.
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <GlobalAppStyle />
+
+      <div
+        style={{
+          width: "100%",
+          height: "100dvh",
+          background:
+            "radial-gradient(circle at center, rgba(30,80,150,0.16), #000 58%)",
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "Orbitron, Arial, sans-serif",
+          overflow: "hidden",
+          padding: 18,
+          boxSizing: "border-box",
+        }}
+      >
+        <style>{`
+          @keyframes judgeExitSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+
+          @keyframes judgeExitPulse {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.035); filter: brightness(1.22); }
+            100% { transform: scale(1); filter: brightness(1); }
+          }
+        `}</style>
+
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 430,
+            minHeight: "86dvh",
+            borderRadius: 28,
+            border: "1px solid rgba(245,197,66,0.38)",
+            background:
+              "linear-gradient(180deg, rgba(2,10,28,0.92), rgba(0,0,0,0.98))",
+            boxShadow:
+              "0 0 55px rgba(30,111,255,0.22), 0 0 90px rgba(245,197,66,0.10)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            padding: "34px 24px",
+            boxSizing: "border-box",
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              width: 96,
+              height: 96,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              animation: "judgeExitPulse 2.8s ease-in-out infinite",
+              marginBottom: 28,
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "50%",
+                border: "3px solid rgba(245,197,66,0.22)",
+                borderTop: "3px solid #ff0000",
+                boxShadow: "0 0 28px rgb(255,253,253)",
+                animation: "judgeExitSpin 2.8s linear infinite",
+              }}
+            />
+
+            <div
+              style={{
+                color: "#ff0000",
+                fontSize: 54,
+                fontWeight: 1000,
+                textShadow:
+                  "0 0 12px rgba(245,197,66,1), 0 0 28px rgba(245,197,66,0.75)",
+              }}
+            >
+              H
+            </div>
+          </div>
+
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 900,
+              letterSpacing: "0.34em",
+              color: "#f5c542",
+              marginBottom: 18,
+            }}
+          >
+            HWARANG SCORING UNIVERSE™
+          </div>
+
+          <div
+            style={{
+              fontSize: 26,
+              fontWeight: 1000,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              textShadow: "0 0 18px rgba(255,255,255,0.34)",
+              marginBottom: 20,
+            }}
+          >
+            JUDGE SESSION CLOSED
+          </div>
+
+          <div
+            style={{
+              width: "72%",
+              height: 1,
+              background:
+                "linear-gradient(90deg, transparent, rgba(245,197,66,0.65), transparent)",
+              marginBottom: 22,
+            }}
+          />
+
+          <div
+            style={{
+              maxWidth: 350,
+              fontSize: 13,
+              lineHeight: 1.55,
+              color: "rgba(255,255,255,0.76)",
+              fontWeight: 700,
+              letterSpacing: "0.035em",
+            }}
+          >
+            Digital sports systems corporation specialized in real-time scoring,
+            tournament technology and martial arts competition management.
+          </div>
+
+          <div
+            style={{
+              marginTop: 24,
+              fontSize: 13,
+              lineHeight: 1.45,
+              color: "#f5c542",
+              fontWeight: 900,
+              letterSpacing: "0.07em",
+            }}
+          >
+            To reconnect, scan your official QR code again.
+          </div>
+
+          <div
+            style={{
+              marginTop: 26,
+              fontSize: 15,
+              fontWeight: 900,
+              letterSpacing: "0.08em",
+              color: "#ffffff",
+              textShadow: "0 0 14px rgba(245,197,66,0.35)",
+            }}
+          >
+            www.hwarangscoring.org
           </div>
         </div>
       </div>
