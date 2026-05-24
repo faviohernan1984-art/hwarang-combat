@@ -10,6 +10,7 @@ import {
   getDoc,
   getDocs,
   query,
+  doc,
 } from "firebase/firestore";
 import { trackVisit } from "./usageTracking";
 import { db, getMatchMetaRef, getJudgesColRef, getJudgeRef } from "./firebase";
@@ -2453,7 +2454,7 @@ function QRSection({ roomId = "combat" }) {
       <div style={box}>
         <div style={title}>Judge 2</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/${roomId}/2`} size={190} />
+          <QRCodeCanvas value={`${base}/join/${roomId}/judge/2`} />
         </div>
       </div>
 
@@ -2467,14 +2468,14 @@ function QRSection({ roomId = "combat" }) {
       <div style={box}>
         <div style={title}>Judge 3</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/${roomId}/3`} size={190} />
+          <QRCodeCanvas value={`${base}/join/${roomId}/judge/3`} />
         </div>
       </div>
 
       <div style={box}>
         <div style={title}>Judge 1</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/${roomId}/1`} size={190} />
+          <QRCodeCanvas value={`${base}/join/${roomId}/judge/1`} />
         </div>
       </div>
 
@@ -2488,7 +2489,7 @@ function QRSection({ roomId = "combat" }) {
       <div style={box}>
         <div style={title}>Judge 4</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/judge/${roomId}/4`} size={190} />
+          <QRCodeCanvas value={`${base}/join/${roomId}/judge/4`} />
         </div>
       </div>
     </div>
@@ -11994,6 +11995,49 @@ function exitApp() {
   
 
   const { path, navigate, roomId, isTvMode } = useRoute();
+  const [joinName, setJoinName] = useState("");
+
+  // ======================================================
+// PORTAL DE INGRESO DE JUEZ
+// Guarda el nombre del juez, activa el slot y redirige al joystick.
+// No modifica scoring, puntos ni cálculo oficial.
+// ======================================================
+async function enterJudgePortal() {
+  const parts = path.split("/").filter(Boolean);
+
+  const joinRoomId = parts[1];
+  const role = parts[2];
+  const judgeId = parts[3];
+
+  const cleanName = joinName.trim();
+
+  if (!cleanName) {
+    alert("Please enter your name");
+    return;
+  }
+
+  if (role !== "judge" || !joinRoomId || !judgeId) {
+    alert("Invalid judge portal route");
+    return;
+  }
+
+  await setDoc(
+    doc(db, "matches", joinRoomId, "judgeSlots", String(judgeId)),
+    {
+      name: cleanName,
+      status: "online",
+      signal: 1,
+      joinedAt: Date.now(),
+      exitedAt: null,
+      role: "judge",
+      judgeId: Number(judgeId),
+    },
+    { merge: true }
+  );
+
+  window.location.href = `/judge/${joinRoomId}/${judgeId}`;
+}
+
   const isPresidentRoute = path === "/president" || path.startsWith("/president/");
 
 const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
@@ -12286,7 +12330,9 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
           />
 
           <input
-            placeholder="Enter your name"
+  placeholder="Enter your name"
+  value={joinName || ""}
+  onChange={(e) => setJoinName(e.target.value)}
             style={{
               width: "100%",
               height: 58,
@@ -12303,6 +12349,7 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
           />
 
           <button
+          onClick={enterJudgePortal}
             style={{
               width: "100%",
               height: 60,
