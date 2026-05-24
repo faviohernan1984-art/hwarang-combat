@@ -1,6 +1,8 @@
 
 import { useEffect, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "./firebase";
 export default function JudgeMobileNext({ meta, judges, writeJudge, judgeId, roomId, time, mobileWarningText }) {
   useWakeLock();
   
@@ -635,6 +637,17 @@ if (isJudgeMobileLandscape) {
   </div>
 )}
         {/* HOME */}
+{/* ======================================================
+    JUDGE MOBILE — ORBITAL EXIT BUTTON
+    EXIT reemplaza HOME.
+    Home pertenece exclusivamente al Presidente.
+    Estética nueva Orbitron / Combat Universe.
+    Próxima fase:
+    - liberar judgeSlot
+    - borrar sessionId
+    - redirect seguro a /judge-exit
+====================================================== */}
+
 <div
   style={{
     position: "absolute",
@@ -642,24 +655,96 @@ if (isJudgeMobileLandscape) {
     left: 16,
     display: "flex",
     justifyContent: "flex-start",
-    zIndex: 10,
+    zIndex: 120,
   }}
 >
   <div
+    onClick={async () => {
+  try {
+    // ======================================================
+    // JUDGE MOBILE — SAFE EXIT FLOW
+    // Libera slot operativo del juez.
+    // Permite reconexión futura.
+    // No modifica scoring, timer ni lógica de combate.
+    // ======================================================
+
+    const slotRef = doc(
+      db,
+      "matches",
+      roomId,
+      "judgeSlots",
+      String(judgeId)
+    );
+
+    await setDoc(
+      slotRef,
+      {
+        status: "exited",
+        signal: 0,
+        sessionId: null,
+        lastSeen: Date.now(),
+        exitedAt: Date.now(),
+      },
+      { merge: true }
+    );
+
+    localStorage.removeItem(
+      `hwarang_judge_session_${roomId}_${judgeId}`
+    );
+
+    window.location.href = "/judge-exit";
+  } catch (err) {
+    console.error(err);
+    alert("Exit error");
+  }
+}}
     style={{
-      padding: "6px 18px",
+      padding: "7px 20px",
       borderRadius: 999,
-      border: "3px solid rgba(255, 3, 3, 0.38)",
-      background: "rgba(0,0,0,0.35)",
-      backdropFilter: "blur(6px)",
-      fontWeight: 700,
-      fontSize: 14,
-      letterSpacing: 1,
+      border: "2px solid rgba(245,197,66,0.38)",
+      background:
+        "linear-gradient(180deg, rgba(10,10,10,0.92), rgba(0,0,0,0.98))",
+      backdropFilter: "blur(8px)",
+      color: "#f5c542",
+      fontWeight: 900,
+      fontSize: 11,
+      letterSpacing: "0.18em",
       cursor: "pointer",
+      fontFamily: "Orbitron, Arial, sans-serif",
+      textTransform: "uppercase",
+      boxShadow: `
+        0 0 12px rgba(245,197,66,0.18),
+        inset 0 0 12px rgba(245,197,66,0.05)
+      `,
+      transition: "0.12s ease",
+      userSelect: "none",
     }}
-    {...pressFx}
+    onMouseDown={(e) => {
+      e.currentTarget.style.transform = "scale(0.94)";
+      e.currentTarget.style.filter = "brightness(1.15)";
+    }}
+    onMouseUp={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+      e.currentTarget.style.filter = "brightness(1)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+      e.currentTarget.style.filter = "brightness(1)";
+    }}
+    onTouchStart={(e) => {
+      e.currentTarget.style.transform = "scale(0.94)";
+      e.currentTarget.style.filter = "brightness(1.15)";
+
+      if (navigator.vibrate) {
+        navigator.vibrate([30]);
+      }
+    }}
+    onTouchEnd={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+      e.currentTarget.style.filter = "brightness(1)";
+    }}
   >
-    HOME
+    EXIT
   </div>
 </div>
         {/* WATERMARK - CAPA 1 */}
