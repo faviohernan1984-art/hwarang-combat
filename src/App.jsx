@@ -1558,6 +1558,8 @@ function useRoute() {
 
   const parts = path.split("/").filter(Boolean);
 
+
+
   const searchParams = new URLSearchParams(window.location.search);
   const isTvMode = searchParams.get("tv") === "1";
 
@@ -1574,6 +1576,12 @@ function useRoute() {
   isDemoRoom(parts[0])
 ) {
   roomId = parts[0];
+}
+else if (
+  parts[0] === "join" &&
+  parts.length >= 4
+) {
+  roomId = parts[1];
 }
 
   return { path, navigate, roomId, isTvMode };
@@ -12019,6 +12027,314 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
   if (!meta) {
     return <><GlobalAppStyle /><div style={styles.page}>Cargando...</div></>;
   }
+
+  const isJoinLandscape =
+  typeof window !== "undefined" &&
+  window.innerWidth < 900 &&
+  window.innerWidth > window.innerHeight;
+
+  if (path.startsWith("/join/")) {
+    if (isJoinLandscape) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 2147483647,
+        background:
+          "radial-gradient(circle at center, rgba(245,197,66,0.10), #000 58%)",
+        color: "#fff",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 22,
+        textAlign: "center",
+        fontFamily: "'Orbitron', sans-serif",
+        overflow: "hidden",
+      }}
+    >
+      <style>{`
+        @keyframes rotateJoinSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+
+      <div
+        style={{
+          position: "absolute",
+          inset: 18,
+          border: "1px solid rgba(245,197,66,0.45)",
+          borderRadius: 24,
+          boxShadow: "0 0 28px rgba(245,197,66,0.18)",
+        }}
+      />
+
+      <div
+        style={{
+          position: "relative",
+          width: "10vw",
+          height: "10vw",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: "50%",
+            border: "3px solid rgba(245,197,66,0.22)",
+            borderTop: "3px solid #ff0000",
+            boxShadow: "0 0 28px rgb(255,253,253)",
+            animation: "rotateJoinSpin 2.8s linear infinite",
+          }}
+        />
+
+        <div
+          style={{
+            color: "#ff0000",
+            fontSize: "5vw",
+            fontWeight: 1000,
+            textShadow: `
+              0 0 12px rgba(245,197,66,1),
+              0 0 28px rgba(245,197,66,0.75)
+            `,
+          }}
+        >
+          H
+        </div>
+      </div>
+
+      <div
+        style={{
+          fontSize: 12,
+          fontWeight: 900,
+          letterSpacing: "0.34em",
+          color: "#f5c542",
+        }}
+      >
+        HWARANG SCORING UNIVERSE™
+      </div>
+
+      <div
+        style={{
+          fontSize: 20,
+          fontWeight: 1000,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          textShadow: "0 0 18px rgba(255,255,255,0.3)",
+        }}
+      >
+        Rotate Device
+      </div>
+
+      <div
+        style={{
+          maxWidth: 320,
+          fontSize: 14,
+          lineHeight: 1.45,
+          color: "rgba(255,255,255,0.72)",
+          fontWeight: 700,
+          letterSpacing: "0.04em",
+        }}
+      >
+        Turn your phone vertically to access the Judge Portal.
+      </div>
+    </div>
+  );
+}
+  return (
+    <>
+      <GlobalAppStyle />
+
+      <div
+        style={{
+          width: "100vw",
+          height: "100dvh",
+          background:
+            "radial-gradient(circle at top, rgba(37,99,235,0.22), transparent 34%), radial-gradient(circle at bottom, rgba(245,197,66,0.14), transparent 30%), #000",
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "'Orbitron', sans-serif",
+          overflow: "hidden",
+          padding: 22,
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 430,
+            minHeight: "86dvh",
+            borderRadius: 28,
+            border: "1px solid rgba(245,197,66,0.28)",
+            background:
+              "linear-gradient(180deg, rgba(5,10,24,0.96), rgba(0,0,0,0.98))",
+            boxShadow:
+              "0 0 44px rgba(37,99,235,0.22), inset 0 0 70px rgba(245,197,66,0.06)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            padding: "34px 24px",
+          }}
+        >
+          <div
+  style={{
+    position: "relative",
+    width: 86,
+    height: 86,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 28,
+  }}
+>
+  <style>{`
+    @keyframes joinOrbSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `}</style>
+
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      borderRadius: "50%",
+      border: "3px solid rgba(245,197,66,0.22)",
+      borderTop: "3px solid #ff0000",
+      boxShadow: "0 0 28px rgb(255,253,253)",
+      animation: "joinOrbSpin 2.8s linear infinite",
+    }}
+  />
+
+  <div
+    style={{
+      color: "#ff0000",
+      fontSize: 42,
+      fontWeight: 1000,
+      textShadow: `
+        0 0 12px rgba(245,197,66,1),
+        0 0 28px rgba(245,197,66,0.75)
+      `,
+      zIndex: 2,
+    }}
+  >
+    H
+  </div>
+</div>
+
+          <div
+            style={{
+              color: "#f5c542",
+              fontSize: 11,
+              letterSpacing: "0.32em",
+              fontWeight: 800,
+              marginBottom: 16,
+            }}
+          >
+            WELCOME TO
+          </div>
+
+          <div
+  style={{
+    fontSize: 23,
+    lineHeight: 1.05,
+    fontWeight: 900,
+    letterSpacing: "0.08em",
+    textShadow:
+      "0 0 6px rgba(255,255,255,0.45), 0 0 22px rgba(37,99,235,0.55)",
+  }}
+>
+  HWARANG SCORING
+  <br />
+  UNIVERSE<span style={{ fontSize: 13, verticalAlign: "super" }}>™</span>
+</div>
+
+          <div
+  style={{
+    marginTop: 12,
+    color: "#ff2a2a",
+    fontSize: 18,
+    fontWeight: 900,
+    letterSpacing: "0.25em",
+    fontFamily: "'Orbitron', sans-serif",
+    textShadow: `
+      0 0 12px rgba(255,0,0,0.75),
+      0 0 24px rgba(255,0,0,0.35)
+    `,
+  }}
+>
+  COMBAT
+</div>
+
+          <div
+            style={{
+              width: "72%",
+              height: 1,
+              margin: "28px 0",
+              background:
+                "linear-gradient(90deg, transparent, rgba(245,197,66,0.95), transparent)",
+              boxShadow: "0 0 14px rgba(245,197,66,0.65)",
+            }}
+          />
+
+          <input
+            placeholder="Enter your name"
+            style={{
+              width: "100%",
+              height: 58,
+              borderRadius: 16,
+              border: "1px solid rgba(96,165,250,0.42)",
+              background: "rgba(2,6,23,0.82)",
+              color: "#fff",
+              fontSize: 18,
+              textAlign: "center",
+              outline: "none",
+              marginBottom: 18,
+              boxShadow: "inset 0 0 18px rgba(37,99,235,0.12)",
+            }}
+          />
+
+          <button
+            style={{
+              width: "100%",
+              height: 60,
+              borderRadius: 16,
+              border: "1px solid rgba(245,197,66,0.72)",
+              background:
+                "linear-gradient(180deg, #b88916 0%, #5c3b04 100%)",
+              color: "#fff",
+              fontSize: 17,
+              fontWeight: 900,
+              letterSpacing: "0.08em",
+              boxShadow: "0 0 24px rgba(245,197,66,0.25)",
+            }}
+          >
+            ENTER SYSTEM
+          </button>
+
+          <div
+            style={{
+              marginTop: 24,
+              fontSize: 11,
+              color: "#94a3b8",
+              letterSpacing: "0.12em",
+            }}
+          >
+            SECURE JUDGE ACCESS PORTAL
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
 
   if (path === "/license-dev") {
   return <LicensePage />;
