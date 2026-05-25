@@ -11,6 +11,7 @@ import {
   getDocs,
   query,
   doc,
+  collection,
 } from "firebase/firestore";
 import { trackVisit } from "./usageTracking";
 import { db, getMatchMetaRef, getJudgesColRef, getJudgeRef } from "./firebase";
@@ -7478,13 +7479,48 @@ const handleInvertSides = async () => {
 
 {/*==============================PRESIDENTSCREENV2NUEVOOOOOOO=========================*/}
 
-function PresidentScreenV2({ meta, judges, writeMeta, writeJudge, resetAll, navigate, roomId }) {
+function PresidentScreenV2({ 
+  meta, 
+  judges, 
+  writeMeta, 
+  writeJudge, 
+  resetAll, 
+  navigate, 
+  roomId,
+  judgeSlots = {},
+}) {
 
   
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 900;
 
-  
+  async function forceReleaseJudgeSlot(judgeSlotId) {
+  const slotRef = doc(
+    db,
+    "matches",
+    roomId,
+    "judgeSlots",
+    String(judgeSlotId)
+  );
+
+  await setDoc(
+    slotRef,
+    {
+      name: null,
+      status: "released",
+      signal: 0,
+      sessionId: null,
+      role: null,
+      joinedAt: null,
+      lastSeen: null,
+      exitedAt: Date.now(),
+      releasedAt: Date.now(),
+      releasedBy: "president",
+      judgeId: Number(judgeSlotId),
+    },
+    { merge: true }
+  );
+}
 
   async function handleActivateGPA() {
   // 1. ACTIVAR GPA INMEDIATO (UI responde rápido)
@@ -10584,31 +10620,32 @@ letterSpacing: "0.08em",
       textOverflow: "ellipsis",
     }}
   >
-    JUDGE NAME
+    {judgeSlots?.["1"]?.name || "EMPTY SLOT"}
   </div>
 
   {/* FORCE EXIT */}
   <button
-    type="button"
-    style={{
-      height: 26,
-      padding: "0 10px",
-      borderRadius: 9,
-      border: "1px solid rgba(245,197,66,0.24)",
-      background:
-        "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
-      color: "#f5c542",
-      fontSize: 10,
-      fontWeight: 900,
-      fontFamily: "Orbitron, Arial, sans-serif",
-      letterSpacing: "0.08em",
-      cursor: "pointer",
-      boxShadow: "0 0 10px rgba(245,197,66,0.10)",
-      transition: "0.12s ease",
-    }}
-  >
-    EXIT
-  </button>
+  type="button"
+  onClick={() => forceReleaseJudgeSlot(1)}
+  style={{
+    height: 26,
+    padding: "0 10px",
+    borderRadius: 9,
+    border: "1px solid rgba(245,197,66,0.24)",
+    background:
+      "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
+    color: "#f5c542",
+    fontSize: 10,
+    fontWeight: 900,
+    fontFamily: "Orbitron, Arial, sans-serif",
+    letterSpacing: "0.08em",
+    cursor: "pointer",
+    boxShadow: "0 0 10px rgba(245,197,66,0.10)",
+    transition: "0.12s ease",
+  }}
+>
+  EXIT
+</button>
 </div>
 
   {/* CONTENIDO */}
@@ -10757,31 +10794,32 @@ letterSpacing: "0.08em",
       textOverflow: "ellipsis",
     }}
   >
-    JUDGE NAME
+    {judgeSlots?.["2"]?.name || "EMPTY SLOT"}
   </div>
 
   {/* FORCE EXIT */}
   <button
-    type="button"
-    style={{
-      height: 26,
-      padding: "0 10px",
-      borderRadius: 9,
-      border: "1px solid rgba(245,197,66,0.24)",
-      background:
-        "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
-      color: "#f5c542",
-      fontSize: 10,
-      fontWeight: 900,
-      fontFamily: "Orbitron, Arial, sans-serif",
-      letterSpacing: "0.08em",
-      cursor: "pointer",
-      boxShadow: "0 0 10px rgba(245,197,66,0.10)",
-      transition: "0.12s ease",
-    }}
-  >
-    EXIT
-  </button>
+  type="button"
+  onClick={() => forceReleaseJudgeSlot(2)}
+  style={{
+    height: 26,
+    padding: "0 10px",
+    borderRadius: 9,
+    border: "1px solid rgba(245,197,66,0.24)",
+    background:
+      "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
+    color: "#f5c542",
+    fontSize: 10,
+    fontWeight: 900,
+    fontFamily: "Orbitron, Arial, sans-serif",
+    letterSpacing: "0.08em",
+    cursor: "pointer",
+    boxShadow: "0 0 10px rgba(245,197,66,0.10)",
+    transition: "0.12s ease",
+  }}
+>
+  EXIT
+</button>
 </div>
 
   {/* CONTENIDO */}
@@ -10930,31 +10968,32 @@ letterSpacing: "0.08em",
       textOverflow: "ellipsis",
     }}
   >
-    JUDGE NAME
+    {judgeSlots?.["3"]?.name || "EMPTY SLOT"}
   </div>
 
   {/* FORCE EXIT */}
   <button
-    type="button"
-    style={{
-      height: 26,
-      padding: "0 10px",
-      borderRadius: 9,
-      border: "1px solid rgba(245,197,66,0.24)",
-      background:
-        "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
-      color: "#f5c542",
-      fontSize: 10,
-      fontWeight: 900,
-      fontFamily: "Orbitron, Arial, sans-serif",
-      letterSpacing: "0.08em",
-      cursor: "pointer",
-      boxShadow: "0 0 10px rgba(245,197,66,0.10)",
-      transition: "0.12s ease",
-    }}
-  >
-    EXIT
-  </button>
+  type="button"
+  onClick={() => forceReleaseJudgeSlot(3)}
+  style={{
+    height: 26,
+    padding: "0 10px",
+    borderRadius: 9,
+    border: "1px solid rgba(245,197,66,0.24)",
+    background:
+      "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
+    color: "#f5c542",
+    fontSize: 10,
+    fontWeight: 900,
+    fontFamily: "Orbitron, Arial, sans-serif",
+    letterSpacing: "0.08em",
+    cursor: "pointer",
+    boxShadow: "0 0 10px rgba(245,197,66,0.10)",
+    transition: "0.12s ease",
+  }}
+>
+  EXIT
+</button>
 </div>
 
   {/* CONTENIDO */}
@@ -11103,31 +11142,32 @@ letterSpacing: "0.08em",
       textOverflow: "ellipsis",
     }}
   >
-    JUDGE NAME
+    {judgeSlots?.["4"]?.name || "EMPTY SLOT"}
   </div>
 
   {/* FORCE EXIT */}
   <button
-    type="button"
-    style={{
-      height: 26,
-      padding: "0 10px",
-      borderRadius: 9,
-      border: "1px solid rgba(245,197,66,0.24)",
-      background:
-        "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
-      color: "#f5c542",
-      fontSize: 10,
-      fontWeight: 900,
-      fontFamily: "Orbitron, Arial, sans-serif",
-      letterSpacing: "0.08em",
-      cursor: "pointer",
-      boxShadow: "0 0 10px rgba(245,197,66,0.10)",
-      transition: "0.12s ease",
-    }}
-  >
-    EXIT
-  </button>
+  type="button"
+  onClick={() => forceReleaseJudgeSlot(4)}
+  style={{
+    height: 26,
+    padding: "0 10px",
+    borderRadius: 9,
+    border: "1px solid rgba(245,197,66,0.24)",
+    background:
+      "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
+    color: "#f5c542",
+    fontSize: 10,
+    fontWeight: 900,
+    fontFamily: "Orbitron, Arial, sans-serif",
+    letterSpacing: "0.08em",
+    cursor: "pointer",
+    boxShadow: "0 0 10px rgba(245,197,66,0.10)",
+    transition: "0.12s ease",
+  }}
+>
+  EXIT
+</button>
 </div>
 
   {/* CONTENIDO */}
@@ -12472,7 +12512,44 @@ function exitApp() {
   
 
   const { path, navigate, roomId, isTvMode } = useRoute();
-  const [joinName, setJoinName] = useState("");
+
+const [joinName, setJoinName] = useState("");
+
+// ======================================================
+// PRESIDENT — JUDGE SLOTS LIVE STATE
+// Lee los slots de jueces para mostrar nombre/estado en Presidente.
+// No modifica scoring, puntos, timer ni cálculo oficial.
+// ======================================================
+const [judgeSlots, setJudgeSlots] = useState({});
+
+// ======================================================
+// PRESIDENT — JUDGE SLOTS REALTIME LISTENER
+// Lee nombres y estados live desde:
+// matches/{roomId}/judgeSlots
+// No modifica scoring ni lógica oficial.
+// ======================================================
+useEffect(() => {
+  if (!roomId) return;
+
+  const slotsRef = collection(
+    db,
+    "matches",
+    roomId,
+    "judgeSlots"
+  );
+
+  const unsub = onSnapshot(slotsRef, (snap) => {
+    const next = {};
+
+    snap.forEach((docSnap) => {
+      next[docSnap.id] = docSnap.data();
+    });
+
+    setJudgeSlots(next);
+  });
+
+  return () => unsub();
+}, [roomId]);
 
   // ======================================================
 // PORTAL DE INGRESO DE JUEZ
@@ -13258,6 +13335,7 @@ if (path === "/license-dev") {
         resetAll={resetAll}
         navigate={navigate}
         roomId={roomId}
+        judgeSlots={judgeSlots}
       />
     </>
   );

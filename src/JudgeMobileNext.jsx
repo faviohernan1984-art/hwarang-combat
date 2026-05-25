@@ -728,17 +728,27 @@ if (isJudgeMobileLandscape) {
       String(judgeId)
     );
 
+  console.log("EXIT CLEANING SLOT");
+
     await setDoc(
-      slotRef,
-      {
-        status: "exited",
-        signal: 0,
-        sessionId: null,
-        lastSeen: Date.now(),
-        exitedAt: Date.now(),
-      },
-      { merge: true }
-    );
+  slotRef,
+  {
+    name: null,
+    status: "released",
+    signal: 0,
+    sessionId: null,
+    role: null,
+    joinedAt: null,
+    lastSeen: null,
+    exitedAt: Date.now(),
+    releasedAt: Date.now(),
+    releasedBy: "judge",
+    judgeId: Number(judgeId),
+  },
+  { merge: true }
+);
+
+    console.log("EXIT WRITTEN");
 
     localStorage.removeItem(
       `hwarang_judge_session_${roomId}_${judgeId}`
