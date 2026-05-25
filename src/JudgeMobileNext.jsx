@@ -754,7 +754,9 @@ if (isJudgeMobileLandscape) {
       `hwarang_judge_session_${roomId}_${judgeId}`
     );
 
-    window.location.href = "/judge-exit";
+    setTimeout(() => {
+  window.location.href = "/judge-exit";
+}, 450);
   } catch (err) {
     console.error(err);
     alert("Exit error");

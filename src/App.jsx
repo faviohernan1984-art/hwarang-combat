@@ -183,6 +183,8 @@ function GlobalAppStyle() {
         }
       }
 
+      
+
 @keyframes medicalDecisionPulse {
   0% {
     transform: translateX(-50%) scale(1);
@@ -598,6 +600,32 @@ function GlobalAppStyle() {
           transform: scale(1.03);
         }
       }
+
+      /* ======================================================
+   PRESIDENT — JUDGE SLOT LED PULSE
+   Animación visual para luces de estado de jueces.
+   No toca scoring, timer, summary ni lógica de combate.
+====================================================== */
+
+@keyframes judgeLedPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.72;
+    filter: brightness(0.85);
+  }
+
+  50% {
+    transform: scale(1.28);
+    opacity: 1;
+    filter: brightness(1.45);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0.72;
+    filter: brightness(0.85);
+  }
+}
 
     `}</style>
   );
@@ -7494,6 +7522,45 @@ function PresidentScreenV2({
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 900;
 
+  {/* ======================================================
+    PRESIDENT — JUDGE SLOT LED STATUS HELPER
+    Verde: juez activo.
+    Rojo: salida/expulsión reciente durante 3 segundos.
+    Gris: empty slot.
+    Amarillo: reservado para monitoreo futuro.
+    No toca scoring, timer ni lógica de combate.
+====================================================== */}
+
+function getJudgeSlotLed(slot) {
+  const status = slot?.status || null;
+  const signal = Number(slot?.signal || 0);
+  const releasedAt = Number(slot?.releasedAt || slot?.exitedAt || 0);
+  const recentlyReleased =
+    releasedAt > 0 && Date.now() - releasedAt < 5000;
+
+  if (status === "online" && signal === 1) {
+    return {
+      color: "#32ff72",
+      glow: "rgba(50,255,114,0.95)",
+      title: "Judge online",
+    };
+  }
+
+  if (status === "released" && recentlyReleased) {
+    return {
+      color: "#ff2a2a",
+      glow: "rgba(255,42,42,0.95)",
+      title: "Judge released / exit",
+    };
+  }
+
+  return {
+    color: "#6b7280",
+    glow: "rgba(107,114,128,0.65)",
+    title: "Empty slot",
+  };
+}
+
   async function forceReleaseJudgeSlot(judgeSlotId) {
   const slotRef = doc(
     db,
@@ -10582,18 +10649,33 @@ letterSpacing: "0.08em",
     boxSizing: "border-box",
   }}
 >
-  {/* LED STATUS */}
-  <div
-    style={{
-      width: 11,
-      height: 11,
-      borderRadius: "50%",
-      background: "#32ff72",
-      boxShadow: "0 0 14px #32ff72",
-      flexShrink: 0,
-      justifySelf: "center",
-    }}
-  />
+  {/* ======================================================
+    PRESIDENT — JUDGE 1 SLOT LED
+    Verde: juez activo.
+    Rojo: juez salió / fue liberado.
+    Gris: empty slot.
+    Amarillo: reservado para monitoreo futuro.
+====================================================== */}
+
+{(() => {
+  const led = getJudgeSlotLed(judgeSlots?.["1"]);
+
+  return (
+    <div
+      title={led.title}
+      style={{
+        width: 11,
+        height: 11,
+        borderRadius: "50%",
+        background: led.color,
+        boxShadow: `0 0 14px ${led.glow}`,
+        animation: "judgeLedPulse 1.4s ease-in-out infinite",
+        flexShrink: 0,
+        justifySelf: "center",
+      }}
+    />
+  );
+})()}
 
   {/* JUDGE NAME */}
   <div
@@ -10757,17 +10839,25 @@ letterSpacing: "0.08em",
   }}
 >
   {/* LED STATUS */}
-  <div
-    style={{
-      width: 11,
-      height: 11,
-      borderRadius: "50%",
-      background: "#32ff72",
-      boxShadow: "0 0 14px #32ff72",
-      flexShrink: 0,
-      justifySelf: "center",
-    }}
-  />
+  {(() => {
+  const led = getJudgeSlotLed(judgeSlots?.["2"]);
+
+  return (
+    <div
+      title={led.title}
+      style={{
+        width: 11,
+        height: 11,
+        borderRadius: "50%",
+        background: led.color,
+        boxShadow: `0 0 14px ${led.glow}`,
+        animation: "judgeLedPulse 1.4s ease-in-out infinite",
+        flexShrink: 0,
+        justifySelf: "center",
+      }}
+    />
+  );
+})()}
 
   {/* JUDGE NAME */}
   <div
@@ -10931,17 +11021,25 @@ letterSpacing: "0.08em",
   }}
 >
   {/* LED STATUS */}
-  <div
-    style={{
-      width: 11,
-      height: 11,
-      borderRadius: "50%",
-      background: "#32ff72",
-      boxShadow: "0 0 14px #32ff72",
-      flexShrink: 0,
-      justifySelf: "center",
-    }}
-  />
+  {(() => {
+  const led = getJudgeSlotLed(judgeSlots?.["3"]);
+
+  return (
+    <div
+      title={led.title}
+      style={{
+        width: 11,
+        height: 11,
+        borderRadius: "50%",
+        background: led.color,
+        boxShadow: `0 0 14px ${led.glow}`,
+        animation: "judgeLedPulse 1.4s ease-in-out infinite",
+        flexShrink: 0,
+        justifySelf: "center",
+      }}
+    />
+  );
+})()}
 
   {/* JUDGE NAME */}
   <div
@@ -11105,17 +11203,25 @@ letterSpacing: "0.08em",
   }}
 >
   {/* LED STATUS */}
-  <div
-    style={{
-      width: 11,
-      height: 11,
-      borderRadius: "50%",
-      background: "#32ff72",
-      boxShadow: "0 0 14px #32ff72",
-      flexShrink: 0,
-      justifySelf: "center",
-    }}
-  />
+  {(() => {
+  const led = getJudgeSlotLed(judgeSlots?.["4"]);
+
+  return (
+    <div
+      title={led.title}
+      style={{
+        width: 11,
+        height: 11,
+        borderRadius: "50%",
+        background: led.color,
+        boxShadow: `0 0 14px ${led.glow}`,
+        animation: "judgeLedPulse 1.4s ease-in-out infinite",
+        flexShrink: 0,
+        justifySelf: "center",
+      }}
+    />
+  );
+})()}
 
   {/* JUDGE NAME */}
   <div
