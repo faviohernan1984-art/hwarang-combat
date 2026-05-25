@@ -8730,18 +8730,21 @@ const rightSide = isSwapped ? "hong" : "chong";
   }}
 >
   <AppButton
-  style={{ ...styles.gray, minHeight: 32, fontSize: 17 }}
+  style={{ ...styles.gray, minHeight: 32, fontSize: 12, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em", }}
   onClick={() => navigate(`/${roomId}`)}
 >
   Home
 </AppButton>
 
-  <AppButton style={{ ...styles.green, minHeight: 32, fontSize: 17 }} onClick={prepareNextMatch}>
+  <AppButton style={{ ...styles.green, minHeight: 32, fontSize: 12, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em", }} onClick={prepareNextMatch}>
     Next
   </AppButton>
 
   <AppButton
-  style={{ ...styles.red, minHeight: 32, fontSize: 17 }}
+  style={{ ...styles.red, minHeight: 32, fontSize: 12, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em", }}
   onClick={() => {
     resetAll();
     setGoldenPointAState("idle");
@@ -8750,11 +8753,13 @@ const rightSide = isSwapped ? "hong" : "chong";
   Reset
 </AppButton>
 
-  <AppButton style={{ ...styles.purple, minHeight: 32, fontSize: 17 }} onClick={handleInvertPublic}>
+  <AppButton style={{ ...styles.purple, minHeight: 32, fontSize: 12, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em", }} onClick={handleInvertPublic}>
     Invert Pub
   </AppButton>
 
-  <AppButton style={{ ...styles.purple, minHeight: 32, fontSize: 17 }} onClick={handleInvertPresident}>
+  <AppButton style={{ ...styles.purple, minHeight: 32, fontSize: 12, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em", }} onClick={handleInvertPresident}>
     Invert Pres
   </AppButton>
 
@@ -8763,6 +8768,8 @@ const rightSide = isSwapped ? "hong" : "chong";
     textAlign: "right",
     fontSize: 22,
     fontWeight: 900,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     letterSpacing: "0.12em",
     whiteSpace: "nowrap",
     overflow: "hidden",
@@ -8812,10 +8819,12 @@ const rightSide = isSwapped ? "hong" : "chong";
       
     }}
   >
-    <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
+    <div style={{ fontSize: 18, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",fontWeight: 800, lineHeight: 1.1 }}>
       Round
     </div>
-    <strong style={{ fontSize: 28, lineHeight: 1.05 }}>
+    <strong style={{ fontSize: 28, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",lineHeight: 1.05 }}>
       {meta.round}/{meta.config.rounds}
     </strong>
   </div>
@@ -8836,10 +8845,12 @@ const rightSide = isSwapped ? "hong" : "chong";
       
     }}
   >
-    <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
+    <div style={{ fontSize: 18, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",fontWeight: 800, lineHeight: 1.1 }}>
       Status
     </div>
-    <strong style={{ fontSize: 22, lineHeight: 1.05 }}>
+    <strong style={{ fontSize: 22, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",lineHeight: 1.05 }}>
       {currentStatusLabel}
     </strong>
   </div>
@@ -8869,9 +8880,11 @@ const rightSide = isSwapped ? "hong" : "chong";
   >
     <div
       style={{
-        fontFamily: "Share Tech Mono, monospace",
+        
         fontVariantNumeric: "tabular-nums",
         fontSize: 70,
+        fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
         fontWeight: 900,
         letterSpacing: "0.12em",
         color: meta.status === "running" ? "#ffd84d" : "#7df9ff",
@@ -8904,10 +8917,12 @@ const rightSide = isSwapped ? "hong" : "chong";
       minWidth: 0,
     }}
   >
-    <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
+    <div style={{ fontSize: 18, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",fontWeight: 800, lineHeight: 1.1 }}>
       {isSwapped ? "Chong Points" : "Hong Points"}
     </div>
-    <strong style={{ fontSize: 28, lineHeight: 1.05 }}>
+    <strong style={{ fontSize: 28, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",lineHeight: 1.05 }}>
       {isSwapped ? gpaVisualSummary.chongVotes : gpaVisualSummary.hongVotes}
     </strong>
   </div>
@@ -8929,10 +8944,12 @@ const rightSide = isSwapped ? "hong" : "chong";
       minWidth: 0,
     }}
   >
-    <div style={{ fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>
+    <div style={{ fontSize: 18, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",fontWeight: 800, lineHeight: 1.1 }}>
   {isSwapped ? "Hong Points" : "Chong Points"}
 </div>
-    <strong style={{ fontSize: 28, lineHeight: 1.05 }}>
+    <strong style={{ fontSize: 28, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",lineHeight: 1.05 }}>
   {isSwapped ? gpaVisualSummary.hongVotes : gpaVisualSummary.chongVotes}
 </strong>
   </div>
@@ -8971,6 +8988,8 @@ const rightSide = isSwapped ? "hong" : "chong";
   <div
     style={{
       fontSize: 20,
+      fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -9005,7 +9024,8 @@ const rightSide = isSwapped ? "hong" : "chong";
         gap: 6,
       }}
     >
-      <div style={{ fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+      <div style={{ fontSize: 13, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
         COMBAT TIME
       </div>
 
@@ -9020,7 +9040,8 @@ const rightSide = isSwapped ? "hong" : "chong";
               -
             </button>
 
-            <div style={{ fontSize: 18, fontWeight: 900 }}>
+            <div style={{ fontSize: 18, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",fontWeight: 900 }}>
               {formatTime(parseInt(secondsInput, 10) || 0)}
             </div>
 
@@ -9034,9 +9055,12 @@ const rightSide = isSwapped ? "hong" : "chong";
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4 }}>
-            <button disabled={inputsLocked} onClick={() => setSecondsInput("60")} style={{ height: 25, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>1:00</button>
-            <button disabled={inputsLocked} onClick={() => setSecondsInput("90")} style={{ height: 25, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>1:30</button>
-            <button disabled={inputsLocked} onClick={() => setSecondsInput("120")} style={{ height: 25, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>2:00</button>
+            <button disabled={inputsLocked} onClick={() => setSecondsInput("60")} style={{ height: 25, fontSize: 15, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>1:00</button>
+            <button disabled={inputsLocked} onClick={() => setSecondsInput("90")} style={{ height: 25, fontSize: 15, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>1:30</button>
+            <button disabled={inputsLocked} onClick={() => setSecondsInput("120")} style={{ height: 25, fontSize: 15, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>2:00</button>
           </div>
         </div>
       </div>
@@ -9055,7 +9079,8 @@ const rightSide = isSwapped ? "hong" : "chong";
         gap: 6,
       }}
     >
-      <div style={{ fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+      <div style={{ fontSize: 13, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
         BREAK TIME
       </div>
 
@@ -9070,7 +9095,8 @@ const rightSide = isSwapped ? "hong" : "chong";
               -
             </button>
 
-            <div style={{ fontSize: 18, fontWeight: 900 }}>
+            <div style={{ fontSize: 18, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em", fontWeight: 900 }}>
               {formatTime(parseInt(breakSecondsInput, 10) || 0)}
             </div>
 
@@ -9084,9 +9110,12 @@ const rightSide = isSwapped ? "hong" : "chong";
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4 }}>
-            <button disabled={inputsLocked} onClick={() => setBreakSecondsInput("30")} style={{ height: 26, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>0:30</button>
-            <button disabled={inputsLocked} onClick={() => setBreakSecondsInput("45")} style={{ height: 26, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>0:45</button>
-            <button disabled={inputsLocked} onClick={() => setBreakSecondsInput("60")} style={{ height: 26, fontSize: 15, fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>1:00</button>
+            <button disabled={inputsLocked} onClick={() => setBreakSecondsInput("30")} style={{ height: 26, fontSize: 15, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>0:30</button>
+            <button disabled={inputsLocked} onClick={() => setBreakSecondsInput("45")} style={{ height: 26, fontSize: 15, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>0:45</button>
+            <button disabled={inputsLocked} onClick={() => setBreakSecondsInput("60")} style={{ height: 26, fontSize: 15, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",fontWeight: 900, opacity: inputsLocked ? 0.35 : 1, pointerEvents: inputsLocked ? "none" : "auto" }}>1:00</button>
           </div>
         </div>
       </div>
@@ -9105,11 +9134,13 @@ const rightSide = isSwapped ? "hong" : "chong";
         gap: 6,
       }}
     >
-      <div style={{ fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+      <div style={{ fontSize: 13, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
         ROUNDS
       </div>
 
-      <div style={{ borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, textAlign: "center", padding: 4, minWidth: 0, minHeight: 0 }}>
+      <div style={{ borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em", textAlign: "center", padding: 4, minWidth: 0, minHeight: 0 }}>
         <div style={{ display: "grid", gridTemplateRows: "auto auto", gap: 6 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
             <button
@@ -9158,6 +9189,8 @@ const rightSide = isSwapped ? "hong" : "chong";
       ...styles.green,
       height: 28,
       fontSize: 14,
+      fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       borderRadius: 4,
       display: "flex",
       alignItems: "center",
@@ -9176,6 +9209,8 @@ const rightSide = isSwapped ? "hong" : "chong";
       ...styles.amber,
       height: 28,
       fontSize: 14,
+      fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       borderRadius: 4,
       display: "flex",
       alignItems: "center",
@@ -9194,6 +9229,8 @@ const rightSide = isSwapped ? "hong" : "chong";
       ...styles.purple,
       height: 28,
       fontSize: 14,
+      fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       borderRadius: 4,
       display: "flex",
       alignItems: "center",
@@ -9210,7 +9247,9 @@ const rightSide = isSwapped ? "hong" : "chong";
     style={{
       ...styles.red,
       height: 28,
-      fontSize: 14,
+      fontSize: 12,
+      fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       borderRadius: 4,
       display: "flex",
       alignItems: "center",
@@ -9250,6 +9289,8 @@ const rightSide = isSwapped ? "hong" : "chong";
   <div
     style={{
       fontSize: 20,
+      fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -9413,6 +9454,8 @@ const rightSide = isSwapped ? "hong" : "chong";
   <div
     style={{
       fontSize: 20,
+      fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -9492,6 +9535,8 @@ onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
     color: "white",
     fontWeight: 900,
     fontSize: 16,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 6,
     display: "flex",
     alignItems: "center",
@@ -9532,6 +9577,8 @@ onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
     color: "white",
     fontWeight: 900,
     fontSize: 14,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 6,
     width: "100%",
 
@@ -9596,6 +9643,8 @@ onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
     color: "white",
     fontWeight: 900,
     fontSize: 12,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 6,
     width: "100%",
     cursor: inputsLocked ? "not-allowed" : "pointer",
@@ -9668,6 +9717,8 @@ onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
     color: "white",
     fontWeight: 900,
     fontSize: 16,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 6,
     display: "flex",
     alignItems: "center",
@@ -9708,6 +9759,8 @@ onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
     color: "white",
     fontWeight: 900,
     fontSize: 14,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 6,
     display: "flex",
     alignItems: "center",
@@ -9778,6 +9831,8 @@ onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
     color: "white",
     fontWeight: 900,
     fontSize: 12,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 6,
     width: "100%",
     cursor: inputsLocked ? "not-allowed" : "pointer",
@@ -9832,6 +9887,8 @@ onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
   <div
     style={{
       fontSize: 20,
+      fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -10057,6 +10114,8 @@ meta?.goldenPoint?.state === "draw") && (
     fontWeight: 900,
     textAlign: "center",
     fontSize: 16,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
   }}
 />
 
@@ -10081,6 +10140,8 @@ meta?.goldenPoint?.state === "draw") && (
     fontWeight: 900,
     textAlign: "center",
     fontSize: 14,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
   }}
 />
 </div>
@@ -10106,6 +10167,8 @@ meta?.goldenPoint?.state === "draw") && (
   <div
     style={{
       fontSize: 20,
+      fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -10145,6 +10208,8 @@ meta?.goldenPoint?.state === "draw") && (
     border: "2px solid #cccccc",
     padding: 8,
     fontWeight: 900,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     textAlign: "center",
     fontSize: 16,
     background: "white",
@@ -10196,6 +10261,8 @@ onMouseLeave={(e) => {
     color: "white",
     fontWeight: 900,
     fontSize: 14,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 10,
     transition: "transform 0.08s ease, filter 0.12s ease",
   }}
@@ -10224,6 +10291,8 @@ onMouseLeave={(e) => {
   <div
     style={{
       fontSize: 20,
+      fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -10275,6 +10344,8 @@ onMouseLeave={(e) => {
     fontWeight: 900,
     textAlign: "center",
     fontSize: 16,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
   }}
 />
 
@@ -10299,6 +10370,8 @@ onMouseLeave={(e) => {
     fontWeight: 900,
     textAlign: "center",
     fontSize: 14,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
   }}
 />
 </div>
@@ -10339,6 +10412,8 @@ onMouseLeave={(e) => {
       alignItems: "center",
       justifyContent: "center",
       fontSize: 18,
+      fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     }}
   >
     GOLDEN POINT
@@ -10352,6 +10427,8 @@ onMouseLeave={(e) => {
     color: "black",
     fontWeight: 900,
     fontSize: 16,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 10,
 
     border: isGPAActive
@@ -10380,6 +10457,8 @@ onMouseLeave={(e) => {
     color: "black",
     fontWeight: 900,
     fontSize: 16,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 10,
 
     border: isGPBActive
@@ -10427,16 +10506,110 @@ onMouseLeave={(e) => {
   }}
 >
   {/*=====================TITULO JUEZ===================*/}
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 12,
+    fontFamily: "Orbitron, Arial, sans-serif",
+fontWeight: 900,
+letterSpacing: "0.08em",
+    marginBottom: 30,
+  }}
+>
+  JUDGE 1
+</div>
+
+{/* ======================================================
+    PRESIDENT — JUDGE CONNECTIVITY HEADER
+    LED + Judge Name + Force Exit Button
+    Refined compact layout / PublicTV style.
+    Visual only for Phase 1.
+====================================================== */}
+
+<div
+  style={{
+    width: "100%",
+    maxWidth: 392,
+
+    position: "relative",
+    top: -20,
+
+    height: 5,
+    display: "grid",
+    gridTemplateColumns: "18px 1fr 58px",
+    alignItems: "center",
+    gap: 8,
+    margin: "1px auto 2px",
+    padding: "0 4px",
+    boxSizing: "border-box",
+  }}
+>
+  {/* LED STATUS */}
   <div
     style={{
+      width: 11,
+      height: 11,
+      borderRadius: "50%",
+      background: "#32ff72",
+      boxShadow: "0 0 14px #32ff72",
+      flexShrink: 0,
+      justifySelf: "center",
+    }}
+  />
+
+  {/* JUDGE NAME */}
+  <div
+    style={{
+      width: "100%",
+      height: 26,
+      borderRadius: 9,
+      border: "1px solid rgba(255,255,255,0.10)",
+      background:
+        "linear-gradient(180deg, rgba(12,12,12,0.92), rgba(0,0,0,0.98))",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: 14,
+      color: "#fff",
+      fontSize: 11,
+      fontWeight: 900,
+      fontFamily: "Orbitron, Arial, sans-serif",
+      letterSpacing: "0.10em",
+      textTransform: "uppercase",
+      backdropFilter: "blur(6px)",
+      boxShadow: "0 0 10px rgba(255,255,255,0.04)",
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
     }}
   >
-    JUDGE 1
+    JUDGE NAME
   </div>
+
+  {/* FORCE EXIT */}
+  <button
+    type="button"
+    style={{
+      height: 26,
+      padding: "0 10px",
+      borderRadius: 9,
+      border: "1px solid rgba(245,197,66,0.24)",
+      background:
+        "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
+      color: "#f5c542",
+      fontSize: 10,
+      fontWeight: 900,
+      fontFamily: "Orbitron, Arial, sans-serif",
+      letterSpacing: "0.08em",
+      cursor: "pointer",
+      boxShadow: "0 0 10px rgba(245,197,66,0.10)",
+      transition: "0.12s ease",
+    }}
+  >
+    EXIT
+  </button>
+</div>
 
   {/* CONTENIDO */}
   <div
@@ -10460,6 +10633,8 @@ onMouseLeave={(e) => {
         padding: 6,
         textAlign: "center",
         fontSize: 12,
+        fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       }}
     >
       <div>POINTS {(isSwapped ? judges[0]?.chongPoints : judges[0]?.hongPoints) || 0}</div>
@@ -10479,6 +10654,8 @@ onMouseLeave={(e) => {
         padding: 6,
         textAlign: "center",
         fontSize: 12,
+        fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       }}
     >
       <div>POINTS {(isSwapped ? judges[0]?.hongPoints : judges[0]?.chongPoints) || 0}</div>
@@ -10502,16 +10679,110 @@ onMouseLeave={(e) => {
   }}
 >
   {/*=====================TITULO JUEZ===================*/}
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 12,
+    fontFamily: "Orbitron, Arial, sans-serif",
+fontWeight: 900,
+letterSpacing: "0.08em",
+    marginBottom: 30,
+  }}
+>
+  JUDGE 2
+</div>
+
+{/* ======================================================
+    PRESIDENT — JUDGE CONNECTIVITY HEADER
+    LED + Judge Name + Force Exit Button
+    Refined compact layout / PublicTV style.
+    Visual only for Phase 1.
+====================================================== */}
+
+<div
+  style={{
+    width: "100%",
+    maxWidth: 392,
+
+    position: "relative",
+    top: -20,
+
+    height: 5,
+    display: "grid",
+    gridTemplateColumns: "18px 1fr 58px",
+    alignItems: "center",
+    gap: 8,
+    margin: "1px auto 2px",
+    padding: "0 4px",
+    boxSizing: "border-box",
+  }}
+>
+  {/* LED STATUS */}
   <div
     style={{
+      width: 11,
+      height: 11,
+      borderRadius: "50%",
+      background: "#32ff72",
+      boxShadow: "0 0 14px #32ff72",
+      flexShrink: 0,
+      justifySelf: "center",
+    }}
+  />
+
+  {/* JUDGE NAME */}
+  <div
+    style={{
+      width: "100%",
+      height: 26,
+      borderRadius: 9,
+      border: "1px solid rgba(255,255,255,0.10)",
+      background:
+        "linear-gradient(180deg, rgba(12,12,12,0.92), rgba(0,0,0,0.98))",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: 14,
+      color: "#fff",
+      fontSize: 11,
+      fontWeight: 900,
+      fontFamily: "Orbitron, Arial, sans-serif",
+      letterSpacing: "0.10em",
+      textTransform: "uppercase",
+      backdropFilter: "blur(6px)",
+      boxShadow: "0 0 10px rgba(255,255,255,0.04)",
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
     }}
   >
-    JUDGE 2
+    JUDGE NAME
   </div>
+
+  {/* FORCE EXIT */}
+  <button
+    type="button"
+    style={{
+      height: 26,
+      padding: "0 10px",
+      borderRadius: 9,
+      border: "1px solid rgba(245,197,66,0.24)",
+      background:
+        "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
+      color: "#f5c542",
+      fontSize: 10,
+      fontWeight: 900,
+      fontFamily: "Orbitron, Arial, sans-serif",
+      letterSpacing: "0.08em",
+      cursor: "pointer",
+      boxShadow: "0 0 10px rgba(245,197,66,0.10)",
+      transition: "0.12s ease",
+    }}
+  >
+    EXIT
+  </button>
+</div>
 
   {/* CONTENIDO */}
   <div
@@ -10535,6 +10806,8 @@ onMouseLeave={(e) => {
         padding: 6,
         textAlign: "center",
         fontSize: 12,
+        fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       }}
     >
       <div>POINTS {(isSwapped ? judges[1]?.chongPoints : judges[1]?.hongPoints) || 0}</div>
@@ -10554,6 +10827,8 @@ onMouseLeave={(e) => {
         padding: 6,
         textAlign: "center",
         fontSize: 12,
+        fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       }}
     >
       <div>POINTS {(isSwapped ? judges[1]?.hongPoints : judges[1]?.chongPoints) || 0}</div>
@@ -10577,16 +10852,110 @@ onMouseLeave={(e) => {
   }}
 >
   {/*=====================TITULO JUEZ===================*/}
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 12,
+    fontFamily: "Orbitron, Arial, sans-serif",
+fontWeight: 900,
+letterSpacing: "0.08em",
+    marginBottom: 30,
+  }}
+>
+  JUDGE 3
+</div>
+
+{/* ======================================================
+    PRESIDENT — JUDGE CONNECTIVITY HEADER
+    LED + Judge Name + Force Exit Button
+    Refined compact layout / PublicTV style.
+    Visual only for Phase 1.
+====================================================== */}
+
+<div
+  style={{
+    width: "100%",
+    maxWidth: 392,
+
+    position: "relative",
+    top: -20,
+
+    height: 5,
+    display: "grid",
+    gridTemplateColumns: "18px 1fr 58px",
+    alignItems: "center",
+    gap: 8,
+    margin: "1px auto 2px",
+    padding: "0 4px",
+    boxSizing: "border-box",
+  }}
+>
+  {/* LED STATUS */}
   <div
     style={{
+      width: 11,
+      height: 11,
+      borderRadius: "50%",
+      background: "#32ff72",
+      boxShadow: "0 0 14px #32ff72",
+      flexShrink: 0,
+      justifySelf: "center",
+    }}
+  />
+
+  {/* JUDGE NAME */}
+  <div
+    style={{
+      width: "100%",
+      height: 26,
+      borderRadius: 9,
+      border: "1px solid rgba(255,255,255,0.10)",
+      background:
+        "linear-gradient(180deg, rgba(12,12,12,0.92), rgba(0,0,0,0.98))",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: 14,
+      color: "#fff",
+      fontSize: 11,
+      fontWeight: 900,
+      fontFamily: "Orbitron, Arial, sans-serif",
+      letterSpacing: "0.10em",
+      textTransform: "uppercase",
+      backdropFilter: "blur(6px)",
+      boxShadow: "0 0 10px rgba(255,255,255,0.04)",
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
     }}
   >
-    JUDGE 3
+    JUDGE NAME
   </div>
+
+  {/* FORCE EXIT */}
+  <button
+    type="button"
+    style={{
+      height: 26,
+      padding: "0 10px",
+      borderRadius: 9,
+      border: "1px solid rgba(245,197,66,0.24)",
+      background:
+        "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
+      color: "#f5c542",
+      fontSize: 10,
+      fontWeight: 900,
+      fontFamily: "Orbitron, Arial, sans-serif",
+      letterSpacing: "0.08em",
+      cursor: "pointer",
+      boxShadow: "0 0 10px rgba(245,197,66,0.10)",
+      transition: "0.12s ease",
+    }}
+  >
+    EXIT
+  </button>
+</div>
 
   {/* CONTENIDO */}
   <div
@@ -10610,6 +10979,8 @@ onMouseLeave={(e) => {
         padding: 6,
         textAlign: "center",
         fontSize: 12,
+        fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       }}
     >
       <div>POINTS {(isSwapped ? judges[2]?.chongPoints : judges[2]?.hongPoints) || 0}</div>
@@ -10629,6 +11000,8 @@ onMouseLeave={(e) => {
         padding: 6,
         textAlign: "center",
         fontSize: 12,
+        fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       }}
     >
       <div>POINTS {(isSwapped ? judges[2]?.hongPoints : judges[2]?.chongPoints) || 0}</div>
@@ -10652,16 +11025,110 @@ onMouseLeave={(e) => {
   }}
 >
   {/*=====================TITULO JUEZ===================*/}
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 12,
+    fontFamily: "Orbitron, Arial, sans-serif",
+fontWeight: 900,
+letterSpacing: "0.08em",
+    marginBottom: 30,
+  }}
+>
+  JUDGE 4
+</div>
+
+{/* ======================================================
+    PRESIDENT — JUDGE CONNECTIVITY HEADER
+    LED + Judge Name + Force Exit Button
+    Refined compact layout / PublicTV style.
+    Visual only for Phase 1.
+====================================================== */}
+
+<div
+  style={{
+    width: "100%",
+    maxWidth: 392,
+
+    position: "relative",
+    top: -20,
+
+    height: 5,
+    display: "grid",
+    gridTemplateColumns: "18px 1fr 58px",
+    alignItems: "center",
+    gap: 8,
+    margin: "1px auto 2px",
+    padding: "0 4px",
+    boxSizing: "border-box",
+  }}
+>
+  {/* LED STATUS */}
   <div
     style={{
+      width: 11,
+      height: 11,
+      borderRadius: "50%",
+      background: "#32ff72",
+      boxShadow: "0 0 14px #32ff72",
+      flexShrink: 0,
+      justifySelf: "center",
+    }}
+  />
+
+  {/* JUDGE NAME */}
+  <div
+    style={{
+      width: "100%",
+      height: 26,
+      borderRadius: 9,
+      border: "1px solid rgba(255,255,255,0.10)",
+      background:
+        "linear-gradient(180deg, rgba(12,12,12,0.92), rgba(0,0,0,0.98))",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      fontSize: 14,
+      color: "#fff",
+      fontSize: 11,
+      fontWeight: 900,
+      fontFamily: "Orbitron, Arial, sans-serif",
+      letterSpacing: "0.10em",
+      textTransform: "uppercase",
+      backdropFilter: "blur(6px)",
+      boxShadow: "0 0 10px rgba(255,255,255,0.04)",
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
     }}
   >
-    JUDGE 4
+    JUDGE NAME
   </div>
+
+  {/* FORCE EXIT */}
+  <button
+    type="button"
+    style={{
+      height: 26,
+      padding: "0 10px",
+      borderRadius: 9,
+      border: "1px solid rgba(245,197,66,0.24)",
+      background:
+        "linear-gradient(180deg, rgba(15,15,15,0.96), rgba(0,0,0,0.98))",
+      color: "#f5c542",
+      fontSize: 10,
+      fontWeight: 900,
+      fontFamily: "Orbitron, Arial, sans-serif",
+      letterSpacing: "0.08em",
+      cursor: "pointer",
+      boxShadow: "0 0 10px rgba(245,197,66,0.10)",
+      transition: "0.12s ease",
+    }}
+  >
+    EXIT
+  </button>
+</div>
 
   {/* CONTENIDO */}
   <div
@@ -10685,6 +11152,8 @@ onMouseLeave={(e) => {
         padding: 6,
         textAlign: "center",
         fontSize: 12,
+        fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       }}
     >
       <div>POINTS {(isSwapped ? judges[3]?.chongPoints : judges[3]?.hongPoints) || 0}</div>
@@ -10704,6 +11173,8 @@ onMouseLeave={(e) => {
         padding: 6,
         textAlign: "center",
         fontSize: 12,
+        fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
       }}
     >
       <div>POINTS {(isSwapped ? judges[3]?.hongPoints : judges[3]?.chongPoints) || 0}</div>
@@ -10737,6 +11208,8 @@ onMouseLeave={(e) => {
     justifyContent: "center",
     fontWeight: 900,
     fontSize: 22,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 12,
     boxSizing: "border-box",
     background: isSwapped
@@ -10763,6 +11236,8 @@ onMouseLeave={(e) => {
     justifyContent: "center",
     fontWeight: 900,
     fontSize: 22,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 12,
     boxSizing: "border-box",
     background: "linear-gradient(135deg, #e5e5e5, #8c8c8c)",
@@ -10787,6 +11262,8 @@ onMouseLeave={(e) => {
     justifyContent: "center",
     fontWeight: 900,
     fontSize: 22,
+    fontFamily: "Orbitron, Arial, sans-serif",
+letterSpacing: "0.06em",
     padding: 12,
     boxSizing: "border-box",
     background: isSwapped
