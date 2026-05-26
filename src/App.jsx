@@ -1817,6 +1817,14 @@ return () => {
   );
 }
 
+function PortalFrame16x9({ children }) {
+  return (
+    <Frame16x9 mobileHorizontalOnly={true}>
+      {children}
+    </Frame16x9>
+  );
+}
+
 function BrandHeaderLarge() {
   return (
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 30, marginBottom: 0 }}>
@@ -2298,6 +2306,1052 @@ lineHeight: 1.1,
   );
 }
 
+{/* ======================================================
+    ACCESS PORTAL — ENTERPRISE CINEMATIC GATE V1
+    Portal visual inicial.
+    No conecta rutas todavía.
+    No toca scoring, timer, judges, Firebase ni combate.
+====================================================== */}
+
+function AccessPortal({ navigate }) {
+  const isMobilePortrait =
+    typeof window !== "undefined" &&
+    window.innerWidth < 900 &&
+    window.innerHeight > window.innerWidth;
+
+  if (isMobilePortrait) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "#02030a",
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          fontFamily: "Orbitron, Arial, sans-serif",
+          padding: 24,
+          boxSizing: "border-box",
+        }}
+      >
+        <div>
+          <img
+            src="/logo-universe.png"
+            alt="Hwarang"
+            style={{
+              width: 150,
+              marginBottom: 24,
+              filter: "drop-shadow(0 0 24px rgba(245,197,66,0.45))",
+            }}
+          />
+
+          <div
+            style={{
+              color: "#f5c542",
+              fontSize: 22,
+              fontWeight: 900,
+              letterSpacing: "0.12em",
+              marginBottom: 12,
+            }}
+          >
+            ROTATE DEVICE
+          </div>
+
+          <div
+            style={{
+              color: "rgba(255,255,255,0.72)",
+              fontSize: 14,
+              lineHeight: 1.5,
+              fontWeight: 700,
+            }}
+          >
+            Turn your phone horizontally to enter
+            <br />
+            Hwarang Scoring Universe™
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const goDemo = () => {
+    const demoRoom = getOrCreateDemoRoomId();
+    navigate(`/${demoRoom}`);
+  };
+
+  const goLicenseDev = () => {
+    navigate("/license-dev");
+  };
+  
+  
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        overflow: "hidden",
+        background: "#000",
+        color: "#fff",
+        fontFamily: "Orbitron, Arial, sans-serif",
+      }}
+    >
+
+    
+
+      <style>{`
+        @keyframes accessPortalDrift {
+          0% { transform: scale(1.02) translateY(0); filter: brightness(0.78) saturate(1.08); }
+          50% { transform: scale(1.055) translateY(-8px); filter: brightness(0.96) saturate(1.22); }
+          100% { transform: scale(1.02) translateY(0); filter: brightness(0.78) saturate(1.08); }
+        }
+
+        @keyframes accessPortalGoldScan {
+          0% { background-position: -220% center; opacity: 0.45; }
+          50% { opacity: 1; }
+          100% { background-position: 220% center; opacity: 0.45; }
+        }
+
+        @keyframes accessPortalPulse {
+          0%, 100% { transform: scale(1); filter: brightness(1); }
+          50% { transform: scale(1.035); filter: brightness(1.22); }
+        }
+        /* ======================================================
+   ACCESS PORTAL — CLONED ISOTYPE SCAN FX
+   Scan animado del isotipo oficial.
+   No toca rutas, scoring, timer ni Firebase.
+====================================================== */
+
+@keyframes accessIsotypeScan {
+  0% {
+    transform: translateX(-120%) rotate(18deg);
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0.95;
+  }
+
+  50% {
+    opacity: 0.55;
+  }
+
+  100% {
+    transform: translateX(120%) rotate(18deg);
+    opacity: 0;
+  }
+}
+  @keyframes rotateGateSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+  @keyframes portalParticleFloat {
+  0% {
+    transform: translate3d(0px, 0px, 0) scale(0.45);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.38;
+  }
+
+  35% {
+    transform: translate3d(-22px, -38px, 0) scale(0.75);
+    opacity: 0.72;
+  }
+
+  60% {
+    transform: translate3d(18px, -92px, 0) scale(1);
+    opacity: 0.48;
+  }
+
+  82% {
+    transform: translate3d(-12px, -148px, 0) scale(0.65);
+    opacity: 0.28;
+  }
+
+  100% {
+    transform: translate3d(32px, -220px, 0) scale(0.25);
+    opacity: 0;
+  }
+}
+  @keyframes portalSmokeDrift {
+  0% {
+    transform: translateX(0px) translateY(0px) scale(1);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 0.22;
+  }
+
+  50% {
+    transform: translateX(40px) translateY(-18px) scale(1.08);
+    opacity: 0.16;
+  }
+
+  100% {
+    transform: translateX(-60px) translateY(-42px) scale(1.16);
+    opacity: 0;
+  }
+}
+  @keyframes portalButtonPulseBlue {
+  0%, 100% {
+    box-shadow:
+      0 0 22px rgba(59,130,246,0.34),
+      inset 0 0 18px rgba(255,255,255,0.08);
+    filter: brightness(1);
+  }
+
+  50% {
+    box-shadow:
+      0 0 38px rgba(59,130,246,0.72),
+      inset 0 0 24px rgba(255,255,255,0.16);
+    filter: brightness(1.18);
+  }
+}
+
+@keyframes portalButtonPulseGold {
+  0%, 100% {
+    box-shadow:
+      0 0 24px rgba(245,197,66,0.34),
+      inset 0 0 18px rgba(255,255,255,0.08);
+    filter: brightness(1);
+  }
+
+  50% {
+    box-shadow:
+      0 0 42px rgba(245,197,66,0.78),
+      inset 0 0 26px rgba(255,255,255,0.18);
+    filter: brightness(1.18);
+  }
+}
+
+@keyframes portalButtonScan {
+  0% {
+    transform: translateX(-130%);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 0.55;
+  }
+
+  100% {
+    transform: translateX(130%);
+    opacity: 0;
+  }
+}
+      `}</style>
+
+      {/* ======================================================
+    ACCESS PORTAL — CINEMATIC COLLAGE HERO CLEAN TEST
+    Imagen cruda para detectar qué la tapa.
+    No toca botones, rutas, scoring ni Firebase.
+====================================================== */}
+{/* ======================================================
+    COLLAGE FREE LAYER 2 — pantalla completa
+====================================================== */}
+<img
+  src="/portalenterprice/combat3.jpg"
+  alt="Combat collage 2"
+  style={{
+    position: "absolute",
+
+    /* =========================================
+       POSICIÓN
+    ========================================= */
+
+    top: "28%",
+    left: "0%",
+
+    /* =========================================
+       TAMAÑO
+    ========================================= */
+
+    width: "28vw",
+    height: "auto",
+
+    /* =========================================
+       MOVIMIENTO / ESCALA / ROTACIÓN
+    ========================================= */
+
+    transform: `
+      translateX(0px)
+      translateY(0px)
+      scale(1)
+      rotate(0deg)
+    `,
+
+    /* =========================================
+       VISUAL
+    ========================================= */
+
+    objectFit: "cover",
+    objectPosition: "center center",
+
+    opacity: 0.7,
+
+    filter: `
+      brightness(0.5)
+      contrast(1)
+      saturate(1)
+    `,
+
+    mixBlendMode: "normal",
+
+    pointerEvents: "none",
+
+    zIndex: 1,
+  }}
+/>
+{/* ======================================================
+    COLLAGE FREE LAYER — COMBAT 4
+====================================================== */}
+
+<img
+  src="/portalenterprice/combat4.jpg"
+  alt="Combat collage layer 4"
+  style={{
+    /* =========================================
+       POSICIÓN
+    ========================================= */
+
+    position: "absolute",
+
+    top: "28%",
+    right: "-2%",
+
+    /* =========================================
+       TAMAÑO
+    ========================================= */
+
+    width: "38vw",
+    height: "88vh",
+
+    /* =========================================
+       AJUSTE INTERNO
+    ========================================= */
+
+    objectFit: "cover",
+    objectPosition: "center center",
+
+    /* =========================================
+       MOVIMIENTO / ESCALA / ROTACIÓN
+    ========================================= */
+
+    transform: `
+      translateX(-769px)
+      translateY(0px)
+      scale(0.781)
+      rotate(0deg)
+    `,
+
+    transition: "transform 0.4s ease",
+
+    /* =========================================
+       VISUAL
+    ========================================= */
+
+    opacity: 0.3,
+
+    filter: `
+      brightness(0.8)
+      contrast(1)
+      saturate(0.85)
+      blur(0px)
+    `,
+
+    mixBlendMode: "normal",
+
+    /* =========================================
+       PROFUNDIDAD
+    ========================================= */
+
+    zIndex: 1,
+
+    pointerEvents: "none",
+
+    display: "block",
+
+    /* =========================================
+       GLOW / SOMBRA OPCIONAL
+    ========================================= */
+
+    boxShadow: `
+      0 0 0px rgba(0,0,0,0)
+    `,
+  }}
+/>
+<img
+  src="/portalenterprice/combat2.jpg"
+  alt="Combat collage layer"
+  style={{
+    position: "absolute",
+
+    /* =========================================
+       POSICIÓN LIBRE
+    ========================================= */
+
+    top: "50%",
+    right: "50%",
+
+    /* =========================================
+       TAMAÑO LIBRE
+    ========================================= */
+
+    width: "40%",
+    height: "100%",
+
+    /* =========================================
+       ESCALA / MOVIMIENTO / ROTACIÓN
+    ========================================= */
+
+    transform: `
+      translateX(950px)
+      translateY(-450px)
+      scale(1.1)
+      rotate(0deg)
+    `,
+
+    /* =========================================
+       VISUAL
+    ========================================= */
+
+    objectFit: "cover",
+    objectPosition: "center center",
+
+    opacity: 0.4,
+
+    filter: `
+      brightness(0.5)
+      contrast(1)
+      saturate(1)
+    `,
+
+    mixBlendMode: "normal",
+
+    pointerEvents: "none",
+
+    zIndex: 2,
+  }}
+/>
+<div
+  style={{
+    position: "absolute",
+    top: "-5%",
+    left: "27%",
+    width: "min(1320px, 96vw)",
+    height: "min(900px, 56vh)",
+    transform: "translateX(-50%)",
+    borderRadius: 28,
+    overflow: "hidden",
+    opacity: 0.45,
+    background: "transparent",
+    filter: "brightness(0.82) contrast(1.12) saturate(1.05)",
+    boxShadow: "none",
+    
+    zIndex: 1,
+    pointerEvents: "none",
+  }}
+>
+  
+  <img
+  src="/portalenterprice/combatprincipal.jpg"
+  alt="Combat Pro cinematic arena"
+  style={{
+    /* =========================================
+       POSICIÓN
+    ========================================= */
+
+    position: "absolute",
+
+    top: "0%",
+    left: "0%",
+
+    /* =========================================
+       TAMAÑO
+    ========================================= */
+
+    width: "100%",
+    height: "100%",
+
+    /* =========================================
+       AJUSTE INTERNO
+    ========================================= */
+
+    objectFit: "cover",
+    objectPosition: "center center",
+
+    /* =========================================
+       MOVIMIENTO / ESCALA / ROTACIÓN
+    ========================================= */
+
+    transform: `
+      translateX(0px)
+      translateY(0px)
+      scale(0.8)
+      rotate(0deg)
+    `,
+
+    transition: "transform 0.4s ease",
+
+    /* =========================================
+       VISUAL
+    ========================================= */
+
+    opacity: 1,
+
+    filter: `
+      brightness(1)
+      contrast(1)
+      saturate(1)
+      blur(0px)
+    `,
+
+    mixBlendMode: "normal",
+
+    /* =========================================
+       PROFUNDIDAD
+    ========================================= */
+
+    zIndex: 4,
+
+    pointerEvents: "none",
+
+    display: "block",
+
+    /* =========================================
+       GLOW / SOMBRA OPCIONAL
+    ========================================= */
+
+    boxShadow: `
+      0 0 0px rgba(0,0,0,0)
+    `,
+  }}
+/>
+
+
+
+</div>
+
+{/* ======================================================
+    SUN DUST PARTICLES — ANIMATED LIGHT DUST
+====================================================== */}
+
+<div
+  style={{
+    position: "absolute",
+    inset: 0,
+    zIndex: 6,
+    opacity: 1.5,
+    pointerEvents: "none",
+    overflow: "hidden",
+  }}
+>
+  {Array.from({ length: 70 }).map((_, i) => {
+    const size = i % 5 === 0 ? 4 : i % 3 === 0 ? 3 : 2;
+    const duration = 7 + (i % 9);
+    const delay = (i % 11) * 0.45;
+    const left = 4 + ((i * 19) % 92);
+    const top = 18 + ((i * 31) % 72);
+
+    return (
+      <span
+        key={i}
+        style={{
+          position: "absolute",
+          left: `${left}%`,
+          top: `${top}%`,
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          background:
+            i % 4 === 0
+              ? "rgba(255,232,150,0.72)"
+              : "rgba(255,255,255,0.36)",
+          boxShadow:
+            i % 4 === 0
+              ? "0 0 16px rgba(245,197,66,0.72)"
+              : "0 0 10px rgba(255,255,255,0.42)",
+          filter: "blur(0.2px)",
+          opacity: 0,
+          animation: `portalParticleFloat ${duration}s ease-in-out ${delay}s infinite`,
+          willChange: "transform, opacity",
+        }}
+      />
+    );
+  })}
+</div>   
+
+{/* ======================================================
+    TKD CINEMATIC GLOW / SMOKE
+    Red / Blue identity atmosphere
+====================================================== */}
+
+<div
+  style={{
+    position: "absolute",
+    inset: 0,
+    zIndex: 5,
+    pointerEvents: "none",
+    overflow: "hidden",
+  }}
+>
+  {/* GLOW CENTRAL DORADO */}
+  <div
+    style={{
+      position: "absolute",
+      width: "1200px",
+      height: "1200px",
+
+      left: "50%",
+      top: "50%",
+
+      transform: "translate(-50%, -50%)",
+
+      borderRadius: "50%",
+
+      background: `
+        radial-gradient(
+          circle,
+          rgba(245,197,66,0.22) 0%,
+          rgba(245,197,66,0.10) 22%,
+          rgba(245,197,66,0.03) 42%,
+          transparent 72%
+        )
+      `,
+
+      filter: "blur(120px)",
+    }}
+  />
+
+  {/* HUMO HONG — ROJO */}
+  <div
+    style={{
+      position: "absolute",
+
+      width: "760px",
+      height: "760px",
+
+      left: "-140px",
+      bottom: "-180px",
+
+      borderRadius: "50%",
+
+      background: `
+  radial-gradient(
+    circle,
+
+    rgba(255,0,0,0.42) 0%,
+    rgba(255,0,0,0.24) 18%,
+    rgba(255,40,40,0.12) 36%,
+    rgba(255,60,60,0.05) 52%,
+
+    transparent 74%
+  )
+`,
+
+      filter: "blur(90px) brightness(1.4)",
+
+      animation: `
+        portalSmokeDrift
+        18s
+        ease-in-out
+        infinite alternate
+      `,
+    }}
+  />
+
+  {/* HUMO CHONG — AZUL */}
+  <div
+    style={{
+      position: "absolute",
+
+      width: "700px",
+      height: "700px",
+
+      right: "-120px",
+      top: "6%",
+
+      borderRadius: "50%",
+
+      background: `
+  radial-gradient(
+    circle,
+
+    rgba(0,80,255,0.42) 0%,
+    rgba(0,80,255,0.24) 18%,
+    rgba(40,120,255,0.12) 36%,
+    rgba(80,160,255,0.05) 52%,
+
+    transparent 74%
+  )
+`,
+
+      filter: "blur(100px) brightness(1.5)",
+
+      animation: `
+        portalSmokeDrift
+        24s
+        ease-in-out
+        infinite reverse
+      `,
+    }}
+  />
+
+  {/* LUZ BLANCA SUAVE */}
+  <div
+    style={{
+      position: "absolute",
+
+      width: "900px",
+      height: "900px",
+
+      left: "50%",
+      top: "82%",
+
+      transform: "translateX(-50%)",
+
+      borderRadius: "50%",
+
+      background: `
+        radial-gradient(
+          circle,
+          rgba(255,255,255,0.10) 0%,
+          rgba(255,255,255,0.04) 34%,
+          transparent 72%
+        )
+      `,
+
+      filter: "blur(110px)",
+
+      opacity: 0.7,
+    }}
+  />
+</div>
+
+
+
+      {/* CONTENT */}
+<div
+  style={{
+    position: "relative",
+    zIndex: 5,
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "38px 56px",
+    boxSizing: "border-box",
+    background: "transparent",
+  }}
+>
+
+
+
+        <div
+  style={{
+    position: "relative",
+    width: 90,
+    height: 90,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 18,
+  }}
+>
+  
+  <div
+    style={{
+      position: "absolute",
+      inset: 0,
+      borderRadius: "50%",
+      border: "3px solid rgba(245,197,66,0.22)",
+      borderTop: "3px solid #ff0000",
+      boxShadow: "0 0 28px rgb(255,253,253)",
+      animation: "rotateGateSpin 2.8s linear infinite",
+    }}
+  />
+
+  <div
+    style={{
+      color: "#ff0000",
+      fontSize: 50,
+      fontWeight: 1000,
+      textShadow: `
+        0 0 12px rgba(245,197,66,1),
+        0 0 28px rgba(245,197,66,0.75)
+      `,
+    }}
+  >
+    H
+  </div>
+</div>
+
+        <div
+          style={{
+            fontSize: "clamp(20px, 4vw, 68px)",
+            fontWeight: 700,
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            color: "#f8fafc",
+            textShadow: "0 0 24px rgba(255,255,255,0.35)",
+            lineHeight: 0.9,
+          }}
+        >
+          HWARANG SCORING
+        </div>
+
+        <div
+          style={{
+            marginTop: 8,
+            fontSize: "clamp(14px, 1.4vw, 26px)",
+            fontWeight: 700,
+            letterSpacing: "0.38em",
+            color: "rgba(255,255,255,0.78)",
+          }}
+        >
+          UNIVERSE™
+        </div>
+
+        <div
+          style={{
+            width: "min(620px, 72vw)",
+            height: 2,
+            margin: "22px 0 16px",
+            background:
+              "linear-gradient(90deg, transparent, rgba(245,197,66,1), transparent)",
+            boxShadow: "0 0 18px rgba(245,197,66,0.8)",
+          }}
+        />
+
+        <div
+          style={{
+            color: "#f5c542",
+            fontSize: "clamp(13px, 1.2vw, 20px)",
+            letterSpacing: "0.34em",
+            fontWeight: 900,
+            marginBottom: 34,
+          }}
+        >
+          PRECISION · CONTROL · VICTORY
+        </div>
+
+        {/* ACCESS PANELS */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 34,
+            width: "min(980px, 86vw)",
+          }}
+        >
+          <div
+            style={{
+              minHeight: 255,
+              borderRadius: 26,
+              padding: 26,
+              background: "linear-gradient(180deg, rgba(4,18,42,0.82), rgba(0,0,0,0.88))",
+              border: "1px solid rgba(56,130,255,0.58)",
+              boxShadow: "0 0 34px rgba(30,111,255,0.25), inset 0 0 28px rgba(56,130,255,0.08)",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ color: "#3b82f6", fontSize: 30, fontWeight: 900, letterSpacing: "0.1em" }}>
+              DEMO MODE
+            </div>
+
+            <div style={{ marginTop: 18, color: "rgba(255,255,255,0.76)", fontSize: 16, lineHeight: 1.45 }}>
+              Explore the full system with
+              <br />
+              a controlled demo environment.
+            </div>
+
+            <button
+  onClick={goDemo}
+  style={{
+    marginTop: 34,
+    width: "100%",
+    height: 62,
+    borderRadius: 16,
+    border: "1px solid rgba(80,160,255,0.9)",
+    background: "linear-gradient(180deg, rgba(35,110,255,0.78), rgba(4,22,58,0.96))",
+    color: "#dbeafe",
+    fontSize: 18,
+    fontWeight: 900,
+    letterSpacing: "0.12em",
+    cursor: "pointer",
+    boxShadow: "0 0 24px rgba(59,130,246,0.38)",
+
+    position: "relative",
+    overflow: "hidden",
+    animation: "portalButtonPulseBlue 3.2s ease-in-out infinite",
+  }}
+>
+  <>
+  <span
+    style={{
+      position: "absolute",
+      inset: 0,
+      background:
+        "linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.26) 50%, transparent 80%)",
+
+      animation: "portalButtonScan 4s linear infinite",
+
+      pointerEvents: "none",
+    }}
+  />
+
+  <span
+    style={{
+      position: "relative",
+      zIndex: 2,
+    }}
+  >
+    ENTER DEMO
+  </span>
+</>
+</button>
+          </div>
+
+          <div
+            style={{
+              minHeight: 255,
+              borderRadius: 26,
+              padding: 26,
+              background: "linear-gradient(180deg, rgba(56,39,4,0.78), rgba(0,0,0,0.9))",
+              border: "1px solid rgba(245,197,66,0.72)",
+              boxShadow: "0 0 34px rgba(245,197,66,0.28), inset 0 0 28px rgba(245,197,66,0.08)",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ color: "#f5c542", fontSize: 30, fontWeight: 900, letterSpacing: "0.1em" }}>
+              LICENCE DEV
+            </div>
+
+            <div style={{ marginTop: 18, color: "rgba(255,255,255,0.76)", fontSize: 16, lineHeight: 1.45 }}>
+              Access the development
+              <br />
+              licensed environment.
+            </div>
+
+            <button
+  onClick={goLicenseDev}
+  style={{
+    marginTop: 34,
+    width: "100%",
+    height: 62,
+    borderRadius: 16,
+
+    border: "1px solid rgba(255,220,120,0.88)",
+
+    background:
+      "linear-gradient(180deg, #f5c542, #8a5f08)",
+
+    color: "#111827",
+
+    fontSize: 18,
+    fontWeight: 1000,
+    letterSpacing: "0.08em",
+
+    cursor: "pointer",
+
+    boxShadow:
+      "0 0 28px rgba(245,197,66,0.48)",
+
+    position: "relative",
+    overflow: "hidden",
+
+    animation:
+      "portalButtonPulseGold 3.4s ease-in-out infinite",
+  }}
+>
+  <>
+    <span
+      style={{
+        position: "absolute",
+        inset: 0,
+
+        background:
+          "linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.34) 50%, transparent 80%)",
+
+        animation:
+          "portalButtonScan 4.2s linear infinite",
+
+        pointerEvents: "none",
+      }}
+    />
+
+    <span
+      style={{
+        position: "relative",
+        zIndex: 2,
+      }}
+    >
+      ACCESS LICENCE DEV
+    </span>
+  </>
+</button>
+          </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: 34,
+            color: "rgba(245,197,66,0.88)",
+            fontSize: 13,
+            fontWeight: 800,
+            letterSpacing: "0.34em",
+            textTransform: "uppercase",
+          }}
+        >
+          Official system for professional competitions
+          {/* COPYRIGHT */}
+
+<div
+  style={{
+    marginTop: 18,
+
+    fontFamily: `
+      Orbitron,
+      Eurostile,
+      Bank Gothic,
+      sans-serif
+    `,
+
+    fontSize: "0.72rem",
+
+    letterSpacing: "0.22em",
+
+    color: "rgba(255,255,255,0.34)",
+
+    textTransform: "uppercase",
+
+    textAlign: "center",
+
+    userSelect: "none",
+
+    opacity: 0.72,
+  }}
+>
+  © 2026 Hwarang Scoring Universe™
+</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function JudgePanel({ judge, onPoint, onUndo }) {
   const pointButton = (label, side, value, bg) => (
     <AppButton style={{ background: bg, minWidth: 130, fontSize: 22 }} onClick={() => onPoint(side, value)}>
@@ -2569,6 +3623,50 @@ if (isMobileLandscapeHome) {
             transform: rotate(360deg);
           }
         }
+          @keyframes portalParticleFloat {
+  0% {
+    transform:
+      translateX(0px)
+      translateY(0px)
+      scale(0.8);
+
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.25;
+  }
+
+  30% {
+    transform:
+      translateX(-18px)
+      translateY(-40px)
+      scale(1);
+  }
+
+  55% {
+    transform:
+      translateX(12px)
+      translateY(-90px)
+      scale(1.25);
+  }
+
+  80% {
+    transform:
+      translateX(-10px)
+      translateY(-140px)
+      scale(0.9);
+  }
+
+  100% {
+    transform:
+      translateX(24px)
+      translateY(-220px)
+      scale(0.4);
+
+    opacity: 0;
+  }
+}
       `}</style>
 
       <div
@@ -13079,6 +14177,21 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
           </div>
         </div>
       </div>
+    </>
+  );
+}
+
+// ======================================================
+// ACCESS PORTAL — ROOT ENTRY POINT
+// Portal principal del ecosistema.
+// Home oficial Demo / Licence Dev.
+// No toca scoring, timer, judges ni Firebase.
+// ======================================================
+if (path === "/") {
+  return (
+    <>
+      <GlobalAppStyle />
+      <AccessPortal navigate={navigate} />
     </>
   );
 }
