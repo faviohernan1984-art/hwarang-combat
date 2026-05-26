@@ -1,4 +1,5 @@
 console.log("ESTOY EN EL APP CORRECTO");
+import CinematicAdaptiveShell from "./components/CinematicAdaptiveShell";
 import LicensePage from "./LicensePage.jsx";
 import LicenseComingSoon from "./LicenseComingSoon.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -2650,7 +2651,7 @@ function AccessPortal({ navigate }) {
     transform: `
       translateX(-769px)
       translateY(0px)
-      scale(0.781)
+      scale(0.784)
       rotate(0deg)
     `,
 
@@ -14494,7 +14495,11 @@ if (path === "/judge-exit") {
 }
 
   if (path === "/license-dev") {
-  return <LicensePage />;
+  return (
+    <CinematicAdaptiveShell>
+      <LicensePage />
+    </CinematicAdaptiveShell>
+  );
 }
 
 if (path === "/license") {

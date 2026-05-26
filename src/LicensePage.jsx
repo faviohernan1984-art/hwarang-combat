@@ -513,7 +513,7 @@ logoOrbCore: {
   main: {
     background:
     "linear-gradient(180deg, #020617 0%, #000000 100%)",
-    border: "1px solid rgba(246,195,106,0.28)",
+    border: "none",
     boxShadow:
     "inset 0 0 120px rgba(0,0,0,0.85)",
     display: "grid",
@@ -775,7 +775,7 @@ planList: {
   borderRadius: 24,
   overflow: "hidden",
 
-  transform: "scale(0.70",
+  transform: "scale(0.70)",
   transformOrigin: "bottom center",
 
   padding: "18px 24px",
