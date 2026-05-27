@@ -18,6 +18,7 @@ import { trackVisit } from "./usageTracking";
 import { db, getMatchMetaRef, getJudgesColRef, getJudgeRef } from "./firebase";
 import { QRCodeCanvas } from "qrcode.react";
 import JudgeMobileNext from "./JudgeMobileNext";
+import RotateDeviceGate from "./RotateDeviceGate";
 
 if (typeof document !== "undefined" && !document.getElementById("winnerPulseStyle")) {
   const style = document.createElement("style");
@@ -2321,61 +2322,13 @@ function AccessPortal({ navigate }) {
     window.innerHeight > window.innerWidth;
 
   if (isMobilePortrait) {
-    return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: "#02030a",
-          color: "#fff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          fontFamily: "Orbitron, Arial, sans-serif",
-          padding: 24,
-          boxSizing: "border-box",
-        }}
-      >
-        <div>
-          <img
-            src="/logo-universe.png"
-            alt="Hwarang"
-            style={{
-              width: 150,
-              marginBottom: 24,
-              filter: "drop-shadow(0 0 24px rgba(245,197,66,0.45))",
-            }}
-          />
-
-          <div
-            style={{
-              color: "#f5c542",
-              fontSize: 22,
-              fontWeight: 900,
-              letterSpacing: "0.12em",
-              marginBottom: 12,
-            }}
-          >
-            ROTATE DEVICE
-          </div>
-
-          <div
-            style={{
-              color: "rgba(255,255,255,0.72)",
-              fontSize: 14,
-              lineHeight: 1.5,
-              fontWeight: 700,
-            }}
-          >
-            Turn your phone horizontally to enter
-            <br />
-            Hwarang Scoring Universe™
-          </div>
-        </div>
-      </div>
-    );
-  }
+  return (
+    <RotateDeviceGate
+      title="Rotate Device"
+      message="Turn your phone horizontally to enter the Hwarang Scoring portal."
+    />
+  );
+}
 
   const goDemo = () => {
     const demoRoom = getOrCreateDemoRoomId();
