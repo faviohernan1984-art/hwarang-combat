@@ -20,7 +20,7 @@ export default function CinematicAdaptiveShell({ children }) {
       if (isNative1920) {
         setScale(1);
       } else {
-        setScale(Math.min(widthScale, heightScale));
+        setScale(Math.min(widthScale, heightScale) * 1.08);
       }
     };
 
