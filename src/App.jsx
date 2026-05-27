@@ -2394,7 +2394,16 @@ function AccessPortal({ navigate }) {
         position: "fixed",
         inset: 0,
         overflow: "hidden",
-        background: "#000",
+        background: `
+  linear-gradient(
+    rgba(0,0,0,0.48),
+    rgba(0,0,0,0.48)
+  ),
+  url('/portalenterprice/newportal.png')
+`,
+backgroundSize: "cover",
+backgroundPosition: "center",
+backgroundRepeat: "no-repeat",
         color: "#fff",
         fontFamily: "Orbitron, Arial, sans-serif",
       }}
@@ -2557,193 +2566,9 @@ function AccessPortal({ navigate }) {
     Imagen cruda para detectar qué la tapa.
     No toca botones, rutas, scoring ni Firebase.
 ====================================================== */}
-{/* ======================================================
-    COLLAGE FREE LAYER 2 — pantalla completa
-====================================================== */}
-<img
-  src="/portalenterprice/combat3.jpg"
-  alt="Combat collage 2"
-  style={{
-    position: "absolute",
 
-    /* =========================================
-       POSICIÓN
-    ========================================= */
 
-    top: "28%",
-    left: "0%",
 
-    /* =========================================
-       TAMAÑO
-    ========================================= */
-
-    width: "28vw",
-    height: "auto",
-
-    /* =========================================
-       MOVIMIENTO / ESCALA / ROTACIÓN
-    ========================================= */
-
-    transform: `
-      translateX(0px)
-      translateY(0px)
-      scale(1)
-      rotate(0deg)
-    `,
-
-    /* =========================================
-       VISUAL
-    ========================================= */
-
-    objectFit: "cover",
-    objectPosition: "center center",
-
-    opacity: 0.7,
-
-    filter: `
-      brightness(0.5)
-      contrast(1)
-      saturate(1)
-    `,
-
-    mixBlendMode: "normal",
-
-    pointerEvents: "none",
-
-    zIndex: 1,
-  }}
-/>
-{/* ======================================================
-    COLLAGE FREE LAYER — COMBAT 4
-====================================================== */}
-
-<img
-  src="/portalenterprice/combat4.jpg"
-  alt="Combat collage layer 4"
-  style={{
-    /* =========================================
-       POSICIÓN
-    ========================================= */
-
-    position: "absolute",
-
-    top: "28%",
-    right: "-2%",
-
-    /* =========================================
-       TAMAÑO
-    ========================================= */
-
-    width: "38vw",
-    height: "88vh",
-
-    /* =========================================
-       AJUSTE INTERNO
-    ========================================= */
-
-    objectFit: "cover",
-    objectPosition: "center center",
-
-    /* =========================================
-       MOVIMIENTO / ESCALA / ROTACIÓN
-    ========================================= */
-
-    transform: `
-      translateX(-769px)
-      translateY(0px)
-      scale(0.784)
-      rotate(0deg)
-    `,
-
-    transition: "transform 0.4s ease",
-
-    /* =========================================
-       VISUAL
-    ========================================= */
-
-    opacity: 0.3,
-
-    filter: `
-      brightness(0.8)
-      contrast(1)
-      saturate(0.85)
-      blur(0px)
-    `,
-
-    mixBlendMode: "normal",
-
-    /* =========================================
-       PROFUNDIDAD
-    ========================================= */
-
-    zIndex: 1,
-
-    pointerEvents: "none",
-
-    display: "block",
-
-    /* =========================================
-       GLOW / SOMBRA OPCIONAL
-    ========================================= */
-
-    boxShadow: `
-      0 0 0px rgba(0,0,0,0)
-    `,
-  }}
-/>
-<img
-  src="/portalenterprice/combat2.jpg"
-  alt="Combat collage layer"
-  style={{
-    position: "absolute",
-
-    /* =========================================
-       POSICIÓN LIBRE
-    ========================================= */
-
-    top: "50%",
-    right: "50%",
-
-    /* =========================================
-       TAMAÑO LIBRE
-    ========================================= */
-
-    width: "40%",
-    height: "100%",
-
-    /* =========================================
-       ESCALA / MOVIMIENTO / ROTACIÓN
-    ========================================= */
-
-    transform: `
-      translateX(950px)
-      translateY(-450px)
-      scale(1.1)
-      rotate(0deg)
-    `,
-
-    /* =========================================
-       VISUAL
-    ========================================= */
-
-    objectFit: "cover",
-    objectPosition: "center center",
-
-    opacity: 0.4,
-
-    filter: `
-      brightness(0.5)
-      contrast(1)
-      saturate(1)
-    `,
-
-    mixBlendMode: "normal",
-
-    pointerEvents: "none",
-
-    zIndex: 2,
-  }}
-/>
 <div
   style={{
     position: "absolute",
@@ -2754,9 +2579,9 @@ function AccessPortal({ navigate }) {
     transform: "translateX(-50%)",
     borderRadius: 28,
     overflow: "hidden",
-    opacity: 0.45,
+    opacity: 0,
     background: "transparent",
-    filter: "brightness(0.82) contrast(1.12) saturate(1.05)",
+    filter: "none",
     boxShadow: "none",
     
     zIndex: 1,
@@ -2764,80 +2589,7 @@ function AccessPortal({ navigate }) {
   }}
 >
   
-  <img
-  src="/portalenterprice/combatprincipal.jpg"
-  alt="Combat Pro cinematic arena"
-  style={{
-    /* =========================================
-       POSICIÓN
-    ========================================= */
-
-    position: "absolute",
-
-    top: "0%",
-    left: "0%",
-
-    /* =========================================
-       TAMAÑO
-    ========================================= */
-
-    width: "100%",
-    height: "100%",
-
-    /* =========================================
-       AJUSTE INTERNO
-    ========================================= */
-
-    objectFit: "cover",
-    objectPosition: "center center",
-
-    /* =========================================
-       MOVIMIENTO / ESCALA / ROTACIÓN
-    ========================================= */
-
-    transform: `
-      translateX(0px)
-      translateY(0px)
-      scale(0.8)
-      rotate(0deg)
-    `,
-
-    transition: "transform 0.4s ease",
-
-    /* =========================================
-       VISUAL
-    ========================================= */
-
-    opacity: 1,
-
-    filter: `
-      brightness(1)
-      contrast(1)
-      saturate(1)
-      blur(0px)
-    `,
-
-    mixBlendMode: "normal",
-
-    /* =========================================
-       PROFUNDIDAD
-    ========================================= */
-
-    zIndex: 4,
-
-    pointerEvents: "none",
-
-    display: "block",
-
-    /* =========================================
-       GLOW / SOMBRA OPCIONAL
-    ========================================= */
-
-    boxShadow: `
-      0 0 0px rgba(0,0,0,0)
-    `,
-  }}
-/>
+  
 
 
 
@@ -3063,8 +2815,10 @@ function AccessPortal({ navigate }) {
         <div
   style={{
     position: "relative",
-    width: 90,
-    height: 90,
+    width: 70,
+    height: 70,
+    aspectRatio: "1 / 1",
+    flexShrink: 0,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -3087,7 +2841,7 @@ function AccessPortal({ navigate }) {
   <div
     style={{
       color: "#ff0000",
-      fontSize: 50,
+      fontSize: 33,
       fontWeight: 1000,
       textShadow: `
         0 0 12px rgba(245,197,66,1),
@@ -3106,7 +2860,13 @@ function AccessPortal({ navigate }) {
             letterSpacing: "0.16em",
             textTransform: "uppercase",
             color: "#f8fafc",
-            textShadow: "0 0 24px rgba(255,255,255,0.35)",
+            textShadow: `
+  0 0 8px rgba(255,255,255,0.85),
+  0 0 22px rgba(255,255,255,0.55),
+  0 0 42px rgba(255,210,80,0.38),
+  0 6px 22px rgba(0,0,0,0.98)
+`,
+WebkitTextStroke: "1px rgba(255,255,255,0.22)",
             lineHeight: 0.9,
           }}
         >
@@ -3120,6 +2880,12 @@ function AccessPortal({ navigate }) {
             fontWeight: 700,
             letterSpacing: "0.38em",
             color: "rgba(255,255,255,0.78)",
+            textShadow: `
+  0 0 8px rgba(255,255,255,0.45),
+  0 0 18px rgba(255,210,80,0.20),
+  0 3px 14px rgba(0,0,0,0.98)
+`,
+WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
           }}
         >
           UNIVERSE™
