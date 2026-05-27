@@ -14226,6 +14226,20 @@ if (path === "/judge-exit") {
 }
 
   if (path === "/license-dev") {
+  const isLicensePortrait =
+    typeof window !== "undefined" &&
+    window.innerWidth < 900 &&
+    window.innerHeight > window.innerWidth;
+
+  if (isLicensePortrait) {
+    return (
+      <>
+        <GlobalAppStyle />
+        <LicensePage />
+      </>
+    );
+  }
+
   return (
     <CinematicAdaptiveShell>
       <LicensePage />

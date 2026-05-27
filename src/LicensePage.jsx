@@ -1,4 +1,5 @@
 import React from "react";
+import RotateDeviceGate from "./RotateDeviceGate";
 import {
   ShieldCheck,
   Globe,
@@ -26,16 +27,27 @@ export default function LicensePage() {
   typeof window !== "undefined" &&
   window.innerWidth < 900 &&
   window.innerWidth > window.innerHeight;
+
+  const isMobilePortrait =
+  typeof window !== "undefined" &&
+  window.innerWidth < 900 &&
+  window.innerHeight > window.innerWidth;
+
   const isIPhoneLandscape =
   isMobileLandscape &&
   typeof navigator !== "undefined" &&
   /iPhone|iPod/.test(navigator.userAgent);
+
+  if (isMobilePortrait) {
+  return <RotateDeviceGate />;
+}
+
   return (
     <div
   style={{
     ...styles.page,
-    ...(isMobileLandscape
-      ? {
+    ...(isMobileLandscape && !isMobilePortrait
+  ? {
           position: "fixed",
           left: "50%",
           top: "50%",
