@@ -22,8 +22,38 @@ CreditCard,
 
 
 export default function LicensePage() {
+  const isMobileLandscape =
+  typeof window !== "undefined" &&
+  window.innerWidth < 900 &&
+  window.innerWidth > window.innerHeight;
+  const isIPhoneLandscape =
+  isMobileLandscape &&
+  typeof navigator !== "undefined" &&
+  /iPhone|iPod/.test(navigator.userAgent);
   return (
-    <div style={styles.page}>
+    <div
+  style={{
+    ...styles.page,
+    ...(isMobileLandscape
+      ? {
+          position: "fixed",
+          left: "50%",
+          top: "50%",
+          width: 1920,
+          height: 1080,
+          minHeight: 1080,
+          overflow: "hidden",
+          transform: `translate(-50%, ${isIPhoneLandscape ? "-72%" : "-70%"}) scale(${
+  Math.min(
+    window.innerWidth / 1920,
+    window.innerHeight / 1080
+  ) * (isIPhoneLandscape ? 5.3 : 3.9)
+})`,
+          transformOrigin: "center center",
+        }
+      : {}),
+  }}
+>
       <header style={styles.navbar}>
         <div style={styles.brand}>
           <div style={styles.logoOrb}>
