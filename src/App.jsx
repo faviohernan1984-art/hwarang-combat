@@ -2321,6 +2321,11 @@ function AccessPortal({ navigate }) {
     window.innerWidth < 900 &&
     window.innerHeight > window.innerWidth;
 
+  const isMobileLandscape =
+  typeof window !== "undefined" &&
+  window.innerWidth < 900 &&
+  window.innerWidth > window.innerHeight;  
+
   if (isMobilePortrait) {
   return (
     <RotateDeviceGate
@@ -2345,7 +2350,14 @@ function AccessPortal({ navigate }) {
     <div
       style={{
         position: "fixed",
-        inset: 0,
+left: "50%",
+top: "50%",
+width: 1920,
+height: 1080,
+transform: isMobileLandscape
+  ? `translate(-50%, -50%) scale(${Math.min(window.innerWidth / 1920, window.innerHeight / 1080) * 1.47})`
+  : "translate(-50%, -50%) scale(1)",
+transformOrigin: "center center",
         overflow: "hidden",
         background: `
   linear-gradient(
