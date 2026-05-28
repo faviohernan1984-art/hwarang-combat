@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import RotateDeviceGate from "./RotateDeviceGate";
 import {
   ShieldCheck,
@@ -23,15 +23,49 @@ CreditCard,
 
 
 export default function LicensePage() {
-  const isMobileLandscape =
-  typeof window !== "undefined" &&
-  window.innerWidth < 900 &&
-  window.innerWidth > window.innerHeight;
 
-  const isMobilePortrait =
-  typeof window !== "undefined" &&
-  window.innerWidth < 900 &&
-  window.innerHeight > window.innerWidth;
+  const [viewport, setViewport] = useState(() => ({
+  width: typeof window !== "undefined" ? window.innerWidth : 1920,
+  height: typeof window !== "undefined" ? window.innerHeight : 1080,
+}));
+
+useEffect(() => {
+  if (typeof window === "undefined") return;
+
+  const recalc = () => {
+    setViewport({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  };
+
+  const recalcStable = () => {
+    recalc();
+    setTimeout(recalc, 150);
+    setTimeout(recalc, 400);
+    setTimeout(recalc, 800);
+  };
+
+  recalcStable();
+
+  window.addEventListener("resize", recalcStable);
+  window.addEventListener("orientationchange", recalcStable);
+  window.visualViewport?.addEventListener("resize", recalcStable);
+
+  return () => {
+    window.removeEventListener("resize", recalcStable);
+    window.removeEventListener("orientationchange", recalcStable);
+    window.visualViewport?.removeEventListener("resize", recalcStable);
+  };
+}, []);
+
+  const isMobileLandscape =
+  viewport.width < 900 &&
+  viewport.width > viewport.height;
+
+const isMobilePortrait =
+  viewport.width < 900 &&
+  viewport.height > viewport.width;
 
   const isIPhoneLandscape =
   isMobileLandscape &&
@@ -57,8 +91,8 @@ export default function LicensePage() {
           overflow: "hidden",
           transform: `translate(-50%, ${isIPhoneLandscape ? "-72%" : "-70%"}) scale(${
   Math.min(
-    window.innerWidth / 1920,
-    window.innerHeight / 1080
+    viewport.width / 1920,
+viewport.height / 1080
   ) * (isIPhoneLandscape ? 5.3 : 3.9)
 })`,
           transformOrigin: "center center",
