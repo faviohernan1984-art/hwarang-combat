@@ -14286,8 +14286,19 @@ if (path === "/license") {
     />
   ) : null;
 
+  const isMobileLandscapeForConsent =
+  typeof window !== "undefined" &&
+  window.innerWidth < 900 &&
+  window.innerWidth > window.innerHeight;
+
+  const isDemoMobileLandscape =
+  roomId.startsWith("demo-") &&
+  typeof window !== "undefined" &&
+  window.innerWidth < 900 &&
+  window.innerWidth > window.innerHeight;
+
   const consentLayer =
-  usageConsent !== "accepted" ? (
+  usageConsent !== "accepted" && !isDemoMobileLandscape ? (
     <UsageConsentModal
       onAccept={acceptUsageConsent}
       onExit={exitApp}
