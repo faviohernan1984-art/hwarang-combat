@@ -6477,19 +6477,21 @@ const medicalV2Seconds =
     ? meta?.medicalV2Display?.chongSeconds
     : 0;
 
+    
+
 const medicalBanner = medicalV2Side ? (
   <div
     style={{
       position: "absolute",
-      top: 790,
-      left: 20,
-      right: 20,
-      zIndex: 20,
+      top: "73.2%",
+left: "1.2%",
+right: "1.2%",
+padding: "1.2vh 1.2vw",
+fontSize: "clamp(28px, 3.2vw, 60px)",
       background: medicalV2Side === "hong" ? "#b91c1c" : "#1d4ed8",
       borderRadius: 20,
       padding: 20,
       textAlign: "center",
-      fontSize: 60,
       fontWeight: 900,
     }}
   >
@@ -9498,6 +9500,9 @@ const handleInvertSides = async () => {
 const isSwapped = meta.presidentSwapSides;
 const leftSide = isSwapped ? "chong" : "hong";
 const rightSide = isSwapped ? "hong" : "chong";
+const compactPresidentMedical =
+  window.innerWidth >= 900 &&
+  window.innerHeight < 900;
 
   return (
   <Frame16x9 mobileHorizontalOnly>
@@ -9518,10 +9523,10 @@ const rightSide = isSwapped ? "hong" : "chong";
       <div
   style={{
     position: "absolute",
-    top: 250,
-    left: 651,
-    width: 300,
-    height: 130,
+    top: compactPresidentMedical ? 271 : 250,
+left: compactPresidentMedical ? 520 : 651,
+width: compactPresidentMedical ? 240 : 300,
+height: compactPresidentMedical ? 104 : 130,
     zIndex: 18,
 
     background:
@@ -9545,14 +9550,14 @@ const rightSide = isSwapped ? "hong" : "chong";
 >
   <div
     style={{
-      fontSize: 30,
+      fontSize: compactPresidentMedical ? 24 : 30,
       textShadow: "0 0 10px rgba(255,255,255,0.75)",
     }}
   >
     {formatTime(testMedicalSeconds)}
   </div>
 
-  <div style={{ marginTop: 10, display: "flex", gap: 6 }}>
+  <div style={{ marginTop: compactPresidentMedical ? 4 : 10, display: "flex", gap: 6 }}>
   <button
     disabled={inputsLocked}
     onClick={() => setTestMedicalRunning(true)}
@@ -9597,10 +9602,10 @@ const rightSide = isSwapped ? "hong" : "chong";
 <div
   style={{
     position: "absolute",
-    top: 250,
-    left: 960,
-    width: 300,
-    height: 130,
+    top: compactPresidentMedical ? 271 : 250,
+left: compactPresidentMedical ? 785 : 960,
+width: compactPresidentMedical ? 240 : 300,
+height: compactPresidentMedical ? 104 : 130,
     zIndex: 18,
 
     background:
@@ -9624,14 +9629,14 @@ const rightSide = isSwapped ? "hong" : "chong";
 >
   <div
     style={{
-      fontSize: 30,
+      fontSize: compactPresidentMedical ? 24 : 30,
       textShadow: "0 0 10px rgba(255,255,255,0.75)",
     }}
   >
     {formatTime(testMedicalChongSeconds)}
   </div>
 
-  <div style={{ marginTop: 10, display: "flex", gap: 6 }}>
+  <div style={{ marginTop: compactPresidentMedical ? 4 : 10, display: "flex", gap: 6 }}>
     <button
   disabled={inputsLocked}
   onClick={() => setTestMedicalChongRunning(true)}
