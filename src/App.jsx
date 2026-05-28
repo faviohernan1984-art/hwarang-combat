@@ -2343,8 +2343,26 @@ function AccessPortal({ navigate }) {
   const goLicenseDev = () => {
     navigate("/license-dev");
   };
-  
-  
+
+  const portalActionCardBase = {
+  width: 610,
+  height: 292,
+  padding: "42px 48px",
+  borderRadius: 28,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "space-between",
+  textAlign: "center",
+  boxSizing: "border-box",
+};
+
+const portalActionButtonBase = {
+  width: 520,
+  height: 72,
+  borderRadius: 18,
+  marginTop: 0,
+};  
 
   return (
     <div
@@ -2890,9 +2908,13 @@ WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
         >
           <div
             style={{
-              minHeight: 255,
-              borderRadius: 26,
-              padding: 26,
+  minHeight: 255,
+  borderRadius: 26,
+  padding: "26px 26px 30px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  alignItems: "center",
               background: "linear-gradient(180deg, rgba(4,18,42,0.82), rgba(0,0,0,0.88))",
               border: "1px solid rgba(56,130,255,0.58)",
               boxShadow: "0 0 34px rgba(30,111,255,0.25), inset 0 0 28px rgba(56,130,255,0.08)",
@@ -2958,9 +2980,13 @@ WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
 
           <div
             style={{
-              minHeight: 255,
-              borderRadius: 26,
-              padding: 26,
+  minHeight: 255,
+  borderRadius: 26,
+  padding: "26px 26px 30px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  alignItems: "center",
               background: "linear-gradient(180deg, rgba(56,39,4,0.78), rgba(0,0,0,0.9))",
               border: "1px solid rgba(245,197,66,0.72)",
               boxShadow: "0 0 34px rgba(245,197,66,0.28), inset 0 0 28px rgba(245,197,66,0.08)",
@@ -2968,7 +2994,7 @@ WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
             }}
           >
             <div style={{ color: "#f5c542", fontSize: 30, fontWeight: 900, letterSpacing: "0.1em" }}>
-              LICENCE DEV
+              LICENCE 
             </div>
 
             <div style={{ marginTop: 18, color: "rgba(255,255,255,0.76)", fontSize: 16, lineHeight: 1.45 }}>
@@ -3030,7 +3056,7 @@ WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
         zIndex: 2,
       }}
     >
-      ACCESS LICENCE DEV
+      ACCESS LICENCE 
     </span>
   </>
 </button>
