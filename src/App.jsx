@@ -12482,8 +12482,8 @@ letterSpacing: "0.06em",
         left: "51.6%",
         transform: "translateX(-50%)",
 
-        width: compactPresidentMedical ? 460 : 670,
-        height: compactPresidentMedical ? 50 : 48,
+        width: compactPresidentMedical ? 430 : 670,
+        height: compactPresidentMedical ? 48 : 48,
         
 
         zIndex: 42,
