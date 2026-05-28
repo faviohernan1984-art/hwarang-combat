@@ -282,10 +282,18 @@ viewport.height / 1080
     <strong>USD 49</strong>
   </div>
 
-  <button style={styles.buyBtn}>
-    <Lock size={18} style={styles.buyIcon} />
-    BUY NOW
-  </button>
+  <button
+  style={styles.buyBtn}
+  onClick={() => {
+    window.open(
+      "https://link.mercadopago.com.ar/universohwarang",
+      "_blank"
+    );
+  }}
+>
+  <Lock size={18} style={styles.buyIcon} />
+  BUY NOW
+</button>
 
   <div style={styles.secure}>
     <ShieldCheck size={16} style={styles.secureIcon} />
