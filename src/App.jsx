@@ -12296,16 +12296,24 @@ letterSpacing: "0.06em",
   <div
     style={{
       position: "absolute",
-      top: 415,
+
+      top: compactPresidentMedical ? 415 : 415,
+
       left: "50%",
       transform: "translateX(-50%)",
-      width: 470,
-      height: 153,
+
+      width: compactPresidentMedical ? 370 : 470,
+      height: compactPresidentMedical ? 150 : 153,
+
       minHeight: 92,
+
       zIndex: 41,
+
       animation: "medicalDecisionPulse 2.4s ease-in-out infinite",
+
       background:
         "linear-gradient(180deg, rgba(38,28,5,0.96), rgba(8,6,2,0.96))",
+
       border: "1px solid rgba(255,215,90,0.9)",
       borderRadius: 10,
 
@@ -12318,17 +12326,21 @@ letterSpacing: "0.06em",
       color: "#fff7cc",
       fontFamily: "Orbitron, sans-serif",
       textAlign: "center",
-      padding: "12px 18px",
+
+      padding: compactPresidentMedical
+        ? "8px 14px"
+        : "12px 18px",
+
       pointerEvents: "none",
     }}
   >
     <div
       style={{
-        fontSize: 14,
+        fontSize: compactPresidentMedical ? 12 : 14,
         fontWeight: 900,
         letterSpacing: "0.22em",
         color: "#f5c542",
-        marginBottom: 6,
+        marginBottom: compactPresidentMedical ? 4 : 6,
         textShadow: "0 0 10px rgba(245,197,66,0.75)",
       }}
     >
@@ -12337,11 +12349,11 @@ letterSpacing: "0.06em",
 
     <div
       style={{
-        fontSize: 21,
+        fontSize: compactPresidentMedical ? 18 : 21,
         fontWeight: 900,
         letterSpacing: "0.08em",
         color: "#ffffff",
-        marginBottom: 4,
+        marginBottom: compactPresidentMedical ? 2 : 4,
         textShadow: "0 0 12px rgba(255,255,255,0.35)",
       }}
     >
@@ -12353,7 +12365,7 @@ letterSpacing: "0.06em",
 
     <div
       style={{
-        fontSize: 12,
+        fontSize: compactPresidentMedical ? 10 : 12,
         fontWeight: 700,
         letterSpacing: "0.18em",
         color: "rgba(255,247,204,0.78)",
@@ -12372,41 +12384,52 @@ letterSpacing: "0.06em",
 {preDecisionAdvantage(meta) && (
   <div
     style={{
-  position: "absolute",
-  top: 415,
-  left: "50%",
-  transform: "translateX(-50%)",
-  width: 470,
-  minHeight: 153,
-  zIndex: 41,
-  padding: "12px 18px",
-  borderRadius: 10,
-  fontFamily: "Orbitron, sans-serif",
-  pointerEvents: "none",
+      position: "absolute",
+
+      top: compactPresidentMedical ? 415 : 415,
+
+      left: "50%",
+      transform: "translateX(-50%)",
+
+      width: compactPresidentMedical ? 370 : 470,
+      minHeight: compactPresidentMedical ? 150 : 153,
+
+      zIndex: 41,
+
+      padding: compactPresidentMedical
+        ? "8px 14px"
+        : "12px 18px",
+
+      borderRadius: 10,
+
+      fontFamily: "Orbitron, sans-serif",
+      pointerEvents: "none",
+
       border: "1px solid rgba(245,197,66,0.85)",
+
       animation: "medicalDecisionPulse 2.4s ease-in-out infinite",
 
-background:
-  "linear-gradient(180deg, rgba(38,28,5,0.96), rgba(8,6,2,0.96))",
+      background:
+        "linear-gradient(180deg, rgba(38,28,5,0.96), rgba(8,6,2,0.96))",
 
-boxShadow: `
-  0 0 22px rgba(255,215,0,0.55),
-  0 0 52px rgba(255,190,0,0.24),
-  inset 0 0 26px rgba(255,215,0,0.12)
-`,
+      boxShadow: `
+        0 0 22px rgba(255,215,0,0.55),
+        0 0 52px rgba(255,190,0,0.24),
+        inset 0 0 26px rgba(255,215,0,0.12)
+      `,
 
-color: "#fff7cc",
+      color: "#fff7cc",
 
-textAlign: "center",
+      textAlign: "center",
     }}
   >
     <div
       style={{
-        fontSize: 14,
+        fontSize: compactPresidentMedical ? 12 : 14,
         fontWeight: 900,
         letterSpacing: "0.16em",
         color: "#f5c542",
-        marginBottom: 4,
+        marginBottom: compactPresidentMedical ? 2 : 4,
       }}
     >
       ⚖ DISQUALIFICATION - FOUL LIMIT
@@ -12414,11 +12437,11 @@ textAlign: "center",
 
     <div
       style={{
-        fontSize: 21,
+        fontSize: compactPresidentMedical ? 18 : 21,
         fontWeight: 900,
         letterSpacing: "0.08em",
         color: "#ffffff",
-        marginBottom: 4,
+        marginBottom: compactPresidentMedical ? 2 : 4,
         textShadow: "0 0 12px rgba(255,255,255,0.35)",
       }}
     >
@@ -12427,7 +12450,7 @@ textAlign: "center",
 
     <div
       style={{
-        fontSize: 12,
+        fontSize: compactPresidentMedical ? 10 : 12,
         fontWeight: 700,
         letterSpacing: "0.18em",
         color: "rgba(255,247,204,0.78)",
@@ -12453,27 +12476,72 @@ textAlign: "center",
     <div
       style={{
         position: "absolute",
-        top: 21,
-        left: 650,
-        zIndex: 30,
-        width: 680,
-        minHeight: 34,
+
+        top: compactPresidentMedical ? 12 : 13,
+
+        left: "51.6%",
+        transform: "translateX(-50%)",
+
+        width: compactPresidentMedical ? 460 : 670,
+        height: compactPresidentMedical ? 50 : 48,
+        
+
+        zIndex: 42,
+
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "#7c2d12",
-        border: "1px solid #f97316",
-        borderRadius: 8,
-        color: "#ffedd5",
-        fontWeight: 900,
-        fontSize: 17,
-        lineHeight: 1.1,
-        padding: "4px 10px",
+
+        padding: compactPresidentMedical ? "7px 14px" : "9px 18px",
+
         boxSizing: "border-box",
+
+        background:
+          "linear-gradient(180deg, rgba(38,28,5,0.96), rgba(8,6,2,0.96))",
+
+        border: "1px solid rgba(245,197,66,0.85)",
+        borderRadius: 10,
+
+        boxShadow: `
+          0 0 18px rgba(255,215,0,0.48),
+          0 0 42px rgba(255,190,0,0.20),
+          inset 0 0 22px rgba(255,215,0,0.10)
+        `,
+
+        color: "#fff7cc",
+        fontFamily: "Orbitron, sans-serif",
         textAlign: "center",
+
+        animation: "medicalDecisionPulse 2.4s ease-in-out infinite",
+        pointerEvents: "none",
       }}
     >
-      {secondFoulWarning(meta)}
+      <div
+        style={{
+          fontSize: compactPresidentMedical ? 11 : 13,
+          fontWeight: 900,
+          letterSpacing: "0.18em",
+          color: "#f5c542",
+          marginBottom: compactPresidentMedical ? 2 : 2,
+          textShadow: "0 0 10px rgba(245,197,66,0.75)",
+        }}
+      >
+        ⚖ FOUL LIMIT WARNING
+      </div>
+
+      <div
+        style={{
+          fontSize: compactPresidentMedical ? 13 : 16,
+          fontWeight: 900,
+          letterSpacing: "0.04em",
+          color: "#ffffff",
+          lineHeight: 1.08,
+          textShadow: "0 0 12px rgba(255,255,255,0.35)",
+        }}
+      >
+        {secondFoulWarning(meta)}
+      </div>
     </div>
 )}
 
