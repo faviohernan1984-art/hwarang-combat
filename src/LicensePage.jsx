@@ -370,6 +370,326 @@ viewport.height / 1080
   );
 }
 
+/* ======================================================
+LICENSE DEMO PAGE
+COMMERCIAL LANDING + TERMS GATE
+====================================================== */
+export function LicenseDemoPage() {
+  const [accepted, setAccepted] = useState(false);
+
+  return (
+    <div
+      style={{
+        ...styles.page,
+        minHeight: "100vh",
+        backgroundImage: `
+          linear-gradient(90deg, rgba(0,0,0,0.88), rgba(2,6,23,0.58), rgba(0,0,0,0.92)),
+          url('/portalenterprice/newportal.png')
+        `,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        overflow: "hidden",
+      }}
+    >
+      {/* ======================================================
+      LICENSE DEMO PAGE — BRAND NAVIGATION
+      ====================================================== */}
+      <header style={styles.navbar}>
+        <div style={styles.brand}>
+          <div style={styles.logoOrb}>
+            <style>{`
+              @keyframes licenseOrbSpin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+            <div style={styles.logoOrbRing} />
+            <div style={styles.logoOrbCore}>H</div>
+          </div>
+
+          <div>
+            <div style={styles.brandTitle}>HWARANG</div>
+            <div style={styles.brandSub}>SCORING UNIVERSE™</div>
+          </div>
+        </div>
+
+        <nav style={styles.navLinks}>
+          <span onClick={() => (window.location.href = "/")} style={{ cursor: "pointer" }}>
+            HOME
+          </span>
+          <span onClick={() => (window.location.href = "/license-dev")} style={{ cursor: "pointer" }}>
+            LICENSE
+          </span>
+          <span style={styles.activeNav}>DEMO</span>
+        </nav>
+
+        <div style={styles.navActions}>
+          <button style={styles.langBtn}>ES⌄</button>
+          <button style={styles.loginBtn}>SIGN IN</button>
+        </div>
+      </header>
+
+      {/* ======================================================
+      LICENSE DEMO PAGE — HERO SECTION
+      ====================================================== */}
+      <main
+        style={{
+          minHeight: "calc(100vh - 88px)",
+          padding: "54px 92px 38px",
+          display: "grid",
+          gridTemplateColumns: "1.35fr 0.65fr",
+          gap: 38,
+          alignItems: "center",
+        }}
+      >
+        <section>
+          <div style={styles.kicker}>FREE EVALUATION ACCESS</div>
+
+          <h1
+            style={{
+              ...styles.title,
+              fontSize: 72,
+              lineHeight: 0.96,
+              margin: "14px 0 18px",
+              textAlign: "left",
+              maxWidth: 820,
+            }}
+          >
+            TRY HWARANG SCORING{" "}
+            <span style={styles.blueText}>UNIVERSE™</span>
+          </h1>
+
+          <p
+            style={{
+              ...styles.subtitle,
+              textAlign: "left",
+              maxWidth: 760,
+              fontSize: 20,
+              lineHeight: 1.45,
+              marginLeft: 0,
+paddingLeft: 0,
+            }}
+          >
+            Test the professional real-time scoring environment before purchasing
+            an official license. Explore President Station, Public TV, Judge Mobile
+            and cloud synchronization in one controlled demo arena.
+          </p>
+
+          {/* ======================================================
+          LICENSE DEMO PAGE — MAIN CTA
+          ====================================================== */}
+          <div style={{ display: "flex", gap: 16, marginTop: 34 }}>
+            <button
+              disabled={!accepted}
+              onClick={() => {
+                const existing = localStorage.getItem("hwarang_demo_room_id");
+                const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+                let code = "";
+
+                for (let i = 0; i < 5; i += 1) {
+                  code += chars[Math.floor(Math.random() * chars.length)].toLowerCase();
+                }
+
+                const roomId = existing || `demo-hsu-${code}`;
+                localStorage.setItem("hwarang_demo_room_id", roomId);
+                window.location.href = `/${roomId}`;
+              }}
+              style={{
+                height: 60,
+                padding: "0 34px",
+                borderRadius: 14,
+                border: "none",
+                background: accepted
+                  ? "linear-gradient(90deg,#06b6d4,#22d3ee)"
+                  : "linear-gradient(90deg,#334155,#475569)",
+                color: accepted ? "#001018" : "rgba(255,255,255,0.55)",
+                fontWeight: 1000,
+                letterSpacing: 1,
+                cursor: accepted ? "pointer" : "not-allowed",
+                boxShadow: accepted ? "0 0 34px rgba(34,211,238,0.52)" : "none",
+              }}
+            >
+              START DEMO
+            </button>
+
+            <button
+              onClick={() => (window.location.href = "/license-dev")}
+              style={{
+                height: 60,
+                padding: "0 30px",
+                borderRadius: 14,
+                border: "1px solid rgba(255,255,255,0.24)",
+                background: "rgba(0,0,0,0.35)",
+                color: "#fff",
+                fontWeight: 900,
+                cursor: "pointer",
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              VIEW LICENSES
+            </button>
+          </div>
+
+          {/* ======================================================
+          LICENSE DEMO PAGE — INCLUDED FEATURES STRIP
+          ====================================================== */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 14,
+              marginTop: 42,
+              maxWidth: 860,
+            }}
+          >
+            <DemoFeatureMini title="President Station" />
+            <DemoFeatureMini title="Public TV" />
+            <DemoFeatureMini title="Judge Mobile" />
+            <DemoFeatureMini title="Real-time Sync" />
+            <DemoFeatureMini title="1 Demo Arena" />
+            <DemoFeatureMini title="Cloud Platform" />
+          </div>
+        </section>
+
+        {/* ======================================================
+        LICENSE DEMO PAGE — TERMS AND LIMITS CARD
+        ====================================================== */}
+        <aside
+          style={{
+            border: "1px solid rgba(34,211,238,0.36)",
+            borderRadius: 26,
+            padding: 30,
+            background: "rgba(0,0,0,0.70)",
+            boxShadow: "0 0 55px rgba(0,0,0,0.78), 0 0 32px rgba(6,182,212,0.18)",
+            backdropFilter: "blur(14px)",
+          }}
+        >
+          <h2 style={{ fontSize: 28, margin: "0 0 18px", letterSpacing: 2 }}>
+            DEMO ACCESS
+          </h2>
+
+          <DemoLimit label="Price" value="FREE" />
+          <DemoLimit label="Use" value="Evaluation only" />
+          <DemoLimit label="Session" value="10 minutes" />
+          <DemoLimit label="Rounds" value="Maximum 2 rounds" />
+          <DemoLimit label="Arenas" value="1 demo arena" />
+          <DemoLimit label="Commercial use" value="Not allowed" />
+          <DemoLimit label="Branding" value="DEMO visible" />
+
+          <div
+            style={{
+              marginTop: 24,
+              padding: 18,
+              borderRadius: 18,
+              background: "rgba(15,23,42,0.88)",
+              border: "1px solid rgba(34,211,238,0.22)",
+            }}
+          >
+            <div style={{ fontWeight: 1000, marginBottom: 8 }}>
+              TERMS & CONDITIONS
+            </div>
+
+            <p
+              style={{
+                margin: 0,
+                fontSize: 13,
+                lineHeight: 1.55,
+                color: "rgba(255,255,255,0.72)",
+              }}
+            >
+              This demo is provided only for testing and evaluation. It may not be
+              used for official tournaments, commercial events, resale, public
+              scoring services, or unauthorized sharing. Hwarang Scoring Universe
+              may limit, suspend or block demo access if misuse is detected.
+            </p>
+
+            <label
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                marginTop: 16,
+                fontSize: 14,
+                fontWeight: 900,
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={accepted}
+                onChange={(e) => setAccepted(e.target.checked)}
+              />
+              I accept the Demo Terms and Conditions
+            </label>
+          </div>
+
+          <div
+            style={{
+              marginTop: 18,
+              fontSize: 12,
+              lineHeight: 1.45,
+              color: "rgba(255,255,255,0.55)",
+            }}
+          >
+            By continuing, you acknowledge that this is not a commercial license.
+            Official tournaments require an Event or Club license.
+          </div>
+        </aside>
+      </main>
+    </div>
+  );
+}
+
+/* ======================================================
+LICENSE DEMO PAGE
+MINI FEATURE COMPONENT
+====================================================== */
+function DemoFeatureMini({ title }) {
+  return (
+    <div
+      style={{
+        minHeight: 58,
+        borderRadius: 16,
+        border: "1px solid rgba(34,211,238,0.22)",
+        background: "rgba(2,6,23,0.62)",
+        backdropFilter: "blur(9px)",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "0 16px",
+        fontSize: 13,
+        fontWeight: 1000,
+        letterSpacing: 0.8,
+        boxShadow: "0 0 18px rgba(6,182,212,0.10)",
+      }}
+    >
+      <ShieldCheck size={17} style={{ color: "#22d3ee", flexShrink: 0 }} />
+      {title}
+    </div>
+  );
+}
+
+/* ======================================================
+LICENSE DEMO PAGE
+LIMIT ROW COMPONENT
+====================================================== */
+function DemoLimit({ label, value }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        padding: "13px 0",
+        fontSize: 15,
+      }}
+    >
+      <span style={{ color: "rgba(255,255,255,0.68)" }}>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
 function Feature({ icon, title, text }) {
   
   return (
@@ -451,15 +771,20 @@ function PlanCard({ title, desc, price, small, items, button, featured, variant,
       </ul>
 
       <button
-        style={{
-          ...(variant === "outline" ? styles.outlineBtn : styles.primaryBtn),
-          ...(tone === "cyan" ? styles.cyanBtn : {}),
-          ...(tone === "gold" ? styles.goldBtn : {}),
-          marginTop: buttonOffset,
-        }}
-      >
-        {button}
-      </button>
+  onClick={() => {
+    if (title === "DEMO") {
+      window.location.href = "/license/demo";
+    }
+  }}
+  style={{
+    ...(variant === "outline" ? styles.outlineBtn : styles.primaryBtn),
+    ...(tone === "cyan" ? styles.cyanBtn : {}),
+    ...(tone === "gold" ? styles.goldBtn : {}),
+    marginTop: buttonOffset,
+  }}
+>
+  {button}
+</button>
             <div
         style={{
           ...styles.floorGlow,

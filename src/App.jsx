@@ -1,6 +1,6 @@
 console.log("ESTOY EN EL APP CORRECTO");
 import CinematicAdaptiveShell from "./components/CinematicAdaptiveShell";
-import LicensePage from "./LicensePage.jsx";
+import LicensePage, { LicenseDemoPage } from "./LicensePage.jsx";
 import LicenseComingSoon from "./LicenseComingSoon.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
@@ -14383,6 +14383,17 @@ if (path === "/license") {
     <>
       <GlobalAppStyle />
       <LicenseComingSoon />
+    </>
+  );
+}
+
+if (path === "/license/demo") {
+  return (
+    <>
+      <GlobalAppStyle />
+      <CinematicAdaptiveShell>
+        <LicenseDemoPage />
+      </CinematicAdaptiveShell>
     </>
   );
 }
