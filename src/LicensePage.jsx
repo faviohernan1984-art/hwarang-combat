@@ -1345,6 +1345,16 @@ export function LicensePulsarPage() {
   const [areas, setAreas] = useState(4);
   const [accepted, setAccepted] = useState(false);
 
+    const pulsar = {
+    main: "#f59e0b",
+    soft: "rgba(245,158,11,0.18)",
+    medium: "rgba(245,158,11,0.38)",
+    strong: "rgba(245,158,11,0.72)",
+    border: "rgba(245,158,11,0.55)",
+    text: "#fbbf24",
+    dark: "rgba(24,14,3,0.82)",
+  };
+
   const prices = {
     1: 39,
     2: 69,
@@ -1400,8 +1410,16 @@ backgroundRepeat: "no-repeat",
         ====================================================== */}
         <nav style={styles.navLinks}>
           <span
-            onMouseEnter={(e) => navHoverOn(e)}
-            onMouseLeave={(e) => navHoverOff(e)}
+            onMouseEnter={(e) => {
+  e.currentTarget.style.transform = "translateY(-1px)";
+  e.currentTarget.style.color = pulsar.text;
+  e.currentTarget.style.textShadow = `0 0 10px ${pulsar.medium}`;
+}}
+            onMouseLeave={(e) => {
+  e.currentTarget.style.transform = "translateY(0)";
+  e.currentTarget.style.color = "#ffffff";
+  e.currentTarget.style.textShadow = "none";
+}}
             onMouseDown={(e) => navClickFx(e)}
             onClick={() => (window.location.href = "/")}
             style={{
@@ -1413,8 +1431,16 @@ backgroundRepeat: "no-repeat",
           </span>
 
           <span
-            onMouseEnter={(e) => navHoverOn(e)}
-            onMouseLeave={(e) => navHoverOff(e)}
+            onMouseEnter={(e) => {
+  e.currentTarget.style.transform = "translateY(-1px)";
+  e.currentTarget.style.color = pulsar.text;
+  e.currentTarget.style.textShadow = `0 0 10px ${pulsar.medium}`;
+}}
+            onMouseLeave={(e) => {
+  e.currentTarget.style.transform = "translateY(0)";
+  e.currentTarget.style.color = "#ffffff";
+  e.currentTarget.style.textShadow = "none";
+}}
             onMouseDown={(e) => navClickFx(e)}
             onClick={() => (window.location.href = "/license-dev")}
             style={{
@@ -1426,18 +1452,29 @@ backgroundRepeat: "no-repeat",
           </span>
 
           <span
-            onMouseEnter={(e) => navHoverOn(e, true)}
-            onMouseLeave={(e) => navHoverOff(e, "#60a5fa", true)}
-            onMouseDown={(e) => navClickFx(e)}
-            style={{
-              ...styles.activeNav,
-              cursor: "default",
-              transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
-              textShadow: "0 0 8px rgba(96,165,250,0.35)",
-            }}
-          >
-            EVENT
-          </span>
+  onMouseEnter={(e) => {
+  e.currentTarget.style.transform = "translateY(-1px)";
+  e.currentTarget.style.color = pulsar.text;
+  e.currentTarget.style.textShadow = `0 0 14px ${pulsar.strong}`;
+}}
+  onMouseLeave={(e) => {
+  e.currentTarget.style.transform = "translateY(0)";
+  e.currentTarget.style.color = pulsar.text;
+  e.currentTarget.style.textShadow = `0 0 10px ${pulsar.medium}`;
+}}
+  onMouseDown={(e) => navClickFx(e)}
+  style={{
+    ...styles.activeNav,
+    borderBottom: `3px solid ${pulsar.text}`,
+    cursor: "default",
+    color: pulsar.text,
+    transition:
+      "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
+    textShadow: `0 0 10px ${pulsar.medium}`,
+  }}
+>
+  PULSAR
+</span>
         </nav>
 
         <div style={styles.navActions}>
@@ -1474,9 +1511,9 @@ alignItems: "center",
         LICENSE EVENT PAGE — LEFT COMMERCIAL COLUMN
         ====================================================== */}
         <section>
-          <div style={{ ...styles.kicker, color: "#60a5fa" }}>
-            PROFESSIONAL TOURNAMENT LICENSE
-          </div>
+          <div style={{ ...styles.kicker, color: "#f6c36a" }}>
+  ANNUAL ORGANIZATION LICENSE
+</div>
 
           <h1
             style={{
@@ -1488,7 +1525,7 @@ alignItems: "center",
               maxWidth: 820,
             }}
           >
-            EVENT <span style={styles.blueText}>LICENSE</span>
+            PULSAR <span style={{ color: "#f6c36a" }}>LICENSE</span>
           </h1>
 
           <p
@@ -1502,49 +1539,53 @@ alignItems: "center",
               paddingLeft: 0,
             }}
           >
-            Run professional ITF Taekwon-Do tournaments with real-time scoring,
-            Public TV, Judge Mobile, President Station and cloud synchronization.
+            The Heartbeat of an Organization. A professional annual license for academies,
+clubs and organizations that operate continuously throughout the year.
           </p>
 
           {/* ======================================================
           LICENSE EVENT PAGE — ROI MESSAGE
           ====================================================== */}
           <div
-            style={{
-  marginTop: 24,
-  maxWidth: 760,
-  padding: 0,
-  borderRadius: 0,
-  border: "none",
-  background: "transparent",
-  boxShadow: "none",
-  backdropFilter: "none",
-}}
-          >
-            <div
-              style={{
-                color: "#60a5fa",
-                fontWeight: 1000,
-                letterSpacing: 1.2,
-                marginBottom: 8,
-              }}
-            >
-              🌍 TECHNOLOGY COST RECOVERY
-            </div>
+  style={{
+    marginTop: 24,
+    maxWidth: 760,
+    padding: 0,
+    borderRadius: 0,
+    border: "none",
+    background: "transparent",
+    boxShadow: "none",
+    backdropFilter: "none",
+  }}
+>
+  <div
+    style={{
+      color: pulsar.text,
+      fontWeight: 1000,
+      letterSpacing: 1.2,
+      marginBottom: 8,
+    }}
+  >
+    📡 THE HEARTBEAT OF AN ORGANIZATION
+  </div>
 
-            <p
-              style={{
-                margin: 0,
-                color: "rgba(255,255,255,0.78)",
-                fontSize: 15,
-                lineHeight: 1.55,
-              }}
-            >
-              Most organizations recover the full technology investment through
-              event registrations. Hwarang Scoring helps transform an operational
-              cost into a professional tournament experience.
-            </p>
-          </div>
+  <p
+    style={{
+      margin: 0,
+      color: "rgba(255,255,255,0.78)",
+      fontSize: 15,
+      lineHeight: 1.65,
+    }}
+  >
+    While Nova gives birth to an event, Pulsar keeps an organization alive.
+    Designed for academies, clubs and schools that operate continuously throughout the year,
+    Pulsar provides a professional structure for competitions, evaluations and institutional growth.
+    <br /><br />
+    It is not a license for a tournament.
+    <br />
+    It is a license for an organization that grows, evolves and builds its future.
+  </p>
+</div>
 
           {/* ======================================================
           LICENSE EVENT PAGE — INCLUDED FEATURES
@@ -1558,12 +1599,12 @@ alignItems: "center",
               maxWidth: 860,
             }}
           >
-            <DemoFeatureMini title="Up to 4 Arenas" />
-            <DemoFeatureMini title="President Station" />
-            <DemoFeatureMini title="Public TV" />
-            <DemoFeatureMini title="Judge Mobile" />
-            <DemoFeatureMini title="Combat PRO" />
-            <DemoFeatureMini title="Cloud Sync" />
+            <DemoFeatureMini title="Annual Organization" />
+<DemoFeatureMini title="Unlimited Events" />
+<DemoFeatureMini title="President Station" />
+<DemoFeatureMini title="Public TV" />
+<DemoFeatureMini title="Judge Mobile" />
+<DemoFeatureMini title="Combat PRO" />
           </div>
         </section>
 
@@ -1572,18 +1613,26 @@ alignItems: "center",
         ====================================================== */}
         <aside
           style={{
-            border: "1px solid rgba(59,130,246,0.46)",
-            borderRadius: 26,
-            padding: 20,
-            background: "rgba(0,0,0,0.72)",
-            boxShadow: "0 0 55px rgba(0,0,0,0.78), 0 0 34px rgba(59,130,246,0.18)",
-            backdropFilter: "blur(14px)",
-            transform: "translateY(-24px)",
-          }}
+  border: `1px solid ${pulsar.border}`,
+  borderRadius: 26,
+  padding: 20,
+  background: "rgba(0,0,0,0.72)",
+  boxShadow: `0 0 55px rgba(0,0,0,0.78), 0 0 34px ${pulsar.soft}`,
+  backdropFilter: "blur(14px)",
+  transform: "translateY(-24px)",
+}}
         >
-          <h2 style={{ fontSize: 28, margin: "0 0 8px", letterSpacing: 2 }}>
-            EVENT LICENSE
-          </h2>
+          <h2
+  style={{
+    fontSize: 28,
+    margin: "0 0 8px",
+    letterSpacing: 2,
+    color: pulsar.text,
+    textShadow: `0 0 18px ${pulsar.medium}`,
+  }}
+>
+  PULSAR LICENSE
+</h2>
 
           <p
             style={{
@@ -1844,8 +1893,8 @@ function DemoFeatureMini({ title }) {
       style={{
         minHeight: 58,
         borderRadius: 16,
-        border: "1px solid rgba(34,211,238,0.22)",
-        background: "rgba(2,6,23,0.62)",
+        border: "1px solid rgba(245,158,11,0.28)",
+        background: "rgba(24,14,3,0.42)",
         backdropFilter: "blur(9px)",
         display: "flex",
         alignItems: "center",
@@ -1854,10 +1903,17 @@ function DemoFeatureMini({ title }) {
         fontSize: 13,
         fontWeight: 1000,
         letterSpacing: 0.8,
-        boxShadow: "0 0 18px rgba(6,182,212,0.10)",
+        boxShadow: "0 0 18px rgba(245,158,11,0.12)",
       }}
     >
-      <ShieldCheck size={17} style={{ color: "#22d3ee", flexShrink: 0 }} />
+      <ShieldCheck
+        size={17}
+        style={{
+          color: "#fbbf24",
+          flexShrink: 0,
+          filter: "drop-shadow(0 0 6px rgba(251,191,36,0.45))",
+        }}
+      />
       {title}
     </div>
   );
