@@ -1,6 +1,14 @@
 console.log("ESTOY EN EL APP CORRECTO");
 import CinematicAdaptiveShell from "./components/CinematicAdaptiveShell";
-import LicensePage, { LicenseDemoPage, LicenseEventPage } from "./LicensePage.jsx";
+/* ======================================================
+LICENSE IMPORTS
+Commercial license pages.
+====================================================== */
+import LicensePage, {
+  LicenseDemoPage,
+  LicenseEventPage,
+  LicensePulsarPage,
+} from "./LicensePage.jsx";
 import LicenseComingSoon from "./LicenseComingSoon.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
@@ -14428,6 +14436,23 @@ if (path === "/license-dev") {
     <>
       <GlobalAppStyle />
       <LicensePage />
+    </>
+  );
+}
+
+
+/* ======================================================
+LICENSE ROUTE
+PULSAR LICENSE
+The Heartbeat of an Organization.
+====================================================== */
+if (path === "/license/pulsar" || path === "/license/club") {
+  return (
+    <>
+      <GlobalAppStyle />
+      <CinematicAdaptiveShell>
+        <LicensePulsarPage />
+      </CinematicAdaptiveShell>
     </>
   );
 }

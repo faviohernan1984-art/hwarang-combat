@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import RotateDeviceGate from "./RotateDeviceGate";
+import LicenseComingSoon from "./LicenseComingSoon.jsx";
 import {
   ShieldCheck,
   Globe,
@@ -303,15 +304,21 @@ Up to 4 arenas"
             />
 
             <PlanCard
-              tone="gold"
-              title="CLUB / ANNUAL"
-              desc="For academies and organizations"
-              price="USD 199"
-              small="per year"
-              items={["Unlimited tournaments", "Full PRO feature access", "Statistics dashboard", "Priority support"]}
-              button="SELECT PLAN"
-              variant="outline"
-            />
+  tone="gold"
+  title="PULSAR LICENSE"
+  desc="The Heartbeat of an Organization"
+  price="USD 199"
+  small="per year"
+  items={[
+    "Unlimited Events",
+    "Combat PRO Included",
+    "Priority Support",
+    
+  ]}
+  button="SELECT PLAN"
+  variant="outline"
+  onClick={() => (window.location.href = "/license/club")}
+/>
           </div>
 
           <div style={styles.note}>
@@ -1330,6 +1337,504 @@ alignItems: "center",
 }
 
 /* ======================================================
+LICENSE PULSAR PAGE
+The Heartbeat of an Organization.
+Cloned from Event page to preserve layout and responsive behavior.
+====================================================== */
+export function LicensePulsarPage() {
+  const [areas, setAreas] = useState(4);
+  const [accepted, setAccepted] = useState(false);
+
+  const prices = {
+    1: 39,
+    2: 69,
+    3: 99,
+    4: 129,
+  };
+
+  const selectedPrice = prices[areas];
+
+  return (
+    <div
+      style={{
+        ...styles.page,
+        minHeight: "100vh",
+        backgroundImage: `
+linear-gradient(
+90deg,
+rgba(0,0,0,0.88),
+rgba(2,6,23,0.58),
+rgba(0,0,0,0.92)
+),
+url('/portalenterprice/newportal.png')
+`,
+        backgroundSize: "cover",
+backgroundPosition: "center 62%",
+backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* ======================================================
+      LICENSE EVENT PAGE — BRAND NAVIGATION
+      ====================================================== */}
+      <header style={styles.navbar}>
+        <div style={styles.brand}>
+          <div style={styles.logoOrb}>
+            <style>{`
+              @keyframes licenseOrbSpin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+            <div style={styles.logoOrbRing} />
+            <div style={styles.logoOrbCore}>H</div>
+          </div>
+
+          <div>
+            <div style={styles.brandTitle}>HWARANG</div>
+            <div style={styles.brandSub}>SCORING UNIVERSE™</div>
+          </div>
+        </div>
+
+        {/* ======================================================
+        LICENSE EVENT PAGE — NAV LINKS INTERACTION
+        ====================================================== */}
+        <nav style={styles.navLinks}>
+          <span
+            onMouseEnter={(e) => navHoverOn(e)}
+            onMouseLeave={(e) => navHoverOff(e)}
+            onMouseDown={(e) => navClickFx(e)}
+            onClick={() => (window.location.href = "/")}
+            style={{
+              cursor: "pointer",
+              transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
+            }}
+          >
+            HOME
+          </span>
+
+          <span
+            onMouseEnter={(e) => navHoverOn(e)}
+            onMouseLeave={(e) => navHoverOff(e)}
+            onMouseDown={(e) => navClickFx(e)}
+            onClick={() => (window.location.href = "/license-dev")}
+            style={{
+              cursor: "pointer",
+              transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
+            }}
+          >
+            LICENSE
+          </span>
+
+          <span
+            onMouseEnter={(e) => navHoverOn(e, true)}
+            onMouseLeave={(e) => navHoverOff(e, "#60a5fa", true)}
+            onMouseDown={(e) => navClickFx(e)}
+            style={{
+              ...styles.activeNav,
+              cursor: "default",
+              transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
+              textShadow: "0 0 8px rgba(96,165,250,0.35)",
+            }}
+          >
+            EVENT
+          </span>
+        </nav>
+
+        <div style={styles.navActions}>
+          <button
+            style={styles.langBtn}
+            onClick={() => showComingSoon("Language selector coming soon.")}
+          >
+            ES⌄
+          </button>
+
+          <button
+            style={styles.loginBtn}
+            onClick={() => showComingSoon("Client Access coming soon.")}
+          >
+            SIGN IN
+          </button>
+        </div>
+      </header>
+
+      {/* ======================================================
+      LICENSE EVENT PAGE — HERO + CHECKOUT GRID
+      ====================================================== */}
+      <main
+        style={{
+          minHeight: "calc(100vh - 88px)",
+          padding: "38px 92px 28px",
+display: "grid",
+gridTemplateColumns: "1.35fr 0.65fr",
+gap: 38,
+alignItems: "center",
+        }}
+      >
+        {/* ======================================================
+        LICENSE EVENT PAGE — LEFT COMMERCIAL COLUMN
+        ====================================================== */}
+        <section>
+          <div style={{ ...styles.kicker, color: "#60a5fa" }}>
+            PROFESSIONAL TOURNAMENT LICENSE
+          </div>
+
+          <h1
+            style={{
+              ...styles.title,
+              fontSize: 76,
+              lineHeight: 0.94,
+              margin: "14px 0 18px",
+              textAlign: "left",
+              maxWidth: 820,
+            }}
+          >
+            EVENT <span style={styles.blueText}>LICENSE</span>
+          </h1>
+
+          <p
+            style={{
+              ...styles.subtitle,
+              textAlign: "left",
+              maxWidth: 780,
+              fontSize: 20,
+              lineHeight: 1.45,
+              marginLeft: 0,
+              paddingLeft: 0,
+            }}
+          >
+            Run professional ITF Taekwon-Do tournaments with real-time scoring,
+            Public TV, Judge Mobile, President Station and cloud synchronization.
+          </p>
+
+          {/* ======================================================
+          LICENSE EVENT PAGE — ROI MESSAGE
+          ====================================================== */}
+          <div
+            style={{
+  marginTop: 24,
+  maxWidth: 760,
+  padding: 0,
+  borderRadius: 0,
+  border: "none",
+  background: "transparent",
+  boxShadow: "none",
+  backdropFilter: "none",
+}}
+          >
+            <div
+              style={{
+                color: "#60a5fa",
+                fontWeight: 1000,
+                letterSpacing: 1.2,
+                marginBottom: 8,
+              }}
+            >
+              🌍 TECHNOLOGY COST RECOVERY
+            </div>
+
+            <p
+              style={{
+                margin: 0,
+                color: "rgba(255,255,255,0.78)",
+                fontSize: 15,
+                lineHeight: 1.55,
+              }}
+            >
+              Most organizations recover the full technology investment through
+              event registrations. Hwarang Scoring helps transform an operational
+              cost into a professional tournament experience.
+            </p>
+          </div>
+
+          {/* ======================================================
+          LICENSE EVENT PAGE — INCLUDED FEATURES
+          ====================================================== */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 14,
+              marginTop: 32,
+              maxWidth: 860,
+            }}
+          >
+            <DemoFeatureMini title="Up to 4 Arenas" />
+            <DemoFeatureMini title="President Station" />
+            <DemoFeatureMini title="Public TV" />
+            <DemoFeatureMini title="Judge Mobile" />
+            <DemoFeatureMini title="Combat PRO" />
+            <DemoFeatureMini title="Cloud Sync" />
+          </div>
+        </section>
+
+        {/* ======================================================
+        LICENSE EVENT PAGE — RIGHT PURCHASE CARD
+        ====================================================== */}
+        <aside
+          style={{
+            border: "1px solid rgba(59,130,246,0.46)",
+            borderRadius: 26,
+            padding: 20,
+            background: "rgba(0,0,0,0.72)",
+            boxShadow: "0 0 55px rgba(0,0,0,0.78), 0 0 34px rgba(59,130,246,0.18)",
+            backdropFilter: "blur(14px)",
+            transform: "translateY(-24px)",
+          }}
+        >
+          <h2 style={{ fontSize: 28, margin: "0 0 8px", letterSpacing: 2 }}>
+            EVENT LICENSE
+          </h2>
+
+          <p
+            style={{
+              margin: "0 0 22px",
+              fontSize: 13,
+              lineHeight: 1.45,
+              color: "rgba(255,255,255,0.62)",
+            }}
+          >
+            Select how many competition arenas your event needs.
+          </p>
+
+          {/* ======================================================
+          LICENSE EVENT PAGE — AREA SELECTOR
+          ====================================================== */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: 10,
+              marginBottom: 22,
+            }}
+          >
+            {[1, 2, 3, 4].map((n) => {
+              const active = areas === n;
+
+              return (
+                <button
+                  key={n}
+                  onClick={() => setAreas(n)}
+                  style={{
+                    height: 54,
+                    borderRadius: 14,
+                    border: active
+                      ? "1px solid rgba(96,165,250,0.95)"
+                      : "1px solid rgba(255,255,255,0.14)",
+                    background: active
+                      ? "linear-gradient(180deg, rgba(37,99,235,0.95), rgba(29,78,216,0.72))"
+                      : "rgba(15,23,42,0.72)",
+                    color: "#fff",
+                    fontWeight: 1000,
+                    cursor: "pointer",
+                    boxShadow: active
+                      ? "0 0 22px rgba(59,130,246,0.48)"
+                      : "none",
+                    transition: "transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.filter = "brightness(1.12)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.filter = "brightness(1)";
+                  }}
+                >
+                  {n} {n === 1 ? "AREA" : "AREAS"}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ======================================================
+          LICENSE EVENT PAGE — PRICE SUMMARY
+          ====================================================== */}
+          <div
+            style={{
+  padding: 0,
+  borderRadius: 0,
+  background: "transparent",
+  border: "none",
+  marginBottom: 12,
+}}
+          >
+            <DemoLimit label="Selected arenas" value={`${areas}`} />
+            <DemoLimit label="Validity" value="1 official event" />
+            <DemoLimit label="Access" value="Combat PRO" />
+            <DemoLimit label="Support" value="Included" />
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: 10,
+                paddingTop: 10,
+                borderTop: "1px solid rgba(255,255,255,0.12)",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 18,
+                  fontWeight: 1000,
+                }}
+              >
+                TOTAL
+              </span>
+
+              <strong
+                style={{
+                  fontSize: 28,
+                  color: "#60a5fa",
+                  textShadow: "0 0 18px rgba(96,165,250,0.55)",
+                }}
+              >
+                USD {selectedPrice}
+              </strong>
+            </div>
+          </div>
+
+          {/* ======================================================
+          LICENSE EVENT PAGE — ROI EXAMPLE
+          ====================================================== */}
+          <div
+            style={{
+              padding: 18,
+              borderRadius: 18,
+              background: "rgba(2,6,23,0.72)",
+              border: "1px solid rgba(255,255,255,0.10)",
+              marginBottom: 18,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 1000,
+                letterSpacing: 1,
+                color: "#93c5fd",
+                marginBottom: 8,
+              }}
+            >
+              EXAMPLE RECOVERY
+            </div>
+
+            <div style={{ fontSize: 13, lineHeight: 1.55, color: "rgba(255,255,255,0.70)" }}>
+              200 competitors × USD 1 technology fee = USD 200.
+              In most events, the license can be recovered through registrations.
+            </div>
+          </div>
+
+          {/* ======================================================
+          LICENSE EVENT PAGE — TERMS AND CONDITIONS
+          ====================================================== */}
+          <div
+            style={{
+              padding: 18,
+              borderRadius: 18,
+              background: "rgba(15,23,42,0.88)",
+              border: "1px solid rgba(59,130,246,0.22)",
+            }}
+          >
+            <div style={{ fontWeight: 1000, marginBottom: 8 }}>
+              TERMS & CONDITIONS
+            </div>
+
+            <p
+              style={{
+                margin: 0,
+                fontSize: 12,
+                lineHeight: 1.5,
+                color: "rgba(255,255,255,0.66)",
+              }}
+            >
+              This license is valid for one official event and the selected number
+              of arenas. It may not be shared, resold, sublicensed or used outside
+              the authorized event.
+            </p>
+
+            <label
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                marginTop: 14,
+                fontSize: 13,
+                fontWeight: 900,
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={accepted}
+                onChange={(e) => setAccepted(e.target.checked)}
+              />
+              I accept the Event License Terms
+            </label>
+          </div>
+
+          {/* ======================================================
+          LICENSE EVENT PAGE — BUY CTA
+          ====================================================== */}
+          <button
+            disabled={!accepted}
+            onClick={() => {
+              window.open(
+                "https://link.mercadopago.com.ar/universohwarang",
+                "_blank"
+              );
+            }}
+            style={{
+              width: "100%",
+              height: 58,
+              marginTop: 18,
+              borderRadius: 14,
+              border: "none",
+              background: accepted
+                ? "linear-gradient(90deg,#2563eb,#60a5fa)"
+                : "linear-gradient(90deg,#334155,#475569)",
+              color: accepted ? "#fff" : "rgba(255,255,255,0.55)",
+              fontWeight: 1000,
+              letterSpacing: 1,
+              cursor: accepted ? "pointer" : "not-allowed",
+              boxShadow: accepted
+                ? "0 0 34px rgba(96,165,250,0.52)"
+                : "none",
+              transition: "transform 0.08s ease, box-shadow 0.18s ease, filter 0.18s ease",
+            }}
+            onMouseEnter={(e) => {
+              if (!accepted) return;
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.filter = "brightness(1.16)";
+              e.currentTarget.style.boxShadow =
+                "0 0 42px rgba(96,165,250,0.72), inset 0 0 18px rgba(255,255,255,0.14)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.filter = "brightness(1)";
+              e.currentTarget.style.boxShadow = accepted
+                ? "0 0 34px rgba(96,165,250,0.52)"
+                : "none";
+            }}
+            onMouseDown={(e) => {
+              if (!accepted) return;
+              e.currentTarget.style.transform = "scale(0.96)";
+              e.currentTarget.style.filter = "brightness(1.32)";
+            }}
+            onMouseUp={(e) => {
+              if (!accepted) return;
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.filter = "brightness(1.16)";
+            }}
+          >
+            BUY EVENT LICENSE
+          </button>
+        </aside>
+      </main>
+    </div>
+  );
+}
+
+/* ======================================================
 LICENSE DEMO PAGE
 MINI FEATURE COMPONENT
 ====================================================== */
@@ -1390,7 +1895,12 @@ function Feature({ icon, title, text }) {
   );
 }
 
-function PlanCard({ title, desc, price, small, items, button, featured, variant, tone = "blue", buttonOffset = 0 }) {
+/* ======================================================
+LICENSE PAGE
+PLAN CARD COMPONENT
+Supports DEMO / EVENT LICENSE / CLUB ANNUAL navigation.
+====================================================== */
+function PlanCard({ title, desc, price, small, items, button, featured, variant, tone = "blue", buttonOffset = 0, onClick }) {
   const toneStyle =
     tone === "cyan"
       ? styles.demoCard
@@ -1469,7 +1979,11 @@ PLAN CARD BUTTON INTERACTION FX
 ====================================================== */}
 <button
   onMouseEnter={(e) => {
-    if (title !== "DEMO" && title !== "EVENT LICENSE") return;
+    if (
+  title !== "DEMO" &&
+  title !== "EVENT LICENSE" &&
+  title !== "PULSAR LICENSE"
+) return;
 
     e.currentTarget.style.transform = "translateY(-2px)";
     e.currentTarget.style.filter = "brightness(1.15)";
@@ -1479,20 +1993,32 @@ PLAN CARD BUTTON INTERACTION FX
         : "0 0 22px rgba(59,130,246,0.48)";
   }}
   onMouseLeave={(e) => {
-    if (title !== "DEMO" && title !== "EVENT LICENSE") return;
+    if (
+  title !== "DEMO" &&
+  title !== "EVENT LICENSE" &&
+  title !== "PULSAR LICENSE"
+) return;
 
     e.currentTarget.style.transform = "translateY(0)";
     e.currentTarget.style.filter = "brightness(1)";
     e.currentTarget.style.boxShadow = "none";
   }}
   onMouseDown={(e) => {
-    if (title !== "DEMO" && title !== "EVENT LICENSE") return;
+    if (
+  title !== "DEMO" &&
+  title !== "EVENT LICENSE" &&
+  title !== "PULSAR LICENSE"
+) return;
 
     e.currentTarget.style.transform = "scale(0.97)";
     e.currentTarget.style.filter = "brightness(1.30)";
   }}
   onMouseUp={(e) => {
-    if (title !== "DEMO" && title !== "EVENT LICENSE") return;
+    if (
+  title !== "DEMO" &&
+  title !== "EVENT LICENSE" &&
+  title !== "PULSAR LICENSE"
+) return;
 
     e.currentTarget.style.transform = "translateY(-2px)";
     e.currentTarget.style.filter = "brightness(1.15)";
@@ -1504,9 +2030,18 @@ PLAN CARD BUTTON INTERACTION FX
     }
 
     if (title === "EVENT LICENSE") {
-      window.location.href = "/license/event";
-      return;
-    }
+  window.location.href = "/license/event";
+  return;
+}
+
+/* ======================================================
+LICENSE PAGE
+PULSAR LICENSE NAVIGATION
+====================================================== */
+if (title === "PULSAR LICENSE") {
+  window.location.href = "/license/pulsar";
+  return;
+}
   }}
   style={{
     ...(variant === "outline" ? styles.outlineBtn : styles.primaryBtn),
@@ -1635,6 +2170,9 @@ logoOrbCore: {
     color: "#60a5fa",
     borderBottom: "3px solid #3b82f6",
     paddingBottom: 14,
+    minWidth: 72,
+textAlign: "center",
+display: "inline-block",
   },
   navActions: { display: "flex", gap: 16 },
   langBtn: {
@@ -1885,10 +2423,12 @@ planList: {
   width: "100%",
   padding: "11px 14px",
   borderRadius: 7,
-  border: "none",
-  background: "linear-gradient(90deg,#2563eb,#1d4ed8)",
-  color: "white",
+  border: "1px solid rgba(120,180,255,0.95)",
+  background: "linear-gradient(90deg,#2563eb,#3b82f6)",
+  color: "#ffffff",
   fontWeight: 900,
+  boxShadow:
+    "0 0 12px rgba(59,130,246,0.45), inset 0 0 12px rgba(255,255,255,0.10)",
 },
   outlineBtn: {
   width: "100%",
