@@ -1357,7 +1357,14 @@ export function LicensePulsarPage() {
 
   const creditPacks = [500, 1000, 2000, 5000];
 
-const selectedPrice = credits;
+const [topUps, setTopUps] = useState(0);
+
+const topUpCredits = topUps * 50;
+const totalCredits = credits + topUpCredits;
+
+const selectedPrice = totalCredits;
+
+  
 
   return (
     <div
@@ -1366,7 +1373,7 @@ const selectedPrice = credits;
   minHeight: "100vh",
   ...enterpriseCollageBackground,
 
-backgroundPosition: "center 56.9%",
+backgroundPosition: "center 70.5%",
 }}
     >
       {/* ======================================================
@@ -1601,7 +1608,7 @@ clubs and organizations that operate year-round.
           style={{
   border: `1px solid ${pulsar.border}`,
   borderRadius: 26,
-  padding: 20,
+  padding: 15,
   background: "rgba(0,0,0,0.72)",
   boxShadow: `0 0 55px rgba(0,0,0,0.78), 0 0 34px ${pulsar.soft}`,
   backdropFilter: "blur(14px)",
@@ -1610,8 +1617,8 @@ clubs and organizations that operate year-round.
         >
           <h2
   style={{
-    fontSize: 28,
-    margin: "0 0 8px",
+    fontSize: 20,
+    margin: "0 0 5px",
     letterSpacing: 2,
     color: pulsar.text,
     textShadow: `0 0 18px ${pulsar.medium}`,
@@ -1622,13 +1629,13 @@ clubs and organizations that operate year-round.
 
           <p
             style={{
-              margin: "0 0 22px",
+              margin: "0 0 9px",
               fontSize: 13,
               lineHeight: 1.45,
               color: "rgba(255,255,255,0.62)",
             }}
           >
-            Select how many Match Credits your organization needs.
+            Choose your annual Match Credit package.
           </p>
 
           {/* ======================================================
@@ -1639,7 +1646,7 @@ clubs and organizations that operate year-round.
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
               gap: 10,
-              marginBottom: 22,
+              marginBottom: 9,
             }}
           >
             {creditPacks.map((pack) => {
@@ -1682,6 +1689,100 @@ clubs and organizations that operate year-round.
           </div>
 
           {/* ======================================================
+LICENSE PULSAR PAGE — TOP-UP CONTROL
+====================================================== */}
+<div
+  style={{
+    marginBottom: 5,
+    padding: 5,
+    borderRadius: 18,
+    background: "rgba(35,20,0,0.48)",
+    border: "1px solid rgba(245,158,11,0.26)",
+    boxShadow: "0 0 20px rgba(245,158,11,0.08)",
+  }}
+>
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 1,
+    }}
+  >
+    <div>
+      <div style={{ fontSize: 12, fontWeight: 1000, color: pulsar.text }}>
+        OPTIONAL TOP-UP
+      </div>
+      <div
+  style={{
+    fontSize: 11,
+    color: "rgba(255,255,255,0.62)",
+    marginTop: -8,
+  }}
+>
+  Add extra credits in blocks of 50.
+</div>
+    </div>
+
+    <strong style={{ color: pulsar.text }}>
+      +{topUpCredits} CREDITS
+    </strong>
+  </div>
+
+  <div style={{ display: "grid", gridTemplateColumns: "54px 1fr 54px", gap: 10 }}>
+    <button
+      onClick={() => setTopUps((current) => Math.max(0, current - 1))}
+      style={{
+        height: 30,
+        borderRadius: 12,
+        border: "1px solid rgba(255,255,255,0.16)",
+        background: "rgba(0,0,0,0.42)",
+        color: "#fff",
+        fontSize: 15,
+        fontWeight: 1000,
+        cursor: "pointer",
+      }}
+    >
+      −
+    </button>
+
+    <div
+      style={{
+        height: 30,
+        borderRadius: 12,
+        border: "1px solid rgba(245,158,11,0.22)",
+        background: "rgba(0,0,0,0.34)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: 12,
+        fontWeight: 1000,
+        letterSpacing: 1,
+      }}
+    >
+      {topUps} × 50 CREDITS
+    </div>
+
+    <button
+      onClick={() => setTopUps((current) => current + 1)}
+      style={{
+        height: 30,
+        borderRadius: 12,
+        border: `1px solid ${pulsar.border}`,
+        background: "linear-gradient(180deg, rgba(245,158,11,0.9), rgba(180,83,9,0.72))",
+        color: "#140b02",
+        fontSize: 15,
+        fontWeight: 1000,
+        cursor: "pointer",
+        boxShadow: `0 0 18px ${pulsar.medium}`,
+      }}
+    >
+      +
+    </button>
+  </div>
+</div>
+
+          {/* ======================================================
           LICENSE EVENT PAGE — PRICE SUMMARY
           ====================================================== */}
           <div
@@ -1694,12 +1795,10 @@ clubs and organizations that operate year-round.
 }}
           >
             <DemoLimit label="Selected package" value={`${credits} Match Credits`} />
+<DemoLimit label="Additional Credits" value={`${topUpCredits} Credits`} />
+
 <DemoLimit label="Validity" value="12 months" />
 <DemoLimit label="Credit value" value="USD 1 / credit" />
-<DemoLimit
-  label="Top-Up Credits"
-  value="Available from 50 Credits"
-/>
 <DemoLimit label="Access" value="Combat PRO" />
 
 
@@ -1739,11 +1838,11 @@ clubs and organizations that operate year-round.
           ====================================================== */}
           <div
             style={{
-              padding: 12,
-              borderRadius: 18,
+              padding: 11,
+              borderRadius: 16,
               background: "rgba(35,20,0,0.55)",
 border: "1px solid rgba(245,158,11,0.28)",
-              marginBottom: 10,
+              marginBottom: 5,
             }}
           >
             <div
@@ -1772,7 +1871,7 @@ Credits are consumed only when an official result is closed by the President.
           ====================================================== */}
           <div
             style={{
-              padding: 12,
+              padding: 8,
               borderRadius: 18,
               background: "rgba(35,20,0,0.55)",
 border: "1px solid rgba(245,158,11,0.28)",
@@ -1793,7 +1892,7 @@ boxShadow: "0 0 20px rgba(245,158,11,0.10)",
             >
               This annual license grants access to Combat PRO and a shared Match Credit balance.
 
-Credits may be consumed across one or multiple arenas during the validity period.
+Credits can be used across one or multiple licensed arenas during the annual period.
 
 Match Credits are deducted only when official results are closed by the President.
             </p>
@@ -1835,7 +1934,7 @@ Match Credits are deducted only when official results are closed by the Presiden
             style={{
   width: "100%",
   height: 58,
-  marginTop: 18,
+  marginTop: 10,
   borderRadius: 14,
 
   border: accepted
@@ -1869,13 +1968,14 @@ Match Credits are deducted only when official results are closed by the Presiden
               e.currentTarget.style.transform = "translateY(-2px)";
               e.currentTarget.style.filter = "brightness(1.16)";
               e.currentTarget.style.boxShadow =
-                "0 0 42px rgba(96,165,250,0.72), inset 0 0 18px rgba(255,255,255,0.14)";
+                e.currentTarget.style.boxShadow =
+  "0 0 32px rgba(245,158,11,0.35), inset 0 0 12px rgba(255,255,255,0.10)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "scale(1)";
               e.currentTarget.style.filter = "brightness(1)";
               e.currentTarget.style.boxShadow = accepted
-                ? "0 0 34px rgba(96,165,250,0.52)"
+                ? "0 0 20px rgba(245,158,11,0.20)"
                 : "none";
             }}
             onMouseDown={(e) => {
