@@ -20,6 +20,20 @@ BadgeCheck,
 CreditCard,
 } from "lucide-react";
 
+const enterpriseCollageBackground = {
+  backgroundImage: `
+linear-gradient(
+90deg,
+rgba(0,0,0,0.88),
+rgba(2,6,23,0.58),
+rgba(0,0,0,0.92)
+),
+url('/portalenterprice/newportal.png')
+`,
+  backgroundSize: "cover",
+  backgroundPosition: "center 50%",
+  backgroundRepeat: "no-repeat",
+};
 
 /* ======================================================
 LICENSE PAGE
@@ -57,6 +71,8 @@ function navClickFx(e) {
 }
 
 export default function LicensePage() {
+
+  
 
   const [viewport, setViewport] = useState(() => ({
   width: typeof window !== "undefined" ? window.innerWidth : 1920,
@@ -475,16 +491,11 @@ export function LicenseDemoPage() {
   return (
     <div
       style={{
-        ...styles.page,
-        minHeight: "100vh",
-        backgroundImage: `
-          linear-gradient(90deg, rgba(0,0,0,0.88), rgba(2,6,23,0.58), rgba(0,0,0,0.92)),
-          url('/portalenterprice/newportal.png')
-        `,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        overflow: "hidden",
-      }}
+  ...styles.page,
+  minHeight: "100vh",
+  ...enterpriseCollageBackground,
+  overflow: "hidden",
+}}
     >
       {/* ======================================================
       LICENSE DEMO PAGE — BRAND NAVIGATION
@@ -859,21 +870,10 @@ export function LicenseEventPage() {
   return (
     <div
       style={{
-        ...styles.page,
-        minHeight: "100vh",
-        backgroundImage: `
-linear-gradient(
-90deg,
-rgba(0,0,0,0.88),
-rgba(2,6,23,0.58),
-rgba(0,0,0,0.92)
-),
-url('/portalenterprice/newportal.png')
-`,
-        backgroundSize: "cover",
-backgroundPosition: "center 62%",
-backgroundRepeat: "no-repeat",
-      }}
+  ...styles.page,
+  minHeight: "100vh",
+  ...enterpriseCollageBackground,
+}}
     >
       {/* ======================================================
       LICENSE EVENT PAGE — BRAND NAVIGATION
@@ -1342,7 +1342,7 @@ The Heartbeat of an Organization.
 Cloned from Event page to preserve layout and responsive behavior.
 ====================================================== */
 export function LicensePulsarPage() {
-  const [areas, setAreas] = useState(4);
+  const [credits, setCredits] = useState(500);
   const [accepted, setAccepted] = useState(false);
 
     const pulsar = {
@@ -1355,33 +1355,19 @@ export function LicensePulsarPage() {
     dark: "rgba(24,14,3,0.82)",
   };
 
-  const prices = {
-    1: 39,
-    2: 69,
-    3: 99,
-    4: 129,
-  };
+  const creditPacks = [500, 1000, 2000, 5000];
 
-  const selectedPrice = prices[areas];
+const selectedPrice = credits;
 
   return (
     <div
       style={{
-        ...styles.page,
-        minHeight: "100vh",
-        backgroundImage: `
-linear-gradient(
-90deg,
-rgba(0,0,0,0.88),
-rgba(2,6,23,0.58),
-rgba(0,0,0,0.92)
-),
-url('/portalenterprice/newportal.png')
-`,
-        backgroundSize: "cover",
-backgroundPosition: "center 62%",
-backgroundRepeat: "no-repeat",
-      }}
+  ...styles.page,
+  minHeight: "100vh",
+  ...enterpriseCollageBackground,
+
+backgroundPosition: "center 56.9%",
+}}
     >
       {/* ======================================================
       LICENSE EVENT PAGE — BRAND NAVIGATION
@@ -1540,7 +1526,7 @@ alignItems: "center",
             }}
           >
             The Heartbeat of an Organization. A professional annual license for academies,
-clubs and organizations that operate continuously throughout the year.
+clubs and organizations that operate year-round.
           </p>
 
           {/* ======================================================
@@ -1599,7 +1585,7 @@ clubs and organizations that operate continuously throughout the year.
               maxWidth: 860,
             }}
           >
-            <DemoFeatureMini title="Annual Organization" />
+            <DemoFeatureMini title="Annual License" />
 <DemoFeatureMini title="Unlimited Events" />
 <DemoFeatureMini title="President Station" />
 <DemoFeatureMini title="Public TV" />
@@ -1642,7 +1628,7 @@ clubs and organizations that operate continuously throughout the year.
               color: "rgba(255,255,255,0.62)",
             }}
           >
-            Select how many competition arenas your event needs.
+            Select how many Match Credits your organization needs.
           </p>
 
           {/* ======================================================
@@ -1656,43 +1642,43 @@ clubs and organizations that operate continuously throughout the year.
               marginBottom: 22,
             }}
           >
-            {[1, 2, 3, 4].map((n) => {
-              const active = areas === n;
+            {creditPacks.map((pack) => {
+  const active = credits === pack;
 
-              return (
-                <button
-                  key={n}
-                  onClick={() => setAreas(n)}
-                  style={{
-                    height: 54,
-                    borderRadius: 14,
-                    border: active
-                      ? "1px solid rgba(96,165,250,0.95)"
-                      : "1px solid rgba(255,255,255,0.14)",
-                    background: active
-                      ? "linear-gradient(180deg, rgba(37,99,235,0.95), rgba(29,78,216,0.72))"
-                      : "rgba(15,23,42,0.72)",
-                    color: "#fff",
-                    fontWeight: 1000,
-                    cursor: "pointer",
-                    boxShadow: active
-                      ? "0 0 22px rgba(59,130,246,0.48)"
-                      : "none",
-                    transition: "transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.filter = "brightness(1.12)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.filter = "brightness(1)";
-                  }}
-                >
-                  {n} {n === 1 ? "AREA" : "AREAS"}
-                </button>
-              );
-            })}
+  return (
+    <button
+      key={pack}
+      onClick={() => setCredits(pack)}
+      style={{
+        height: 46,
+        borderRadius: 14,
+        border: active
+          ? `1px solid ${pulsar.border}`
+          : "1px solid rgba(255,255,255,0.14)",
+        background: active
+          ? "linear-gradient(180deg, rgba(245,158,11,0.95), rgba(180,83,9,0.78))"
+          : "rgba(24,14,3,0.62)",
+        color: active ? "#140b02" : "#fff",
+        fontWeight: 1000,
+        cursor: "pointer",
+        boxShadow: active
+          ? `0 0 24px ${pulsar.medium}`
+          : "none",
+        transition: "transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-2px)";
+        e.currentTarget.style.filter = "brightness(1.12)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.filter = "brightness(1)";
+      }}
+    >
+      {pack} CREDITS
+    </button>
+  );
+})}
           </div>
 
           {/* ======================================================
@@ -1707,10 +1693,15 @@ clubs and organizations that operate continuously throughout the year.
   marginBottom: 12,
 }}
           >
-            <DemoLimit label="Selected arenas" value={`${areas}`} />
-            <DemoLimit label="Validity" value="1 official event" />
-            <DemoLimit label="Access" value="Combat PRO" />
-            <DemoLimit label="Support" value="Included" />
+            <DemoLimit label="Selected package" value={`${credits} Match Credits`} />
+<DemoLimit label="Validity" value="12 months" />
+<DemoLimit label="Credit value" value="USD 1 / credit" />
+<DemoLimit
+  label="Top-Up Credits"
+  value="Available from 50 Credits"
+/>
+<DemoLimit label="Access" value="Combat PRO" />
+
 
             <div
               style={{
@@ -1734,8 +1725,8 @@ clubs and organizations that operate continuously throughout the year.
               <strong
                 style={{
                   fontSize: 28,
-                  color: "#60a5fa",
-                  textShadow: "0 0 18px rgba(96,165,250,0.55)",
+                  color: "#f59e0b",
+                  textShadow: "0 0 18px rgba(245,158,11,.45)",
                 }}
               >
                 USD {selectedPrice}
@@ -1748,11 +1739,11 @@ clubs and organizations that operate continuously throughout the year.
           ====================================================== */}
           <div
             style={{
-              padding: 18,
+              padding: 12,
               borderRadius: 18,
-              background: "rgba(2,6,23,0.72)",
-              border: "1px solid rgba(255,255,255,0.10)",
-              marginBottom: 18,
+              background: "rgba(35,20,0,0.55)",
+border: "1px solid rgba(245,158,11,0.28)",
+              marginBottom: 10,
             }}
           >
             <div
@@ -1760,16 +1751,19 @@ clubs and organizations that operate continuously throughout the year.
                 fontSize: 13,
                 fontWeight: 1000,
                 letterSpacing: 1,
-                color: "#93c5fd",
+                color: "#f59e0b",
                 marginBottom: 8,
               }}
             >
-              EXAMPLE RECOVERY
+              MATCH CREDIT SYSTEM
             </div>
 
             <div style={{ fontSize: 13, lineHeight: 1.55, color: "rgba(255,255,255,0.70)" }}>
-              200 competitors × USD 1 technology fee = USD 200.
-              In most events, the license can be recovered through registrations.
+              Each Match Credit represents one officially closed match result.
+
+Credits are shared across all licensed arenas and remain available throughout the annual license period.
+
+Credits are consumed only when an official result is closed by the President.
             </div>
           </div>
 
@@ -1778,10 +1772,11 @@ clubs and organizations that operate continuously throughout the year.
           ====================================================== */}
           <div
             style={{
-              padding: 18,
+              padding: 12,
               borderRadius: 18,
-              background: "rgba(15,23,42,0.88)",
-              border: "1px solid rgba(59,130,246,0.22)",
+              background: "rgba(35,20,0,0.55)",
+border: "1px solid rgba(245,158,11,0.28)",
+boxShadow: "0 0 20px rgba(245,158,11,0.10)",
             }}
           >
             <div style={{ fontWeight: 1000, marginBottom: 8 }}>
@@ -1796,9 +1791,11 @@ clubs and organizations that operate continuously throughout the year.
                 color: "rgba(255,255,255,0.66)",
               }}
             >
-              This license is valid for one official event and the selected number
-              of arenas. It may not be shared, resold, sublicensed or used outside
-              the authorized event.
+              This annual license grants access to Combat PRO and a shared Match Credit balance.
+
+Credits may be consumed across one or multiple arenas during the validity period.
+
+Match Credits are deducted only when official results are closed by the President.
             </p>
 
             <label
@@ -1813,11 +1810,14 @@ clubs and organizations that operate continuously throughout the year.
               }}
             >
               <input
-                type="checkbox"
-                checked={accepted}
-                onChange={(e) => setAccepted(e.target.checked)}
-              />
-              I accept the Event License Terms
+  type="checkbox"
+  checked={accepted}
+  onChange={(e) => setAccepted(e.target.checked)}
+  style={{
+    accentColor: "#f59e0b",
+  }}
+/>
+              I accept the Pulsar License Terms
             </label>
           </div>
 
@@ -1833,23 +1833,37 @@ clubs and organizations that operate continuously throughout the year.
               );
             }}
             style={{
-              width: "100%",
-              height: 58,
-              marginTop: 18,
-              borderRadius: 14,
-              border: "none",
-              background: accepted
-                ? "linear-gradient(90deg,#2563eb,#60a5fa)"
-                : "linear-gradient(90deg,#334155,#475569)",
-              color: accepted ? "#fff" : "rgba(255,255,255,0.55)",
-              fontWeight: 1000,
-              letterSpacing: 1,
-              cursor: accepted ? "pointer" : "not-allowed",
-              boxShadow: accepted
-                ? "0 0 34px rgba(96,165,250,0.52)"
-                : "none",
-              transition: "transform 0.08s ease, box-shadow 0.18s ease, filter 0.18s ease",
-            }}
+  width: "100%",
+  height: 58,
+  marginTop: 18,
+  borderRadius: 14,
+
+  border: accepted
+    ? "1px solid rgba(245,158,11,0.35)"
+    : "1px solid rgba(245,158,11,0.12)",
+
+  background: accepted
+    ? "linear-gradient(180deg,#f6c453,#d89a1d)"
+    : "linear-gradient(180deg,#3a2a12,#2a1c08)",
+
+  color: accepted
+    ? "#ffffff"
+    : "rgba(245,158,11,0.45)",
+
+  fontWeight: 1000,
+  letterSpacing: 1,
+
+  cursor: accepted
+    ? "pointer"
+    : "not-allowed",
+
+  boxShadow: accepted
+    ? "0 0 24px rgba(214,163,51,0.20)"
+    : "0 0 12px rgba(245,158,11,0.06)",
+
+  transition:
+    "transform 0.08s ease, box-shadow 0.18s ease, filter 0.18s ease",
+}}
             onMouseEnter={(e) => {
               if (!accepted) return;
               e.currentTarget.style.transform = "translateY(-2px)";
@@ -1875,7 +1889,7 @@ clubs and organizations that operate continuously throughout the year.
               e.currentTarget.style.filter = "brightness(1.16)";
             }}
           >
-            BUY EVENT LICENSE
+            ACTIVATE PULSAR
           </button>
         </aside>
       </main>
@@ -1930,8 +1944,8 @@ function DemoLimit({ label, value }) {
         display: "flex",
         justifyContent: "space-between",
         borderBottom: "1px solid rgba(255,255,255,0.08)",
-        padding: "13px 0",
-        fontSize: 15,
+        padding: "5px 0",
+        fontSize: 14,
       }}
     >
       <span style={{ color: "rgba(255,255,255,0.68)" }}>{label}</span>
