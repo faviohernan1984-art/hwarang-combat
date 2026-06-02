@@ -14447,12 +14447,23 @@ PULSAR LICENSE
 The Heartbeat of an Organization.
 ====================================================== */
 if (path === "/license/pulsar" || path === "/license/club") {
+  const isNotebookLicense =
+    typeof window !== "undefined" &&
+    window.innerWidth >= 1200 &&
+    window.innerWidth <= 1600 &&
+    window.innerHeight >= 700 &&
+    window.innerHeight <= 900;
+
   return (
     <>
       <GlobalAppStyle />
-      <CinematicAdaptiveShell>
+      {isNotebookLicense ? (
         <LicensePulsarPage />
-      </CinematicAdaptiveShell>
+      ) : (
+        <CinematicAdaptiveShell>
+          <LicensePulsarPage />
+        </CinematicAdaptiveShell>
+      )}
     </>
   );
 }

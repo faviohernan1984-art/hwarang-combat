@@ -1364,6 +1364,13 @@ const totalCredits = credits + topUpCredits;
 
 const selectedPrice = totalCredits;
 
+const isNotebook =
+  typeof window !== "undefined" &&
+  window.innerWidth >= 1200 &&
+  window.innerWidth <= 1600 &&
+  window.innerHeight >= 700 &&
+  window.innerHeight <= 900;
+
   
 
   return (
@@ -1373,7 +1380,17 @@ const selectedPrice = totalCredits;
   minHeight: "100vh",
   ...enterpriseCollageBackground,
 
-backgroundPosition: "center 70.5%",
+  backgroundPosition: "center 70.5%",
+
+  ...(isNotebook
+    ? {
+        position: "fixed",
+        inset: 0,
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden",
+      }
+    : {}),
 }}
     >
       {/* ======================================================
@@ -1493,11 +1510,18 @@ backgroundPosition: "center 70.5%",
       <main
         style={{
           minHeight: "calc(100vh - 88px)",
-          padding: "38px 92px 28px",
+          padding: isNotebook
+  ? "8px 20px 8px"
+  : "38px 92px 28px",
 display: "grid",
-gridTemplateColumns: "1.35fr 0.65fr",
+gridTemplateColumns: isNotebook
+  ? "0.9fr 0.58fr"
+  : "1.35fr 0.65fr",
 gap: 38,
 alignItems: "center",
+transform: isNotebook
+  ? "translateY(-120px)"
+  : "none",
         }}
       >
         {/* ======================================================
@@ -1515,7 +1539,7 @@ alignItems: "center",
               lineHeight: 0.94,
               margin: "14px 0 18px",
               textAlign: "left",
-              maxWidth: 820,
+              maxWidth: isNotebook ? 1100 : 820,
             }}
           >
             PULSAR <span style={{ color: "#f6c36a" }}>LICENSE</span>
@@ -1525,7 +1549,7 @@ alignItems: "center",
             style={{
               ...styles.subtitle,
               textAlign: "left",
-              maxWidth: 780,
+              maxWidth: isNotebook ? 1000 : 780,
               fontSize: 20,
               lineHeight: 1.45,
               marginLeft: 0,
@@ -1542,7 +1566,7 @@ clubs and organizations that operate year-round.
           <div
   style={{
     marginTop: 24,
-    maxWidth: 760,
+    maxWidth: isNotebook ? 1000 : 760,
     padding: 0,
     borderRadius: 0,
     border: "none",
@@ -1586,10 +1610,10 @@ clubs and organizations that operate year-round.
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 14,
-              marginTop: 32,
-              maxWidth: 860,
+gridTemplateColumns: "repeat(3, 1fr)",
+gap: isNotebook ? 10 : 14,
+marginTop: isNotebook ? 18 : 32,
+maxWidth: isNotebook ? 760 : 860,
             }}
           >
             <DemoFeatureMini title="Annual License" />
@@ -1612,7 +1636,10 @@ clubs and organizations that operate year-round.
   background: "rgba(0,0,0,0.72)",
   boxShadow: `0 0 55px rgba(0,0,0,0.78), 0 0 34px ${pulsar.soft}`,
   backdropFilter: "blur(14px)",
-  transform: "translateY(-24px)",
+  transform: isNotebook
+  ? "translateY(115px) scale(0.74)"
+  : "translateY(-23px)",
+transformOrigin: "top right",
 }}
         >
           <h2
