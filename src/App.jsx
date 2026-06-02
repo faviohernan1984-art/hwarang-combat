@@ -2930,7 +2930,7 @@ WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
             }}
           >
             <div style={{ color: "#3b82f6", fontSize: 30, fontWeight: 900, letterSpacing: "0.1em" }}>
-              DEMO MODE
+              DISCOVER MODE
             </div>
 
             <div style={{ marginTop: 18, color: "rgba(255,255,255,0.76)", fontSize: 16, lineHeight: 1.45 }}>
@@ -2980,7 +2980,7 @@ WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
       zIndex: 2,
     }}
   >
-    ENTER DEMO
+    ENTER DISCOVER
   </span>
 </>
 </button>
@@ -14398,35 +14398,55 @@ if (path === "/license") {
 
 
 /* ======================================================
-LICENSE EVENT PAGE
-ROUTE
+LICENSE NOVA PAGE
+ROUTE — NOTEBOOK FULLSCREEN / DESKTOP SHELL
 ====================================================== */
 
 if (path === "/license/event") {
+  const isNotebookLicense =
+    typeof window !== "undefined" &&
+    window.innerWidth >= 1200 &&
+    window.innerWidth <= 1600 &&
+    window.innerHeight >= 700 &&
+    window.innerHeight <= 900;
+
   return (
     <>
       <GlobalAppStyle />
-      <CinematicAdaptiveShell>
+      {isNotebookLicense ? (
         <LicenseEventPage />
-      </CinematicAdaptiveShell>
+      ) : (
+        <CinematicAdaptiveShell>
+          <LicenseEventPage />
+        </CinematicAdaptiveShell>
+      )}
     </>
   );
 }
 
 /* ======================================================
-LICENSE DEMO PAGE
-ROUTE
+LICENSE DISCOVER PAGE
+ROUTE — NOTEBOOK FULLSCREEN / DESKTOP SHELL
 ====================================================== */
 
 if (path === "/license/demo") {
- 
+  const isNotebookLicense =
+    typeof window !== "undefined" &&
+    window.innerWidth >= 1200 &&
+    window.innerWidth <= 1600 &&
+    window.innerHeight >= 700 &&
+    window.innerHeight <= 900;
 
   return (
     <>
       <GlobalAppStyle />
-      <CinematicAdaptiveShell>
+      {isNotebookLicense ? (
         <LicenseDemoPage />
-      </CinematicAdaptiveShell>
+      ) : (
+        <CinematicAdaptiveShell>
+          <LicenseDemoPage />
+        </CinematicAdaptiveShell>
+      )}
     </>
   );
 }
@@ -14467,6 +14487,7 @@ if (path === "/license/pulsar" || path === "/license/club") {
     </>
   );
 }
+
 
   if (path === "/president" || path.startsWith("/president/")) {
   return (

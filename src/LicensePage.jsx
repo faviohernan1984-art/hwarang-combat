@@ -205,7 +205,7 @@ NAV LINKS INTERACTION
       transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
     }}
   >
-    DEMO
+    DISCOVER
   </span>
 
   <span
@@ -289,15 +289,15 @@ NAV LINKS INTERACTION
           <div style={styles.cards}>
             <PlanCard
             tone="cyan"
-            title="DEMO"
+            title="DISCOVER"
             desc="Ideal for testing and evaluation"
             price="FREE"
             items={[
             "10-minute evaluation access",
-            "1 demo arena",
+            "1 discover arena",
             "Terms acceptance required"
             ]}
-            button="VIEW DEMO"
+            button="VIEW DISCOVER"
             variant="outline"
             buttonOffset={25}
             />
@@ -482,11 +482,22 @@ Up to 4 arenas"
 }
 
 /* ======================================================
-LICENSE DEMO PAGE
+LICENSE DISCOVER PAGE
 COMMERCIAL LANDING + TERMS GATE
 ====================================================== */
 export function LicenseDemoPage() {
   const [accepted, setAccepted] = useState(false);
+
+    /* ======================================================
+  LICENSE DISCOVER PAGE — NOTEBOOK DETECTION
+  Mirrors Pulsar commercial notebook behavior.
+  ====================================================== */
+  const isNotebook =
+    typeof window !== "undefined" &&
+    window.innerWidth >= 1200 &&
+    window.innerWidth <= 1600 &&
+    window.innerHeight >= 700 &&
+    window.innerHeight <= 900;
 
   return (
     <div
@@ -495,10 +506,11 @@ export function LicenseDemoPage() {
   minHeight: "100vh",
   ...enterpriseCollageBackground,
   overflow: "hidden",
+  
 }}
     >
       {/* ======================================================
-      LICENSE DEMO PAGE — BRAND NAVIGATION
+      LICENSE DISCOVER PAGE — BRAND NAVIGATION
       ====================================================== */}
       <header style={styles.navbar}>
         <div style={styles.brand}>
@@ -520,7 +532,7 @@ export function LicenseDemoPage() {
         </div>
 
         {/* ======================================================
-LICENSE DEMO PAGE
+LICENSE DISCOVER PAGE
 NAV LINKS INTERACTION
 ====================================================== */}
 <nav style={styles.navLinks}>
@@ -561,7 +573,7 @@ NAV LINKS INTERACTION
       textShadow: "0 0 8px rgba(96,165,250,0.35)",
     }}
   >
-    DEMO
+    DISCOVER
   </span>
 </nav>
 
@@ -583,34 +595,46 @@ NAV LINKS INTERACTION
       </header>
 
       {/* ======================================================
-      LICENSE DEMO PAGE — HERO SECTION
+      LICENSE DISCOVER PAGE — HERO SECTION
       ====================================================== */}
       <main
-        style={{
-          minHeight: "calc(100vh - 88px)",
-          padding: "34px 92px 22px",
-          display: "grid",
-          gridTemplateColumns: "1.35fr 0.65fr",
-          gap: 38,
-          alignItems: "center",
-        }}
-      >
+  style={{
+    minHeight: "calc(100vh - 88px)",
+    padding: isNotebook
+      ? "105px 20px 8px"
+      : "38px 92px 22px",
+    display: "grid",
+    gridTemplateColumns: isNotebook
+      ? "1.30fr 0.70fr"
+      : "1.35fr 0.65fr",
+    gap: isNotebook ? 22 : 38,
+    alignItems: "center",
+    transform: isNotebook ? "translateY(-120px)" : "none",
+  }}
+>
         <section>
           <div style={styles.kicker}>FREE EVALUATION ACCESS</div>
 
           <h1
-            style={{
-              ...styles.title,
-              fontSize: 72,
-              lineHeight: 0.96,
-              margin: "14px 0 18px",
-              textAlign: "left",
-              maxWidth: 820,
-            }}
-          >
-            TRY HWARANG SCORING{" "}
-            <span style={styles.blueText}>UNIVERSE™</span>
-          </h1>
+  style={{
+    ...styles.title,
+    fontSize: 72,
+    lineHeight: 0.96,
+    margin: "14px 0 18px",
+    textAlign: "left",
+    maxWidth: 820,
+  }}
+>
+  TRY HWARANG SCORING{" "}
+  <span
+    style={{
+      color: "#22d3ee",
+      textShadow: "0 0 24px rgba(34,211,238,0.55)",
+    }}
+  >
+    UNIVERSE™
+  </span>
+</h1>
 
           <p
             style={{
@@ -625,93 +649,102 @@ paddingLeft: 0,
           >
             Test the professional real-time scoring environment before purchasing
             an official license. Explore President Station, Public TV, Judge Mobile
-            and cloud synchronization in one controlled demo arena.
+            and cloud synchronization in one controlled discover arena.
           </p>
 
           {/* ======================================================
-          LICENSE DEMO PAGE — MAIN CTA
+          LICENSE DISCOVER PAGE — MAIN CTA
           ====================================================== */}
           <div style={{ display: "flex", gap: 16, marginTop: 34 }}>
             <button
-              disabled={!accepted}
-              onMouseDown={(e) => {
-  e.currentTarget.style.transform = "scale(0.96)";
-  e.currentTarget.style.filter = "brightness(1.35)";
-}}
+  disabled={!accepted}
+  onMouseDown={(e) => {
+    e.currentTarget.style.transform = "scale(0.96)";
+    e.currentTarget.style.filter = "brightness(1.35)";
+  }}
+  onMouseUp={(e) => {
+    e.currentTarget.style.transform = "scale(1)";
+    e.currentTarget.style.filter = "brightness(1)";
+  }}
+  onMouseEnter={(e) => {
+    if (!accepted) return;
 
-onMouseUp={(e) => {
-  e.currentTarget.style.transform = "scale(1)";
-  e.currentTarget.style.filter = "brightness(1)";
-}}
+    e.currentTarget.style.transform = "translateY(-2px)";
+    e.currentTarget.style.filter = "brightness(1.12)";
+    e.currentTarget.style.boxShadow =
+      "0 0 46px rgba(34,211,238,0.65), inset 0 0 18px rgba(255,255,255,0.15)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "scale(1)";
+    e.currentTarget.style.filter = "brightness(1)";
+    e.currentTarget.style.boxShadow = accepted
+      ? "0 0 28px rgba(34,211,238,0.38)"
+      : "none";
+  }}
+  onClick={() => {
+    const existing = localStorage.getItem("hwarang_demo_room_id");
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
 
-onMouseEnter={(e) => {
-  if (!accepted) return;
-  e.currentTarget.style.transform = "translateY(-2px)";
-  e.currentTarget.style.filter = "brightness(1.18)";
-  e.currentTarget.style.boxShadow =
-    "0 0 42px rgba(34,211,238,0.75), inset 0 0 18px rgba(255,255,255,0.18)";
-}}
+    for (let i = 0; i < 5; i += 1) {
+      code += chars[Math.floor(Math.random() * chars.length)].toLowerCase();
+    }
 
-onMouseLeave={(e) => {
-  e.currentTarget.style.transform = "scale(1)";
-  e.currentTarget.style.filter = "brightness(1)";
-  e.currentTarget.style.boxShadow = accepted
-    ? "0 0 34px rgba(34,211,238,0.52)"
-    : "none";
-}}
-              onClick={() => {
-                const existing = localStorage.getItem("hwarang_demo_room_id");
-                const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-                let code = "";
+    const roomId = existing || `demo-hsu-${code}`;
+    localStorage.setItem("hwarang_demo_room_id", roomId);
+    window.location.href = `/${roomId}`;
+  }}
+  style={{
+    height: 60,
+    padding: "0 34px",
+    borderRadius: 14,
 
-                for (let i = 0; i < 5; i += 1) {
-                  code += chars[Math.floor(Math.random() * chars.length)].toLowerCase();
-                }
+    border: accepted
+      ? "1px solid rgba(34,211,238,0.55)"
+      : "1px solid rgba(148,163,184,0.25)",
 
-                const roomId = existing || `demo-hsu-${code}`;
-                localStorage.setItem("hwarang_demo_room_id", roomId);
-                window.location.href = `/${roomId}`;
-              }}
+    background: accepted
+      ? "linear-gradient(135deg,#22d3ee 0%, #0ea5e9 100%)"
+      : "linear-gradient(135deg,rgba(34,211,238,0.28),rgba(14,165,233,0.20))",
 
-              
+    color: accepted
+  ? "#03131a"
+  : "rgba(255,255,255,0.72)",
 
-              style={{
-                height: 60,
-                padding: "0 34px",
-                borderRadius: 14,
-                border: "none",
-                background: accepted
-                  ? "linear-gradient(90deg,#06b6d4,#22d3ee)"
-                  : "linear-gradient(90deg,#334155,#475569)",
-                color: accepted ? "#001018" : "rgba(255,255,255,0.55)",
-                fontWeight: 1000,
-                letterSpacing: 1,
-                cursor: accepted ? "pointer" : "not-allowed",
-                boxShadow: accepted ? "0 0 34px rgba(34,211,238,0.52)" : "none",
-                transition: "transform 0.08s ease, box-shadow 0.18s ease, filter 0.18s ease",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              START DEMO
-            </button>
+    fontWeight: 1000,
+    letterSpacing: 1,
+
+    cursor: accepted
+      ? "pointer"
+      : "not-allowed",
+
+    boxShadow: accepted
+      ? "0 0 28px rgba(34,211,238,0.38)"
+      : "none",
+
+    transition:
+      "transform 0.08s ease, box-shadow 0.18s ease, filter 0.18s ease",
+
+    position: "relative",
+    overflow: "hidden",
+  }}
+>
+  START DISCOVER
+</button>
 
             <button
             onMouseEnter={(e) => {
   e.currentTarget.style.transform = "translateY(-2px)";
-  e.currentTarget.style.borderColor = "rgba(59,130,246,0.75)";
-  e.currentTarget.style.background = "rgba(59,130,246,0.10)";
+  e.currentTarget.style.filter = "brightness(1.12)";
   e.currentTarget.style.boxShadow =
-    "0 0 18px rgba(59,130,246,0.30)";
+    "0 0 34px rgba(34,211,238,0.45)";
 }}
 
 onMouseLeave={(e) => {
-  e.currentTarget.style.transform = "translateY(0)";
-  e.currentTarget.style.borderColor =
-    "rgba(255,255,255,0.24)";
-  e.currentTarget.style.background =
-    "rgba(0,0,0,0.35)";
-  e.currentTarget.style.boxShadow = "none";
+  e.currentTarget.style.transform = "scale(1)";
+  e.currentTarget.style.filter = "brightness(1)";
+  e.currentTarget.style.boxShadow =
+    "0 0 18px rgba(34,211,238,0.18)";
 }}
 
 onMouseDown={(e) => {
@@ -726,9 +759,14 @@ onMouseUp={(e) => {
                 height: 60,
                 padding: "0 30px",
                 borderRadius: 14,
-                border: "1px solid rgba(255,255,255,0.24)",
-                background: "rgba(0,0,0,0.35)",
-                color: "#fff",
+                border:
+  "1px solid rgba(34,211,238,0.55)",
+                background:
+  "rgba(4,14,24,0.55)",
+  boxShadow:
+  "0 0 18px rgba(34,211,238,0.18)",
+                color:
+  "#ffffff",
                 fontWeight: 900,
                 cursor: "pointer",
                 backdropFilter: "blur(8px)",
@@ -741,28 +779,28 @@ onMouseUp={(e) => {
           </div>
 
           {/* ======================================================
-          LICENSE DEMO PAGE — INCLUDED FEATURES STRIP
+          LICENSE DISCOVER PAGE — INCLUDED FEATURES STRIP
           ====================================================== */}
           <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 14,
-              marginTop: 42,
-              maxWidth: 860,
-            }}
-          >
-            <DemoFeatureMini title="President Station" />
-            <DemoFeatureMini title="Public TV" />
-            <DemoFeatureMini title="Judge Mobile" />
-            <DemoFeatureMini title="Real-time Sync" />
-            <DemoFeatureMini title="1 Demo Arena" />
-            <DemoFeatureMini title="Cloud Platform" />
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: isNotebook ? 10 : 14,
+    marginTop: isNotebook ? 18 : 42,
+    maxWidth: isNotebook ? 760 : 860,
+  }}
+>
+            <DemoFeatureMini title="President Station" tone="cyan" />
+            <DemoFeatureMini title="Public TV" tone="cyan" />
+            <DemoFeatureMini title="Judge Mobile" tone="cyan" />
+            <DemoFeatureMini title="Real-time Sync" tone="cyan" />
+            <DemoFeatureMini title="1 Discover Arena" tone="cyan" />
+            <DemoFeatureMini title="Cloud Platform" tone="cyan" />
           </div>
         </section>
 
         {/* ======================================================
-        LICENSE DEMO PAGE — TERMS AND LIMITS CARD
+        LICENSE DISCOVER PAGE — TERMS AND LIMITS CARD
         ====================================================== */}
         <aside
           style={{
@@ -775,16 +813,16 @@ onMouseUp={(e) => {
           }}
         >
           <h2 style={{ fontSize: 28, margin: "0 0 18px", letterSpacing: 2 }}>
-            DEMO ACCESS
+            DISCOVER ACCESS
           </h2>
 
           <DemoLimit label="Price" value="FREE" />
           <DemoLimit label="Use" value="Evaluation only" />
           <DemoLimit label="Session" value="10 minutes" />
           <DemoLimit label="Rounds" value="Maximum 2 rounds" />
-          <DemoLimit label="Arenas" value="1 demo arena" />
+          <DemoLimit label="Arenas" value="1 discover arena" />
           <DemoLimit label="Commercial use" value="Not allowed" />
-          <DemoLimit label="Branding" value="DEMO visible" />
+          <DemoLimit label="Branding" value="DISCOVER visible" />
 
           <div
             style={{
@@ -807,10 +845,10 @@ onMouseUp={(e) => {
                 color: "rgba(255,255,255,0.72)",
               }}
             >
-              This demo is provided only for testing and evaluation. It may not be
+              This Discover experience is provided only for testing and evaluation. It may not be
               used for official tournaments, commercial events, resale, public
               scoring services, or unauthorized sharing. Hwarang Scoring Universe
-              may limit, suspend or block demo access if misuse is detected.
+              may limit, suspend or block Discover access if misuse is detected.
             </p>
 
             <label
@@ -829,7 +867,7 @@ onMouseUp={(e) => {
                 checked={accepted}
                 onChange={(e) => setAccepted(e.target.checked)}
               />
-              I accept the Demo Terms and Conditions
+              I accept the Discover Terms and Conditions
             </label>
           </div>
 
@@ -857,6 +895,12 @@ V1 COMPLETE COMMERCIAL LANDING
 export function LicenseEventPage() {
   const [areas, setAreas] = useState(4);
   const [accepted, setAccepted] = useState(false);
+  const isNotebook =
+  typeof window !== "undefined" &&
+  window.innerWidth >= 1200 &&
+  window.innerWidth <= 1600 &&
+  window.innerHeight >= 700 &&
+  window.innerHeight <= 900;
 
   const prices = {
     1: 39,
@@ -2025,17 +2069,36 @@ Match Credits are deducted only when official results are closed by the Presiden
 }
 
 /* ======================================================
-LICENSE DEMO PAGE
+LICENSE DISCOVER PAGE
 MINI FEATURE COMPONENT
 ====================================================== */
-function DemoFeatureMini({ title }) {
+function DemoFeatureMini({ title, tone = "gold" }) {
+  const palette =
+    tone === "cyan"
+      ? {
+          border: "1px solid rgba(34,211,238,0.30)",
+          background: "rgba(2,18,24,0.42)",
+          boxShadow: "0 0 18px rgba(34,211,238,0.14)",
+          iconColor: "#22d3ee",
+          iconGlow:
+            "drop-shadow(0 0 6px rgba(34,211,238,0.45))",
+        }
+      : {
+          border: "1px solid rgba(245,158,11,0.28)",
+          background: "rgba(24,14,3,0.42)",
+          boxShadow: "0 0 18px rgba(245,158,11,0.12)",
+          iconColor: "#fbbf24",
+          iconGlow:
+            "drop-shadow(0 0 6px rgba(251,191,36,0.45))",
+        };
+
   return (
     <div
       style={{
         minHeight: 58,
         borderRadius: 16,
-        border: "1px solid rgba(245,158,11,0.28)",
-        background: "rgba(24,14,3,0.42)",
+        border: palette.border,
+        background: palette.background,
         backdropFilter: "blur(9px)",
         display: "flex",
         alignItems: "center",
@@ -2044,15 +2107,15 @@ function DemoFeatureMini({ title }) {
         fontSize: 13,
         fontWeight: 1000,
         letterSpacing: 0.8,
-        boxShadow: "0 0 18px rgba(245,158,11,0.12)",
+        boxShadow: palette.boxShadow,
       }}
     >
       <ShieldCheck
         size={17}
         style={{
-          color: "#fbbf24",
+          color: palette.iconColor,
           flexShrink: 0,
-          filter: "drop-shadow(0 0 6px rgba(251,191,36,0.45))",
+          filter: palette.iconGlow,
         }}
       />
       {title}
@@ -2061,7 +2124,7 @@ function DemoFeatureMini({ title }) {
 }
 
 /* ======================================================
-LICENSE DEMO PAGE
+LICENSE DISCOVER PAGE
 LIMIT ROW COMPONENT
 ====================================================== */
 function DemoLimit({ label, value }) {
@@ -2095,7 +2158,7 @@ function Feature({ icon, title, text }) {
 /* ======================================================
 LICENSE PAGE
 PLAN CARD COMPONENT
-Supports DEMO / EVENT LICENSE / CLUB ANNUAL navigation.
+Supports DISCOVER / EVENT LICENSE / CLUB ANNUAL navigation.
 ====================================================== */
 function PlanCard({ title, desc, price, small, items, button, featured, variant, tone = "blue", buttonOffset = 0, onClick }) {
   const toneStyle =
@@ -2177,7 +2240,7 @@ PLAN CARD BUTTON INTERACTION FX
 <button
   onMouseEnter={(e) => {
     if (
-  title !== "DEMO" &&
+  title !== "DISCOVER" &&
   title !== "EVENT LICENSE" &&
   title !== "PULSAR LICENSE"
 ) return;
@@ -2185,13 +2248,13 @@ PLAN CARD BUTTON INTERACTION FX
     e.currentTarget.style.transform = "translateY(-2px)";
     e.currentTarget.style.filter = "brightness(1.15)";
     e.currentTarget.style.boxShadow =
-      title === "DEMO"
+      title === "DISCOVER"
         ? "0 0 22px rgba(34,211,238,0.45)"
         : "0 0 22px rgba(59,130,246,0.48)";
   }}
   onMouseLeave={(e) => {
     if (
-  title !== "DEMO" &&
+  title !== "DISCOVER" &&
   title !== "EVENT LICENSE" &&
   title !== "PULSAR LICENSE"
 ) return;
@@ -2202,7 +2265,7 @@ PLAN CARD BUTTON INTERACTION FX
   }}
   onMouseDown={(e) => {
     if (
-  title !== "DEMO" &&
+  title !== "DISCOVER" &&
   title !== "EVENT LICENSE" &&
   title !== "PULSAR LICENSE"
 ) return;
@@ -2212,7 +2275,7 @@ PLAN CARD BUTTON INTERACTION FX
   }}
   onMouseUp={(e) => {
     if (
-  title !== "DEMO" &&
+  title !== "DISCOVER" &&
   title !== "EVENT LICENSE" &&
   title !== "PULSAR LICENSE"
 ) return;
@@ -2221,7 +2284,7 @@ PLAN CARD BUTTON INTERACTION FX
     e.currentTarget.style.filter = "brightness(1.15)";
   }}
   onClick={() => {
-    if (title === "DEMO") {
+    if (title === "DISCOVER") {
       window.location.href = "/license/demo";
       return;
     }
