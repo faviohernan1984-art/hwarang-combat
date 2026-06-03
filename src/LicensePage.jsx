@@ -44,22 +44,24 @@ function showComingSoon(message) {
 }
 
 /* ======================================================
-LICENSE PAGE
-NAV LINK INTERACTION FX
+DISCOVER NAVBAR CYAN IDENTITY
 ====================================================== */
 function navHoverOn(e, isActive = false) {
   e.currentTarget.style.transform = "translateY(-1px)";
-  e.currentTarget.style.color = "#60a5fa";
+  e.currentTarget.style.color = "#22d3ee";
   e.currentTarget.style.textShadow = isActive
-    ? "0 0 14px rgba(96,165,250,0.65)"
-    : "0 0 10px rgba(96,165,250,0.45)";
+    ? "0 0 14px rgba(34,211,238,0.65)"
+    : "0 0 10px rgba(34,211,238,0.45)";
 }
 
+/* ======================================================
+DISCOVER NAVBAR CYAN IDENTITY
+====================================================== */
 function navHoverOff(e, originalColor = "#ffffff", isActive = false) {
   e.currentTarget.style.transform = "translateY(0)";
-  e.currentTarget.style.color = isActive ? "#60a5fa" : originalColor;
+  e.currentTarget.style.color = isActive ? "#22d3ee" : originalColor;
   e.currentTarget.style.textShadow = isActive
-    ? "0 0 8px rgba(96,165,250,0.35)"
+    ? "0 0 8px rgba(34,211,238,0.35)"
     : "none";
 }
 
@@ -150,7 +152,19 @@ viewport.height / 1080
       : {}),
   }}
 >
-      <header style={styles.navbar}>
+  {/* ======================================================
+LICENSE PAGE — BRAND NAVIGATION
+Stable navbar layer protection for notebook fullscreen.
+Keeps navigation clickable above transformed content layers.
+====================================================== */}
+      <header
+  style={{
+    ...styles.navbar,
+    position: "relative",
+    zIndex: 9999,
+    pointerEvents: "auto",
+  }}
+>
         <div style={styles.brand}>
           <div style={styles.logoOrb}>
   <style>{`
@@ -510,9 +524,18 @@ export function LicenseDemoPage() {
 }}
     >
       {/* ======================================================
-      LICENSE DISCOVER PAGE — BRAND NAVIGATION
-      ====================================================== */}
-      <header style={styles.navbar}>
+LICENSE DISCOVER PAGE — BRAND NAVIGATION
+Stable navbar layer protection for notebook fullscreen.
+Keeps navigation clickable above transformed content layers.
+====================================================== */}
+<header
+  style={{
+    ...styles.navbar,
+    position: "relative",
+    zIndex: 9999,
+    pointerEvents: "auto",
+  }}
+>
         <div style={styles.brand}>
           <div style={styles.logoOrb}>
             <style>{`
@@ -563,18 +586,26 @@ NAV LINKS INTERACTION
   </span>
 
   <span
-    onMouseEnter={(e) => navHoverOn(e, true)}
-    onMouseLeave={(e) => navHoverOff(e, "#60a5fa", true)}
-    onMouseDown={(e) => navClickFx(e)}
-    style={{
-      ...styles.activeNav,
-      cursor: "default",
-      transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
-      textShadow: "0 0 8px rgba(96,165,250,0.35)",
-    }}
-  >
-    DISCOVER
-  </span>
+  onMouseEnter={(e) => navHoverOn(e, true)}
+  onMouseLeave={(e) => navHoverOff(e, "#22d3ee", true)}
+  onMouseDown={(e) => navClickFx(e)}
+  style={{
+    ...styles.activeNav,
+
+    borderBottom: "3px solid #22d3ee",
+
+    cursor: "default",
+
+    color: "#22d3ee",
+
+    transition:
+      "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
+
+    textShadow: "0 0 10px rgba(34,211,238,0.45)",
+  }}
+>
+  DISCOVER
+</span>
 </nav>
 
         <div style={styles.navActions}>
@@ -595,21 +626,33 @@ NAV LINKS INTERACTION
       </header>
 
       {/* ======================================================
-      LICENSE DISCOVER PAGE — HERO SECTION
-      ====================================================== */}
-      <main
+LICENSE DISCOVER PAGE — NOTEBOOK GRID FORMULA
+Replicated from Pulsar notebook architecture.
+PC frozen behavior remains untouched.
+====================================================== */}
+<main
   style={{
     minHeight: "calc(100vh - 88px)",
+
     padding: isNotebook
-      ? "105px 20px 8px"
+      ? "8px 20px 8px"
       : "38px 92px 22px",
+
     display: "grid",
+
     gridTemplateColumns: isNotebook
-      ? "1.30fr 0.70fr"
+      ? "0.9fr 0.47fr"
       : "1.35fr 0.65fr",
-    gap: isNotebook ? 22 : 38,
+
+    gap: isNotebook
+      ? 38
+      : 38,
+
     alignItems: "center",
-    transform: isNotebook ? "translateY(-120px)" : "none",
+
+    transform: isNotebook
+      ? "translateY(-90px)"
+      : "none",
   }}
 >
         <section>
@@ -652,9 +695,136 @@ paddingLeft: 0,
             and cloud synchronization in one controlled discover arena.
           </p>
 
+          
+        
+
           {/* ======================================================
-          LICENSE DISCOVER PAGE — MAIN CTA
+          LICENSE DISCOVER PAGE — INCLUDED FEATURES STRIP
           ====================================================== */}
+          <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: isNotebook ? 10 : 14,
+    marginTop: isNotebook ? 18 : 42,
+    maxWidth: isNotebook ? 760 : 860,
+  }}
+>
+            <DemoFeatureMini title="President Station" tone="cyan" />
+            <DemoFeatureMini title="Public TV" tone="cyan" />
+            <DemoFeatureMini title="Judge Mobile" tone="cyan" />
+            <DemoFeatureMini title="Real-time Sync" tone="cyan" />
+            <DemoFeatureMini title="1 Discover Arena" tone="cyan" />
+            <DemoFeatureMini title="Cloud Platform" tone="cyan" />
+          </div>
+        </section>
+
+        {/* ======================================================
+LICENSE DISCOVER PAGE — TERMS AND LIMITS CARD
+Notebook formula replicated from Pulsar purchase card.
+Do not modify PC frozen behavior.
+====================================================== */}
+<aside
+  style={{
+    border: "1px solid rgba(34,211,238,0.55)",
+    borderRadius: 26,
+    padding: 15,
+    background: "rgba(0,0,0,0.72)",
+    boxShadow:
+      "0 0 55px rgba(0,0,0,0.78), 0 0 34px rgba(34,211,238,0.18)",
+    backdropFilter: "blur(14px)",
+    transform: isNotebook
+  ? "translateY(95px) scale(0.85)"
+  : "translateY(-10px)",
+    transformOrigin: "top right",
+  }}
+>
+  <h2
+    style={{
+      fontSize: 20,
+      margin: "0 0 5px",
+      letterSpacing: 2,
+      color: "#22d3ee",
+      textShadow: "0 0 18px rgba(34,211,238,0.38)",
+    }}
+  >
+    DISCOVER ACCESS
+  </h2>
+
+          <DemoLimit label="Price" value="FREE" />
+          <DemoLimit label="Use" value="Evaluation only" />
+          <DemoLimit label="Session" value="10 minutes" />
+          <DemoLimit label="Rounds" value="Maximum 2 rounds" />
+          <DemoLimit label="Arenas" value="1 discover arena" />
+          <DemoLimit label="Commercial use" value="Not allowed" />
+          <DemoLimit label="Branding" value="DISCOVER visible" />
+
+          <div
+            style={{
+              marginTop: 24,
+              padding: 18,
+              borderRadius: 18,
+              background:
+  "linear-gradient(180deg, rgba(2,18,24,0.82), rgba(0,0,0,0.62))",
+border: "1px solid rgba(34,211,238,0.36)",
+boxShadow: "inset 0 0 22px rgba(34,211,238,0.08)",
+            }}
+          >
+            <div style={{ fontWeight: 1000, marginBottom: 8 }}>
+              TERMS & CONDITIONS
+            </div>
+
+            <p
+              style={{
+                margin: 0,
+                fontSize: 13,
+                lineHeight: 1.55,
+                color: "rgba(255,255,255,0.72)",
+              }}
+            >
+              This Discover experience is provided only for testing and evaluation. It may not be
+              used for official tournaments, commercial events, resale, public
+              scoring services, or unauthorized sharing. Hwarang Scoring Universe
+              may limit, suspend or block Discover access if misuse is detected.
+            </p>
+
+            <label
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                marginTop: 16,
+                fontSize: 14,
+                fontWeight: 900,
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={accepted}
+                onChange={(e) => setAccepted(e.target.checked)}
+              />
+              I accept the Discover Terms and Conditions
+            </label>
+          </div>
+
+          <div
+            style={{
+              marginTop: 18,
+              fontSize: 12,
+              lineHeight: 1.45,
+              color: "rgba(255,255,255,0.55)",
+            }}
+          >
+            By continuing, you acknowledge that this is not a commercial license.
+            Official tournaments require an Event or Club license.
+          </div>
+
+{/* ======================================================
+LICENSE DISCOVER PAGE — RIGHT CTA ACTIONS
+Moved from hero to terms card for Pulsar coherence.
+Check acceptance enables Discover access.
+====================================================== */}
           <div style={{ display: "flex", gap: 16, marginTop: 34 }}>
             <button
   disabled={!accepted}
@@ -695,8 +865,9 @@ paddingLeft: 0,
     window.location.href = `/${roomId}`;
   }}
   style={{
-    height: 60,
-    padding: "0 34px",
+    height: 52,
+    flex: 1,
+padding: "0 18px",
     borderRadius: 14,
 
     border: accepted
@@ -756,8 +927,9 @@ onMouseUp={(e) => {
 }}
               onClick={() => (window.location.href = "/license-dev")}
               style={{
-                height: 60,
-                padding: "0 30px",
+                height: 52,
+                flex: 1,
+padding: "0 18px",
                 borderRadius: 14,
                 border:
   "1px solid rgba(34,211,238,0.55)",
@@ -778,110 +950,6 @@ onMouseUp={(e) => {
             </button>
           </div>
 
-          {/* ======================================================
-          LICENSE DISCOVER PAGE — INCLUDED FEATURES STRIP
-          ====================================================== */}
-          <div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: isNotebook ? 10 : 14,
-    marginTop: isNotebook ? 18 : 42,
-    maxWidth: isNotebook ? 760 : 860,
-  }}
->
-            <DemoFeatureMini title="President Station" tone="cyan" />
-            <DemoFeatureMini title="Public TV" tone="cyan" />
-            <DemoFeatureMini title="Judge Mobile" tone="cyan" />
-            <DemoFeatureMini title="Real-time Sync" tone="cyan" />
-            <DemoFeatureMini title="1 Discover Arena" tone="cyan" />
-            <DemoFeatureMini title="Cloud Platform" tone="cyan" />
-          </div>
-        </section>
-
-        {/* ======================================================
-        LICENSE DISCOVER PAGE — TERMS AND LIMITS CARD
-        ====================================================== */}
-        <aside
-          style={{
-            border: "1px solid rgba(34,211,238,0.36)",
-            borderRadius: 26,
-            padding: 30,
-            background: "rgba(0,0,0,0.70)",
-            boxShadow: "0 0 55px rgba(0,0,0,0.78), 0 0 32px rgba(6,182,212,0.18)",
-            backdropFilter: "blur(14px)",
-          }}
-        >
-          <h2 style={{ fontSize: 28, margin: "0 0 18px", letterSpacing: 2 }}>
-            DISCOVER ACCESS
-          </h2>
-
-          <DemoLimit label="Price" value="FREE" />
-          <DemoLimit label="Use" value="Evaluation only" />
-          <DemoLimit label="Session" value="10 minutes" />
-          <DemoLimit label="Rounds" value="Maximum 2 rounds" />
-          <DemoLimit label="Arenas" value="1 discover arena" />
-          <DemoLimit label="Commercial use" value="Not allowed" />
-          <DemoLimit label="Branding" value="DISCOVER visible" />
-
-          <div
-            style={{
-              marginTop: 24,
-              padding: 18,
-              borderRadius: 18,
-              background: "rgba(15,23,42,0.88)",
-              border: "1px solid rgba(34,211,238,0.22)",
-            }}
-          >
-            <div style={{ fontWeight: 1000, marginBottom: 8 }}>
-              TERMS & CONDITIONS
-            </div>
-
-            <p
-              style={{
-                margin: 0,
-                fontSize: 13,
-                lineHeight: 1.55,
-                color: "rgba(255,255,255,0.72)",
-              }}
-            >
-              This Discover experience is provided only for testing and evaluation. It may not be
-              used for official tournaments, commercial events, resale, public
-              scoring services, or unauthorized sharing. Hwarang Scoring Universe
-              may limit, suspend or block Discover access if misuse is detected.
-            </p>
-
-            <label
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                marginTop: 16,
-                fontSize: 14,
-                fontWeight: 900,
-                cursor: "pointer",
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={accepted}
-                onChange={(e) => setAccepted(e.target.checked)}
-              />
-              I accept the Discover Terms and Conditions
-            </label>
-          </div>
-
-          <div
-            style={{
-              marginTop: 18,
-              fontSize: 12,
-              lineHeight: 1.45,
-              color: "rgba(255,255,255,0.55)",
-            }}
-          >
-            By continuing, you acknowledge that this is not a commercial license.
-            Official tournaments require an Event or Club license.
-          </div>
         </aside>
       </main>
     </div>
@@ -922,7 +990,14 @@ export function LicenseEventPage() {
       {/* ======================================================
       LICENSE EVENT PAGE — BRAND NAVIGATION
       ====================================================== */}
-      <header style={styles.navbar}>
+      <header
+  style={{
+    ...styles.navbar,
+    position: "relative",
+    zIndex: 9999,
+    pointerEvents: "auto",
+  }}
+>
         <div style={styles.brand}>
           <div style={styles.logoOrb}>
             <style>{`
@@ -1438,9 +1513,18 @@ const isNotebook =
 }}
     >
       {/* ======================================================
-      LICENSE EVENT PAGE — BRAND NAVIGATION
-      ====================================================== */}
-      <header style={styles.navbar}>
+LICENSE PULSAR PAGE — BRAND NAVIGATION
+Stable navbar layer protection for notebook fullscreen.
+Keeps navigation clickable above transformed content layers.
+====================================================== */}
+<header
+  style={{
+    ...styles.navbar,
+    position: "relative",
+    zIndex: 9999,
+    pointerEvents: "auto",
+  }}
+>
         <div style={styles.brand}>
           <div style={styles.logoOrb}>
             <style>{`
