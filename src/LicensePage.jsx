@@ -308,7 +308,7 @@ NAV LINKS INTERACTION
             price="FREE"
             items={[
             "10-minute evaluation access",
-            "1 discover arena",
+            "1 DISCOVER ARENA",
             "Terms acceptance required"
             ]}
             button="VIEW DISCOVER"
@@ -692,7 +692,7 @@ paddingLeft: 0,
           >
             Test the professional real-time scoring environment before purchasing
             an official license. Explore President Station, Public TV, Judge Mobile
-            and cloud synchronization in one controlled discover arena.
+            and cloud synchronization in one controlled DISCOVER ARENA.
           </p>
 
           
@@ -714,7 +714,7 @@ paddingLeft: 0,
             <DemoFeatureMini title="Public TV" tone="cyan" />
             <DemoFeatureMini title="Judge Mobile" tone="cyan" />
             <DemoFeatureMini title="Real-time Sync" tone="cyan" />
-            <DemoFeatureMini title="1 Discover Arena" tone="cyan" />
+            <DemoFeatureMini title="1 DISCOVER ARENA" tone="cyan" />
             <DemoFeatureMini title="Cloud Platform" tone="cyan" />
           </div>
         </section>
@@ -755,7 +755,7 @@ Do not modify PC frozen behavior.
           <DemoLimit label="Use" value="Evaluation only" />
           <DemoLimit label="Session" value="10 minutes" />
           <DemoLimit label="Rounds" value="Maximum 2 rounds" />
-          <DemoLimit label="Arenas" value="1 discover arena" />
+          <DemoLimit label="Arenas" value="1 DISCOVER ARENA" />
           <DemoLimit label="Commercial use" value="Not allowed" />
           <DemoLimit label="Branding" value="DISCOVER visible" />
 
@@ -1722,13 +1722,13 @@ clubs and organizations that operate year-round.
       lineHeight: 1.65,
     }}
   >
-    While Nova gives birth to an event, Pulsar keeps an organization alive.
+    While Nova launches an event, Pulsar keeps an organization active throughout the year.
     Designed for academies, clubs and schools that operate continuously throughout the year,
     Pulsar provides a professional structure for competitions, evaluations and institutional growth.
     <br /><br />
-    It is not a license for a tournament.
+    It is not just a tournament license.
     <br />
-    It is a license for an organization that grows, evolves and builds its future.
+    It is a year-round license for organizations that grow, evolve and build their future.
   </p>
 </div>
 
