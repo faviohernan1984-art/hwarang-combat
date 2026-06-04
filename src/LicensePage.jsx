@@ -970,12 +970,13 @@ export function LicenseEventPage() {
   window.innerHeight >= 700 &&
   window.innerHeight <= 900;
 
-  const prices = {
-    1: 39,
-    2: 69,
-    3: 99,
-    4: 129,
-  };
+  {/* no va comentario acá, solo reemplazo JS */}
+const prices = {
+  1: 99,
+  2: 199,
+  3: 399,
+  4: 799,
+};
 
   const selectedPrice = prices[areas];
 
@@ -1084,188 +1085,286 @@ export function LicenseEventPage() {
       <main
         style={{
           minHeight: "calc(100vh - 88px)",
-          padding: "38px 92px 28px",
+          padding: isNotebook
+  ? "8px 20px 8px"
+  : "38px 92px 28px",
 display: "grid",
-gridTemplateColumns: "1.35fr 0.65fr",
+gridTemplateColumns: isNotebook
+  ? "0.9fr 0.58fr"
+  : "1.35fr 0.65fr",
 gap: 38,
 alignItems: "center",
+
+transform: isNotebook
+  ? "translateY(-120px)"
+  : "none",
         }}
       >
         {/* ======================================================
-        LICENSE EVENT PAGE — LEFT COMMERCIAL COLUMN
-        ====================================================== */}
-        <section>
-          <div style={{ ...styles.kicker, color: "#60a5fa" }}>
-            PROFESSIONAL TOURNAMENT LICENSE
-          </div>
+LICENSE NOVA PAGE — LEFT COMMERCIAL COLUMN
+====================================================== */}
+<section
+  style={{
+    transform: isNotebook
+      ? "translateY(20px)"
+      : "translateY(-70px)",
+  }}
+>
+  <div style={{ ...styles.kicker, color: "#60a5fa" }}>
+    SINGLE EVENT COMPETITION LICENSE
+  </div>
 
-          <h1
-            style={{
-              ...styles.title,
-              fontSize: 76,
-              lineHeight: 0.94,
-              margin: "14px 0 18px",
-              textAlign: "left",
-              maxWidth: 820,
-            }}
-          >
-            EVENT <span style={styles.blueText}>LICENSE</span>
-          </h1>
+  <h1
+    style={{
+      ...styles.title,
+      fontSize: 76,
+      lineHeight: 0.94,
+      margin: "14px 0 18px",
+      textAlign: "left",
+      maxWidth: isNotebook ? 1100 : 820,
+    }}
+  >
+    NOVA <span style={styles.blueText}>LICENSE</span>
+  </h1>
 
-          <p
-            style={{
-              ...styles.subtitle,
-              textAlign: "left",
-              maxWidth: 780,
-              fontSize: 20,
-              lineHeight: 1.45,
-              marginLeft: 0,
-              paddingLeft: 0,
-            }}
-          >
-            Run professional ITF Taekwon-Do tournaments with real-time scoring,
-            Public TV, Judge Mobile, President Station and cloud synchronization.
-          </p>
+  <p
+    style={{
+      ...styles.subtitle,
+      textAlign: "left",
+      maxWidth: isNotebook ? 1000 : 780,
+      fontSize: 20,
+      lineHeight: 1.45,
+      marginLeft: 0,
+      paddingLeft: 0,
+    }}
+  >
+    Launch your tournament with a professional real-time scoring ecosystem built for competition day. Judges connect, arenas activate, athletes step onto the mats and results move seamlessly across a fully synchronized competition environment.
+  </p>
 
-          {/* ======================================================
-          LICENSE EVENT PAGE — ROI MESSAGE
-          ====================================================== */}
-          <div
-            style={{
-  marginTop: 24,
-  maxWidth: 760,
-  padding: 0,
-  borderRadius: 0,
-  border: "none",
-  background: "transparent",
-  boxShadow: "none",
-  backdropFilter: "none",
-}}
-          >
-            <div
-              style={{
-                color: "#60a5fa",
-                fontWeight: 1000,
-                letterSpacing: 1.2,
-                marginBottom: 8,
-              }}
-            >
-              🌍 TECHNOLOGY COST RECOVERY
-            </div>
+  {/* ======================================================
+  LICENSE NOVA PAGE — NOVA MEANING MESSAGE
+  ====================================================== */}
+  <div
+  style={{
+    marginTop: 24,
+    maxWidth: isNotebook ? 1000 : 760,
+    padding: 0,
+    borderRadius: 0,
+    border: "none",
+    background: "transparent",
+    boxShadow: "none",
+    backdropFilter: "none",
+  }}
+>
+  <div
+    style={{
+      color: "#60a5fa",
+      fontWeight: 1000,
+      letterSpacing: 1.2,
+      marginBottom: 8,
+    }}
+  >
+    ✦ EVENT SIZING
+  </div>
 
-            <p
-              style={{
-                margin: 0,
-                color: "rgba(255,255,255,0.78)",
-                fontSize: 15,
-                lineHeight: 1.55,
-              }}
-            >
-              Most organizations recover the full technology investment through
-              event registrations. Hwarang Scoring helps transform an operational
-              cost into a professional tournament experience.
-            </p>
-          </div>
+  <p
+    style={{
+      margin: 0,
+      color: "rgba(255,255,255,0.78)",
+      fontSize: 15,
+      lineHeight: 1.55,
+    }}
+  >
+    For the best synchronization, performance and support experience,
+    we recommend selecting the package that best represents the real
+    size of your event.
+  </p>
+</div>
 
-          {/* ======================================================
-          LICENSE EVENT PAGE — INCLUDED FEATURES
-          ====================================================== */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 14,
-              marginTop: 32,
-              maxWidth: 860,
-            }}
-          >
-            <DemoFeatureMini title="Up to 4 Arenas" />
-            <DemoFeatureMini title="President Station" />
-            <DemoFeatureMini title="Public TV" />
-            <DemoFeatureMini title="Judge Mobile" />
-            <DemoFeatureMini title="Combat PRO" />
-            <DemoFeatureMini title="Cloud Sync" />
-          </div>
-        </section>
+  {/* ======================================================
+  LICENSE NOVA PAGE — INCLUDED FEATURES
+  ====================================================== */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(3, 1fr)",
+      gap: isNotebook ? 5 : 14,
+marginTop: isNotebook ? 5 : 32,
+      maxWidth: isNotebook ? 650 : 860,
+    }}
+  >
+    <DemoFeatureMini title="Tournament Day" />
+    <DemoFeatureMini title="President Station" />
+    <DemoFeatureMini title="Public TV" />
+    <DemoFeatureMini title="Judge Mobile" />
+    <DemoFeatureMini title="Combat PRO" />
+    <DemoFeatureMini title="Cloud Sync" />
+  </div>
+
+{/* ======================================================
+LICENSE NOVA PAGE — WHY CHOOSE THE RIGHT PROFILE
+====================================================== */}
+<div
+  style={{
+    marginTop: isNotebook ? 8 : 22,
+    maxWidth: 860,
+  }}
+>
+  <div
+    style={{
+      color: "#60a5fa",
+      fontWeight: 1000,
+      letterSpacing: 1.2,
+      marginBottom: isNotebook ? 6 : 12,
+    }}
+  >
+    ✦ WHY CHOOSE THE RIGHT PROFILE
+  </div>
+
+  <div
+  style={{
+    color: "rgba(255,255,255,0.78)",
+    fontSize: isNotebook ? 16 : 16,
+    lineHeight: isNotebook ? 1.35 : 1.7,
+  }}
+>
+  <strong style={{ color: "#fff" }}>Starter</strong> — Designed for local
+  competitions, academy events and entry-level tournaments.
+
+  <br />
+
+  <strong style={{ color: "#fff" }}>Regional</strong> — Built for growing
+  tournaments with multiple divisions and increased participation.
+
+  <br />
+
+  <strong style={{ color: "#fff" }}>Championship</strong> — Created for
+  large-scale competitions requiring greater operational capacity.
+
+  <br />
+
+  <strong style={{ color: "#fff" }}>Grand Championship</strong> — Designed
+  for major events demanding maximum synchronization, visibility and support.
+</div>
+</div>
+  
+</section>
+
+
 
         {/* ======================================================
         LICENSE EVENT PAGE — RIGHT PURCHASE CARD
         ====================================================== */}
-        <aside
-          style={{
-            border: "1px solid rgba(59,130,246,0.46)",
-            borderRadius: 26,
-            padding: 20,
-            background: "rgba(0,0,0,0.72)",
-            boxShadow: "0 0 55px rgba(0,0,0,0.78), 0 0 34px rgba(59,130,246,0.18)",
-            backdropFilter: "blur(14px)",
-            transform: "translateY(-24px)",
-          }}
-        >
-          <h2 style={{ fontSize: 28, margin: "0 0 8px", letterSpacing: 2 }}>
-            EVENT LICENSE
-          </h2>
+        {/* ======================================================
+LICENSE NOVA PAGE — RIGHT PURCHASE CARD
+Notebook/PC scale and position cloned from Pulsar.
+====================================================== */}
+<aside
+  style={{
+    border: "1px solid rgba(59,130,246,0.46)",
+    borderRadius: 26,
+    padding: isNotebook ? 15 : 20,
+    background: "rgba(0,0,0,0.72)",
+    boxShadow:
+      "0 0 55px rgba(0,0,0,0.78), 0 0 34px rgba(59,130,246,0.18)",
+    backdropFilter: "blur(14px)",
+    transform: isNotebook
+      ? "translateY(115px) scale(0.74)"
+      : "translateY(-24px)",
+    transformOrigin: "top right",
+  }}
+>
+          {/* ======================================================
+LICENSE NOVA PAGE — RIGHT CARD TITLE
+====================================================== */}
+{/* ======================================================
+LICENSE NOVA PAGE — RIGHT CARD TITLE
+====================================================== */}
+<h2
+  style={{
+    fontSize: 28,
+    margin: "0 0 8px",
+    letterSpacing: 2,
+    color: "#60a5fa",
+    textShadow: "0 0 18px rgba(96,165,250,0.45)",
+  }}
+>
+  NOVA LICENSE
+</h2>
 
-          <p
-            style={{
-              margin: "0 0 22px",
-              fontSize: 13,
-              lineHeight: 1.45,
-              color: "rgba(255,255,255,0.62)",
-            }}
-          >
-            Select how many competition arenas your event needs.
-          </p>
+<p
+  style={{
+    margin: "0 0 22px",
+    fontSize: 13,
+    lineHeight: 1.45,
+    color: "rgba(255,255,255,0.62)",
+  }}
+>
+  Select the package that best represents the real size of your event.
+</p>
 
           {/* ======================================================
-          LICENSE EVENT PAGE — AREA SELECTOR
-          ====================================================== */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 10,
-              marginBottom: 22,
-            }}
-          >
-            {[1, 2, 3, 4].map((n) => {
-              const active = areas === n;
+LICENSE NOVA PAGE — PACKAGE SELECTOR
+====================================================== */}
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: 10,
+    marginBottom: 22,
+  }}
+>
+  {[
+    { id: 1, label: "STARTER" },
+    { id: 2, label: "REGIONAL" },
+    { id: 3, label: "CHAMP" },
+    { id: 4, label: "GRAND" },
+  ].map((pkg) => {
+    const active = areas === pkg.id;
 
-              return (
-                <button
-                  key={n}
-                  onClick={() => setAreas(n)}
-                  style={{
-                    height: 54,
-                    borderRadius: 14,
-                    border: active
-                      ? "1px solid rgba(96,165,250,0.95)"
-                      : "1px solid rgba(255,255,255,0.14)",
-                    background: active
-                      ? "linear-gradient(180deg, rgba(37,99,235,0.95), rgba(29,78,216,0.72))"
-                      : "rgba(15,23,42,0.72)",
-                    color: "#fff",
-                    fontWeight: 1000,
-                    cursor: "pointer",
-                    boxShadow: active
-                      ? "0 0 22px rgba(59,130,246,0.48)"
-                      : "none",
-                    transition: "transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.filter = "brightness(1.12)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.filter = "brightness(1)";
-                  }}
-                >
-                  {n} {n === 1 ? "AREA" : "AREAS"}
-                </button>
-              );
-            })}
-          </div>
+    return (
+      <button
+        key={pkg.id}
+        onClick={() => setAreas(pkg.id)}
+        style={{
+          height: 54,
+          borderRadius: 14,
+
+          border: active
+            ? "1px solid rgba(96,165,250,0.95)"
+            : "1px solid rgba(255,255,255,0.14)",
+
+          background: active
+            ? "linear-gradient(180deg, rgba(37,99,235,0.95), rgba(29,78,216,0.72))"
+            : "rgba(15,23,42,0.72)",
+
+          color: "#fff",
+
+          fontWeight: 1000,
+
+          cursor: "pointer",
+
+          boxShadow: active
+            ? "0 0 22px rgba(59,130,246,0.48)"
+            : "none",
+
+          transition:
+            "transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "translateY(-2px)";
+          e.currentTarget.style.filter = "brightness(1.12)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "translateY(0)";
+          e.currentTarget.style.filter = "brightness(1)";
+        }}
+      >
+        {pkg.label}
+      </button>
+    );
+  })}
+</div>
 
           {/* ======================================================
           LICENSE EVENT PAGE — PRICE SUMMARY
@@ -1279,10 +1378,38 @@ alignItems: "center",
   marginBottom: 12,
 }}
           >
-            <DemoLimit label="Selected arenas" value={`${areas}`} />
-            <DemoLimit label="Validity" value="1 official event" />
-            <DemoLimit label="Access" value="Combat PRO" />
-            <DemoLimit label="Support" value="Included" />
+            {/* ======================================================
+LICENSE NOVA PAGE — PACKAGE SUMMARY
+====================================================== */}
+<DemoLimit
+  label="Tournament Profile"
+  value={
+    areas === 1
+      ? "Starter"
+      : areas === 2
+      ? "Regional"
+      : areas === 3
+      ? "Championship"
+      : "Grand Championship"
+  }
+/>
+
+<DemoLimit
+  label="Recommended Capacity"
+  value={
+    areas === 1
+      ? "Up to 80 competitors"
+      : areas === 2
+      ? "Up to 200 competitors"
+      : areas === 3
+      ? "Up to 400 competitors"
+      : "Up to 800 competitors"
+  }
+/>
+
+<DemoLimit label="Access" value="Combat PRO" />
+
+<DemoLimit label="Support" value="Included" />
 
             <div
               style={{
@@ -1327,22 +1454,35 @@ alignItems: "center",
               marginBottom: 18,
             }}
           >
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 1000,
-                letterSpacing: 1,
-                color: "#93c5fd",
-                marginBottom: 8,
-              }}
-            >
-              EXAMPLE RECOVERY
-            </div>
+            {/* ======================================================
+LICENSE NOVA PAGE — WHY EVENT SIZE MATTERS
+====================================================== */}
+<div
+  style={{
+    fontSize: 13,
+    fontWeight: 1000,
+    letterSpacing: 1,
+    color: "#93c5fd",
+    marginBottom: 8,
+  }}
+>
+  WHY EVENT SIZE MATTERS
+</div>
 
-            <div style={{ fontSize: 13, lineHeight: 1.55, color: "rgba(255,255,255,0.70)" }}>
-              200 competitors × USD 1 technology fee = USD 200.
-              In most events, the license can be recovered through registrations.
-            </div>
+<div
+  style={{
+    fontSize: 13,
+    lineHeight: 1.55,
+    color: "rgba(255,255,255,0.70)",
+  }}
+>
+  Hwarang Scoring allocates synchronization capacity,
+processing resources and operational support according
+to the estimated size of the event.
+
+Selecting the appropriate package helps ensure a stable
+experience for athletes, judges, officials and spectators.
+</div>
           </div>
 
           {/* ======================================================
@@ -1368,9 +1508,9 @@ alignItems: "center",
                 color: "rgba(255,255,255,0.66)",
               }}
             >
-              This license is valid for one official event and the selected number
-              of arenas. It may not be shared, resold, sublicensed or used outside
-              the authorized event.
+              This license is valid for one official event and the selected Nova
+package. It may not be shared, resold, sublicensed or used outside
+the authorized event.
             </p>
 
             <label
@@ -1389,7 +1529,7 @@ alignItems: "center",
                 checked={accepted}
                 onChange={(e) => setAccepted(e.target.checked)}
               />
-              I accept the Event License Terms
+              I accept the Nova License Terms
             </label>
           </div>
 
@@ -1447,7 +1587,7 @@ alignItems: "center",
               e.currentTarget.style.filter = "brightness(1.16)";
             }}
           >
-            BUY EVENT LICENSE
+            BUY NOVA LICENSE
           </button>
         </aside>
       </main>
