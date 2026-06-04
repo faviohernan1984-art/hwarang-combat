@@ -1157,15 +1157,15 @@ LICENSE NOVA PAGE — LEFT COMMERCIAL COLUMN
   }}
 >
   <div
-    style={{
-      color: "#60a5fa",
-      fontWeight: 1000,
-      letterSpacing: 1.2,
-      marginBottom: 8,
-    }}
-  >
-    ✦ EVENT SIZING
-  </div>
+  style={{
+    color: "#60a5fa",
+    fontWeight: 1000,
+    letterSpacing: 1.2,
+    marginBottom: isNotebook ? 4 : 8,
+  }}
+>
+  ✦ EVENT SIZING
+</div>
 
   <p
     style={{
@@ -1189,16 +1189,16 @@ LICENSE NOVA PAGE — LEFT COMMERCIAL COLUMN
       display: "grid",
       gridTemplateColumns: "repeat(3, 1fr)",
       gap: isNotebook ? 5 : 14,
-marginTop: isNotebook ? 5 : 32,
-      maxWidth: isNotebook ? 650 : 860,
+marginTop: isNotebook ? 28 : 32,
+      maxWidth: isNotebook ? 700 : 860,
     }}
   >
-    <DemoFeatureMini title="Tournament Day" />
-    <DemoFeatureMini title="President Station" />
-    <DemoFeatureMini title="Public TV" />
-    <DemoFeatureMini title="Judge Mobile" />
-    <DemoFeatureMini title="Combat PRO" />
-    <DemoFeatureMini title="Cloud Sync" />
+    <DemoFeatureMini title="Tournament Day" compact={isNotebook} />
+<DemoFeatureMini title="President Station" compact={isNotebook} />
+<DemoFeatureMini title="Public TV" compact={isNotebook} />
+<DemoFeatureMini title="Judge Mobile" compact={isNotebook} />
+<DemoFeatureMini title="Combat PRO" compact={isNotebook} />
+<DemoFeatureMini title="Cloud Sync" compact={isNotebook} />
   </div>
 
 {/* ======================================================
@@ -1206,7 +1206,7 @@ LICENSE NOVA PAGE — WHY CHOOSE THE RIGHT PROFILE
 ====================================================== */}
 <div
   style={{
-    marginTop: isNotebook ? 8 : 22,
+    marginTop: isNotebook ? 32 : 22,
     maxWidth: 860,
   }}
 >
@@ -1225,7 +1225,7 @@ LICENSE NOVA PAGE — WHY CHOOSE THE RIGHT PROFILE
   style={{
     color: "rgba(255,255,255,0.78)",
     fontSize: isNotebook ? 16 : 16,
-    lineHeight: isNotebook ? 1.35 : 1.7,
+    lineHeight: isNotebook ? 1.65 : 2,
   }}
 >
   <strong style={{ color: "#fff" }}>Starter</strong> — Designed for local
@@ -2296,7 +2296,7 @@ Match Credits are deducted only when official results are closed by the Presiden
 LICENSE DISCOVER PAGE
 MINI FEATURE COMPONENT
 ====================================================== */
-function DemoFeatureMini({ title, tone = "gold" }) {
+function DemoFeatureMini({ title, tone = "gold", compact = false }) {
   const palette =
     tone === "cyan"
       ? {
@@ -2319,7 +2319,7 @@ function DemoFeatureMini({ title, tone = "gold" }) {
   return (
     <div
       style={{
-        minHeight: 58,
+        minHeight: compact ? 20 : 58,
         borderRadius: 16,
         border: palette.border,
         background: palette.background,
