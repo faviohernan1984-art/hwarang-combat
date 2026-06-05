@@ -964,13 +964,27 @@ export function LicenseEventPage() {
   const [areas, setAreas] = useState(4);
   const [accepted, setAccepted] = useState(false);
   const isNotebook =
+
+  
+  
   typeof window !== "undefined" &&
   window.innerWidth >= 1200 &&
   window.innerWidth <= 1600 &&
   window.innerHeight >= 700 &&
   window.innerHeight <= 900;
 
-  {/* no va comentario acá, solo reemplazo JS */}
+const nova = {
+  blue: "#60a5fa",
+  electric: "#3b82f6",
+  violet: "#7c3aed",
+
+  glowBlue: "rgba(59,130,246,0.18)",
+  glowViolet: "rgba(124,58,237,0.22)",
+
+  border: "rgba(124,58,237,0.42)",
+  text: "#a78bfa",
+};
+  
 const prices = {
   1: 99,
   2: 199,
@@ -1261,12 +1275,12 @@ Notebook/PC scale and position cloned from Pulsar.
 ====================================================== */}
 <aside
   style={{
-    border: "1px solid rgba(59,130,246,0.46)",
+    border: `1px solid ${nova.border}`,
     borderRadius: 26,
     padding: isNotebook ? 15 : 20,
     background: "rgba(0,0,0,0.72)",
     boxShadow:
-      "0 0 55px rgba(0,0,0,0.78), 0 0 34px rgba(59,130,246,0.18)",
+  `0 0 55px rgba(0,0,0,0.78), 0 0 34px ${nova.glowBlue}, 0 0 58px ${nova.glowViolet}`,
     backdropFilter: "blur(14px)",
     transform: isNotebook
       ? "translateY(115px) scale(0.74)"
@@ -1285,8 +1299,8 @@ LICENSE NOVA PAGE — RIGHT CARD TITLE
     fontSize: 28,
     margin: "0 0 8px",
     letterSpacing: 2,
-    color: "#60a5fa",
-    textShadow: "0 0 18px rgba(96,165,250,0.45)",
+    color: "#a78bfa",
+    textShadow: "0 0 22px rgba(124,58,237,0.45)",
   }}
 >
   NOVA LICENSE
@@ -1331,12 +1345,12 @@ LICENSE NOVA PAGE — PACKAGE SELECTOR
           borderRadius: 14,
 
           border: active
-            ? "1px solid rgba(96,165,250,0.95)"
-            : "1px solid rgba(255,255,255,0.14)",
+  ? "1px solid rgba(96,165,250,0.95)"
+  : "1px solid rgba(124,58,237,0.22)",
 
           background: active
-            ? "linear-gradient(180deg, rgba(37,99,235,0.95), rgba(29,78,216,0.72))"
-            : "rgba(15,23,42,0.72)",
+  ? "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)"
+  : "linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(28,18,56,0.72) 100%)",
 
           color: "#fff",
 
@@ -1345,8 +1359,8 @@ LICENSE NOVA PAGE — PACKAGE SELECTOR
           cursor: "pointer",
 
           boxShadow: active
-            ? "0 0 22px rgba(59,130,246,0.48)"
-            : "none",
+  ? "0 0 22px rgba(59,130,246,0.48), 0 0 36px rgba(124,58,237,0.22)"
+  : "none",
 
           transition:
             "transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease",
@@ -1433,8 +1447,8 @@ LICENSE NOVA PAGE — PACKAGE SUMMARY
               <strong
                 style={{
                   fontSize: 28,
-                  color: "#60a5fa",
-                  textShadow: "0 0 18px rgba(96,165,250,0.55)",
+                  color: "#a78bfa",
+textShadow: "0 0 22px rgba(124,58,237,0.55)",
                 }}
               >
                 USD {selectedPrice}
@@ -1446,14 +1460,16 @@ LICENSE NOVA PAGE — PACKAGE SUMMARY
           LICENSE EVENT PAGE — ROI EXAMPLE
           ====================================================== */}
           <div
-            style={{
-              padding: 18,
-              borderRadius: 18,
-              background: "rgba(2,6,23,0.72)",
-              border: "1px solid rgba(255,255,255,0.10)",
-              marginBottom: 18,
-            }}
-          >
+  style={{
+    padding: 18,
+    borderRadius: 18,
+    background:
+  "linear-gradient(135deg, rgba(2,6,23,0.72) 0%, rgba(22,12,42,0.72) 100%)",
+    border: "1px solid rgba(124,58,237,0.24)",
+    boxShadow: "0 0 18px rgba(124,58,237,0.08)",
+    marginBottom: 18,
+  }}
+>
             {/* ======================================================
 LICENSE NOVA PAGE — WHY EVENT SIZE MATTERS
 ====================================================== */}
@@ -1462,7 +1478,7 @@ LICENSE NOVA PAGE — WHY EVENT SIZE MATTERS
     fontSize: 13,
     fontWeight: 1000,
     letterSpacing: 1,
-    color: "#93c5fd",
+    color: "#a78bfa",
     marginBottom: 8,
   }}
 >
@@ -1489,13 +1505,14 @@ experience for athletes, judges, officials and spectators.
           LICENSE EVENT PAGE — TERMS AND CONDITIONS
           ====================================================== */}
           <div
-            style={{
-              padding: 18,
-              borderRadius: 18,
-              background: "rgba(15,23,42,0.88)",
-              border: "1px solid rgba(59,130,246,0.22)",
-            }}
-          >
+  style={{
+    padding: 18,
+    borderRadius: 18,
+    background: "rgba(18,12,34,0.88)",
+    border: "1px solid rgba(124,58,237,0.24)",
+    boxShadow: "0 0 18px rgba(124,58,237,0.08)",
+  }}
+>
             <div style={{ fontWeight: 1000, marginBottom: 8 }}>
               TERMS & CONDITIONS
             </div>
@@ -1551,9 +1568,11 @@ the authorized event.
               borderRadius: 14,
               border: "none",
               background: accepted
-                ? "linear-gradient(90deg,#2563eb,#60a5fa)"
-                : "linear-gradient(90deg,#334155,#475569)",
-              color: accepted ? "#fff" : "rgba(255,255,255,0.55)",
+  ? "linear-gradient(135deg,#2563eb 0%, #7c3aed 100%)"
+  : "linear-gradient(135deg, rgba(37,99,235,0.22) 0%, rgba(124,58,237,0.22) 100%)",
+              color: accepted
+  ? "#fff"
+  : "rgba(220,220,255,0.58)",
               fontWeight: 1000,
               letterSpacing: 1,
               cursor: accepted ? "pointer" : "not-allowed",
