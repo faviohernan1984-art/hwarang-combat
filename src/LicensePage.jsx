@@ -36,6 +36,15 @@ url('/portalenterprice/newportal.png')
 };
 
 /* ======================================================
+NOTEBOOK — BLOQUEO GLOBAL DEL COLLAGE
+Aplica únicamente en notebook.
+No modifica PC, Discover, Nova ni Pulsar en escritorio.
+====================================================== */
+const notebookCollageLock = {
+  backgroundPosition: "center 50%",
+};
+
+/* ======================================================
 LICENSE PAGE
 TEMPORARY NAV ACTIONS
 ====================================================== */
@@ -515,14 +524,20 @@ export function LicenseDemoPage() {
 
   return (
     <div
-      style={{
-  ...styles.page,
-  minHeight: "100vh",
-  ...enterpriseCollageBackground,
-  overflow: "hidden",
-  
-}}
-    >
+  style={{
+    ...styles.page,
+    minHeight: "100vh",
+    ...enterpriseCollageBackground,
+
+    /* ======================================================
+    NOTEBOOK — COLLAGE FIJO DISCOVER
+    Solo notebook. PC queda intacto.
+    ====================================================== */
+    ...(isNotebook ? notebookCollageLock : {}),
+
+    overflow: "hidden",
+  }}
+>
       {/* ======================================================
 LICENSE DISCOVER PAGE — BRAND NAVIGATION
 Stable navbar layer protection for notebook fullscreen.
@@ -799,11 +814,18 @@ boxShadow: "inset 0 0 22px rgba(34,211,238,0.08)",
                 cursor: "pointer",
               }}
             >
-              <input
-                type="checkbox"
-                checked={accepted}
-                onChange={(e) => setAccepted(e.target.checked)}
-              />
+              {/* ======================================================
+DISCOVER LICENSE — CHECKBOX CYAN
+Mantiene identidad Discover sin afectar Nova ni Pulsar
+====================================================== */}
+<input
+  type="checkbox"
+  checked={accepted}
+  onChange={(e) => setAccepted(e.target.checked)}
+  style={{
+    accentColor: "#22d3ee",
+  }}
+/>
               I accept the Discover Terms and Conditions
             </label>
           </div>
@@ -996,12 +1018,18 @@ const prices = {
 
   return (
     <div
-      style={{
-  ...styles.page,
-  minHeight: "100vh",
-  ...enterpriseCollageBackground,
-}}
-    >
+  style={{
+    ...styles.page,
+    minHeight: "100vh",
+    ...enterpriseCollageBackground,
+
+    /* ======================================================
+    NOTEBOOK — COLLAGE FIJO NOVA
+    Solo notebook. PC queda intacto.
+    ====================================================== */
+    ...(isNotebook ? notebookCollageLock : {}),
+  }}
+>
       {/* ======================================================
       LICENSE EVENT PAGE — BRAND NAVIGATION
       ====================================================== */}
@@ -1036,44 +1064,81 @@ const prices = {
         ====================================================== */}
         <nav style={styles.navLinks}>
           <span
-            onMouseEnter={(e) => navHoverOn(e)}
-            onMouseLeave={(e) => navHoverOff(e)}
-            onMouseDown={(e) => navClickFx(e)}
-            onClick={() => (window.location.href = "/")}
-            style={{
-              cursor: "pointer",
-              transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
-            }}
-          >
-            HOME
-          </span>
+  onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-1px)";
+    e.currentTarget.style.color = "#a78bfa";
+    e.currentTarget.style.textShadow =
+      "0 0 10px rgba(167,139,250,0.35)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.color = "#ffffff";
+    e.currentTarget.style.textShadow = "none";
+  }}
+  onMouseDown={(e) => navClickFx(e)}
+  onClick={() => (window.location.href = "/")}
+  style={{
+    cursor: "pointer",
+    transition:
+      "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
+  }}
+>
+  HOME
+</span>
 
           <span
-            onMouseEnter={(e) => navHoverOn(e)}
-            onMouseLeave={(e) => navHoverOff(e)}
-            onMouseDown={(e) => navClickFx(e)}
-            onClick={() => (window.location.href = "/license-dev")}
-            style={{
-              cursor: "pointer",
-              transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
-            }}
-          >
-            LICENSE
-          </span>
+  onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-1px)";
+    e.currentTarget.style.color = "#a78bfa";
+    e.currentTarget.style.textShadow =
+      "0 0 10px rgba(167,139,250,0.35)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.color = "#ffffff";
+    e.currentTarget.style.textShadow = "none";
+  }}
+  onMouseDown={(e) => navClickFx(e)}
+  onClick={() => (window.location.href = "/license-dev")}
+  style={{
+    cursor: "pointer",
+    transition:
+      "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
+  }}
+>
+  LICENSE
+</span>
 
-          <span
-            onMouseEnter={(e) => navHoverOn(e, true)}
-            onMouseLeave={(e) => navHoverOff(e, "#60a5fa", true)}
-            onMouseDown={(e) => navClickFx(e)}
-            style={{
-              ...styles.activeNav,
-              cursor: "default",
-              transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
-              textShadow: "0 0 8px rgba(96,165,250,0.35)",
-            }}
-          >
-            EVENT
-          </span>
+          {/* ======================================================
+NOVA LICENSE — NAV ACTIVO LOCAL
+No modifica Discover ni Pulsar
+====================================================== */}
+<span
+  onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-1px)";
+    e.currentTarget.style.color = "#a78bfa";
+    e.currentTarget.style.textShadow =
+      "0 0 14px rgba(167,139,250,0.45)";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.color = "#a78bfa";
+    e.currentTarget.style.textShadow =
+      "0 0 10px rgba(167,139,250,0.35)";
+  }}
+  onMouseDown={(e) => navClickFx(e)}
+  style={{
+    ...styles.activeNav,
+    borderBottom: "3px solid #a78bfa",
+    cursor: "default",
+    color: "#a78bfa",
+    transition:
+      "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
+    textShadow: "0 0 10px rgba(167,139,250,0.35)",
+  }}
+>
+  EVENT
+</span>
         </nav>
 
         <div style={styles.navActions}>
@@ -1121,25 +1186,52 @@ LICENSE NOVA PAGE — LEFT COMMERCIAL COLUMN
   style={{
     transform: isNotebook
       ? "translateY(20px)"
-      : "translateY(-70px)",
+      : "translateY(-20px)",
   }}
 >
-  <div style={{ ...styles.kicker, color: "#60a5fa" }}>
-    SINGLE EVENT COMPETITION LICENSE
-  </div>
+  {/* ======================================================
+NOVA LICENSE — KICKER SUPERIOR
+Descriptor comercial de categoría
+====================================================== */}
+<div
+  style={{
+    ...styles.kicker,
 
-  <h1
+    color: "#c4b5fd",
+
+    letterSpacing: 2.5,
+
+    textShadow:
+      "0 0 12px rgba(124,58,237,0.22)",
+  }}
+>
+  SINGLE EVENT COMPETITION LICENSE
+</div>
+
+  {/* ======================================================
+NOVA LICENSE — TITULO PRINCIPAL IZQUIERDO
+LICENSE usa el mismo tono oficial del panel derecho
+====================================================== */}
+<h1
+  style={{
+    ...styles.title,
+    fontSize: isNotebook ? 66 : 76,
+    lineHeight: 0.94,
+    margin: "14px 0 18px",
+    textAlign: "left",
+    maxWidth: isNotebook ? 1100 : 820,
+  }}
+>
+  NOVA{" "}
+  <span
     style={{
-      ...styles.title,
-      fontSize: 76,
-      lineHeight: 0.94,
-      margin: "14px 0 18px",
-      textAlign: "left",
-      maxWidth: isNotebook ? 1100 : 820,
+      color: "#a78bfa",
+      textShadow: "0 0 22px rgba(124,58,237,0.45)",
     }}
   >
-    NOVA <span style={styles.blueText}>LICENSE</span>
-  </h1>
+    LICENSE
+  </span>
+</h1>
 
   <p
     style={{
@@ -1170,12 +1262,22 @@ LICENSE NOVA PAGE — LEFT COMMERCIAL COLUMN
     backdropFilter: "none",
   }}
 >
-  <div
+  {/* ======================================================
+NOVA LICENSE — TITULO EVENT SIZING
+Mismo tono oficial utilizado en panel derecho
+====================================================== */}
+<div
   style={{
-    color: "#60a5fa",
+    color: "#a78bfa",
+
     fontWeight: 1000,
+
     letterSpacing: 1.2,
+
     marginBottom: isNotebook ? 4 : 8,
+
+    textShadow:
+      "0 0 22px rgba(124,58,237,0.45)",
   }}
 >
   ✦ EVENT SIZING
@@ -1189,7 +1291,7 @@ LICENSE NOVA PAGE — LEFT COMMERCIAL COLUMN
       lineHeight: 1.55,
     }}
   >
-    For the best synchronization, performance and support experience,
+    For optimal synchronization, performance and support,
     we recommend selecting the package that best represents the real
     size of your event.
   </p>
@@ -1207,12 +1309,17 @@ marginTop: isNotebook ? 28 : 32,
       maxWidth: isNotebook ? 700 : 860,
     }}
   >
-    <DemoFeatureMini title="Tournament Day" compact={isNotebook} />
-<DemoFeatureMini title="President Station" compact={isNotebook} />
-<DemoFeatureMini title="Public TV" compact={isNotebook} />
-<DemoFeatureMini title="Judge Mobile" compact={isNotebook} />
-<DemoFeatureMini title="Combat PRO" compact={isNotebook} />
-<DemoFeatureMini title="Cloud Sync" compact={isNotebook} />
+    {/* ======================================================
+NOVA LICENSE — FEATURES IZQUIERDOS
+Aplicación de identidad Electric Blue + Plasma Violet.
+Mantiene estructura original y solo cambia la paleta visual.
+====================================================== */}
+<DemoFeatureMini title="Tournament Day" tone="nova" compact={isNotebook} />
+<DemoFeatureMini title="President Station" tone="nova" compact={isNotebook} />
+<DemoFeatureMini title="Public TV" tone="nova" compact={isNotebook} />
+<DemoFeatureMini title="Judge Mobile" tone="nova" compact={isNotebook} />
+<DemoFeatureMini title="Combat PRO" tone="nova" compact={isNotebook} />
+<DemoFeatureMini title="Cloud Sync" tone="nova" compact={isNotebook} />
   </div>
 
 {/* ======================================================
@@ -1224,16 +1331,26 @@ LICENSE NOVA PAGE — WHY CHOOSE THE RIGHT PROFILE
     maxWidth: 860,
   }}
 >
-  <div
-    style={{
-      color: "#60a5fa",
-      fontWeight: 1000,
-      letterSpacing: 1.2,
-      marginBottom: isNotebook ? 6 : 12,
-    }}
-  >
-    ✦ WHY CHOOSE THE RIGHT PROFILE
-  </div>
+  {/* ======================================================
+NOVA LICENSE — TITULO PERFIL CORRECTO
+Color oficial Nova utilizado en panel derecho
+====================================================== */}
+<div
+  style={{
+    color: "#a78bfa",
+
+    fontWeight: 1000,
+
+    letterSpacing: 1.2,
+
+    marginBottom: isNotebook ? 6 : 12,
+
+    textShadow:
+      "0 0 22px rgba(124,58,237,0.45)",
+  }}
+>
+  ✦ WHY CHOOSE THE RIGHT EVENT PROFILE
+</div>
 
   <div
   style={{
@@ -1257,8 +1374,7 @@ LICENSE NOVA PAGE — WHY CHOOSE THE RIGHT PROFILE
 
   <br />
 
-  <strong style={{ color: "#fff" }}>Grand Championship</strong> — Designed
-  for major events demanding maximum synchronization, visibility and support.
+  <strong style={{ color: "#fff" }}>Grand Championship</strong> — Designed for major events requiring maximum synchronization, visibility and operational support.
 </div>
 </div>
   
@@ -1314,7 +1430,7 @@ LICENSE NOVA PAGE — RIGHT CARD TITLE
     color: "rgba(255,255,255,0.62)",
   }}
 >
-  Select the package that best represents the real size of your event.
+  Select the package that best matches the real scale of your event.
 </p>
 
           {/* ======================================================
@@ -1344,12 +1460,16 @@ LICENSE NOVA PAGE — PACKAGE SELECTOR
           height: 54,
           borderRadius: 14,
 
-          border: active
-  ? "1px solid rgba(96,165,250,0.95)"
+          /* ======================================================
+NOVA LICENSE — BOTÓN ACTIVO PLASMA VIOLET
+Borde, fondo y glow alineados al panel derecho
+====================================================== */
+border: active
+  ? "1px solid rgba(167,139,250,0.95)"
   : "1px solid rgba(124,58,237,0.22)",
 
-          background: active
-  ? "linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)"
+background: active
+  ? "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 55%, #6d28d9 100%)"
   : "linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(28,18,56,0.72) 100%)",
 
           color: "#fff",
@@ -1359,7 +1479,7 @@ LICENSE NOVA PAGE — PACKAGE SELECTOR
           cursor: "pointer",
 
           boxShadow: active
-  ? "0 0 22px rgba(59,130,246,0.48), 0 0 36px rgba(124,58,237,0.22)"
+  ? "0 0 30px rgba(167,139,250,0.42)"
   : "none",
 
           transition:
@@ -1542,10 +1662,13 @@ the authorized event.
               }}
             >
               <input
-                type="checkbox"
-                checked={accepted}
-                onChange={(e) => setAccepted(e.target.checked)}
-              />
+  type="checkbox"
+  checked={accepted}
+  onChange={(e) => setAccepted(e.target.checked)}
+  style={{
+    accentColor: "#a78bfa",
+  }}
+/>
               I accept the Nova License Terms
             </label>
           </div>
@@ -1568,25 +1691,35 @@ the authorized event.
               borderRadius: 14,
               border: "none",
               background: accepted
-  ? "linear-gradient(135deg,#2563eb 0%, #7c3aed 100%)"
-  : "linear-gradient(135deg, rgba(37,99,235,0.22) 0%, rgba(124,58,237,0.22) 100%)",
-              color: accepted
-  ? "#fff"
-  : "rgba(220,220,255,0.58)",
-              fontWeight: 1000,
-              letterSpacing: 1,
-              cursor: accepted ? "pointer" : "not-allowed",
-              boxShadow: accepted
-                ? "0 0 34px rgba(96,165,250,0.52)"
-                : "none",
-              transition: "transform 0.08s ease, box-shadow 0.18s ease, filter 0.18s ease",
+? "linear-gradient(135deg,#8b5cf6 0%, #7c3aed 55%, #6d28d9 100%)"
+: "linear-gradient(135deg, rgba(35,20,60,0.55) 0%, rgba(25,12,45,0.65) 100%)",
+
+color: accepted
+? "#ffffff"
+: "rgba(220,220,255,0.45)",
+
+fontWeight: 1000,
+
+letterSpacing: 1,
+
+cursor: accepted
+? "pointer"
+: "not-allowed",
+
+boxShadow: accepted
+? "0 0 34px rgba(167,139,250,0.38)"
+: "none",
+
+transition:
+"transform 0.08s ease, box-shadow 0.18s ease, filter 0.18s ease",
             }}
             onMouseEnter={(e) => {
               if (!accepted) return;
               e.currentTarget.style.transform = "translateY(-2px)";
               e.currentTarget.style.filter = "brightness(1.16)";
               e.currentTarget.style.boxShadow =
-                "0 0 42px rgba(96,165,250,0.72), inset 0 0 18px rgba(255,255,255,0.14)";
+"0 0 42px rgba(167,139,250,0.55), inset 0 0 18px rgba(255,255,255,0.14)";
+
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "scale(1)";
@@ -1659,6 +1792,12 @@ const isNotebook =
   ...enterpriseCollageBackground,
 
   backgroundPosition: "center 70.5%",
+
+  /* ======================================================
+NOTEBOOK — COLLAGE FIJO PULSAR
+Solo notebook. PC conserva su posición actual.
+====================================================== */
+...(isNotebook ? notebookCollageLock : {}),
 
   ...(isNotebook
     ? {
@@ -2316,24 +2455,48 @@ LICENSE DISCOVER PAGE
 MINI FEATURE COMPONENT
 ====================================================== */
 function DemoFeatureMini({ title, tone = "gold", compact = false }) {
-  const palette =
-    tone === "cyan"
-      ? {
-          border: "1px solid rgba(34,211,238,0.30)",
-          background: "rgba(2,18,24,0.42)",
-          boxShadow: "0 0 18px rgba(34,211,238,0.14)",
-          iconColor: "#22d3ee",
-          iconGlow:
-            "drop-shadow(0 0 6px rgba(34,211,238,0.45))",
-        }
-      : {
-          border: "1px solid rgba(245,158,11,0.28)",
-          background: "rgba(24,14,3,0.42)",
-          boxShadow: "0 0 18px rgba(245,158,11,0.12)",
-          iconColor: "#fbbf24",
-          iconGlow:
-            "drop-shadow(0 0 6px rgba(251,191,36,0.45))",
-        };
+  /* ======================================================
+COMPONENTE MINI FEATURE
+PALETAS VISUALES POR PRODUCTO COMERCIAL
+Discover = Cyan
+Nova = Electric Blue + Plasma Violet
+Pulsar = Gold
+====================================================== */
+const palette =
+  tone === "cyan"
+    ? {
+        border: "1px solid rgba(34,211,238,0.30)",
+        background: "rgba(2,18,24,0.42)",
+        boxShadow: "0 0 18px rgba(34,211,238,0.14)",
+        iconColor: "#22d3ee",
+        iconGlow: "drop-shadow(0 0 6px rgba(34,211,238,0.45))",
+      }
+    /* ======================================================
+NOVA LICENSE — PLASMA VIOLET DOMINANTE
+Electric Blue secundario
+====================================================== */
+: tone === "nova"
+? {
+    border: "1px solid rgba(167,139,250,0.45)",
+
+    background:
+      "linear-gradient(135deg, rgba(18,12,34,0.88) 0%, rgba(28,18,56,0.78) 100%)",
+
+    boxShadow:
+      "0 0 22px rgba(124,58,237,0.18)",
+
+    iconColor: "#a78bfa",
+
+    iconGlow:
+      "drop-shadow(0 0 8px rgba(167,139,250,0.60))",
+  }
+    : {
+        border: "1px solid rgba(245,158,11,0.28)",
+        background: "rgba(24,14,3,0.42)",
+        boxShadow: "0 0 18px rgba(245,158,11,0.12)",
+        iconColor: "#fbbf24",
+        iconGlow: "drop-shadow(0 0 6px rgba(251,191,36,0.45))",
+      };
 
   return (
     <div
