@@ -40,8 +40,35 @@ NOTEBOOK — BLOQUEO GLOBAL DEL COLLAGE
 Aplica únicamente en notebook.
 No modifica PC, Discover, Nova ni Pulsar en escritorio.
 ====================================================== */
+
+
+/* ======================================================
+NOTEBOOK COMMERCIAL VIEWPORT
+Unified commercial notebook behavior for Discover, Nova and Pulsar.
+Keeps notebook layout maintenance in one single source.
+====================================================== */
+const notebookCommercialViewport = {
+  pagePadding: "8px 20px 8px",
+  gridColumns: "0.9fr 0.58fr",
+  gridGap: 38,
+
+  mainTranslateY: -120,
+
+  leftTranslateY: 20,
+
+  rightTranslateY: 115,
+  rightScale: 0.74,
+
+  backgroundPosition: "center center",
+  backgroundSize: "auto 115%",
+};
+
+/* ======================================================
+NOTEBOOK — BLOQUEO GLOBAL DEL COLLAGE
+====================================================== */
 const notebookCollageLock = {
-  backgroundPosition: "center 50%",
+  backgroundPosition: notebookCommercialViewport.backgroundPosition,
+  backgroundSize: notebookCommercialViewport.backgroundSize,
 };
 
 /* ======================================================
@@ -517,7 +544,7 @@ export function LicenseDemoPage() {
   ====================================================== */
   const isNotebook =
     typeof window !== "undefined" &&
-    window.innerWidth >= 1200 &&
+    window.innerWidth >= 860 &&
     window.innerWidth <= 1600 &&
     window.innerHeight >= 700 &&
     window.innerHeight <= 900;
@@ -650,14 +677,14 @@ PC frozen behavior remains untouched.
     minHeight: "calc(100vh - 88px)",
 
     padding: isNotebook
-      ? "8px 20px 8px"
-      : "38px 92px 22px",
+  ? notebookCommercialViewport.pagePadding
+  : "38px 92px 22px",
 
     display: "grid",
 
     gridTemplateColumns: isNotebook
-      ? "0.9fr 0.47fr"
-      : "1.35fr 0.65fr",
+  ? notebookCommercialViewport.gridColumns
+  : "1.35fr 0.65fr",
 
     gap: isNotebook
       ? 38
@@ -666,8 +693,8 @@ PC frozen behavior remains untouched.
     alignItems: "center",
 
     transform: isNotebook
-      ? "translateY(-90px)"
-      : "none",
+  ? `translateY(${notebookCommercialViewport.mainTranslateY}px)`
+  : "none",
   }}
 >
         <section>
@@ -985,14 +1012,15 @@ V1 COMPLETE COMMERCIAL LANDING
 export function LicenseEventPage() {
   const [areas, setAreas] = useState(4);
   const [accepted, setAccepted] = useState(false);
-  const isNotebook =
-
-  
-  
+  /* ======================================================
+NOVA LICENSE — NOTEBOOK DETECTION
+Includes scaled notebook viewport detected at 876x703.
+====================================================== */
+const isNotebook =
   typeof window !== "undefined" &&
-  window.innerWidth >= 1200 &&
+  window.innerWidth >= 860 &&
   window.innerWidth <= 1600 &&
-  window.innerHeight >= 700 &&
+  window.innerHeight >= 680 &&
   window.innerHeight <= 900;
 
 const nova = {
@@ -1004,7 +1032,11 @@ const nova = {
   glowViolet: "rgba(124,58,237,0.22)",
 
   border: "rgba(124,58,237,0.42)",
+
   text: "#a78bfa",
+
+  glowText:
+    "0 0 22px rgba(167,139,250,0.45)",
 };
   
 const prices = {
@@ -1019,16 +1051,21 @@ const prices = {
   return (
     <div
   style={{
-    ...styles.page,
-    minHeight: "100vh",
-    ...enterpriseCollageBackground,
+  ...styles.page,
+  minHeight: "100vh",
+  ...enterpriseCollageBackground,
 
-    /* ======================================================
-    NOTEBOOK — COLLAGE FIJO NOVA
-    Solo notebook. PC queda intacto.
-    ====================================================== */
-    ...(isNotebook ? notebookCollageLock : {}),
-  }}
+  /* ======================================================
+  NOTEBOOK — COLLAGE FIJO NOVA
+  Solo notebook. PC queda intacto.
+  ====================================================== */
+  ...(isNotebook
+  ? {
+      ...notebookCollageLock,
+      backgroundPosition: "center 90%",
+    }
+  : {}),
+}}
 >
       {/* ======================================================
       LICENSE EVENT PAGE — BRAND NAVIGATION
@@ -1165,17 +1202,19 @@ No modifica Discover ni Pulsar
         style={{
           minHeight: "calc(100vh - 88px)",
           padding: isNotebook
-  ? "8px 20px 8px"
+  ? notebookCommercialViewport.pagePadding
   : "38px 92px 28px",
 display: "grid",
 gridTemplateColumns: isNotebook
-  ? "0.9fr 0.58fr"
+  ? notebookCommercialViewport.gridColumns
   : "1.35fr 0.65fr",
-gap: 38,
+gap: isNotebook
+  ? notebookCommercialViewport.gridGap
+  : 38,
 alignItems: "center",
 
 transform: isNotebook
-  ? "translateY(-120px)"
+  ? `translateY(${notebookCommercialViewport.mainTranslateY}px)`
   : "none",
         }}
       >
@@ -1190,43 +1229,45 @@ LICENSE NOVA PAGE — LEFT COMMERCIAL COLUMN
   }}
 >
   {/* ======================================================
-NOVA LICENSE — KICKER SUPERIOR
-Descriptor comercial de categoría
+NOVA LICENSE — HERO KICKER DISCOVER TEMPLATE
+Uses the dominant Nova accent to unify the commercial hierarchy.
 ====================================================== */}
 <div
   style={{
     ...styles.kicker,
 
-    color: "#c4b5fd",
+    color: "#a78bfa",
 
     letterSpacing: 2.5,
 
     textShadow:
-      "0 0 12px rgba(124,58,237,0.22)",
+      "0 0 12px rgba(167,139,250,0.35)",
   }}
 >
   SINGLE EVENT COMPETITION LICENSE
 </div>
 
   {/* ======================================================
-NOVA LICENSE — TITULO PRINCIPAL IZQUIERDO
-LICENSE usa el mismo tono oficial del panel derecho
+NOVA LICENSE — HERO TITLE DISCOVER TEMPLATE
+Replicates Discover hierarchy: strong white title + controlled themed highlight.
 ====================================================== */}
 <h1
   style={{
     ...styles.title,
     fontSize: isNotebook ? 66 : 76,
-    lineHeight: 0.94,
+    lineHeight: 0.96,
     margin: "14px 0 18px",
     textAlign: "left",
     maxWidth: isNotebook ? 1100 : 820,
+    color: "#ffffff",
+    textShadow: "0 0 16px rgba(255,255,255,0.18)",
   }}
 >
   NOVA{" "}
   <span
     style={{
       color: "#a78bfa",
-      textShadow: "0 0 22px rgba(124,58,237,0.45)",
+      textShadow: nova.glowText,
     }}
   >
     LICENSE
@@ -1276,8 +1317,7 @@ Mismo tono oficial utilizado en panel derecho
 
     marginBottom: isNotebook ? 4 : 8,
 
-    textShadow:
-      "0 0 22px rgba(124,58,237,0.45)",
+    textShadow: nova.glowText,
   }}
 >
   ✦ EVENT SIZING
@@ -1345,8 +1385,7 @@ Color oficial Nova utilizado en panel derecho
 
     marginBottom: isNotebook ? 6 : 12,
 
-    textShadow:
-      "0 0 22px rgba(124,58,237,0.45)",
+    textShadow: nova.glowText,
   }}
 >
   ✦ WHY CHOOSE THE RIGHT EVENT PROFILE
@@ -1954,22 +1993,47 @@ transform: isNotebook
         LICENSE EVENT PAGE — LEFT COMMERCIAL COLUMN
         ====================================================== */}
         <section>
-          <div style={{ ...styles.kicker, color: "#f6c36a" }}>
+          {/* ======================================================
+PULSAR LICENSE — HERO KICKER
+Annual descriptor aligned with Nova and Discover title system.
+====================================================== */}
+<div
+  style={{
+    ...styles.kicker,
+    color: pulsar.text,
+    letterSpacing: 2.5,
+    textShadow: `0 0 12px ${pulsar.medium}`,
+  }}
+>
   ANNUAL ORGANIZATION LICENSE
 </div>
 
-          <h1
-            style={{
-              ...styles.title,
-              fontSize: 76,
-              lineHeight: 0.94,
-              margin: "14px 0 18px",
-              textAlign: "left",
-              maxWidth: isNotebook ? 1100 : 820,
-            }}
-          >
-            PULSAR <span style={{ color: "#f6c36a" }}>LICENSE</span>
-          </h1>
+{/* ======================================================
+PULSAR LICENSE — HERO TITLE DISCOVER TEMPLATE
+Replicates Discover hierarchy: strong white title + controlled themed highlight.
+====================================================== */}
+<h1
+  style={{
+    ...styles.title,
+    fontSize: isNotebook ? 66 : 76,
+    lineHeight: 0.96,
+    margin: "14px 0 18px",
+    textAlign: "left",
+    maxWidth: isNotebook ? 1100 : 820,
+    color: "#ffffff",
+    textShadow: "0 0 16px rgba(255,255,255,0.18)",
+  }}
+>
+  PULSAR{" "}
+  <span
+    style={{
+      color: "#fbbf24",
+      textShadow: "0 0 24px rgba(251,191,36,0.55)",
+    }}
+  >
+    LICENSE
+  </span>
+</h1>
 
           <p
             style={{
