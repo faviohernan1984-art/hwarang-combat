@@ -1720,12 +1720,23 @@ the authorized event.
           ====================================================== */}
           <button
             disabled={!accepted}
-            onClick={() => {
-              window.open(
-                "https://link.mercadopago.com.ar/universohwarang",
-                "_blank"
-              );
-            }}
+            /* ======================================================
+NOVA BUY BUTTON → CHECKOUT INTELIGENTE V1
+Envía paquete y precio seleccionados.
+====================================================== */
+onClick={() => {
+  if (!accepted) return;
+
+  const novaPackages = {
+    1: "starter",
+    2: "regional",
+    3: "championship",
+    4: "grand-championship",
+  };
+
+  window.location.href =
+    `/checkout?product=nova&package=${novaPackages[areas]}&price=${selectedPrice}`;
+}}
             style={{
               width: "100%",
               height: 58,
@@ -2445,12 +2456,16 @@ Match Credits are deducted only when official results are closed by the Presiden
           ====================================================== */}
           <button
             disabled={!accepted}
-            onClick={() => {
-              window.open(
-                "https://link.mercadopago.com.ar/universohwarang",
-                "_blank"
-              );
-            }}
+            /* ======================================================
+PULSAR BUY BUTTON → CHECKOUT INTELIGENTE V1
+Envía créditos, top-up y precio total seleccionados.
+====================================================== */
+onClick={() => {
+  if (!accepted) return;
+
+  window.location.href =
+    `/checkout?product=pulsar&package=${totalCredits}-credits&price=${selectedPrice}`;
+}}
             style={{
   width: "100%",
   height: 58,

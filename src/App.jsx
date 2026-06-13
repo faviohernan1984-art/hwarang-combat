@@ -57,6 +57,177 @@ const MAX_JUDGES = 5;
 const COMBAT_JUDGES = 4;
 const BREAK_SECONDS = 30;
 
+/* ======================================================
+CHECKOUT PAGE COMPONENT
+Commercial checkout architecture.
+Does not modify Combat Engine, Judges,
+President, PublicTV or Medical systems.
+====================================================== */
+function CheckoutPage() {
+    /* ======================================================
+  CHECKOUT PRODUCT PARAMS
+  Reads selected commercial license from URL.
+  Does not modify frozen License pages or Combat Engine.
+  ====================================================== */
+  const checkoutParams = new URLSearchParams(window.location.search);
+
+  const selectedProduct = checkoutParams.get("product") || "none";
+  const selectedPackage = checkoutParams.get("package") || "not-selected";
+  const selectedPrice = checkoutParams.get("price") || "0";
+
+  /* ======================================================
+PULSAR VOLUME DISCOUNT ENGINE
+====================================================== */
+const numericPrice = Number(selectedPrice || 0);
+
+let discountPercent = 0;
+
+if (selectedProduct === "pulsar") {
+  if (numericPrice >= 5000) {
+    discountPercent = 15;
+  } else if (numericPrice >= 2000) {
+    discountPercent = 10;
+  } else if (numericPrice >= 1000) {
+    discountPercent = 5;
+  }
+}
+
+const discountAmount =
+  Math.round((numericPrice * discountPercent) / 100);
+
+const finalPrice =
+  numericPrice - discountAmount;
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#000",
+        color: "#fff",
+        padding: 40,
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <h1
+  style={{
+    marginBottom: 30,
+    fontSize: 42,
+    color: "#60a5fa",
+  }}
+>
+  HWARANG CHECKOUT
+</h1>
+
+{/* ======================================================
+CHECKOUT SELECTED LICENSE SUMMARY
+Shows selected product before payment.
+====================================================== */}
+<div
+  style={{
+    maxWidth: 700,
+    marginBottom: 24,
+    padding: 18,
+    borderRadius: 14,
+    background: "#0f172a",
+    border: "1px solid rgba(96,165,250,0.35)",
+  }}
+>
+  <div>Product: {selectedProduct}</div>
+
+  <div>Package: {selectedPackage}</div>
+
+  <div>Regular Price: USD {numericPrice}</div>
+
+  {discountPercent > 0 && (
+    <>
+      <div>Discount: {discountPercent}%</div>
+
+      <div>Savings: USD {discountAmount}</div>
+    </>
+  )}
+
+  <div
+    style={{
+      marginTop: 8,
+      fontWeight: 700,
+      color: "#22c55e",
+    }}
+  >
+    Final Price: USD {finalPrice}
+  </div>
+</div>
+
+      <div
+        style={{
+          maxWidth: 700,
+          display: "flex",
+          flexDirection: "column",
+          gap: 18,
+        }}
+      >
+        <input
+          placeholder="Full Name"
+          style={{
+            padding: 14,
+            borderRadius: 10,
+            border: "1px solid #333",
+            background: "#111",
+            color: "#fff",
+          }}
+        />
+
+        <input
+          placeholder="Organization"
+          style={{
+            padding: 14,
+            borderRadius: 10,
+            border: "1px solid #333",
+            background: "#111",
+            color: "#fff",
+          }}
+        />
+
+        <input
+          placeholder="Country"
+          style={{
+            padding: 14,
+            borderRadius: 10,
+            border: "1px solid #333",
+            background: "#111",
+            color: "#fff",
+          }}
+        />
+
+        <input
+          placeholder="Email"
+          style={{
+            padding: 14,
+            borderRadius: 10,
+            border: "1px solid #333",
+            background: "#111",
+            color: "#fff",
+          }}
+        />
+
+        <button
+          style={{
+            marginTop: 12,
+            padding: 16,
+            border: "none",
+            borderRadius: 12,
+            background: "#2563eb",
+            color: "#fff",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          CONTINUE
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function getBaseURL() {
   return window.location.origin;
 }
@@ -14460,6 +14631,18 @@ if (path === "/license-dev") {
   );
 }
 
+/* ======================================================
+CHECKOUT INTELIGENTE V1
+Commercial checkout route.
+====================================================== */
+if (path === "/checkout") {
+  return (
+    <>
+      <GlobalAppStyle />
+      <CheckoutPage />
+    </>
+  );
+}
 
 /* ======================================================
 LICENSE ROUTE
