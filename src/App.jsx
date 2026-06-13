@@ -98,6 +98,21 @@ const discountAmount =
 const finalPrice =
   numericPrice - discountAmount;
 
+/* ======================================================
+CHECKOUT ORGANIZER FORM STATE
+Stores organizer information before payment.
+====================================================== */
+const [buyerName, setBuyerName] = useState("");
+const [organization, setOrganization] = useState("");
+const [country, setCountry] = useState("");
+const [email, setEmail] = useState("");
+
+const isCheckoutFormValid =
+  buyerName.trim() &&
+  organization.trim() &&
+  country.trim() &&
+  email.trim();
+
   return (
     <div
       style={{
@@ -166,63 +181,113 @@ Shows selected product before payment.
         }}
       >
         <input
-          placeholder="Full Name"
-          style={{
-            padding: 14,
-            borderRadius: 10,
-            border: "1px solid #333",
-            background: "#111",
-            color: "#fff",
-          }}
-        />
+  placeholder="Full Name"
+  value={buyerName}
+  onChange={(e) => setBuyerName(e.target.value)}
+  style={{
+    padding: 14,
+    borderRadius: 10,
+    border: "1px solid #333",
+    background: "#111",
+    color: "#fff",
+  }}
+/>
 
-        <input
-          placeholder="Organization"
-          style={{
-            padding: 14,
-            borderRadius: 10,
-            border: "1px solid #333",
-            background: "#111",
-            color: "#fff",
-          }}
-        />
+<input
+  placeholder="Organization"
+  value={organization}
+  onChange={(e) => setOrganization(e.target.value)}
+  style={{
+    padding: 14,
+    borderRadius: 10,
+    border: "1px solid #333",
+    background: "#111",
+    color: "#fff",
+  }}
+/>
 
-        <input
-          placeholder="Country"
-          style={{
-            padding: 14,
-            borderRadius: 10,
-            border: "1px solid #333",
-            background: "#111",
-            color: "#fff",
-          }}
-        />
+<input
+  placeholder="Country"
+  value={country}
+  onChange={(e) => setCountry(e.target.value)}
+  style={{
+    padding: 14,
+    borderRadius: 10,
+    border: "1px solid #333",
+    background: "#111",
+    color: "#fff",
+  }}
+/>
 
-        <input
-          placeholder="Email"
-          style={{
-            padding: 14,
-            borderRadius: 10,
-            border: "1px solid #333",
-            background: "#111",
-            color: "#fff",
-          }}
-        />
+<input
+  placeholder="Email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  style={{
+    padding: 14,
+    borderRadius: 10,
+    border: "1px solid #333",
+    background: "#111",
+    color: "#fff",
+  }}
+/>
 
-        <button
-          style={{
-            marginTop: 12,
-            padding: 16,
-            border: "none",
-            borderRadius: 12,
-            background: "#2563eb",
-            color: "#fff",
-            fontWeight: 700,
-            cursor: "pointer",
-          }}
-        >
-          CONTINUE
-        </button>
+        {/* ======================================================
+CHECKOUT CONTINUE BUTTON
+Commercial payload preparation.
+====================================================== */}
+<button
+  disabled={!isCheckoutFormValid}
+  onClick={() => {
+    const checkoutPayload = {
+      product: selectedProduct,
+      package: selectedPackage,
+
+      regularPrice: numericPrice,
+      discountPercent,
+      discountAmount,
+      finalPrice,
+
+      buyerName,
+      organization,
+      country,
+      email,
+
+      createdAt: new Date().toISOString(),
+    };
+
+    console.log(
+      "HWARANG CHECKOUT PAYLOAD",
+      checkoutPayload
+    );
+  }}
+  style={{
+    marginTop: 12,
+    padding: 16,
+    border: "none",
+    borderRadius: 12,
+
+    background: isCheckoutFormValid
+      ? "#2563eb"
+      : "#374151",
+
+    color: "#fff",
+
+    fontWeight: 700,
+
+    cursor: isCheckoutFormValid
+      ? "pointer"
+      : "not-allowed",
+
+    opacity: isCheckoutFormValid
+      ? 1
+      : 0.6,
+
+    transition: "all 0.2s ease",
+  }}
+>
+  CONTINUE TO PAYMENT
+</button>
       </div>
     </div>
   );
