@@ -64,9 +64,17 @@ const notebookCommercialViewport = {
 };
 
 /* ======================================================
-NOTEBOOK — BLOQUEO GLOBAL DEL COLLAGE
+NOTEBOOK — COMMERCIAL COLLAGE VIEWPORT LOCK
+Forces Discover, Nova and Pulsar to render the collage
+inside the same fixed notebook viewport.
 ====================================================== */
 const notebookCollageLock = {
+  position: "fixed",
+  inset: 0,
+  width: "100vw",
+  height: "100vh",
+  overflow: "hidden",
+
   backgroundPosition: notebookCommercialViewport.backgroundPosition,
   backgroundSize: notebookCommercialViewport.backgroundSize,
 };
@@ -693,7 +701,7 @@ PC frozen behavior remains untouched.
     alignItems: "center",
 
     transform: isNotebook
-  ? `translateY(${notebookCommercialViewport.mainTranslateY}px)`
+  ? `translateY(${notebookCommercialViewport.mainTranslateY + 35}px)`
   : "none",
   }}
 >
@@ -756,7 +764,7 @@ paddingLeft: 0,
             <DemoFeatureMini title="Public TV" tone="cyan" />
             <DemoFeatureMini title="Judge Mobile" tone="cyan" />
             <DemoFeatureMini title="Real-time Sync" tone="cyan" />
-            <DemoFeatureMini title="1 DISCOVER ARENA" tone="cyan" />
+            <DemoFeatureMini title="Single Arena Access" tone="cyan" />
             <DemoFeatureMini title="Cloud Platform" tone="cyan" />
           </div>
         </section>
@@ -797,7 +805,7 @@ Do not modify PC frozen behavior.
           <DemoLimit label="Use" value="Evaluation only" />
           <DemoLimit label="Session" value="10 minutes" />
           <DemoLimit label="Rounds" value="Maximum 2 rounds" />
-          <DemoLimit label="Arenas" value="1 DISCOVER ARENA" />
+          <DemoLimit label="Arenas" value="Single Arena Access" />
           <DemoLimit label="Commercial use" value="Not allowed" />
           <DemoLimit label="Branding" value="DISCOVER visible" />
 
@@ -1059,12 +1067,7 @@ const prices = {
   NOTEBOOK — COLLAGE FIJO NOVA
   Solo notebook. PC queda intacto.
   ====================================================== */
-  ...(isNotebook
-  ? {
-      ...notebookCollageLock,
-      backgroundPosition: "center 90%",
-    }
-  : {}),
+  ...(isNotebook ? notebookCollageLock : {}),
 }}
 >
       {/* ======================================================
@@ -1174,7 +1177,7 @@ No modifica Discover ni Pulsar
     textShadow: "0 0 10px rgba(167,139,250,0.35)",
   }}
 >
-  EVENT
+  NOVA
 </span>
         </nav>
 
@@ -1486,7 +1489,7 @@ LICENSE NOVA PAGE — PACKAGE SELECTOR
   {[
     { id: 1, label: "STARTER" },
     { id: 2, label: "REGIONAL" },
-    { id: 3, label: "CHAMP" },
+    { id: 3, label: "CHAMPIONSHIP" },
     { id: 4, label: "GRAND" },
   ].map((pkg) => {
     const active = areas === pkg.id;
