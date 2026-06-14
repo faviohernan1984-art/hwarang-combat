@@ -126,6 +126,83 @@ const generateCheckoutId = () => {
   );
 };
 
+/* ======================================================
+LICENSE KEY GENERATOR
+HSU-TKD-NOVA-2026-A7K4P9
+HSU-TKD-PULSAR-2026-X9T2R5
+====================================================== */
+const generateLicenseKey = () => {
+  const year = new Date().getFullYear();
+
+  const productCode =
+    selectedProduct === "nova"
+      ? "NOVA"
+      : selectedProduct === "pulsar"
+      ? "PULSAR"
+      : "DISCOVER";
+
+  const chars =
+    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+  let uniqueCode = "";
+
+  for (let i = 0; i < 6; i++) {
+    uniqueCode +=
+      chars[Math.floor(Math.random() * chars.length)];
+  }
+
+  return `HSU-TKD-${productCode}-${year}-${uniqueCode}`;
+};
+
+/* ======================================================
+CHECKOUT ACTIVATION PLAN
+Creates the future license activation structure.
+Payment approval will activate it later from backend.
+====================================================== */
+const buildActivationPlan = () => {
+  const now = new Date();
+
+  if (selectedProduct === "nova") {
+    const expires = new Date(now);
+    expires.setDate(expires.getDate() + 1);
+    return {
+      product: "nova",
+      validityType: "single-event",
+      activationStatus: "pending-payment",
+      requestedActivationDate: now.toISOString(),
+      estimatedExpirationDate: expires.toISOString(),
+      durationDays: 1,
+    };
+  }
+
+  if (selectedProduct === "pulsar") {
+    const expires = new Date(now);
+    expires.setFullYear(expires.getFullYear() + 1);
+
+    const credits = Number(
+      String(selectedPackage).replace("-credits", "")
+    );
+
+    return {
+      product: "pulsar",
+      validityType: "annual",
+      activationStatus: "pending-payment",
+      requestedActivationDate: now.toISOString(),
+      estimatedExpirationDate: expires.toISOString(),
+      durationDays: 365,
+      creditsTotal: credits,
+      creditsUsed: 0,
+      creditsRemaining: credits,
+    };
+  }
+
+  return {
+    product: selectedProduct,
+    validityType: "unknown",
+    activationStatus: "pending-payment",
+  };
+};
+
   return (
     <div
       style={{
@@ -256,10 +333,16 @@ Commercial payload preparation.
 
   const checkoutId = generateCheckoutId();
 
-  const checkoutPayload = {
+const activationPlan = buildActivationPlan();
+
+const licenseKey = generateLicenseKey();
+
+const checkoutPayload = {
     id: checkoutId,
 
-    product: selectedProduct,
+licenseKey,
+
+product: selectedProduct,
     package: selectedPackage,
 
     regularPrice: numericPrice,
@@ -274,7 +357,13 @@ Commercial payload preparation.
 
     status: "pending",
 
-    createdAt: new Date().toISOString(),
+paymentStatus: "pending",
+licenseStatus: "not-created",
+activationStatus: "waiting-payment",
+
+activationPlan,
+
+createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 
