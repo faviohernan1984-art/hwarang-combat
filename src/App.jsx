@@ -368,14 +368,47 @@ createdAt: new Date().toISOString(),
   };
 
   await setDoc(
-    doc(db, "checkoutRequests", checkoutId),
-    checkoutPayload
-  );
+  doc(db, "checkoutRequests", checkoutId),
+  checkoutPayload
+);
 
-  console.log(
-    "HWARANG CHECKOUT REQUEST SAVED",
-    checkoutPayload
-  );
+console.log(
+  "HWARANG CHECKOUT REQUEST SAVED",
+  checkoutPayload
+);
+
+const preferenceResponse = await fetch("/api/create-preference", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    checkoutId,
+    licenseKey,
+    product: selectedProduct,
+    package: selectedPackage,
+    finalPrice,
+    email: email.trim(),
+    buyerName: buyerName.trim(),
+    organization: organization.trim(),
+  }),
+});
+
+const preferenceData = await preferenceResponse.json();
+
+if (!preferenceResponse.ok) {
+  console.error("MERCADO PAGO PREFERENCE ERROR", preferenceData);
+  alert("Payment could not be created. Please try again.");
+  return;
+}
+
+if (!preferenceData.initPoint) {
+  console.error("MERCADO PAGO INIT POINT MISSING", preferenceData);
+  alert("Payment link was not received. Please try again.");
+  return;
+}
+
+window.location.href = preferenceData.initPoint;
 }}
   style={{
     marginTop: 12,
