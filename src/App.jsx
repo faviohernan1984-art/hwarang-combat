@@ -113,6 +113,19 @@ const isCheckoutFormValid =
   country.trim() &&
   email.trim();
 
+/* ======================================================
+CHECKOUT REQUEST ID
+Temporary unique ID generator.
+====================================================== */
+const generateCheckoutId = () => {
+  return (
+    "checkout-" +
+    Date.now() +
+    "-" +
+    Math.random().toString(36).slice(2, 8)
+  );
+};
+
   return (
     <div
       style={{
@@ -238,29 +251,43 @@ Commercial payload preparation.
 ====================================================== */}
 <button
   disabled={!isCheckoutFormValid}
-  onClick={() => {
-    const checkoutPayload = {
-      product: selectedProduct,
-      package: selectedPackage,
+  onClick={async () => {
+  if (!isCheckoutFormValid) return;
 
-      regularPrice: numericPrice,
-      discountPercent,
-      discountAmount,
-      finalPrice,
+  const checkoutId = generateCheckoutId();
 
-      buyerName,
-      organization,
-      country,
-      email,
+  const checkoutPayload = {
+    id: checkoutId,
 
-      createdAt: new Date().toISOString(),
-    };
+    product: selectedProduct,
+    package: selectedPackage,
 
-    console.log(
-      "HWARANG CHECKOUT PAYLOAD",
-      checkoutPayload
-    );
-  }}
+    regularPrice: numericPrice,
+    discountPercent,
+    discountAmount,
+    finalPrice,
+
+    buyerName: buyerName.trim(),
+    organization: organization.trim(),
+    country: country.trim(),
+    email: email.trim(),
+
+    status: "pending",
+
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  await setDoc(
+    doc(db, "checkoutRequests", checkoutId),
+    checkoutPayload
+  );
+
+  console.log(
+    "HWARANG CHECKOUT REQUEST SAVED",
+    checkoutPayload
+  );
+}}
   style={{
     marginTop: 12,
     padding: 16,
@@ -292,6 +319,8 @@ Commercial payload preparation.
     </div>
   );
 }
+
+
 
 function getBaseURL() {
   return window.location.origin;
