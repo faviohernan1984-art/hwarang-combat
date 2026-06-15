@@ -29,13 +29,18 @@ export default async function handler(req, res) {
       });
     }
 
+    const USD_TO_ARS_RATE = Number(process.env.USD_TO_ARS_RATE || 1200);
+
+const priceUsd = Number(finalPrice);
+const priceArs = Math.round(priceUsd * USD_TO_ARS_RATE);
+
     const preferencePayload = {
       items: [
         {
-          title: `Hwarang Scoring Universe - ${product.toUpperCase()} ${selectedPackage}`,
+          title: `Hwarang Scoring Universe - ${product.toUpperCase()} ${selectedPackage} - USD ${priceUsd}`,
           quantity: 1,
           currency_id: "ARS",
-          unit_price: Number(finalPrice),
+          unit_price: priceArs,
         },
       ],
 
@@ -52,6 +57,9 @@ export default async function handler(req, res) {
         product,
         selectedPackage,
         organization,
+        priceUsd,
+priceArs,
+usdToArsRate: USD_TO_ARS_RATE,
       },
 
       back_urls: {
