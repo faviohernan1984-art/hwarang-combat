@@ -29,10 +29,29 @@ export default async function handler(req, res) {
       });
     }
 
-    const USD_TO_ARS_RATE = Number(process.env.USD_TO_ARS_RATE || 1200);
+    const priceUsd = Number(finalPrice);
 
-const priceUsd = Number(finalPrice);
-const priceArs = Math.round(priceUsd * USD_TO_ARS_RATE);
+let usdToArsRate = Number(process.env.USD_TO_ARS_RATE || 0);
+let exchangeRateSource = "env-fallback";
+
+try {
+  const rateResponse = await fetch("https://dolarapi.com/v1/dolares/blue");
+  const rateData = await rateResponse.json();
+
+  if (rateResponse.ok && rateData?.venta) {
+    usdToArsRate = Number(rateData.venta);
+    exchangeRateSource = "dolarapi-blue-venta";
+  }
+} catch (error) {
+  console.error("USD_TO_ARS_RATE_FETCH_ERROR", error);
+}
+
+if (!usdToArsRate || usdToArsRate <= 0) {
+  usdToArsRate = 1200;
+  exchangeRateSource = "hardcoded-fallback";
+}
+
+const priceArs = Math.round(priceUsd * usdToArsRate);
 
     const preferencePayload = {
       items: [
@@ -59,7 +78,8 @@ const priceArs = Math.round(priceUsd * USD_TO_ARS_RATE);
         organization,
         priceUsd,
 priceArs,
-usdToArsRate: USD_TO_ARS_RATE,
+usdToArsRate,
+exchangeRateSource,
       },
 
       back_urls: {
