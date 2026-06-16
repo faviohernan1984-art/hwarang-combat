@@ -72,6 +72,10 @@ async function getMercadoPagoPayment(paymentId) {
   const data = await response.json();
 
   if (!response.ok) {
+    if (response.status === 404) {
+      return null;
+    }
+
     throw new Error(
       `Mercado Pago payment fetch failed: ${JSON.stringify(data)}`
     );
@@ -166,6 +170,15 @@ export default async function handler(req, res) {
     }
 
     const payment = await getMercadoPagoPayment(paymentId);
+
+    if (!payment) {
+      return res.status(200).json({
+        ok: true,
+        ignored: true,
+        paymentId,
+        reason: "Payment not found",
+      });
+    }
 
     if (payment.status !== "approved") {
       return res.status(200).json({
