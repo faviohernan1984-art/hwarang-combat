@@ -2221,29 +2221,34 @@ function CommercialAccessGuard({ roomId, children }) {
 
     async function validateCommercialAccess() {
       try {
-        const licenseSnap = await getDoc(doc(db, "licenses", roomId));
+        const response = await fetch("/api/validate-license-access", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            licenseKey: roomId,
+          }),
+        });
 
         if (cancelled) return;
 
-        if (!licenseSnap.exists()) {
+        if (!response.ok) {
           setAccessState("invalid");
           return;
         }
 
-        const license = licenseSnap.data();
-        const expiresAtMs = new Date(license?.expiresAt || "").getTime();
-        const hasValidStatus =
-          license?.paymentStatus === "approved" &&
-          license?.activationStatus === "active" &&
-          license?.licenseStatus === "active";
+        const access = await response.json();
 
-        if (!hasValidStatus || !Number.isFinite(expiresAtMs)) {
-          setAccessState("invalid");
-          return;
-        }
+        if (cancelled) return;
 
-        if (expiresAtMs <= Date.now()) {
+        if (access?.status === "expired") {
           setAccessState("expired");
+          return;
+        }
+
+        if (access?.ok !== true || access?.status !== "valid") {
+          setAccessState("invalid");
           return;
         }
 
