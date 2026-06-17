@@ -161,39 +161,30 @@ Conserva este correo para la operación de tu evento.
 
             <div style="height:1px;background:#333333;margin:30px 0;"></div>
 
-            <h1 style="margin:0 0 10px;font-size:24px;line-height:1.25;color:#ffffff;">Bienvenido a Hwarang Scoring Universe™</h1>
-            <p style="margin:0 0 16px;color:#d7d7d7;font-size:15px;">Hola ${safeBuyerName},</p>
-            <p style="margin:0 0 18px;color:#d7d7d7;font-size:15px;">Tu licencia de Hwarang Scoring Universe está activa.</p>
+            <div style="background:#151515;border:1px solid #2f2f2f;border-radius:10px;padding:18px 20px;">
+              <div style="font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:#f7d774;font-weight:800;margin-bottom:10px;">Versión en español</div>
+              <h2 style="margin:0 0 8px;font-size:20px;line-height:1.25;color:#ffffff;">Bienvenido a Hwarang Scoring Universe™</h2>
+              <p style="margin:0 0 10px;color:#d7d7d7;font-size:14px;">Hola ${safeBuyerName}, tu licencia de Hwarang Scoring Universe está activa.</p>
 
-            <p style="margin:0 0 22px;color:#c9c9c9;font-size:15px;">Hwarang Scoring Universe™ fue desarrollado para ayudar a organizaciones de todo el mundo a crear eventos más profesionales, organizados y eficientes. Cada torneo representa preparación, compromiso y pasión. Esta plataforma fue diseñada para acompañar ese esfuerzo y elevar la experiencia de competidores, entrenadores, árbitros y espectadores.</p>
-
-            <div style="background:#191919;border:1px solid #333333;border-radius:10px;padding:18px 20px;margin:0 0 24px;">
-              <div style="font-size:13px;text-transform:uppercase;letter-spacing:1.4px;color:#f7d774;font-weight:800;margin-bottom:12px;">Datos de licencia</div>
-              <div style="font-size:14px;color:#e7e7e7;">
-                <div style="padding:5px 0;border-bottom:1px solid #2a2a2a;"><strong style="color:#ffffff;">Producto:</strong> ${safeProduct}</div>
-                <div style="padding:5px 0;border-bottom:1px solid #2a2a2a;"><strong style="color:#ffffff;">Paquete:</strong> ${safePackage}</div>
-                <div style="padding:5px 0;border-bottom:1px solid #2a2a2a;"><strong style="color:#ffffff;">Organización:</strong> ${safeOrganization}</div>
-                <div style="padding:5px 0;"><strong style="color:#ffffff;">Licencia:</strong> <span style="color:#f7d774;">${safeLicenseKey}</span></div>
+              <div style="font-size:14px;color:#e7e7e7;margin:0 0 14px;">
+                <div style="margin:4px 0;"><strong style="color:#ffffff;">Producto:</strong> ${safeProduct}</div>
+                <div style="margin:4px 0;"><strong style="color:#ffffff;">Paquete:</strong> ${safePackage}</div>
+                <div style="margin:4px 0;"><strong style="color:#ffffff;">Organización:</strong> ${safeOrganization}</div>
+                <div style="margin:4px 0;"><strong style="color:#ffffff;">Licencia:</strong> <span style="color:#f7d774;">${safeLicenseKey}</span></div>
               </div>
-            </div>
 
-            <div style="margin:0 0 22px;">
-              <a href="${accessUrls.presidentUrl}" style="display:inline-block;background:#8b0000;color:#ffffff;text-decoration:none;border-radius:6px;padding:12px 18px;font-weight:800;margin:0 8px 10px 0;">Acceso Presidente</a>
-              <a href="${accessUrls.publicUrl}" style="display:inline-block;background:#2b2b2b;color:#f7d774;text-decoration:none;border:1px solid #4a4a4a;border-radius:6px;padding:12px 18px;font-weight:800;margin:0 0 10px 0;">Acceso Public TV</a>
-            </div>
-
-            <div style="background:#0d0d0d;border-left:4px solid #f7d774;padding:16px 18px;margin:0 0 22px;">
-              <div style="font-size:13px;text-transform:uppercase;letter-spacing:1.4px;color:#f7d774;font-weight:800;margin-bottom:10px;">Acceso de jueces</div>
-              <div style="font-size:14px;color:#dcdcdc;">
-                <div style="margin:6px 0;"><strong>Juez 1:</strong> <a href="${accessUrls.judge1Url}" style="color:#f7d774;text-decoration:none;">${accessUrls.judge1Url}</a></div>
-                <div style="margin:6px 0;"><strong>Juez 2:</strong> <a href="${accessUrls.judge2Url}" style="color:#f7d774;text-decoration:none;">${accessUrls.judge2Url}</a></div>
-                <div style="margin:6px 0;"><strong>Juez 3:</strong> <a href="${accessUrls.judge3Url}" style="color:#f7d774;text-decoration:none;">${accessUrls.judge3Url}</a></div>
-                <div style="margin:6px 0;"><strong>Juez 4:</strong> <a href="${accessUrls.judge4Url}" style="color:#f7d774;text-decoration:none;">${accessUrls.judge4Url}</a></div>
+              <div style="font-size:14px;color:#dcdcdc;margin:0 0 14px;">
+                <div style="margin:5px 0;"><strong>Acceso Presidente:</strong> <a href="${accessUrls.presidentUrl}" style="color:#f7d774;text-decoration:none;">${accessUrls.presidentUrl}</a></div>
+                <div style="margin:5px 0;"><strong>Acceso Public TV:</strong> <a href="${accessUrls.publicUrl}" style="color:#f7d774;text-decoration:none;">${accessUrls.publicUrl}</a></div>
+                <div style="margin:5px 0;"><strong>Juez 1:</strong> <a href="${accessUrls.judge1Url}" style="color:#f7d774;text-decoration:none;">${accessUrls.judge1Url}</a></div>
+                <div style="margin:5px 0;"><strong>Juez 2:</strong> <a href="${accessUrls.judge2Url}" style="color:#f7d774;text-decoration:none;">${accessUrls.judge2Url}</a></div>
+                <div style="margin:5px 0;"><strong>Juez 3:</strong> <a href="${accessUrls.judge3Url}" style="color:#f7d774;text-decoration:none;">${accessUrls.judge3Url}</a></div>
+                <div style="margin:5px 0;"><strong>Juez 4:</strong> <a href="${accessUrls.judge4Url}" style="color:#f7d774;text-decoration:none;">${accessUrls.judge4Url}</a></div>
               </div>
-            </div>
 
-            <p style="margin:0 0 8px;color:#c9c9c9;font-size:14px;">Los jueces pueden conectarse mediante las URLs proporcionadas o utilizando los códigos QR disponibles dentro de la plataforma.</p>
-            <p style="margin:0;color:#9f9f9f;font-size:14px;">Conserva este correo para la operación de tu evento.</p>
+              <p style="margin:0 0 8px;color:#c9c9c9;font-size:14px;">Los jueces pueden conectarse mediante las URLs proporcionadas o utilizando los códigos QR disponibles dentro de la plataforma.</p>
+              <p style="margin:0;color:#9f9f9f;font-size:14px;">Conserva este correo para la operación de tu evento.</p>
+            </div>
           </div>
         </div>
       </div>
