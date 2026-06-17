@@ -2076,6 +2076,237 @@ const styles = {
   dangerBlue: { background: "#1e3a8a" },
 };
 
+function HwarangAnimatedIso() {
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: 72,
+        height: 72,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 22,
+      }}
+    >
+      <style>{`
+        @keyframes hwarangAccessIsoSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: "50%",
+          border: "3px solid rgba(245,197,66,0.24)",
+          borderTop: "3px solid #ff0000",
+          boxShadow:
+            "0 0 26px rgba(255,255,255,0.42), 0 0 34px rgba(245,197,66,0.28)",
+          animation: "hwarangAccessIsoSpin 2.8s linear infinite",
+        }}
+      />
+
+      <div
+        style={{
+          color: "#ff0000",
+          fontSize: 36,
+          fontWeight: 1000,
+          textShadow:
+            "0 0 12px rgba(245,197,66,1), 0 0 28px rgba(245,197,66,0.76)",
+          zIndex: 2,
+        }}
+      >
+        H
+      </div>
+    </div>
+  );
+}
+
+function CommercialAccessScreen({ title, message }) {
+  return (
+    <>
+      <GlobalAppStyle />
+
+      <div
+        style={{
+          minHeight: "100dvh",
+          width: "100vw",
+          background:
+            "radial-gradient(circle at top, rgba(245,197,66,0.12), transparent 34%), radial-gradient(circle at bottom, rgba(139,0,0,0.20), transparent 34%), #000",
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          fontFamily: "'Orbitron', Arial, sans-serif",
+          padding: 24,
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 460,
+            border: "1px solid rgba(245,197,66,0.32)",
+            borderRadius: 24,
+            background:
+              "linear-gradient(180deg, rgba(10,10,10,0.96), rgba(0,0,0,0.98))",
+            boxShadow:
+              "0 0 44px rgba(245,197,66,0.14), inset 0 0 60px rgba(255,255,255,0.04)",
+            padding: "36px 26px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <HwarangAnimatedIso />
+
+          <div
+            style={{
+              color: "#f5c542",
+              fontSize: 11,
+              fontWeight: 900,
+              letterSpacing: "0.28em",
+              marginBottom: 14,
+            }}
+          >
+            HWARANG SCORING UNIVERSE™
+          </div>
+
+          <div
+            style={{
+              fontSize: 24,
+              fontWeight: 1000,
+              letterSpacing: "0.08em",
+              marginBottom: 12,
+              textTransform: "uppercase",
+            }}
+          >
+            {title}
+          </div>
+
+          <div
+            style={{
+              color: "rgba(255,255,255,0.72)",
+              fontSize: 15,
+              lineHeight: 1.5,
+              fontWeight: 700,
+            }}
+          >
+            {message}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function CommercialAccessGuard({ roomId, children }) {
+  const [accessState, setAccessState] = useState("loading");
+  const [showArena, setShowArena] = useState(false);
+
+  useEffect(() => {
+    if (!roomId || isDemoRoom(roomId)) {
+      setAccessState("valid");
+      setShowArena(true);
+      return;
+    }
+
+    let cancelled = false;
+    setAccessState("loading");
+    setShowArena(false);
+
+    async function validateCommercialAccess() {
+      try {
+        const licenseSnap = await getDoc(doc(db, "licenses", roomId));
+
+        if (cancelled) return;
+
+        if (!licenseSnap.exists()) {
+          setAccessState("invalid");
+          return;
+        }
+
+        const license = licenseSnap.data();
+        const expiresAtMs = new Date(license?.expiresAt || "").getTime();
+        const hasValidStatus =
+          license?.paymentStatus === "approved" &&
+          license?.activationStatus === "active" &&
+          license?.licenseStatus === "active";
+
+        if (!hasValidStatus || !Number.isFinite(expiresAtMs)) {
+          setAccessState("invalid");
+          return;
+        }
+
+        if (expiresAtMs <= Date.now()) {
+          setAccessState("expired");
+          return;
+        }
+
+        setAccessState("valid");
+        window.setTimeout(() => {
+          if (!cancelled) setShowArena(true);
+        }, 450);
+      } catch (error) {
+        if (!cancelled) {
+          console.error("COMMERCIAL_ACCESS_VALIDATION_ERROR", error);
+          setAccessState("invalid");
+        }
+      }
+    }
+
+    validateCommercialAccess();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [roomId]);
+
+  if (isDemoRoom(roomId)) return children;
+
+  if (accessState === "loading") {
+    return (
+      <CommercialAccessScreen
+        title="⏳ VALIDATING LICENSE"
+        message="Checking commercial access..."
+      />
+    );
+  }
+
+  if (accessState === "valid" && !showArena) {
+    return (
+      <CommercialAccessScreen
+        title="✅ ACCESS VERIFIED"
+        message="Loading arena..."
+      />
+    );
+  }
+
+  if (accessState === "expired") {
+    return (
+      <CommercialAccessScreen
+        title="🚫 LICENSE EXPIRED"
+        message="This access is no longer available."
+      />
+    );
+  }
+
+  if (accessState === "invalid") {
+    return (
+      <CommercialAccessScreen
+        title="🚫 INVALID LICENSE"
+        message="Commercial access could not be verified."
+      />
+    );
+  }
+
+  return children;
+}
+
 function Frame16x9({ children, tvMode = false, mobileHorizontalOnly = false }) {
   const baseWidth = 1920;
   const baseHeight = 1080;
@@ -14104,6 +14335,7 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
   if (path.startsWith("/join/")) {
     if (isJoinLandscape) {
   return (
+    <CommercialAccessGuard roomId={roomId}>
     <div
       style={{
         position: "fixed",
@@ -14212,9 +14444,11 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
         Turn your phone vertically to access the Judge Portal.
       </div>
     </div>
+    </CommercialAccessGuard>
   );
 }
   return (
+    <CommercialAccessGuard roomId={roomId}>
     <>
       <GlobalAppStyle />
 
@@ -14404,6 +14638,7 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
         </div>
       </div>
     </>
+    </CommercialAccessGuard>
   );
 }
 
@@ -14890,6 +15125,7 @@ if (path === "/license/pulsar" || path === "/license/club") {
 
   if (path === "/president" || path.startsWith("/president/")) {
   return (
+    <CommercialAccessGuard roomId={roomId}>
     <>
       <GlobalAppStyle />
 
@@ -14909,11 +15145,13 @@ if (path === "/license/pulsar" || path === "/license/club") {
         judgeSlots={judgeSlots}
       />
     </>
+    </CommercialAccessGuard>
   );
 }
 
   if (path === "/public" || path.startsWith("/public/")) {
   return (
+    <CommercialAccessGuard roomId={roomId}>
     <>
       <GlobalAppStyle />
 
@@ -14931,6 +15169,7 @@ if (path === "/license/pulsar" || path === "/license/club") {
   isTvMode={isTvMode}
 />
     </>
+    </CommercialAccessGuard>
   );
 }
 
@@ -14950,6 +15189,7 @@ if (path.startsWith("/judge/")) {
 
   if (n >= 1 && n <= COMBAT_JUDGES) {
     return (
+      <CommercialAccessGuard roomId={roomId}>
       <>
         <GlobalAppStyle />
 
@@ -14990,6 +15230,7 @@ if (path.startsWith("/judge/")) {
           }
         />
       </>
+      </CommercialAccessGuard>
     );
   }
 }
