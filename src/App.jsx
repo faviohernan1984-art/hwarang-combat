@@ -14153,7 +14153,26 @@ function UsageConsentModal({ onAccept, onExit }) {
   );
 }
 
-export default function App() {
+function isCommercialCombatRoute(path) {
+  return (
+    path === "/president" ||
+    path.startsWith("/president/") ||
+    path === "/public" ||
+    path.startsWith("/public/") ||
+    path.startsWith("/judge/") ||
+    path.startsWith("/join/")
+  );
+}
+
+function CommercialSecurityRing({ roomId, children }) {
+  return (
+    <CommercialAccessGuard roomId={roomId}>
+      {children}
+    </CommercialAccessGuard>
+  );
+}
+
+function CombatRuntimeApp({ path, navigate, roomId, isTvMode }) {
   useWakeLock(true);
   const [usageConsent, setUsageConsent] = useState(() => {
   return localStorage.getItem("hwarang_usage_consent");
@@ -14176,8 +14195,6 @@ function exitApp() {
   }
 
   
-
-  const { path, navigate, roomId, isTvMode } = useRoute();
 
 const [joinName, setJoinName] = useState("");
 
@@ -14340,7 +14357,6 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
   if (path.startsWith("/join/")) {
     if (isJoinLandscape) {
   return (
-    <CommercialAccessGuard roomId={roomId}>
     <div
       style={{
         position: "fixed",
@@ -14449,11 +14465,9 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
         Turn your phone vertically to access the Judge Portal.
       </div>
     </div>
-    </CommercialAccessGuard>
   );
 }
   return (
-    <CommercialAccessGuard roomId={roomId}>
     <>
       <GlobalAppStyle />
 
@@ -14643,7 +14657,6 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
         </div>
       </div>
     </>
-    </CommercialAccessGuard>
   );
 }
 
@@ -15130,7 +15143,6 @@ if (path === "/license/pulsar" || path === "/license/club") {
 
   if (path === "/president" || path.startsWith("/president/")) {
   return (
-    <CommercialAccessGuard roomId={roomId}>
     <>
       <GlobalAppStyle />
 
@@ -15150,13 +15162,11 @@ if (path === "/license/pulsar" || path === "/license/club") {
         judgeSlots={judgeSlots}
       />
     </>
-    </CommercialAccessGuard>
   );
 }
 
   if (path === "/public" || path.startsWith("/public/")) {
   return (
-    <CommercialAccessGuard roomId={roomId}>
     <>
       <GlobalAppStyle />
 
@@ -15174,7 +15184,6 @@ if (path === "/license/pulsar" || path === "/license/club") {
   isTvMode={isTvMode}
 />
     </>
-    </CommercialAccessGuard>
   );
 }
 
@@ -15194,7 +15203,6 @@ if (path.startsWith("/judge/")) {
 
   if (n >= 1 && n <= COMBAT_JUDGES) {
     return (
-      <CommercialAccessGuard roomId={roomId}>
       <>
         <GlobalAppStyle />
 
@@ -15235,7 +15243,6 @@ if (path.startsWith("/judge/")) {
           }
         />
       </>
-      </CommercialAccessGuard>
     );
   }
 }
@@ -15250,4 +15257,152 @@ return (
     <Home navigate={navigate} meta={meta} roomId={roomId} />
   </>
 );
+}
+
+export default function App() {
+  useWakeLock(true);
+  const { path, navigate, roomId, isTvMode } = useRoute();
+
+  if (path === "/") {
+    return (
+      <>
+        <GlobalAppStyle />
+        <AccessPortal navigate={navigate} />
+      </>
+    );
+  }
+
+  if (path === "/license-dev") {
+    const isLicensePortrait =
+      typeof window !== "undefined" &&
+      window.innerWidth < 900 &&
+      window.innerHeight > window.innerWidth;
+
+    if (isLicensePortrait) {
+      return (
+        <>
+          <GlobalAppStyle />
+          <LicensePage />
+        </>
+      );
+    }
+
+    return (
+      <CinematicAdaptiveShell>
+        <LicensePage />
+      </CinematicAdaptiveShell>
+    );
+  }
+
+  if (path === "/license") {
+    return <LicenseComingSoon />;
+  }
+
+  if (path === "/license/event") {
+    const isNotebookLicense =
+      typeof window !== "undefined" &&
+      window.innerWidth >= 1200 &&
+      window.innerWidth <= 1600 &&
+      window.innerHeight >= 700 &&
+      window.innerHeight <= 900;
+
+    return (
+      <>
+        <GlobalAppStyle />
+        {isNotebookLicense ? (
+          <LicenseEventPage />
+        ) : (
+          <CinematicAdaptiveShell>
+            <LicenseEventPage />
+          </CinematicAdaptiveShell>
+        )}
+      </>
+    );
+  }
+
+  if (path === "/license/demo") {
+    const isNotebookLicense =
+      typeof window !== "undefined" &&
+      window.innerWidth >= 1200 &&
+      window.innerWidth <= 1600 &&
+      window.innerHeight >= 700 &&
+      window.innerHeight <= 900;
+
+    return (
+      <>
+        <GlobalAppStyle />
+        {isNotebookLicense ? (
+          <LicenseDemoPage />
+        ) : (
+          <CinematicAdaptiveShell>
+            <LicenseDemoPage />
+          </CinematicAdaptiveShell>
+        )}
+      </>
+    );
+  }
+
+  if (path === "/checkout") {
+    return (
+      <>
+        <GlobalAppStyle />
+        <CheckoutPage />
+      </>
+    );
+  }
+
+  if (path === "/license/pulsar" || path === "/license/club") {
+    const isNotebookLicense =
+      typeof window !== "undefined" &&
+      window.innerWidth >= 1200 &&
+      window.innerWidth <= 1600 &&
+      window.innerHeight >= 700 &&
+      window.innerHeight <= 900;
+
+    return (
+      <>
+        <GlobalAppStyle />
+        {isNotebookLicense ? (
+          <LicensePulsarPage />
+        ) : (
+          <CinematicAdaptiveShell>
+            <LicensePulsarPage />
+          </CinematicAdaptiveShell>
+        )}
+      </>
+    );
+  }
+
+  if (isDemoRoom(roomId)) {
+    return (
+      <CombatRuntimeApp
+        path={path}
+        navigate={navigate}
+        roomId={roomId}
+        isTvMode={isTvMode}
+      />
+    );
+  }
+
+  if (isCommercialCombatRoute(path)) {
+    return (
+      <CommercialSecurityRing roomId={roomId}>
+        <CombatRuntimeApp
+          path={path}
+          navigate={navigate}
+          roomId={roomId}
+          isTvMode={isTvMode}
+        />
+      </CommercialSecurityRing>
+    );
+  }
+
+  return (
+    <CombatRuntimeApp
+      path={path}
+      navigate={navigate}
+      roomId={roomId}
+      isTvMode={isTvMode}
+    />
+  );
 }
