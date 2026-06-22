@@ -51,6 +51,18 @@ const DEMO_LIMIT_MS = 10 * 60 * 1000
 function isDemoRoom(roomId = "") {
   return roomId.startsWith("demo-hsu-")
 }
+
+function isLocalDevRuntimeRoute(path = "") {
+  return path === "/dev" || path.startsWith("/dev/");
+}
+
+function getRuntimePath(path = "") {
+  if (!isLocalDevRuntimeRoute(path)) return path;
+
+  const runtimePath = path.slice("/dev".length) || "/";
+  return runtimePath.startsWith("/") ? runtimePath : `/${runtimePath}`;
+}
+
 const HONG = "Hong";
 const CHONG = "Chong";
 const MAX_JUDGES = 5;
@@ -1983,7 +1995,11 @@ function useRoute() {
   setPath(window.location.pathname || "/");
 };
 
-  const parts = path.split("/").filter(Boolean);
+  const routePath = getRuntimePath(path);
+  const isDevRoute = isLocalDevRuntimeRoute(path);
+  const isDevBypass = Boolean(import.meta.env.DEV && isDevRoute);
+
+  const parts = routePath.split("/").filter(Boolean);
 
 
 
@@ -2011,7 +2027,7 @@ else if (
   roomId = parts[1];
 }
 
-  return { path, navigate, roomId, isTvMode };
+  return { path, routePath, navigate, roomId, isTvMode, isDevRoute, isDevBypass };
 }
 
 const styles = {
@@ -14172,7 +14188,7 @@ function CommercialSecurityRing({ roomId, children }) {
   );
 }
 
-function CombatRuntimeApp({ path, navigate, roomId, isTvMode }) {
+function CombatRuntimeApp({ path, navigate, roomId, isTvMode, isDevRoute = false }) {
   useWakeLock(true);
   const [usageConsent, setUsageConsent] = useState(() => {
   return localStorage.getItem("hwarang_usage_consent");
@@ -14301,7 +14317,9 @@ async function enterJudgePortal() {
       sessionId
     );
 
-    window.location.href = `/judge/${joinRoomId}/${judgeId}`;
+    window.location.href = isDevRoute
+      ? `/dev/judge/${joinRoomId}/${judgeId}`
+      : `/judge/${joinRoomId}/${judgeId}`;
   } catch (error) {
     if (error.message === "SLOT_ALREADY_IN_USE") {
       alert(
@@ -15261,9 +15279,9 @@ return (
 
 export default function App() {
   useWakeLock(true);
-  const { path, navigate, roomId, isTvMode } = useRoute();
+  const { path, routePath, navigate, roomId, isTvMode, isDevRoute, isDevBypass } = useRoute();
 
-  if (path === "/") {
+  if (routePath === "/") {
     return (
       <>
         <GlobalAppStyle />
@@ -15272,7 +15290,7 @@ export default function App() {
     );
   }
 
-  if (path === "/license-dev") {
+  if (routePath === "/license-dev") {
     const isLicensePortrait =
       typeof window !== "undefined" &&
       window.innerWidth < 900 &&
@@ -15294,11 +15312,11 @@ export default function App() {
     );
   }
 
-  if (path === "/license") {
+  if (routePath === "/license") {
     return <LicenseComingSoon />;
   }
 
-  if (path === "/license/event") {
+  if (routePath === "/license/event") {
     const isNotebookLicense =
       typeof window !== "undefined" &&
       window.innerWidth >= 1200 &&
@@ -15320,7 +15338,7 @@ export default function App() {
     );
   }
 
-  if (path === "/license/demo") {
+  if (routePath === "/license/demo") {
     const isNotebookLicense =
       typeof window !== "undefined" &&
       window.innerWidth >= 1200 &&
@@ -15342,7 +15360,7 @@ export default function App() {
     );
   }
 
-  if (path === "/checkout") {
+  if (routePath === "/checkout") {
     return (
       <>
         <GlobalAppStyle />
@@ -15351,7 +15369,7 @@ export default function App() {
     );
   }
 
-  if (path === "/license/pulsar" || path === "/license/club") {
+  if (routePath === "/license/pulsar" || routePath === "/license/club") {
     const isNotebookLicense =
       typeof window !== "undefined" &&
       window.innerWidth >= 1200 &&
@@ -15376,22 +15394,36 @@ export default function App() {
   if (isDemoRoom(roomId)) {
     return (
       <CombatRuntimeApp
-        path={path}
+        path={routePath}
         navigate={navigate}
         roomId={roomId}
         isTvMode={isTvMode}
+        isDevRoute={isDevRoute}
       />
     );
   }
 
-  if (isCommercialCombatRoute(path)) {
+  if (isDevBypass && isCommercialCombatRoute(routePath)) {
+    return (
+      <CombatRuntimeApp
+        path={routePath}
+        navigate={navigate}
+        roomId={roomId}
+        isTvMode={isTvMode}
+        isDevRoute={isDevRoute}
+      />
+    );
+  }
+
+  if (isCommercialCombatRoute(routePath)) {
     return (
       <CommercialSecurityRing roomId={roomId}>
         <CombatRuntimeApp
-          path={path}
+          path={routePath}
           navigate={navigate}
           roomId={roomId}
           isTvMode={isTvMode}
+          isDevRoute={isDevRoute}
         />
       </CommercialSecurityRing>
     );
@@ -15399,10 +15431,11 @@ export default function App() {
 
   return (
     <CombatRuntimeApp
-      path={path}
+      path={routePath}
       navigate={navigate}
       roomId={roomId}
       isTvMode={isTvMode}
+      isDevRoute={isDevRoute}
     />
   );
 }
