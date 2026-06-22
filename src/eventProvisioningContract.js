@@ -19,7 +19,8 @@
  *   legacyRoomId: temporary alias used by the current matches/{roomId} runtime.
  */
 
-export const EVENT_PROVISIONING_CONTRACT_VERSION = "event-provisioning-v1-draft";
+export const EVENT_PROVISIONING_CONTRACT_VERSION =
+  "event-provisioning-v1-draft";
 
 export const COMBAT_CONTEXT_MODES = Object.freeze({
   LEGACY: "legacy",
@@ -44,7 +45,9 @@ export function createLegacyCombatContext({ licenseKey } = {}) {
   const cleanLicenseKey = cleanId(licenseKey);
 
   if (!cleanLicenseKey) {
-    throw new Error("licenseKey is required to create a legacy combat context");
+    throw new Error(
+      "licenseKey is required to create a legacy combat context"
+    );
   }
 
   return Object.freeze({
@@ -93,15 +96,19 @@ export function buildEventProvisioningDraft({
   eventId,
   arenaId,
   matchId,
+  legacyRoomId,
 } = {}) {
+  const cleanMatchId = cleanId(matchId);
+  const cleanLegacyRoomId = cleanId(legacyRoomId);
+
   const draft = {
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     mode: COMBAT_CONTEXT_MODES.PROVISIONED,
     licenseKey: cleanId(licenseKey),
     eventId: cleanId(eventId),
     arenaId: cleanId(arenaId),
-    matchId: cleanId(matchId),
-    legacyRoomId: null,
+    matchId: cleanMatchId,
+    legacyRoomId: cleanLegacyRoomId || cleanMatchId,
   };
 
   if (!isProvisionedCombatContext(draft)) {
@@ -117,15 +124,18 @@ export function buildEventProvisioningDraft({
  * Resolves the current combat storage/routing alias from either context shape.
  *
  * Legacy context resolves to legacyRoomId.
- * Provisioned context resolves to matchId as the future combat room key.
+ * Provisioned context resolves to legacyRoomId first, then matchId.
  */
 export function resolveCombatRoomId(context = {}) {
-  if (context.mode === COMBAT_CONTEXT_MODES.LEGACY && isLegacyRoomId(context.legacyRoomId)) {
+  if (
+    context.mode === COMBAT_CONTEXT_MODES.LEGACY &&
+    isLegacyRoomId(context.legacyRoomId)
+  ) {
     return context.legacyRoomId.trim();
   }
 
   if (isProvisionedCombatContext(context)) {
-    return context.matchId.trim();
+    return cleanId(context.legacyRoomId) || context.matchId.trim();
   }
 
   return null;
