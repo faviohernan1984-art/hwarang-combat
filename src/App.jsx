@@ -49,7 +49,7 @@ if (typeof document !== "undefined" && !document.getElementById("winnerPulseStyl
 const DEMO_LIMIT_MS = 10 * 60 * 1000
 
 function isDemoRoom(roomId = "") {
-  return roomId.startsWith("demo-hsu-")
+  return typeof roomId === "string" && roomId.startsWith("demo-hsu-")
 }
 
 function isLocalDevRuntimeRoute(path = "") {
@@ -2006,7 +2006,7 @@ function useRoute() {
   const searchParams = new URLSearchParams(window.location.search);
   const isTvMode = searchParams.get("tv") === "1";
 
-  let roomId = getOrCreateDemoRoomId();
+  let roomId = null;
 
   if (parts[0] === "judge" && parts.length >= 3) {
   roomId = parts[1];
@@ -2025,6 +2025,8 @@ else if (
   parts.length >= 4
 ) {
   roomId = parts[1];
+} else if (isDevRoute && parts.length === 1) {
+  roomId = parts[0];
 }
 
   return { path, routePath, navigate, roomId, isTvMode, isDevRoute, isDevBypass };
@@ -3867,8 +3869,9 @@ function JudgeReadOnlyCard({ judge, meta }) {
   );
 }
 
-function QRSection({ roomId = "combat" }) {
+function QRSection({ roomId = "combat", routePrefix = "" }) {
   const base = getBaseURL();
+  const runtimeBase = `${base}${routePrefix}`;
 
   const shortSide = Math.min(window.innerWidth, window.innerHeight);
 
@@ -3942,49 +3945,54 @@ function QRSection({ roomId = "combat" }) {
       <div style={box}>
         <div style={title}>Judge 2</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/join/${roomId}/judge/2`} />
+          <QRCodeCanvas value={`${runtimeBase}/join/${roomId}/judge/2`} />
         </div>
       </div>
 
       <div style={box}>
         <div style={title}>President</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/president/${roomId}`} size={210} />
+          <QRCodeCanvas value={`${runtimeBase}/president/${roomId}`} size={210} />
         </div>
       </div>
 
       <div style={box}>
         <div style={title}>Judge 3</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/join/${roomId}/judge/3`} />
+          <QRCodeCanvas value={`${runtimeBase}/join/${roomId}/judge/3`} />
         </div>
       </div>
 
       <div style={box}>
         <div style={title}>Judge 1</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/join/${roomId}/judge/1`} />
+          <QRCodeCanvas value={`${runtimeBase}/join/${roomId}/judge/1`} />
         </div>
       </div>
 
       <div style={box}>
         <div style={title}>Public Screen</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/public/${roomId}`} size={190} />
+          <QRCodeCanvas value={`${runtimeBase}/public/${roomId}`} size={190} />
         </div>
       </div>
 
       <div style={box}>
         <div style={title}>Judge 4</div>
         <div style={qrBox}>
-          <QRCodeCanvas value={`${base}/join/${roomId}/judge/4`} />
+          <QRCodeCanvas value={`${runtimeBase}/join/${roomId}/judge/4`} />
         </div>
       </div>
     </div>
   );
 }
 
-function Home({ navigate, meta, roomId = "combat" }) {
+function Home({ navigate, meta, roomId = "combat", isDevRoute = false }) {
+  const routePrefix = isDevRoute ? "/dev" : "";
+  const presidentPath = `${routePrefix}/president/${roomId}`;
+  const publicPath = `${routePrefix}/public/${roomId}`;
+  const judgePath = (n) =>
+    isDevRoute ? `${routePrefix}/join/${roomId}/judge/${n}` : `/judge/${roomId}/${n}`;
   const isExpiredDemo =
   isDemoRoom(roomId) && meta?.demoLimit?.expired;
   const isMobile = typeof window !== "undefined" && window.innerWidth < 900;
@@ -4310,7 +4318,7 @@ if (isMobileLandscapeHome) {
 
   transition: "all 0.25s ease",
 }}
-          onClick={() => navigate(`/president/${roomId}`)}
+          onClick={() => navigate(presidentPath)}
         >
           President
         </AppButton>
@@ -4333,7 +4341,7 @@ border: "1px solid rgba(74,222,128,0.65)",
             transform: "translateZ(0)",
             transition: "all 0.25s ease",
           }}
-          onClick={() => navigate(`/public/${roomId}`)}
+          onClick={() => navigate(publicPath)}
         >
           Public Screen
         </AppButton>
@@ -4357,7 +4365,7 @@ border: "1px solid rgba(248,113,113,0.65)",
               transform: "translateZ(0)",
               transition: "all 0.25s ease",
             }}
-            onClick={() => navigate(`/judge/${roomId}/${n}`)}
+            onClick={() => navigate(judgePath(n))}
           >
             Judge {n}
           </AppButton>
@@ -4402,14 +4410,14 @@ border: "1px solid rgba(248,113,113,0.65)",
           <div style={{ ...styles.row, gap: 14, justifyContent: "center" }}>
             <AppButton
               style={{ ...styles.green, boxShadow: "0 0 20px rgba(34,197,94,0.35)" }}
-              onClick={() => navigate(`/president/${roomId}`)}
+              onClick={() => navigate(presidentPath)}
             >
               President
             </AppButton>
 
             <AppButton
               style={{ ...styles.blue, boxShadow: "0 0 20px rgba(59,130,246,0.35)" }}
-              onClick={() => navigate(`/public/${roomId}`)}
+              onClick={() => navigate(publicPath)}
             >
               Public Screen
             </AppButton>
@@ -4418,7 +4426,7 @@ border: "1px solid rgba(248,113,113,0.65)",
               <AppButton
                 key={n}
                 style={{ ...styles.red, boxShadow: "0 0 20px rgba(239,68,68,0.35)" }}
-                onClick={() => navigate(`/judge/${roomId}/${n}`)}
+                onClick={() => navigate(judgePath(n))}
               >
                 Judge {n}
               </AppButton>
@@ -4452,7 +4460,7 @@ border: "1px solid rgba(248,113,113,0.65)",
   }}
 >
   <h2 style={{ marginTop: 0, marginBottom: 0 }}>QR Connection</h2>
-  <QRSection roomId={roomId} />
+  <QRSection roomId={roomId} routePrefix={routePrefix} />
 </div>
         </div>
       </div>
@@ -14190,6 +14198,25 @@ function CommercialSecurityRing({ roomId, children }) {
 
 function CombatRuntimeApp({ path, navigate, roomId, isTvMode, isDevRoute = false }) {
   useWakeLock(true);
+  const navigateRuntime = (target) => {
+    if (
+      isDevRoute &&
+      roomId &&
+      (
+        target === `/${roomId}` ||
+        target.startsWith(`/president/${roomId}`) ||
+        target.startsWith(`/public/${roomId}`) ||
+        target.startsWith(`/judge/${roomId}/`) ||
+        target.startsWith(`/join/${roomId}/`)
+      )
+    ) {
+      navigate(`/dev${target}`);
+      return;
+    }
+
+    navigate(target);
+  };
+
   const [usageConsent, setUsageConsent] = useState(() => {
   return localStorage.getItem("hwarang_usage_consent");
 });
@@ -15175,7 +15202,7 @@ if (path === "/license/pulsar" || path === "/license/club") {
         writeMeta={writeMeta}
         writeJudge={writeJudge}
         resetAll={resetAll}
-        navigate={navigate}
+        navigate={navigateRuntime}
         roomId={roomId}
         judgeSlots={judgeSlots}
       />
@@ -15196,7 +15223,7 @@ if (path === "/license/pulsar" || path === "/license/club") {
       <PublicScreen
   meta={meta}
   judges={judges}
-  navigate={navigate}
+  navigate={navigateRuntime}
   writeMeta={writeMeta}
   roomId={roomId}
   isTvMode={isTvMode}
@@ -15238,7 +15265,7 @@ if (path.startsWith("/judge/")) {
           writeJudge={writeJudge}
           writeMeta={writeMeta}
           judgeId={n}
-          navigate={navigate}
+          navigate={navigateRuntime}
           roomId={roomId}
           time={mobileTime}
           mobileWarningText={
@@ -15272,7 +15299,7 @@ return (
     {consentLayer}
     {demoExpiredLayer}
 
-    <Home navigate={navigate} meta={meta} roomId={roomId} />
+    <Home navigate={navigate} meta={meta} roomId={roomId} isDevRoute={isDevRoute} />
   </>
 );
 }
@@ -15403,6 +15430,18 @@ export default function App() {
     );
   }
 
+  if (isDevBypass && roomId && routePath === `/${roomId}`) {
+    return (
+      <CombatRuntimeApp
+        path={routePath}
+        navigate={navigate}
+        roomId={roomId}
+        isTvMode={isTvMode}
+        isDevRoute={isDevRoute}
+      />
+    );
+  }
+
   if (isDevBypass && isCommercialCombatRoute(routePath)) {
     return (
       <CombatRuntimeApp
@@ -15430,12 +15469,9 @@ export default function App() {
   }
 
   return (
-    <CombatRuntimeApp
-      path={routePath}
-      navigate={navigate}
-      roomId={roomId}
-      isTvMode={isTvMode}
-      isDevRoute={isDevRoute}
-    />
+    <>
+      <GlobalAppStyle />
+      <AccessPortal navigate={navigate} />
+    </>
   );
 }
