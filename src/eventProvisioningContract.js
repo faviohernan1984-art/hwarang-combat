@@ -196,3 +196,49 @@ export function createArenaRoutePackage({
     }),
   });
 }
+
+/**
+ * ============================================================
+ * DEFINICIÓN CONTRACTUAL DE ARENA
+ * ============================================================
+ */
+/**
+ * Define contractualmente una Arena dentro de un evento.
+ *
+ * Esta función no crea rutas.
+ * No crea documentos en Firestore.
+ * No crea Matches.
+ * No genera QR.
+ * No modifica el runtime.
+ */
+export function createArenaDefinition({
+  eventId,
+  arenaNumber,
+  status = "draft",
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+  const cleanArenaNumber = Number(arenaNumber);
+  const cleanStatus = cleanId(status);
+
+  if (!cleanEventId) {
+    throw new Error("eventId is required to create an arena definition");
+  }
+
+  if (!Number.isInteger(cleanArenaNumber) || cleanArenaNumber < 1) {
+    throw new Error("arenaNumber must be a positive integer");
+  }
+
+  if (!cleanStatus) {
+    throw new Error("status is required to create an arena definition");
+  }
+
+  const arenaId = `${cleanEventId}-A${cleanArenaNumber}`;
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    arenaId,
+    arenaNumber: cleanArenaNumber,
+    status: cleanStatus,
+  });
+}
