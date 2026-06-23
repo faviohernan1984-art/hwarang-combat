@@ -301,3 +301,57 @@ export function createEventDefinition({
     status: cleanStatus,
   });
 }
+/**
+ * ============================================================
+ * MÉTRICAS CONTRACTUALES DE EVENTO
+ * ============================================================
+ */
+/**
+ * Construye una foto contractual de métricas de un Evento.
+ *
+ * El origen futuro de matches será el botón Close Match del President Screen.
+ *
+ * Esta función no escucha el runtime.
+ * No modifica Firestore.
+ * No consume créditos.
+ * No factura.
+ * No crea Matches.
+ */
+export function createEventMetricsSnapshot({
+  eventId,
+  arenas = 0,
+  matches = 0,
+  matchCreditsConsumed = 0,
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+  const cleanArenas = Number(arenas);
+  const cleanMatches = Number(matches);
+  const cleanMatchCreditsConsumed = Number(matchCreditsConsumed);
+
+  if (!cleanEventId) {
+    throw new Error("eventId is required to create an event metrics snapshot");
+  }
+
+  if (!Number.isInteger(cleanArenas) || cleanArenas < 0) {
+    throw new Error("arenas must be a non-negative integer");
+  }
+
+  if (!Number.isInteger(cleanMatches) || cleanMatches < 0) {
+    throw new Error("matches must be a non-negative integer");
+  }
+
+  if (
+    !Number.isInteger(cleanMatchCreditsConsumed) ||
+    cleanMatchCreditsConsumed < 0
+  ) {
+    throw new Error("matchCreditsConsumed must be a non-negative integer");
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    arenas: cleanArenas,
+    matches: cleanMatches,
+    matchCreditsConsumed: cleanMatchCreditsConsumed,
+  });
+}
