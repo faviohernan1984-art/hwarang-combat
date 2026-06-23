@@ -242,3 +242,62 @@ export function createArenaDefinition({
     status: cleanStatus,
   });
 }
+/**
+ * ============================================================
+ * DEFINICIÓN CONTRACTUAL DE EVENTO
+ * ============================================================
+ */
+/**
+ * Define contractualmente un Evento creado bajo una licencia válida.
+ *
+ * El nombre del evento es un dato oficial y visible.
+ * En el futuro podrá mostrarse en Public Screen, President Screen,
+ * Arena Home, QR Access y Event Provisioning Panel.
+ *
+ * Esta función no crea documentos en Firestore.
+ * No genera Arenas.
+ * No genera rutas.
+ * No modifica el runtime.
+ */
+export function createEventDefinition({
+  licenseKey,
+  eventId,
+  eventName,
+  eventType,
+  status = "draft",
+} = {}) {
+  const cleanLicenseKey = cleanId(licenseKey);
+  const cleanEventId = cleanId(eventId);
+  const cleanEventName = cleanId(eventName);
+  const cleanEventType = cleanId(eventType);
+  const cleanStatus = cleanId(status);
+
+  if (!cleanLicenseKey) {
+    throw new Error("licenseKey is required to create an event definition");
+  }
+
+  if (!cleanEventId) {
+    throw new Error("eventId is required to create an event definition");
+  }
+
+  if (!cleanEventName) {
+    throw new Error("eventName is required to create an event definition");
+  }
+
+  if (!cleanEventType) {
+    throw new Error("eventType is required to create an event definition");
+  }
+
+  if (!cleanStatus) {
+    throw new Error("status is required to create an event definition");
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    licenseKey: cleanLicenseKey,
+    eventId: cleanEventId,
+    eventName: cleanEventName,
+    eventType: cleanEventType,
+    status: cleanStatus,
+  });
+}
