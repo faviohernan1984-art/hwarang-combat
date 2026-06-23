@@ -140,3 +140,59 @@ export function resolveCombatRoomId(context = {}) {
 
   return null;
 }
+
+/**
+ * ============================================================
+ * GENERACIÓN DE PAQUETES DE RUTAS DE ARENA
+ * ============================================================
+ */
+
+/**
+ * Construye el paquete operativo de rutas para una Arena de evento.
+ *
+ * Esta función es solo contractual.
+ * No crea documentos en Firestore.
+ * No genera QR.
+ * No crea estado de runtime.
+ * No crea Matches.
+ * No valida permisos comerciales.
+ */
+export function createArenaRoutePackage({
+  eventId,
+  arenaNumber,
+  judgeCount = 4,
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+  const cleanArenaNumber = Number(arenaNumber);
+  const cleanJudgeCount = Number(judgeCount);
+
+  if (!cleanEventId) {
+    throw new Error("eventId is required to create an arena route package");
+  }
+
+  if (!Number.isInteger(cleanArenaNumber) || cleanArenaNumber < 1) {
+    throw new Error("arenaNumber must be a positive integer");
+  }
+
+  if (!Number.isInteger(cleanJudgeCount) || cleanJudgeCount < 1) {
+    throw new Error("judgeCount must be a positive integer");
+  }
+
+  const arenaId = `${cleanEventId}-A${cleanArenaNumber}`;
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    arenaId,
+    routes: Object.freeze({
+      president: `/president/${arenaId}`,
+      public: `/public/${arenaId}`,
+      judges: Object.freeze(
+        Array.from({ length: cleanJudgeCount }, (_, index) => {
+          const judgeId = index + 1;
+          return `/judge/${arenaId}/${judgeId}`;
+        })
+      ),
+    }),
+  });
+}
