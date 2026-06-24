@@ -453,3 +453,53 @@ export function createMatchCreditLedgerSnapshot({
     matchCreditsConsumed: cleanMatchCreditsConsumed,
   });
 }
+/**
+ * ============================================================
+ * DEFINICIÓN CONTRACTUAL DE MATCH
+ * ============================================================
+ */
+/**
+ * Define contractualmente un Match dentro de una Arena de evento.
+ *
+ * Esta función no inicia combates.
+ * No escucha Close Match.
+ * No modifica Firestore.
+ * No consume créditos.
+ * No calcula resultados.
+ * No altera el runtime actual.
+ */
+export function createMatchDefinition({
+  eventId,
+  arenaId,
+  matchId,
+  status = "draft",
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+  const cleanArenaId = cleanId(arenaId);
+  const cleanMatchId = cleanId(matchId);
+  const cleanStatus = cleanId(status);
+
+  if (!cleanEventId) {
+    throw new Error("eventId is required to create a match definition");
+  }
+
+  if (!cleanArenaId) {
+    throw new Error("arenaId is required to create a match definition");
+  }
+
+  if (!cleanMatchId) {
+    throw new Error("matchId is required to create a match definition");
+  }
+
+  if (!cleanStatus) {
+    throw new Error("status is required to create a match definition");
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    arenaId: cleanArenaId,
+    matchId: cleanMatchId,
+    status: cleanStatus,
+  });
+}
