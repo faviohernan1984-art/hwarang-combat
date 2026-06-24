@@ -355,3 +355,50 @@ export function createEventMetricsSnapshot({
     matchCreditsConsumed: cleanMatchCreditsConsumed,
   });
 }
+/**
+ * ============================================================
+ * MÉTRICAS CONTRACTUALES DE ARENA
+ * ============================================================
+ */
+/**
+ * Construye una foto contractual de métricas de una Arena.
+ *
+ * El origen futuro de matches será el botón Close Match del President Screen.
+ *
+ * Esta función no escucha el runtime.
+ * No modifica Firestore.
+ * No consume créditos.
+ * No factura.
+ * No crea Matches.
+ */
+export function createArenaMetricsSnapshot({
+  eventId,
+  arenaId,
+  matchesCompleted = 0,
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+  const cleanArenaId = cleanId(arenaId);
+  const cleanMatchesCompleted = Number(matchesCompleted);
+
+  if (!cleanEventId) {
+    throw new Error("eventId is required to create an arena metrics snapshot");
+  }
+
+  if (!cleanArenaId) {
+    throw new Error("arenaId is required to create an arena metrics snapshot");
+  }
+
+  if (
+    !Number.isInteger(cleanMatchesCompleted) ||
+    cleanMatchesCompleted < 0
+  ) {
+    throw new Error("matchesCompleted must be a non-negative integer");
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    arenaId: cleanArenaId,
+    matchesCompleted: cleanMatchesCompleted,
+  });
+}
