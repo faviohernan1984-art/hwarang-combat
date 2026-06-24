@@ -503,3 +503,71 @@ export function createMatchDefinition({
     status: cleanStatus,
   });
 }
+/**
+ * ============================================================
+ * MATCH COMPLETION RECORD CONTRACT
+ * ============================================================
+ */
+/**
+ * Registra contractualmente la finalización de un Match.
+ *
+ * Este contrato representa el evento que en el futuro será
+ * generado por Close Match desde President Screen.
+ *
+ * Esta función no modifica Firestore.
+ * No consume créditos.
+ * No actualiza métricas.
+ * No altera el runtime.
+ */
+export function createMatchCompletionRecord({
+  eventId,
+  arenaId,
+  matchId,
+  completedAt,
+  status = "completed",
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+  const cleanArenaId = cleanId(arenaId);
+  const cleanMatchId = cleanId(matchId);
+  const cleanCompletedAt = cleanId(completedAt);
+  const cleanStatus = cleanId(status);
+
+  if (!cleanEventId) {
+    throw new Error(
+      "eventId is required to create a match completion record"
+    );
+  }
+
+  if (!cleanArenaId) {
+    throw new Error(
+      "arenaId is required to create a match completion record"
+    );
+  }
+
+  if (!cleanMatchId) {
+    throw new Error(
+      "matchId is required to create a match completion record"
+    );
+  }
+
+  if (!cleanCompletedAt) {
+    throw new Error(
+      "completedAt is required to create a match completion record"
+    );
+  }
+
+  if (!cleanStatus) {
+    throw new Error(
+      "status is required to create a match completion record"
+    );
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    arenaId: cleanArenaId,
+    matchId: cleanMatchId,
+    completedAt: cleanCompletedAt,
+    status: cleanStatus,
+  });
+}
