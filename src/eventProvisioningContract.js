@@ -402,3 +402,54 @@ export function createArenaMetricsSnapshot({
     matchesCompleted: cleanMatchesCompleted,
   });
 }
+/**
+ * ============================================================
+ * MATCH CREDIT LEDGER CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye una foto contractual del consumo de Match Credits de un Evento.
+ *
+ * Regla comercial V1:
+ * 1 match completado = 1 Match Credit consumido.
+ *
+ * Esta función no procesa pagos.
+ * No modifica Firestore.
+ * No crea licencias.
+ * No crea recargas.
+ * No aplica descuentos.
+ * No aplica reembolsos.
+ */
+export function createMatchCreditLedgerSnapshot({
+  eventId,
+  matchesCompleted = 0,
+  matchCreditsConsumed = matchesCompleted,
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+  const cleanMatchesCompleted = Number(matchesCompleted);
+  const cleanMatchCreditsConsumed = Number(matchCreditsConsumed);
+
+  if (!cleanEventId) {
+    throw new Error(
+      "eventId is required to create a match credit ledger snapshot"
+    );
+  }
+
+  if (!Number.isInteger(cleanMatchesCompleted) || cleanMatchesCompleted < 0) {
+    throw new Error("matchesCompleted must be a non-negative integer");
+  }
+
+  if (
+    !Number.isInteger(cleanMatchCreditsConsumed) ||
+    cleanMatchCreditsConsumed < 0
+  ) {
+    throw new Error("matchCreditsConsumed must be a non-negative integer");
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    matchesCompleted: cleanMatchesCompleted,
+    matchCreditsConsumed: cleanMatchCreditsConsumed,
+  });
+}
