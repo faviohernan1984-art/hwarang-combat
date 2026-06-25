@@ -375,10 +375,16 @@ export function createArenaMetricsSnapshot({
   eventId,
   arenaId,
   matchesCompleted = 0,
+  startedAt,
+  lastActivityAt,
+  elapsedMinutes = 0,
 } = {}) {
   const cleanEventId = cleanId(eventId);
   const cleanArenaId = cleanId(arenaId);
   const cleanMatchesCompleted = Number(matchesCompleted);
+  const cleanStartedAt = cleanId(startedAt);
+  const cleanLastActivityAt = cleanId(lastActivityAt);
+  const cleanElapsedMinutes = Number(elapsedMinutes);
 
   if (!cleanEventId) {
     throw new Error("eventId is required to create an arena metrics snapshot");
@@ -395,12 +401,55 @@ export function createArenaMetricsSnapshot({
     throw new Error("matchesCompleted must be a non-negative integer");
   }
 
+  if (cleanStartedAt && !cleanLastActivityAt) {
+    throw new Error(
+      "lastActivityAt is required when startedAt is provided"
+    );
+  }
+
+  if (
+    !Number.isInteger(cleanElapsedMinutes) ||
+    cleanElapsedMinutes < 0
+  ) {
+    throw new Error(
+      "elapsedMinutes must be a non-negative integer"
+    );
+  }
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
     arenaId: cleanArenaId,
     matchesCompleted: cleanMatchesCompleted,
+    operationalContext: Object.freeze({
+      startedAt: cleanStartedAt,
+      lastActivityAt: cleanLastActivityAt,
+      elapsedMinutes: cleanElapsedMinutes,
+    }),
   });
+}
+
+if (
+  !Number.isInteger(cleanElapsedMinutes) ||
+  cleanElapsedMinutes < 0
+) {
+  throw new Error(
+    "elapsedMinutes must be a non-negative integer"
+  );
+}
+
+  return Object.freeze({
+  contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+  eventId: cleanEventId,
+  arenaId: cleanArenaId,
+  matchesCompleted: cleanMatchesCompleted,
+
+  operationalTime: Object.freeze({
+    startedAt: cleanStartedAt,
+    lastActivityAt: cleanLastActivityAt,
+    elapsedMinutes: cleanElapsedMinutes,
+  }),
+});
 }
 /**
  * ============================================================
