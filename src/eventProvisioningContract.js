@@ -640,4 +640,160 @@ export function calculateEventMetricsSnapshot({
     arenaMetrics: Object.freeze(arenaMetrics),
   });
 }
+/**
+ * ============================================================
+ * TOURNAMENT CONTROL TOWER CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye una foto contractual del estado operacional del torneo.
+ *
+ * Esta función representa la base futura de la Tournament Control Tower.
+ *
+ * Esta función no modifica Firestore.
+ * No escucha el runtime.
+ * No consume créditos.
+ * No altera President Screen.
+ * No altera Public Screen.
+ * No crea Matches.
+ */
+export function createTournamentControlTowerSnapshot({
+  eventId,
+  eventMetricsSnapshot,
+  generatedAt,
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+  const cleanGeneratedAt = cleanId(generatedAt);
+
+  if (!cleanEventId) {
+    throw new Error(
+      "eventId is required to create a tournament control tower snapshot"
+    );
+  }
+
+  if (!eventMetricsSnapshot) {
+    throw new Error(
+      "eventMetricsSnapshot is required to create a tournament control tower snapshot"
+    );
+  }
+
+  if (!cleanGeneratedAt) {
+    throw new Error(
+      "generatedAt is required to create a tournament control tower snapshot"
+    );
+  }
+
+  if (!Array.isArray(eventMetricsSnapshot.arenaMetrics)) {
+    throw new Error(
+      "eventMetricsSnapshot.arenaMetrics must be an array"
+    );
+  }
+
+  const arenaOperationalStatus = eventMetricsSnapshot.arenaMetrics.map(
+    (arena) => {
+      const matchesCompleted = Number(arena.matchesCompleted);
+
+      if (!cleanId(arena.arenaId)) {
+        throw new Error(
+          "arenaId is required inside arenaMetrics"
+        );
+      }
+
+      if (
+        !Number.isInteger(matchesCompleted) ||
+        matchesCompleted < 0
+      ) {
+        throw new Error(
+          "matchesCompleted must be a non-negative integer inside arenaMetrics"
+        );
+      }
+
+      return Object.freeze({
+        arenaId: arena.arenaId,
+        matchesCompleted,
+        status: matchesCompleted > 0 ? "active" : "inactive",
+      });
+    }
+  );
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    generatedAt: cleanGeneratedAt,
+    arenas: eventMetricsSnapshot.arenas,
+    activeArenas: eventMetricsSnapshot.activeArenas,
+    inactiveArenas: eventMetricsSnapshot.inactiveArenas,
+    matches: eventMetricsSnapshot.matches,
+    arenaOperationalStatus: Object.freeze(arenaOperationalStatus),
+    operationalRecommendations: Object.freeze([]),
+  });
+}
+/**
+ * ============================================================
+ * TOURNAMENT OPERATIONAL ANALYTICS CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye una foto contractual de analítica operacional del torneo.
+ *
+ * Esta capa no representa el estado bruto del torneo.
+ * Recibe una Tournament Control Tower Snapshot y calcula indicadores.
+ *
+ * Esta función no modifica Firestore.
+ * No escucha el runtime.
+ * No consume créditos.
+ * No altera President Screen.
+ * No altera Public Screen.
+ * No crea Matches.
+ * No emite recomendaciones operativas.
+ */
+export function createTournamentOperationalAnalyticsSnapshot({
+  eventId,
+  controlTowerSnapshot,
+  generatedAt,
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+  const cleanGeneratedAt = cleanId(generatedAt);
+
+  if (!cleanEventId) {
+    throw new Error(
+      "eventId is required to create a tournament operational analytics snapshot"
+    );
+  }
+
+  if (!controlTowerSnapshot) {
+    throw new Error(
+      "controlTowerSnapshot is required to create a tournament operational analytics snapshot"
+    );
+  }
+
+  if (!cleanGeneratedAt) {
+    throw new Error(
+      "generatedAt is required to create a tournament operational analytics snapshot"
+    );
+  }
+
+  const arenas = Number(controlTowerSnapshot.arenas);
+  const matches = Number(controlTowerSnapshot.matches);
+
+  if (!Number.isInteger(arenas) || arenas < 0) {
+    throw new Error("arenas must be a non-negative integer");
+  }
+
+  if (!Number.isInteger(matches) || matches < 0) {
+    throw new Error("matches must be a non-negative integer");
+  }
+
+  const averageMatchesPerArena =
+    arenas > 0 ? matches / arenas : 0;
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    generatedAt: cleanGeneratedAt,
+    arenas,
+    matches,
+    averageMatchesPerArena,
+  });
+}
 
