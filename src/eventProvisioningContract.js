@@ -571,3 +571,73 @@ export function createMatchCompletionRecord({
     status: cleanStatus,
   });
 }
+/**
+ * ============================================================
+ * CONSOLIDACIÓN CONTRACTUAL DE MÉTRICAS DE EVENTO
+ * ============================================================
+ */
+/**
+ * Consolida las métricas de todas las Arenas pertenecientes a un Evento.
+ *
+ * Todas las Arenas definidas deben formar parte del resultado,
+ * incluso si aún no registran actividad.
+ *
+ * Esta función no modifica Firestore.
+ * No consume créditos.
+ * No altera el runtime.
+ * No crea Matches.
+ */
+export function calculateEventMetricsSnapshot({
+  eventId,
+  arenaDefinitions = [],
+  arenaMetricsSnapshots = [],
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+
+  if (!cleanEventId) {
+    throw new Error(
+      "eventId is required to calculate an event metrics snapshot"
+    );
+  }
+
+  const metricsByArena = new Map(
+    arenaMetricsSnapshots.map((snapshot) => [
+      snapshot.arenaId,
+      snapshot.matchesCompleted,
+    ])
+  );
+
+  const arenaMetrics = arenaDefinitions.map((arena) => {
+    const matchesCompleted =
+      metricsByArena.get(arena.arenaId) ?? 0;
+
+    return Object.freeze({
+      arenaId: arena.arenaId,
+      matchesCompleted,
+    });
+  });
+
+  const arenas = arenaMetrics.length;
+
+  const activeArenas = arenaMetrics.filter(
+    (arena) => arena.matchesCompleted > 0
+  ).length;
+
+  const inactiveArenas = arenas - activeArenas;
+
+  const matches = arenaMetrics.reduce(
+    (total, arena) => total + arena.matchesCompleted,
+    0
+  );
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    arenas,
+    activeArenas,
+    inactiveArenas,
+    matches,
+    arenaMetrics: Object.freeze(arenaMetrics),
+  });
+}
+
