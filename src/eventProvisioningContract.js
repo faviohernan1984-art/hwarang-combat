@@ -378,6 +378,7 @@ export function createArenaMetricsSnapshot({
   startedAt,
   lastActivityAt,
   elapsedMinutes = 0,
+  idleMinutes = 0,
 } = {}) {
   const cleanEventId = cleanId(eventId);
   const cleanArenaId = cleanId(arenaId);
@@ -385,6 +386,7 @@ export function createArenaMetricsSnapshot({
   const cleanStartedAt = cleanId(startedAt);
   const cleanLastActivityAt = cleanId(lastActivityAt);
   const cleanElapsedMinutes = Number(elapsedMinutes);
+  const cleanIdleMinutes = Number(idleMinutes);
 
   if (!cleanEventId) {
     throw new Error("eventId is required to create an arena metrics snapshot");
@@ -415,8 +417,15 @@ export function createArenaMetricsSnapshot({
       "elapsedMinutes must be a non-negative integer"
     );
   }
-
-  return Object.freeze({
+  if (
+    !Number.isInteger(cleanIdleMinutes) ||
+    cleanIdleMinutes < 0
+  ) {
+    throw new Error(
+      "idleMinutes must be a non-negative integer"
+    );
+  }
+      return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
     arenaId: cleanArenaId,
@@ -425,32 +434,11 @@ export function createArenaMetricsSnapshot({
       startedAt: cleanStartedAt,
       lastActivityAt: cleanLastActivityAt,
       elapsedMinutes: cleanElapsedMinutes,
+      idleMinutes: cleanIdleMinutes,
     }),
   });
 }
-
-if (
-  !Number.isInteger(cleanElapsedMinutes) ||
-  cleanElapsedMinutes < 0
-) {
-  throw new Error(
-    "elapsedMinutes must be a non-negative integer"
-  );
-}
-
-  return Object.freeze({
-  contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
-  eventId: cleanEventId,
-  arenaId: cleanArenaId,
-  matchesCompleted: cleanMatchesCompleted,
-
-  operationalTime: Object.freeze({
-    startedAt: cleanStartedAt,
-    lastActivityAt: cleanLastActivityAt,
-    elapsedMinutes: cleanElapsedMinutes,
-  }),
-});
-}
+  
 /**
  * ============================================================
  * MATCH CREDIT LEDGER CONTRACT
