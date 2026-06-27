@@ -640,17 +640,27 @@ export function calculateEventMetricsSnapshot({
   const metricsByArena = new Map(
     arenaMetricsSnapshots.map((snapshot) => [
       snapshot.arenaId,
-      snapshot.matchesCompleted,
+      snapshot,
     ])
   );
 
   const arenaMetrics = arenaDefinitions.map((arena) => {
+    const arenaSnapshot = metricsByArena.get(arena.arenaId);
     const matchesCompleted =
-      metricsByArena.get(arena.arenaId) ?? 0;
+      Number(arenaSnapshot?.matchesCompleted) || 0;
 
     return Object.freeze({
       arenaId: arena.arenaId,
       matchesCompleted,
+      operationalContext: Object.freeze({
+        startedAt: arenaSnapshot?.operationalContext?.startedAt ?? null,
+        lastActivityAt:
+          arenaSnapshot?.operationalContext?.lastActivityAt ?? null,
+        elapsedMinutes:
+          Number(arenaSnapshot?.operationalContext?.elapsedMinutes) || 0,
+        idleMinutes:
+          Number(arenaSnapshot?.operationalContext?.idleMinutes) || 0,
+      }),
     });
   });
 
