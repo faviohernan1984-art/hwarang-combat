@@ -425,7 +425,7 @@ export function createArenaMetricsSnapshot({
       "idleMinutes must be a non-negative integer"
     );
   }
-      return Object.freeze({
+  return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
     arenaId: cleanArenaId,
@@ -438,7 +438,7 @@ export function createArenaMetricsSnapshot({
     }),
   });
 }
-  
+
 /**
  * ============================================================
  * MATCH CREDIT LEDGER CONTRACT
@@ -758,6 +758,12 @@ export function createTournamentControlTowerSnapshot({
       return Object.freeze({
         arenaId: arena.arenaId,
         matchesCompleted,
+        operationalContext: Object.freeze({
+          startedAt: arena.operationalContext?.startedAt ?? null,
+          lastActivityAt: arena.operationalContext?.lastActivityAt ?? null,
+          elapsedMinutes: Number(arena.operationalContext?.elapsedMinutes) || 0,
+          idleMinutes: Number(arena.operationalContext?.idleMinutes) || 0,
+        }),
         status: matchesCompleted > 0 ? "active" : "inactive",
       });
     }
@@ -822,6 +828,16 @@ export function createTournamentOperationalAnalyticsSnapshot({
 
   const arenas = Number(controlTowerSnapshot.arenas);
   const matches = Number(controlTowerSnapshot.matches);
+  const elapsedMinutes = Number(
+    controlTowerSnapshot.arenaOperationalStatus?.reduce(
+     (maxElapsedMinutes, arena) =>
+      Math.max(
+        maxElapsedMinutes,
+        Number(arena.operationalContext?.elapsedMinutes) || 0
+      ),
+    0
+  )
+);
 
   if (!Number.isInteger(arenas) || arenas < 0) {
     throw new Error("arenas must be a non-negative integer");
@@ -833,6 +849,8 @@ export function createTournamentOperationalAnalyticsSnapshot({
 
   const averageMatchesPerArena =
     arenas > 0 ? matches / arenas : 0;
+  const averageMatchesPerHour =
+    elapsedMinutes > 0 ? matches / (elapsedMinutes / 60) : 0;
 
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
@@ -840,7 +858,9 @@ export function createTournamentOperationalAnalyticsSnapshot({
     generatedAt: cleanGeneratedAt,
     arenas,
     matches,
+    elapsedMinutes,
     averageMatchesPerArena,
+    averageMatchesPerHour,
   });
 }
 
