@@ -830,14 +830,14 @@ export function createTournamentOperationalAnalyticsSnapshot({
   const matches = Number(controlTowerSnapshot.matches);
   const elapsedMinutes = Number(
     controlTowerSnapshot.arenaOperationalStatus?.reduce(
-     (maxElapsedMinutes, arena) =>
-      Math.max(
-        maxElapsedMinutes,
-        Number(arena.operationalContext?.elapsedMinutes) || 0
-      ),
-    0
-  )
-);
+      (maxElapsedMinutes, arena) =>
+        Math.max(
+          maxElapsedMinutes,
+          Number(arena.operationalContext?.elapsedMinutes) || 0
+        ),
+      0
+    )
+  );
 
   if (!Number.isInteger(arenas) || arenas < 0) {
     throw new Error("arenas must be a non-negative integer");
@@ -856,11 +856,18 @@ export function createTournamentOperationalAnalyticsSnapshot({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
     generatedAt: cleanGeneratedAt,
-    arenas,
-    matches,
-    elapsedMinutes,
-    averageMatchesPerArena,
-    averageMatchesPerHour,
+
+    metrics: Object.freeze({
+      arenas,
+      matches,
+      elapsedMinutes,
+      averageMatchesPerArena,
+      averageMatchesPerHour,
+    }),
+
+    indexes: Object.freeze({}),
+
+    insights: Object.freeze([]),
   });
 }
 
