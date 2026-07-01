@@ -875,6 +875,20 @@ export function createTournamentOperationalAnalyticsSnapshot({
     })
   );
 
+  const arenaPerformanceRanking = Object.freeze(
+    [...arenaPerformanceIndex]
+      .sort(
+        (leftArena, rightArena) =>
+          rightArena.performanceScore - leftArena.performanceScore
+      )
+      .map((arena, index) =>
+        Object.freeze({
+          position: index + 1,
+          arenaId: arena.arenaId,
+          performanceScore: arena.performanceScore,
+        })
+      )
+  );
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
@@ -890,6 +904,7 @@ export function createTournamentOperationalAnalyticsSnapshot({
 
     indexes: Object.freeze({
       arenaPerformanceIndex,
+      arenaPerformanceRanking,
     }),
 
     insights: Object.freeze([]),
