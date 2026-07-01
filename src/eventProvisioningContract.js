@@ -852,6 +852,29 @@ export function createTournamentOperationalAnalyticsSnapshot({
   const averageMatchesPerHour =
     elapsedMinutes > 0 ? matches / (elapsedMinutes / 60) : 0;
 
+  const arenaPerformanceIndex = Object.freeze(
+    controlTowerSnapshot.arenaOperationalStatus.map((arena) => {
+      const arenaElapsedMinutes =
+        Number(arena.operationalContext?.elapsedMinutes) || 0;
+      const arenaIdleMinutes =
+        Number(arena.operationalContext?.idleMinutes) || 0;
+      const arenaActiveMinutes = Math.max(
+        arenaElapsedMinutes - arenaIdleMinutes,
+        0
+      );
+      const arenaMatchesCompleted =
+        Number(arena.matchesCompleted) || 0;
+
+      return Object.freeze({
+        arenaId: arena.arenaId,
+        performanceScore:
+          arenaActiveMinutes > 0
+            ? arenaMatchesCompleted / (arenaActiveMinutes / 60)
+            : 0,
+      });
+    })
+  );
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
@@ -865,7 +888,9 @@ export function createTournamentOperationalAnalyticsSnapshot({
       averageMatchesPerHour,
     }),
 
-    indexes: Object.freeze({}),
+    indexes: Object.freeze({
+      arenaPerformanceIndex,
+    }),
 
     insights: Object.freeze([]),
   });
