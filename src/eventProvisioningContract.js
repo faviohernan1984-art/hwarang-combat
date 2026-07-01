@@ -889,6 +889,14 @@ export function createTournamentOperationalAnalyticsSnapshot({
         })
       )
   );
+  
+  const tournamentPerformanceIndex =
+    arenaPerformanceIndex.length > 0
+      ? arenaPerformanceIndex.reduce(
+          (total, arena) => total + arena.performanceScore,
+          0
+        ) / arenaPerformanceIndex.length
+      : 0;
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
@@ -905,6 +913,7 @@ export function createTournamentOperationalAnalyticsSnapshot({
     indexes: Object.freeze({
       arenaPerformanceIndex,
       arenaPerformanceRanking,
+      tournamentPerformanceIndex,
     }),
 
     insights: Object.freeze([]),
