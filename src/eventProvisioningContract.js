@@ -34,6 +34,12 @@ export const INSIGHT_SEVERITY = Object.freeze({
   CRITICAL: "CRITICAL",
 });
 
+export const OPERATIONAL_BALANCE_STATUS = Object.freeze({
+  BALANCED: "BALANCED",
+  SLIGHTLY_UNBALANCED: "SLIGHTLY_UNBALANCED",
+  UNBALANCED: "UNBALANCED",
+});
+
 export const INSIGHT_CONSUMPTION_SOURCES = Object.freeze([
   "Arena Metrics",
   "Event Metrics",
@@ -868,6 +874,108 @@ export function createInsightContract({
     evidence: Object.freeze(evidence),
     reasoningChain: Object.freeze(reasoningChain),
     consumptionSources: INSIGHT_CONSUMPTION_SOURCES,
+  });
+}
+/**
+ * Construye el Insight contractual de balance operacional del torneo.
+ *
+ * Este Insight interpreta si la carga operativa se encuentra distribuida
+ * de forma equilibrada entre las Arenas.
+ *
+ * Esta función no modifica Firestore.
+ * No escucha el runtime.
+ * No consume créditos.
+ * No altera President Screen.
+ * No altera Public Screen.
+ * No crea Matches.
+ * No emite recomendaciones operativas.
+ */
+export function createOperationalBalanceInsight({
+  arenaPerformanceIndex = [],
+  tournamentPerformanceIndex = 0,
+} = {}) {
+  if (!Array.isArray(arenaPerformanceIndex)) {
+    throw new Error("arenaPerformanceIndex must be an array");
+  }
+
+  const cleanTournamentPerformanceIndex = Number(tournamentPerformanceIndex);
+
+  if (
+    !Number.isFinite(cleanTournamentPerformanceIndex) ||
+    cleanTournamentPerformanceIndex < 0
+  ) {
+    throw new Error(
+      "tournamentPerformanceIndex must be a non-negative finite number"
+    );
+  }
+
+  const performanceScores = arenaPerformanceIndex.map((arena) => {
+    const cleanArenaId = cleanId(arena.arenaId);
+    const performanceScore = Number(arena.performanceScore);
+
+    if (!cleanArenaId) {
+      throw new Error("arenaId is required inside arenaPerformanceIndex");
+    }
+
+    if (!Number.isFinite(performanceScore) || performanceScore < 0) {
+      throw new Error(
+        "performanceScore must be a non-negative finite number inside arenaPerformanceIndex"
+      );
+    }
+
+    return Object.freeze({
+      arenaId: cleanArenaId,
+      performanceScore,
+    });
+  });
+
+  const performanceValues = performanceScores.map(
+    (arena) => arena.performanceScore
+  );
+
+  const highestPerformance =
+    performanceValues.length > 0 ? Math.max(...performanceValues) : 0;
+  const lowestPerformance =
+    performanceValues.length > 0 ? Math.min(...performanceValues) : 0;
+  const operationalSpread = highestPerformance - lowestPerformance;
+
+  let status = OPERATIONAL_BALANCE_STATUS.BALANCED;
+  let severity = INSIGHT_SEVERITY.NORMAL;
+
+  if (operationalSpread > cleanTournamentPerformanceIndex * 0.5) {
+    status = OPERATIONAL_BALANCE_STATUS.UNBALANCED;
+    severity = INSIGHT_SEVERITY.ATTENTION;
+  } else if (operationalSpread > cleanTournamentPerformanceIndex * 0.25) {
+    status = OPERATIONAL_BALANCE_STATUS.SLIGHTLY_UNBALANCED;
+    severity = INSIGHT_SEVERITY.WATCH;
+  }
+
+  const summary =
+    status === OPERATIONAL_BALANCE_STATUS.BALANCED
+      ? "The tournament maintains consistent operational balance based on homogeneous arena performance indexes."
+      : status === OPERATIONAL_BALANCE_STATUS.SLIGHTLY_UNBALANCED
+        ? "The tournament shows a slight operational imbalance due to observed dispersion across arena performance indexes."
+        : "The tournament shows a significant operational imbalance due to high dispersion across arena performance indexes.";
+
+  return createInsightContract({
+    insightId: "operational-balance",
+    insightType: "OPERATIONAL_BALANCE",
+    status,
+    severity,
+    summary,
+    evidence: Object.freeze({
+      arenaPerformanceIndex: Object.freeze(performanceScores),
+      tournamentPerformanceIndex: cleanTournamentPerformanceIndex,
+      highestPerformance,
+      lowestPerformance,
+      operationalSpread,
+    }),
+    reasoningChain: Object.freeze([
+      "Arena performance indexes were collected for all arenas.",
+      "The difference between the highest and lowest performance index was calculated.",
+      "The operational spread was compared against the tournament performance index.",
+      `The operational balance status was classified as ${status}.`,
+    ]),
   });
 }
 /**
