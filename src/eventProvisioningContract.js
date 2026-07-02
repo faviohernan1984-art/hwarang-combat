@@ -27,6 +27,22 @@ export const COMBAT_CONTEXT_MODES = Object.freeze({
   PROVISIONED: "provisioned",
 });
 
+export const INSIGHT_SEVERITY = Object.freeze({
+  NORMAL: "NORMAL",
+  WATCH: "WATCH",
+  ATTENTION: "ATTENTION",
+  CRITICAL: "CRITICAL",
+});
+
+export const INSIGHT_CONSUMPTION_SOURCES = Object.freeze([
+  "Arena Metrics",
+  "Event Metrics",
+  "Tournament Metrics",
+  "Arena Indexes",
+  "Tournament Indexes",
+  "Tournament Contract Definitions",
+]);
+
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
@@ -779,6 +795,79 @@ export function createTournamentControlTowerSnapshot({
     matches: eventMetricsSnapshot.matches,
     arenaOperationalStatus: Object.freeze(arenaOperationalStatus),
     operationalRecommendations: Object.freeze([]),
+  });
+}
+/**
+ * ============================================================
+ * HOI INSIGHT CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye un contrato base de Insight operacional.
+ *
+ * Un Insight interpreta métricas e índices autorizados.
+ *
+ * Esta función no modifica Firestore.
+ * No escucha el runtime.
+ * No consume créditos.
+ * No altera President Screen.
+ * No altera Public Screen.
+ * No crea Matches.
+ * No emite recomendaciones operativas.
+ */
+export function createInsightContract({
+  insightId,
+  insightType,
+  status,
+  severity = INSIGHT_SEVERITY.NORMAL,
+  summary,
+  evidence = {},
+  reasoningChain = [],
+} = {}) {
+  const cleanInsightId = cleanId(insightId);
+  const cleanInsightType = cleanId(insightType);
+  const cleanStatus = cleanId(status);
+  const cleanSeverity = cleanId(severity);
+  const cleanSummary = cleanId(summary);
+
+  if (!cleanInsightId) {
+    throw new Error("insightId is required to create an insight contract");
+  }
+
+  if (!cleanInsightType) {
+    throw new Error("insightType is required to create an insight contract");
+  }
+
+  if (!cleanStatus) {
+    throw new Error("status is required to create an insight contract");
+  }
+
+  if (!cleanSeverity) {
+    throw new Error("severity is required to create an insight contract");
+  }
+
+  if (!cleanSummary) {
+    throw new Error("summary is required to create an insight contract");
+  }
+
+  if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
+    throw new Error("evidence must be an object");
+  }
+
+  if (!Array.isArray(reasoningChain)) {
+    throw new Error("reasoningChain must be an array");
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    insightId: cleanInsightId,
+    insightType: cleanInsightType,
+    status: cleanStatus,
+    severity: cleanSeverity,
+    summary: cleanSummary,
+    evidence: Object.freeze(evidence),
+    reasoningChain: Object.freeze(reasoningChain),
+    consumptionSources: INSIGHT_CONSUMPTION_SOURCES,
   });
 }
 /**
