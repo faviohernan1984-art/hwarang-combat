@@ -978,6 +978,85 @@ export function createOperationalBalanceInsight({
     ]),
   });
 }
+export function createTournamentFlowInsight({
+  controlTowerSnapshot,
+} = {}) {
+  if (!controlTowerSnapshot) {
+    throw new Error(
+      "controlTowerSnapshot is required to create a tournament flow insight"
+    );
+  }
+
+  if (!Array.isArray(controlTowerSnapshot.arenaOperationalStatus)) {
+    throw new Error(
+      "controlTowerSnapshot.arenaOperationalStatus must be an array"
+    );
+  }
+
+  const arenas = Number(controlTowerSnapshot.arenas);
+  const matches = Number(controlTowerSnapshot.matches);
+  const activeArenas = Number(controlTowerSnapshot.activeArenas);
+  const inactiveArenas = Number(controlTowerSnapshot.inactiveArenas);
+
+  if (!Number.isInteger(arenas) || arenas < 0) {
+    throw new Error("arenas must be a non-negative integer");
+  }
+
+  if (!Number.isInteger(matches) || matches < 0) {
+    throw new Error("matches must be a non-negative integer");
+  }
+
+  if (!Number.isInteger(activeArenas) || activeArenas < 0) {
+    throw new Error("activeArenas must be a non-negative integer");
+  }
+
+  if (!Number.isInteger(inactiveArenas) || inactiveArenas < 0) {
+    throw new Error("inactiveArenas must be a non-negative integer");
+  }
+
+  let status = "FLOWING";
+  let severity = INSIGHT_SEVERITY.NORMAL;
+
+  if (arenas === 0) {
+    status = "UNKNOWN";
+    severity = INSIGHT_SEVERITY.WATCH;
+  } else if (matches === 0) {
+    status = "NOT_STARTED";
+    severity = INSIGHT_SEVERITY.WATCH;
+  } else if (inactiveArenas > 0) {
+    status = "PARTIALLY_FLOWING";
+    severity = INSIGHT_SEVERITY.ATTENTION;
+  }
+
+  const summary =
+    status === "FLOWING"
+      ? "The tournament flow is active across all registered arenas."
+      : status === "PARTIALLY_FLOWING"
+        ? "The tournament flow is active but not yet distributed across all registered arenas."
+        : status === "NOT_STARTED"
+          ? "The tournament flow has not started because no matches have been completed."
+          : "The tournament flow cannot be fully evaluated because no arenas are registered.";
+
+  return createInsightContract({
+    insightId: "tournament-flow",
+    insightType: "TOURNAMENT_FLOW",
+    status,
+    severity,
+    summary,
+    evidence: Object.freeze({
+      arenas,
+      matches,
+      activeArenas,
+      inactiveArenas,
+    }),
+    reasoningChain: Object.freeze([
+      "Tournament Control Tower data was received as the authorized operational source.",
+      "Registered arenas, completed matches, active arenas, and inactive arenas were evaluated.",
+      "Tournament flow status was classified according to match completion distribution.",
+      `The tournament flow status was classified as ${status}.`,
+    ]),
+  });
+}
 /**
  * ============================================================
  * TOURNAMENT OPERATIONAL ANALYTICS CONTRACT
