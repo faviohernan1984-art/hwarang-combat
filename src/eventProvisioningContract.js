@@ -1280,6 +1280,19 @@ export function createTournamentOperationalAnalyticsSnapshot({
           0
         ) / arenaPerformanceIndex.length
       : 0;
+  const operationalBalanceInsight = createOperationalBalanceInsight({
+    arenaPerformanceIndex,
+    tournamentPerformanceIndex,
+  });
+
+  const tournamentFlowInsight = createTournamentFlowInsight({
+    controlTowerSnapshot,
+  });
+
+  const arenaAttentionInsight = createArenaAttentionInsight({
+    controlTowerSnapshot,
+  });
+  
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
@@ -1299,7 +1312,11 @@ export function createTournamentOperationalAnalyticsSnapshot({
       tournamentPerformanceIndex,
     }),
 
-    insights: Object.freeze([]),
+    insights: Object.freeze([
+      operationalBalanceInsight,
+      tournamentFlowInsight,
+      arenaAttentionInsight,
+    ]),
   });
 }
 
