@@ -1057,6 +1057,113 @@ export function createTournamentFlowInsight({
     ]),
   });
 }
+export function createArenaAttentionInsight({
+  controlTowerSnapshot,
+} = {}) {
+  if (!controlTowerSnapshot) {
+    throw new Error(
+      "controlTowerSnapshot is required to create an arena attention insight"
+    );
+  }
+
+  if (!Array.isArray(controlTowerSnapshot.arenaOperationalStatus)) {
+    throw new Error(
+      "controlTowerSnapshot.arenaOperationalStatus must be an array"
+    );
+  }
+
+  const arenaAttentionSignals = Object.freeze(
+    controlTowerSnapshot.arenaOperationalStatus.map((arena) => {
+      const cleanArenaId = cleanId(arena.arenaId);
+      const matchesCompleted = Number(arena.matchesCompleted);
+      const elapsedMinutes =
+        Number(arena.operationalContext?.elapsedMinutes) || 0;
+      const idleMinutes =
+        Number(arena.operationalContext?.idleMinutes) || 0;
+
+      if (!cleanArenaId) {
+        throw new Error(
+          "arenaId is required inside arenaOperationalStatus"
+        );
+      }
+
+      if (
+        !Number.isInteger(matchesCompleted) ||
+        matchesCompleted < 0
+      ) {
+        throw new Error(
+          "matchesCompleted must be a non-negative integer inside arenaOperationalStatus"
+        );
+      }
+
+      if (
+        !Number.isInteger(elapsedMinutes) ||
+        elapsedMinutes < 0
+      ) {
+        throw new Error(
+          "elapsedMinutes must be a non-negative integer inside arenaOperationalStatus"
+        );
+      }
+
+      if (!Number.isInteger(idleMinutes) || idleMinutes < 0) {
+        throw new Error(
+          "idleMinutes must be a non-negative integer inside arenaOperationalStatus"
+        );
+      }
+
+      const idleRatio =
+        elapsedMinutes > 0 ? idleMinutes / elapsedMinutes : 0;
+
+      const requiresAttention =
+        matchesCompleted === 0 || idleRatio >= 0.5;
+
+      return Object.freeze({
+        arenaId: cleanArenaId,
+        matchesCompleted,
+        elapsedMinutes,
+        idleMinutes,
+        idleRatio,
+        requiresAttention,
+      });
+    })
+  );
+
+  const arenasRequiringAttention = Object.freeze(
+    arenaAttentionSignals.filter((arena) => arena.requiresAttention)
+  );
+
+  let status = "CLEAR";
+  let severity = INSIGHT_SEVERITY.NORMAL;
+
+  if (arenasRequiringAttention.length > 0) {
+    status = "ATTENTION_REQUIRED";
+    severity = INSIGHT_SEVERITY.ATTENTION;
+  }
+
+  const summary =
+    status === "CLEAR"
+      ? "No arena attention signals were detected from authorized operational data."
+      : "One or more arenas show attention signals based on match completion or idle time.";
+
+  return createInsightContract({
+    insightId: "arena-attention",
+    insightType: "ARENA_ATTENTION",
+    status,
+    severity,
+    summary,
+    evidence: Object.freeze({
+      arenaAttentionSignals,
+      arenasRequiringAttention,
+      attentionCount: arenasRequiringAttention.length,
+    }),
+    reasoningChain: Object.freeze([
+      "Tournament Control Tower arena operational status was received as the authorized operational source.",
+      "Each arena was evaluated for completed matches and idle time ratio.",
+      "Arenas with zero completed matches or idle time equal to or above fifty percent were marked as requiring attention.",
+      `The arena attention status was classified as ${status}.`,
+    ]),
+  });
+}
 /**
  * ============================================================
  * TOURNAMENT OPERATIONAL ANALYTICS CONTRACT
