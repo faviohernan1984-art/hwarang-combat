@@ -1267,6 +1267,126 @@ export function createOperationalIntelligenceContract({
     limitations: Object.freeze(limitations),
   });
 }
+export function createOperationalCorrelationIntelligence({
+  tournamentOperationalAnalyticsSnapshot,
+} = {}) {
+  if (!tournamentOperationalAnalyticsSnapshot) {
+    throw new Error(
+      "tournamentOperationalAnalyticsSnapshot is required to create operational correlation intelligence"
+    );
+  }
+
+  if (!Array.isArray(tournamentOperationalAnalyticsSnapshot.insights)) {
+    throw new Error(
+      "tournamentOperationalAnalyticsSnapshot.insights must be an array"
+    );
+  }
+
+  const correlatedInsights = Object.freeze(
+    tournamentOperationalAnalyticsSnapshot.insights.map((insight) => {
+      const cleanInsightId = cleanId(insight.insightId);
+      const cleanInsightType = cleanId(insight.insightType);
+      const cleanStatus = cleanId(insight.status);
+      const cleanSeverity = cleanId(insight.severity);
+
+      if (!cleanInsightId) {
+        throw new Error("insightId is required inside insights");
+      }
+
+      if (!cleanInsightType) {
+        throw new Error("insightType is required inside insights");
+      }
+
+      if (!cleanStatus) {
+        throw new Error("status is required inside insights");
+      }
+
+      if (!cleanSeverity) {
+        throw new Error("severity is required inside insights");
+      }
+
+      return Object.freeze({
+        insightId: cleanInsightId,
+        insightType: cleanInsightType,
+        status: cleanStatus,
+        severity: cleanSeverity,
+      });
+    })
+  );
+
+  const severityWeights = Object.freeze({
+    [INSIGHT_SEVERITY.NORMAL]: 0,
+    [INSIGHT_SEVERITY.WATCH]: 1,
+    [INSIGHT_SEVERITY.ATTENTION]: 2,
+    [INSIGHT_SEVERITY.CRITICAL]: 3,
+  });
+
+  const severityScores = correlatedInsights.map((insight) => {
+    if (!(insight.severity in severityWeights)) {
+      throw new Error(
+        "severity must be a known INSIGHT_SEVERITY value inside insights"
+      );
+    }
+
+    return severityWeights[insight.severity];
+  });
+
+  const highestSeverityScore =
+    severityScores.length > 0 ? Math.max(...severityScores) : 0;
+
+  const elevatedSignals = severityScores.filter(
+    (severityScore) => severityScore > 0
+  ).length;
+
+  const confidence =
+    correlatedInsights.length > 0
+      ? elevatedSignals / correlatedInsights.length
+      : 0;
+
+  let status = "CONSISTENT_OPERATION";
+
+  if (elevatedSignals > 1) {
+    status = "MULTI_SIGNAL_CONVERGENCE";
+  } else if (elevatedSignals === 1) {
+    status = "PARTIAL_CONVERGENCE";
+  }
+
+  const summary =
+    status === "CONSISTENT_OPERATION"
+      ? "Observed operational insights show no elevated severity convergence."
+      : status === "PARTIAL_CONVERGENCE"
+        ? "A single operational insight shows elevated severity without multi-signal convergence."
+        : "Multiple operational insights show elevated severity convergence.";
+
+  const interpretation =
+    status === "CONSISTENT_OPERATION"
+      ? "Current evidence does not show operational convergence requiring elevated attention."
+      : status === "PARTIAL_CONVERGENCE"
+        ? "Current evidence shows one elevated operational signal, but convergence is not yet established."
+        : "Current evidence shows multiple independent operational signals converging toward elevated attention.";
+
+  return createOperationalIntelligenceContract({
+    intelligenceId: "operational-correlation",
+    intelligenceType: "OPERATIONAL_CORRELATION",
+    status,
+    confidence,
+    summary,
+    correlatedInsights,
+    evidenceMap: Object.freeze({
+      severityScores: Object.freeze(severityScores),
+      elevatedSignals,
+      totalSignals: correlatedInsights.length,
+      highestSeverityScore,
+      correlationBasis: "INSIGHT_SEVERITY",
+    }),
+    interpretation,
+    limitations: Object.freeze([
+      "This intelligence is limited to the insights currently produced by Tournament Operational Analytics.",
+      "This intelligence evaluates evidence convergence and does not emit operational recommendations.",
+      "This intelligence does not yet evaluate expected pace, category congestion, resource allocation, or historical event patterns.",
+    ]),
+  });
+}
 /**
  * ============================================================
  * TOURNAMENT OPERATIONAL ANALYTICS CONTRACT
