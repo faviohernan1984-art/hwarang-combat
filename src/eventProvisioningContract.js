@@ -1389,6 +1389,82 @@ export function createOperationalCorrelationIntelligence({
 }
 /**
  * ============================================================
+ * HWARANG OPERATIONAL INTELLIGENCE SNAPSHOT
+ * ============================================================
+ */
+/**
+ * Construye una foto contractual de Hwarang Operational Intelligence.
+ *
+ * HOI consolida la analítica operacional del torneo y la inteligencia
+ * de correlación operacional en una única evaluación contextual.
+ *
+ * Esta función no modifica Firestore.
+ * No escucha el runtime.
+ * No consume créditos.
+ * No altera President Screen.
+ * No altera Public Screen.
+ * No crea Matches.
+ * No emite recomendaciones operativas.
+ * No reemplaza el criterio del Director del Evento.
+ */
+export function createHwarangOperationalIntelligenceSnapshot({
+  eventId,
+  tournamentOperationalAnalyticsSnapshot,
+  operationalCorrelationIntelligence,
+  generatedAt,
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+  const cleanGeneratedAt = cleanId(generatedAt);
+
+  if (!cleanEventId) {
+    throw new Error(
+      "eventId is required to create a hwarang operational intelligence snapshot"
+    );
+  }
+
+  if (!tournamentOperationalAnalyticsSnapshot) {
+    throw new Error(
+      "tournamentOperationalAnalyticsSnapshot is required to create a hwarang operational intelligence snapshot"
+    );
+  }
+
+  if (!operationalCorrelationIntelligence) {
+    throw new Error(
+      "operationalCorrelationIntelligence is required to create a hwarang operational intelligence snapshot"
+    );
+  }
+
+  if (!cleanGeneratedAt) {
+    throw new Error(
+      "generatedAt is required to create a hwarang operational intelligence snapshot"
+    );
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    generatedAt: cleanGeneratedAt,
+
+    tournamentOperationalAnalyticsSnapshot,
+    operationalCorrelationIntelligence,
+
+    assessment: Object.freeze({
+      status: operationalCorrelationIntelligence.status,
+      severity:
+        operationalCorrelationIntelligence.evidenceMap?.highestSeverityScore === 3
+          ? INSIGHT_SEVERITY.CRITICAL
+          : operationalCorrelationIntelligence.evidenceMap?.highestSeverityScore === 2
+            ? INSIGHT_SEVERITY.ATTENTION
+            : operationalCorrelationIntelligence.evidenceMap?.highestSeverityScore === 1
+              ? INSIGHT_SEVERITY.WATCH
+              : INSIGHT_SEVERITY.NORMAL,
+      confidence: operationalCorrelationIntelligence.confidence,
+      basis: "OPERATIONAL_EVIDENCE_CONVERGENCE",
+    }),
+  });
+}
+/**
+ * ============================================================
  * TOURNAMENT OPERATIONAL ANALYTICS CONTRACT
  * ============================================================
  */
