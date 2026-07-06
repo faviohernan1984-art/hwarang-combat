@@ -1166,6 +1166,109 @@ export function createArenaAttentionInsight({
 }
 /**
  * ============================================================
+ * HWARANG OPERATIONAL INTELLIGENCE CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye un contrato base de inteligencia operacional.
+ *
+ * HOI correlaciona evidencia operacional producida por
+ * Tournament Operational Analytics.
+ *
+ * Esta función no modifica Firestore.
+ * No escucha el runtime.
+ * No consume créditos.
+ * No altera President Screen.
+ * No altera Public Screen.
+ * No crea Matches.
+ * No emite recomendaciones operativas.
+ * No reemplaza el criterio del Director del Evento.
+ */
+export function createOperationalIntelligenceContract({
+  intelligenceId,
+  intelligenceType,
+  status,
+  confidence = 0,
+  summary,
+  correlatedInsights = [],
+  evidenceMap = {},
+  interpretation,
+  limitations = [],
+} = {}) {
+  const cleanIntelligenceId = cleanId(intelligenceId);
+  const cleanIntelligenceType = cleanId(intelligenceType);
+  const cleanStatus = cleanId(status);
+  const cleanSummary = cleanId(summary);
+  const cleanInterpretation = cleanId(interpretation);
+  const cleanConfidence = Number(confidence);
+
+  if (!cleanIntelligenceId) {
+    throw new Error(
+      "intelligenceId is required to create an operational intelligence contract"
+    );
+  }
+
+  if (!cleanIntelligenceType) {
+    throw new Error(
+      "intelligenceType is required to create an operational intelligence contract"
+    );
+  }
+
+  if (!cleanStatus) {
+    throw new Error(
+      "status is required to create an operational intelligence contract"
+    );
+  }
+
+  if (!Number.isFinite(cleanConfidence) || cleanConfidence < 0 || cleanConfidence > 1) {
+    throw new Error(
+      "confidence must be a finite number between 0 and 1"
+    );
+  }
+
+  if (!cleanSummary) {
+    throw new Error(
+      "summary is required to create an operational intelligence contract"
+    );
+  }
+
+  if (!Array.isArray(correlatedInsights)) {
+    throw new Error("correlatedInsights must be an array");
+  }
+
+  if (
+    !evidenceMap ||
+    typeof evidenceMap !== "object" ||
+    Array.isArray(evidenceMap)
+  ) {
+    throw new Error("evidenceMap must be an object");
+  }
+
+  if (!cleanInterpretation) {
+    throw new Error(
+      "interpretation is required to create an operational intelligence contract"
+    );
+  }
+
+  if (!Array.isArray(limitations)) {
+    throw new Error("limitations must be an array");
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    intelligenceId: cleanIntelligenceId,
+    intelligenceType: cleanIntelligenceType,
+    status: cleanStatus,
+    confidence: cleanConfidence,
+    summary: cleanSummary,
+    correlatedInsights: Object.freeze(correlatedInsights),
+    evidenceMap: Object.freeze(evidenceMap),
+    interpretation: cleanInterpretation,
+    limitations: Object.freeze(limitations),
+  });
+}
+/**
+ * ============================================================
  * TOURNAMENT OPERATIONAL ANALYTICS CONTRACT
  * ============================================================
  */
