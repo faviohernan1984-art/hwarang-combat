@@ -1410,7 +1410,6 @@ export function createOperationalCorrelationIntelligence({
 export function createHwarangOperationalIntelligenceSnapshot({
   eventId,
   tournamentOperationalAnalyticsSnapshot,
-  operationalCorrelationIntelligence,
   generatedAt,
 } = {}) {
   const cleanEventId = cleanId(eventId);
@@ -1428,17 +1427,16 @@ export function createHwarangOperationalIntelligenceSnapshot({
     );
   }
 
-  if (!operationalCorrelationIntelligence) {
-    throw new Error(
-      "operationalCorrelationIntelligence is required to create a hwarang operational intelligence snapshot"
-    );
-  }
-
   if (!cleanGeneratedAt) {
     throw new Error(
       "generatedAt is required to create a hwarang operational intelligence snapshot"
     );
   }
+
+  const operationalCorrelationIntelligence =
+    createOperationalCorrelationIntelligence({
+      tournamentOperationalAnalyticsSnapshot,
+    });
 
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
