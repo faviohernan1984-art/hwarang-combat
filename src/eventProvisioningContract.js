@@ -1463,6 +1463,148 @@ export function createHwarangOperationalIntelligenceSnapshot({
 }
 /**
  * ============================================================
+ * OPERATIONAL CONTINUITY INTELLIGENCE
+ * ============================================================
+ */
+/**
+ * Construye inteligencia de continuidad operacional comparando
+ * dos snapshots HOI consecutivos del mismo evento.
+ *
+ * Esta función no modifica Firestore.
+ * No escucha el runtime.
+ * No consume métricas crudas.
+ * No consume Tournament Operational Analytics directamente.
+ * No emite recomendaciones operativas.
+ * No predice resultados futuros.
+ */
+export function createOperationalContinuityIntelligence({
+  previousHwarangOperationalIntelligenceSnapshot,
+  currentHwarangOperationalIntelligenceSnapshot,
+} = {}) {
+  if (!previousHwarangOperationalIntelligenceSnapshot) {
+    throw new Error(
+      "previousHwarangOperationalIntelligenceSnapshot is required to create operational continuity intelligence"
+    );
+  }
+
+  if (!currentHwarangOperationalIntelligenceSnapshot) {
+    throw new Error(
+      "currentHwarangOperationalIntelligenceSnapshot is required to create operational continuity intelligence"
+    );
+  }
+
+  if (
+    previousHwarangOperationalIntelligenceSnapshot.eventId !==
+    currentHwarangOperationalIntelligenceSnapshot.eventId
+  ) {
+    throw new Error(
+      "operational continuity intelligence requires snapshots from the same event"
+    );
+  }
+
+  const previousConfidence = Number(
+    previousHwarangOperationalIntelligenceSnapshot.assessment?.confidence
+  );
+  const currentConfidence = Number(
+    currentHwarangOperationalIntelligenceSnapshot.assessment?.confidence
+  );
+
+  if (!Number.isFinite(previousConfidence)) {
+    throw new Error(
+      "previous assessment confidence must be a finite number"
+    );
+  }
+
+  if (!Number.isFinite(currentConfidence)) {
+    throw new Error(
+      "current assessment confidence must be a finite number"
+    );
+  }
+
+  const severityWeights = Object.freeze({
+    [INSIGHT_SEVERITY.NORMAL]: 0,
+    [INSIGHT_SEVERITY.WATCH]: 1,
+    [INSIGHT_SEVERITY.ATTENTION]: 2,
+    [INSIGHT_SEVERITY.CRITICAL]: 3,
+  });
+
+  const previousSeverity =
+    previousHwarangOperationalIntelligenceSnapshot.assessment?.severity;
+  const currentSeverity =
+    currentHwarangOperationalIntelligenceSnapshot.assessment?.severity;
+
+  if (!(previousSeverity in severityWeights)) {
+    throw new Error(
+      "previous assessment severity must be a known INSIGHT_SEVERITY value"
+    );
+  }
+
+  if (!(currentSeverity in severityWeights)) {
+    throw new Error(
+      "current assessment severity must be a known INSIGHT_SEVERITY value"
+    );
+  }
+
+  const previousSeverityScore = severityWeights[previousSeverity];
+  const currentSeverityScore = severityWeights[currentSeverity];
+
+  let status = "STABLE";
+
+  if (
+    currentSeverityScore > previousSeverityScore ||
+    currentConfidence > previousConfidence
+  ) {
+    status = "DETERIORATING";
+  } else if (
+    currentSeverityScore < previousSeverityScore ||
+    currentConfidence < previousConfidence
+  ) {
+    status = "IMPROVING";
+  }
+
+  const summary =
+    status === "STABLE"
+      ? "Operational condition remained stable compared with the previous HOI snapshot."
+      : status === "IMPROVING"
+        ? "Operational condition improved compared with the previous HOI snapshot."
+        : "Operational condition deteriorated compared with the previous HOI snapshot.";
+
+  return createOperationalIntelligenceContract({
+    intelligenceId: "operational-continuity",
+    intelligenceType: "OPERATIONAL_CONTINUITY",
+    status,
+    confidence:
+      previousSeverityScore !== currentSeverityScore ||
+      previousConfidence !== currentConfidence
+        ? 1
+        : 0,
+    summary,
+    correlatedInsights: Object.freeze([]),
+    evidenceMap: Object.freeze({
+      previousGeneratedAt:
+        previousHwarangOperationalIntelligenceSnapshot.generatedAt,
+      currentGeneratedAt:
+        currentHwarangOperationalIntelligenceSnapshot.generatedAt,
+      previousSeverity,
+      currentSeverity,
+      previousSeverityScore,
+      currentSeverityScore,
+      previousConfidence,
+      currentConfidence,
+      confidenceDelta: currentConfidence - previousConfidence,
+      continuityBasis: "HOI_SNAPSHOT_COMPARISON",
+    }),
+    interpretation:
+      "Operational continuity reflects how the current HOI assessment changed compared with the previous HOI snapshot from the same event.",
+    limitations: Object.freeze([
+      "This intelligence compares only consecutive Hwarang Operational Intelligence snapshots from the same event.",
+      "This intelligence does not consume raw metrics, arena data, tournament analytics, or external data sources.",
+      "This intelligence does not emit operational recommendations or predictive forecasts.",
+    ]),
+  });
+}
+/**
+ * ============================================================
  * TOURNAMENT OPERATIONAL ANALYTICS CONTRACT
  * ============================================================
  */
