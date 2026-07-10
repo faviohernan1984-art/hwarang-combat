@@ -1760,6 +1760,89 @@ export function createTournamentOperationalAnalyticsSnapshot({
 }
 /**
  * ============================================================
+ * OPERATIONAL ASSISTANT EXECUTIVE BRIEFING CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye el contrato base de un Executive Briefing.
+ *
+ * El Executive Briefing representa la lectura operacional inmediata
+ * destinada al Director del Evento.
+ *
+ * Esta función no consume snapshots.
+ * No reconstruye contexto operacional.
+ * No recalcula métricas.
+ * No recalcula índices.
+ * No recalcula Insights.
+ * No recalcula inteligencia operacional.
+ * No emite recomendaciones.
+ * No reemplaza el criterio del Director del Evento.
+ */
+export function createExecutiveBriefing({
+  status,
+  severity = INSIGHT_SEVERITY.NORMAL,
+  headline,
+  summary,
+  confidence = 0,
+} = {}) {
+  const cleanStatus = cleanId(status);
+  const cleanSeverity = cleanId(severity);
+  const cleanHeadline = cleanId(headline);
+  const cleanSummary = cleanId(summary);
+  const cleanConfidence = Number(confidence);
+
+  if (!cleanStatus) {
+    throw new Error(
+      "status is required to create an executive briefing"
+    );
+  }
+
+  if (!cleanSeverity) {
+    throw new Error(
+      "severity is required to create an executive briefing"
+    );
+  }
+
+  if (!Object.values(INSIGHT_SEVERITY).includes(cleanSeverity)) {
+    throw new Error(
+      "severity must be a known INSIGHT_SEVERITY value"
+    );
+  }
+
+  if (!cleanHeadline) {
+    throw new Error(
+      "headline is required to create an executive briefing"
+    );
+  }
+
+  if (!cleanSummary) {
+    throw new Error(
+      "summary is required to create an executive briefing"
+    );
+  }
+
+  if (
+    !Number.isFinite(cleanConfidence) ||
+    cleanConfidence < 0 ||
+    cleanConfidence > 1
+  ) {
+    throw new Error(
+      "confidence must be a finite number between 0 and 1"
+    );
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    status: cleanStatus,
+    severity: cleanSeverity,
+    headline: cleanHeadline,
+    summary: cleanSummary,
+    confidence: cleanConfidence,
+  });
+}
+
+/**
+ * ============================================================
  * OPERATIONAL ASSISTANT BRIEFING CONTRACT
  * ============================================================
  */
