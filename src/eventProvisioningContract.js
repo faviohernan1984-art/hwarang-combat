@@ -1711,7 +1711,7 @@ export function createTournamentOperationalAnalyticsSnapshot({
         })
       )
   );
-  
+
   const tournamentPerformanceIndex =
     arenaPerformanceIndex.length > 0
       ? arenaPerformanceIndex.reduce(
@@ -1731,7 +1731,7 @@ export function createTournamentOperationalAnalyticsSnapshot({
   const arenaAttentionInsight = createArenaAttentionInsight({
     controlTowerSnapshot,
   });
-  
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
@@ -1756,6 +1756,88 @@ export function createTournamentOperationalAnalyticsSnapshot({
       tournamentFlowInsight,
       arenaAttentionInsight,
     ]),
+  });
+}
+/**
+ * ============================================================
+ * OPERATIONAL ASSISTANT BRIEFING CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye el contrato base de comunicación operacional
+ * destinado al Director del Evento.
+ *
+ * Operational Assistant reconstruye contexto operacional utilizando
+ * exclusivamente snapshots consolidados y autorizados provenientes de:
+ *
+ * - Tournament Control Tower.
+ * - Tournament Operational Analytics.
+ * - Hwarang Operational Intelligence.
+ *
+ * Esta función no consume métricas crudas.
+ * No consume datos primarios.
+ * No recalcula métricas.
+ * No recalcula índices.
+ * No recalcula Insights.
+ * No recalcula inteligencia operacional.
+ * No modifica Firestore.
+ * No escucha ni altera el runtime.
+ * No reemplaza el criterio del Director del Evento.
+ */
+export function createOperationalAssistantBriefing({
+  eventId,
+  tournamentControlTowerSnapshot,
+  tournamentOperationalAnalyticsSnapshot,
+  hwarangOperationalIntelligenceSnapshot,
+  generatedAt,
+} = {}) {
+  const cleanEventId = cleanId(eventId);
+  const cleanGeneratedAt = cleanId(generatedAt);
+
+  if (!cleanEventId) {
+    throw new Error(
+      "eventId is required to create an operational assistant briefing"
+    );
+  }
+
+  if (!tournamentControlTowerSnapshot) {
+    throw new Error(
+      "tournamentControlTowerSnapshot is required to create an operational assistant briefing"
+    );
+  }
+
+  if (!tournamentOperationalAnalyticsSnapshot) {
+    throw new Error(
+      "tournamentOperationalAnalyticsSnapshot is required to create an operational assistant briefing"
+    );
+  }
+
+  if (!hwarangOperationalIntelligenceSnapshot) {
+    throw new Error(
+      "hwarangOperationalIntelligenceSnapshot is required to create an operational assistant briefing"
+    );
+  }
+
+  if (!cleanGeneratedAt) {
+    throw new Error(
+      "generatedAt is required to create an operational assistant briefing"
+    );
+  }
+
+  if (
+    tournamentControlTowerSnapshot.eventId !== cleanEventId ||
+    tournamentOperationalAnalyticsSnapshot.eventId !== cleanEventId ||
+    hwarangOperationalIntelligenceSnapshot.eventId !== cleanEventId
+  ) {
+    throw new Error(
+      "operational assistant briefing requires authorized snapshots from the same event"
+    );
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    eventId: cleanEventId,
+    generatedAt: cleanGeneratedAt,
   });
 }
 
