@@ -1843,6 +1843,87 @@ export function createExecutiveBriefing({
 
 /**
  * ============================================================
+ * OPERATIONAL ASSISTANT OPERATIONAL SUMMARY CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye el contrato base de un Operational Summary.
+ *
+ * El Operational Summary organiza una lectura breve y estructurada
+ * del estado general del torneo para el Director del Evento.
+ *
+ * Esta función no consume snapshots.
+ * No reconstruye contexto operacional.
+ * No recalcula métricas.
+ * No recalcula índices.
+ * No recalcula Insights.
+ * No recalcula inteligencia operacional.
+ * No emite recomendaciones.
+ * No reemplaza el criterio del Director del Evento.
+ */
+export function createOperationalSummary({
+  tournamentStatus,
+  operationalFlow,
+  operationalBalance,
+  leadingArena,
+  arenasRequiringAttention = 0,
+  summary,
+} = {}) {
+  const cleanTournamentStatus = cleanId(tournamentStatus);
+  const cleanOperationalFlow = cleanId(operationalFlow);
+  const cleanOperationalBalance = cleanId(operationalBalance);
+  const cleanLeadingArena = cleanId(leadingArena);
+  const cleanArenasRequiringAttention = Number(
+    arenasRequiringAttention
+  );
+  const cleanSummary = cleanId(summary);
+
+  if (!cleanTournamentStatus) {
+    throw new Error(
+      "tournamentStatus is required to create an operational summary"
+    );
+  }
+
+  if (!cleanOperationalFlow) {
+    throw new Error(
+      "operationalFlow is required to create an operational summary"
+    );
+  }
+
+  if (!cleanOperationalBalance) {
+    throw new Error(
+      "operationalBalance is required to create an operational summary"
+    );
+  }
+
+  if (
+    !Number.isInteger(cleanArenasRequiringAttention) ||
+    cleanArenasRequiringAttention < 0
+  ) {
+    throw new Error(
+      "arenasRequiringAttention must be a non-negative integer"
+    );
+  }
+
+  if (!cleanSummary) {
+    throw new Error(
+      "summary is required to create an operational summary"
+    );
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    tournamentStatus: cleanTournamentStatus,
+    operationalFlow: cleanOperationalFlow,
+    operationalBalance: cleanOperationalBalance,
+    leadingArena: cleanLeadingArena,
+    arenasRequiringAttention: cleanArenasRequiringAttention,
+    summary: cleanSummary,
+  });
+}
+
+/**
+ * ============================================================
  * OPERATIONAL ASSISTANT BRIEFING CONTRACT
  * ============================================================
  */
