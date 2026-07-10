@@ -1917,10 +1917,68 @@ export function createOperationalAssistantBriefing({
     );
   }
 
+  const hoiAssessment =
+    hwarangOperationalIntelligenceSnapshot.assessment;
+
+  if (!hoiAssessment) {
+    throw new Error(
+      "hwarangOperationalIntelligenceSnapshot.assessment is required to create an operational assistant briefing"
+    );
+  }
+
+  const assessmentStatus = cleanId(hoiAssessment.status);
+  const assessmentSeverity = cleanId(hoiAssessment.severity);
+  const assessmentConfidence = Number(hoiAssessment.confidence);
+
+  if (!assessmentStatus) {
+    throw new Error(
+      "assessment.status is required to create an operational assistant briefing"
+    );
+  }
+
+  if (
+    !assessmentSeverity ||
+    !Object.values(INSIGHT_SEVERITY).includes(assessmentSeverity)
+  ) {
+    throw new Error(
+      "assessment.severity must be a known INSIGHT_SEVERITY value"
+    );
+  }
+
+  if (
+    !Number.isFinite(assessmentConfidence) ||
+    assessmentConfidence < 0 ||
+    assessmentConfidence > 1
+  ) {
+    throw new Error(
+      "assessment.confidence must be a finite number between 0 and 1"
+    );
+  }
+
+  const executiveHeadline =
+    assessmentSeverity === INSIGHT_SEVERITY.CRITICAL
+      ? "The tournament requires immediate operational attention."
+      : assessmentSeverity === INSIGHT_SEVERITY.ATTENTION
+        ? "The tournament shows operational conditions requiring attention."
+        : assessmentSeverity === INSIGHT_SEVERITY.WATCH
+          ? "The tournament shows operational conditions that should be monitored."
+          : "The tournament maintains a stable operational condition.";
+
+  const executiveBriefing = createExecutiveBriefing({
+    status: assessmentStatus,
+    severity: assessmentSeverity,
+    headline: executiveHeadline,
+    summary:
+      hwarangOperationalIntelligenceSnapshot
+        .operationalCorrelationIntelligence?.summary,
+    confidence: assessmentConfidence,
+  });
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
     generatedAt: cleanGeneratedAt,
+    executiveBriefing,
   });
 }
 
