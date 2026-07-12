@@ -1924,6 +1924,122 @@ export function createOperationalSummary({
 
 /**
  * ============================================================
+ * OPERATIONAL ASSISTANT OPERATIONAL HIGHLIGHTS CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye el contrato base de Operational Highlights.
+ *
+ * Operational Highlights organiza los aspectos operacionales
+ * más relevantes para una lectura ejecutiva rápida.
+ *
+ * Esta función no consume snapshots.
+ * No selecciona evidencia operacional.
+ * No prioriza Insights.
+ * No reconstruye contexto operacional.
+ * No recalcula métricas.
+ * No recalcula índices.
+ * No recalcula Insights.
+ * No recalcula inteligencia operacional.
+ * No emite recomendaciones.
+ * No reemplaza el criterio del Director del Evento.
+ */
+export function createOperationalHighlights({
+  status,
+  highlights = [],
+  summary,
+} = {}) {
+  const cleanStatus = cleanId(status);
+  const cleanSummary = cleanId(summary);
+
+  if (!cleanStatus) {
+    throw new Error(
+      "status is required to create operational highlights"
+    );
+  }
+
+  if (!Array.isArray(highlights)) {
+    throw new Error(
+      "highlights must be an array"
+    );
+  }
+
+  if (!cleanSummary) {
+    throw new Error(
+      "summary is required to create operational highlights"
+    );
+  }
+
+  const cleanHighlights = Object.freeze(
+    highlights.map((highlight) => {
+      const cleanHighlightId = cleanId(highlight.highlightId);
+      const cleanHighlightType = cleanId(highlight.highlightType);
+      const cleanSeverity = cleanId(highlight.severity);
+      const cleanHeadline = cleanId(highlight.headline);
+      const cleanDetail = cleanId(highlight.detail);
+      const cleanSource = cleanId(highlight.source);
+
+      if (!cleanHighlightId) {
+        throw new Error(
+          "highlightId is required inside operational highlights"
+        );
+      }
+
+      if (!cleanHighlightType) {
+        throw new Error(
+          "highlightType is required inside operational highlights"
+        );
+      }
+
+      if (
+        !cleanSeverity ||
+        !Object.values(INSIGHT_SEVERITY).includes(cleanSeverity)
+      ) {
+        throw new Error(
+          "severity must be a known INSIGHT_SEVERITY value inside operational highlights"
+        );
+      }
+
+      if (!cleanHeadline) {
+        throw new Error(
+          "headline is required inside operational highlights"
+        );
+      }
+
+      if (!cleanDetail) {
+        throw new Error(
+          "detail is required inside operational highlights"
+        );
+      }
+
+      if (!cleanSource) {
+        throw new Error(
+          "source is required inside operational highlights"
+        );
+      }
+
+      return Object.freeze({
+        highlightId: cleanHighlightId,
+        highlightType: cleanHighlightType,
+        severity: cleanSeverity,
+        headline: cleanHeadline,
+        detail: cleanDetail,
+        source: cleanSource,
+      });
+    })
+  );
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    status: cleanStatus,
+    highlights: cleanHighlights,
+    highlightCount: cleanHighlights.length,
+    summary: cleanSummary,
+  });
+}
+
+/**
+ * ============================================================
  * OPERATIONAL ASSISTANT BRIEFING CONTRACT
  * ============================================================
  */
