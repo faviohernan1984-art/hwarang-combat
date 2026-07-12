@@ -2055,11 +2055,113 @@ export function createOperationalAssistantBriefing({
     confidence: assessmentConfidence,
   });
 
+  const operationalInsights =
+    tournamentOperationalAnalyticsSnapshot.insights;
+
+  if (!Array.isArray(operationalInsights)) {
+    throw new Error(
+      "tournamentOperationalAnalyticsSnapshot.insights must be an array"
+    );
+  }
+
+  const tournamentFlowInsight = operationalInsights.find(
+    (insight) => insight.insightType === "TOURNAMENT_FLOW"
+  );
+
+  const operationalBalanceInsight = operationalInsights.find(
+    (insight) => insight.insightType === "OPERATIONAL_BALANCE"
+  );
+
+  const arenaAttentionInsight = operationalInsights.find(
+    (insight) => insight.insightType === "ARENA_ATTENTION"
+  );
+
+  if (!tournamentFlowInsight) {
+    throw new Error(
+      "TOURNAMENT_FLOW insight is required to create an operational assistant briefing"
+    );
+  }
+
+  if (!operationalBalanceInsight) {
+    throw new Error(
+      "OPERATIONAL_BALANCE insight is required to create an operational assistant briefing"
+    );
+  }
+
+  if (!arenaAttentionInsight) {
+    throw new Error(
+      "ARENA_ATTENTION insight is required to create an operational assistant briefing"
+    );
+  }
+
+  const operationalFlow = cleanId(tournamentFlowInsight.status);
+  const operationalBalance = cleanId(
+    operationalBalanceInsight.status
+  );
+
+  if (!operationalFlow) {
+    throw new Error(
+      "TOURNAMENT_FLOW insight status is required to create an operational assistant briefing"
+    );
+  }
+
+  if (!operationalBalance) {
+    throw new Error(
+      "OPERATIONAL_BALANCE insight status is required to create an operational assistant briefing"
+    );
+  }
+
+  const arenaPerformanceRanking =
+    tournamentOperationalAnalyticsSnapshot.indexes
+      ?.arenaPerformanceRanking;
+
+  if (!Array.isArray(arenaPerformanceRanking)) {
+    throw new Error(
+      "tournamentOperationalAnalyticsSnapshot.indexes.arenaPerformanceRanking must be an array"
+    );
+  }
+
+  const leadingArena =
+    cleanId(arenaPerformanceRanking[0]?.arenaId) || "UNAVAILABLE";
+
+  const arenasRequiringAttention = Number(
+    arenaAttentionInsight.evidence?.attentionCount
+  );
+
+  if (
+    !Number.isInteger(arenasRequiringAttention) ||
+    arenasRequiringAttention < 0
+  ) {
+    throw new Error(
+      "ARENA_ATTENTION insight evidence.attentionCount must be a non-negative integer"
+    );
+  }
+
+  const attentionSummary =
+    arenasRequiringAttention === 0
+      ? "No arenas currently require operational attention."
+      : arenasRequiringAttention === 1
+        ? "One arena currently requires operational attention."
+        : `${arenasRequiringAttention} arenas currently require operational attention.`;
+
+  const operationalSummary = createOperationalSummary({
+    tournamentStatus: assessmentStatus,
+    operationalFlow,
+    operationalBalance,
+    leadingArena,
+    arenasRequiringAttention,
+    summary:
+      `The tournament is currently classified as ${assessmentStatus}. ` +
+      `Operational flow is ${operationalFlow} and operational balance is ${operationalBalance}. ` +
+      `The leading arena is ${leadingArena}. ${attentionSummary}`,
+  });
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
     generatedAt: cleanGeneratedAt,
     executiveBriefing,
+    operationalSummary,
   });
 }
 
