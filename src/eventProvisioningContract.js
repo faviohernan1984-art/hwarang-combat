@@ -3430,6 +3430,89 @@ export function createOperationalAssistantBriefing({
         : "No authorized evidence is currently available to support the Operational Assistant briefing.",
   });
 
+  const confidenceFactors = [
+    {
+      confidenceId: "hoi-assessment",
+      confidenceType: "HOI_ASSESSMENT",
+      confidenceLevel:
+        assessmentConfidence >= 0.90
+          ? DECISION_CONFIDENCE_LEVEL.VERY_HIGH
+          : assessmentConfidence >= 0.75
+            ? DECISION_CONFIDENCE_LEVEL.HIGH
+            : assessmentConfidence >= 0.50
+              ? DECISION_CONFIDENCE_LEVEL.MODERATE
+              : assessmentConfidence >= 0.25
+                ? DECISION_CONFIDENCE_LEVEL.LOW
+                : DECISION_CONFIDENCE_LEVEL.VERY_LOW,
+      rationale:
+        "Operational intelligence confidence was provided by the authorized HOI assessment.",
+      source: "HWARANG_OPERATIONAL_INTELLIGENCE",
+    },
+    {
+      confidenceId: "evidence-summary",
+      confidenceType: "EVIDENCE_SUMMARY",
+      confidenceLevel:
+        evidenceSummary.evidenceCount > 0
+          ? DECISION_CONFIDENCE_LEVEL.VERY_HIGH
+          : DECISION_CONFIDENCE_LEVEL.LOW,
+      rationale:
+        "Operational evidence was consolidated exclusively from authorized sources.",
+      source: "EVIDENCE_SUMMARY",
+    },
+    {
+      confidenceId: "operational-highlights",
+      confidenceType: "OPERATIONAL_HIGHLIGHTS",
+      confidenceLevel:
+        operationalHighlights.highlightCount > 0
+          ? DECISION_CONFIDENCE_LEVEL.HIGH
+          : DECISION_CONFIDENCE_LEVEL.MODERATE,
+      rationale:
+        "Operational highlights summarize the most relevant operational observations.",
+      source: "OPERATIONAL_HIGHLIGHTS",
+    },
+    {
+      confidenceId: "change-detection",
+      confidenceType: "CHANGE_DETECTION",
+      confidenceLevel:
+        changeDetection.changeCount > 0
+          ? DECISION_CONFIDENCE_LEVEL.HIGH
+          : DECISION_CONFIDENCE_LEVEL.MODERATE,
+      rationale:
+        "Operational evolution was evaluated using authorized change detection.",
+      source: "CHANGE_DETECTION",
+    },
+  ];
+
+  const decisionConfidenceSupport =
+    createDecisionConfidenceSupport({
+      status: "AVAILABLE",
+      overallConfidence: confidenceFactors.reduce(
+        (lowest, factor) => {
+          const order = [
+            DECISION_CONFIDENCE_LEVEL.VERY_LOW,
+            DECISION_CONFIDENCE_LEVEL.LOW,
+            DECISION_CONFIDENCE_LEVEL.MODERATE,
+            DECISION_CONFIDENCE_LEVEL.HIGH,
+            DECISION_CONFIDENCE_LEVEL.VERY_HIGH,
+          ];
+
+          return order.indexOf(factor.confidenceLevel) <
+            order.indexOf(lowest)
+            ? factor.confidenceLevel
+            : lowest;
+        },
+        DECISION_CONFIDENCE_LEVEL.VERY_HIGH
+      ),
+      confidenceFactors,
+      limitations: [
+        "Confidence qualifies explanations. It never qualifies facts.",
+        "Decision Confidence Support does not generate operational conclusions.",
+        "Final operational decisions remain under the authority of the Event Director.",
+      ],
+      summary:
+        "Decision confidence was derived exclusively from previously consolidated operational components.",
+    });
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
@@ -3440,6 +3523,7 @@ export function createOperationalAssistantBriefing({
     recommendations,
     changeDetection,
     evidenceSummary,
+    decisionConfidenceSupport,
   });
 }
 
