@@ -2214,6 +2214,7 @@ export function createOperationalAlerts({
       const cleanAlertId = cleanId(alert.alertId);
       const cleanAlertType = cleanId(alert.alertType);
       const cleanSeverity = cleanId(alert.severity);
+      const cleanPriority = cleanId(alert.priority);
       const cleanMessage = cleanId(alert.message);
       const cleanTrigger = cleanId(alert.trigger);
       const cleanSource = cleanId(alert.source);
@@ -2245,6 +2246,17 @@ export function createOperationalAlerts({
         );
       }
 
+      if (
+        !cleanPriority ||
+        !Object.values(OPERATIONAL_ALERT_PRIORITY).includes(
+          cleanPriority
+        )
+      ) {
+        throw new Error(
+          "priority must be a known OPERATIONAL_ALERT_PRIORITY value inside operational alerts"
+        );
+      }
+
       if (!cleanMessage) {
         throw new Error(
           "message is required inside operational alerts"
@@ -2267,6 +2279,7 @@ export function createOperationalAlerts({
         alertId: cleanAlertId,
         alertType: cleanAlertType,
         severity: cleanSeverity,
+        priority: cleanPriority,
         message: cleanMessage,
         trigger: cleanTrigger,
         source: cleanSource,
@@ -2631,6 +2644,13 @@ export const DECISION_CONFIDENCE_LEVEL = Object.freeze({
   MODERATE: "MODERATE",
   HIGH: "HIGH",
   VERY_HIGH: "VERY_HIGH",
+});
+
+export const OPERATIONAL_ALERT_PRIORITY = Object.freeze({
+  IMMEDIATE: "IMMEDIATE",
+  HIGH: "HIGH",
+  MEDIUM: "MEDIUM",
+  LOW: "LOW",
 });
 
 /**
