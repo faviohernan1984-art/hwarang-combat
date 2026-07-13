@@ -2162,6 +2162,146 @@ export function createRecommendations({
 
 /**
  * ============================================================
+ * OPERATIONAL ASSISTANT OPERATIONAL ALERTS CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye el contrato base de Operational Alerts.
+ *
+ * Operational Alerts organiza condiciones que requieren
+ * conciencia inmediata por parte del Director del Evento.
+ *
+ * Esta función no consume snapshots.
+ * No detecta condiciones operacionales.
+ * No selecciona evidencia.
+ * No reconstruye contexto operacional.
+ * No recalcula métricas.
+ * No recalcula índices.
+ * No recalcula Insights.
+ * No recalcula inteligencia operacional.
+ * No emite recomendaciones.
+ * No ejecuta acciones.
+ * No reemplaza el criterio del Director del Evento.
+ */
+export function createOperationalAlerts({
+  status,
+  alerts = [],
+  summary,
+} = {}) {
+  const cleanStatus = cleanId(status);
+  const cleanSummary = cleanId(summary);
+
+  if (!cleanStatus) {
+    throw new Error(
+      "status is required to create operational alerts"
+    );
+  }
+
+  if (!Array.isArray(alerts)) {
+    throw new Error(
+      "alerts must be an array"
+    );
+  }
+
+  if (!cleanSummary) {
+    throw new Error(
+      "summary is required to create operational alerts"
+    );
+  }
+
+  const cleanAlerts = Object.freeze(
+    alerts.map((alert) => {
+      const cleanAlertId = cleanId(alert.alertId);
+      const cleanAlertType = cleanId(alert.alertType);
+      const cleanSeverity = cleanId(alert.severity);
+      const cleanMessage = cleanId(alert.message);
+      const cleanTrigger = cleanId(alert.trigger);
+      const cleanSource = cleanId(alert.source);
+
+      if (!cleanAlertId) {
+        throw new Error(
+          "alertId is required inside operational alerts"
+        );
+      }
+
+      if (!cleanAlertType) {
+        throw new Error(
+          "alertType is required inside operational alerts"
+        );
+      }
+
+      if (
+        !cleanSeverity ||
+        !Object.values(INSIGHT_SEVERITY).includes(cleanSeverity)
+      ) {
+        throw new Error(
+          "severity must be a known INSIGHT_SEVERITY value inside operational alerts"
+        );
+      }
+
+      if (cleanSeverity === INSIGHT_SEVERITY.NORMAL) {
+        throw new Error(
+          "operational alerts cannot use NORMAL severity"
+        );
+      }
+
+      if (!cleanMessage) {
+        throw new Error(
+          "message is required inside operational alerts"
+        );
+      }
+
+      if (!cleanTrigger) {
+        throw new Error(
+          "trigger is required inside operational alerts"
+        );
+      }
+
+      if (!cleanSource) {
+        throw new Error(
+          "source is required inside operational alerts"
+        );
+      }
+
+      return Object.freeze({
+        alertId: cleanAlertId,
+        alertType: cleanAlertType,
+        severity: cleanSeverity,
+        message: cleanMessage,
+        trigger: cleanTrigger,
+        source: cleanSource,
+        awarenessOnly: true,
+      });
+    })
+  );
+
+  if (cleanStatus === "CLEAR" && cleanAlerts.length > 0) {
+    throw new Error(
+      "CLEAR operational alerts cannot contain active alerts"
+    );
+  }
+
+  if (
+    cleanStatus === "ACTIVE_ALERTS" &&
+    cleanAlerts.length === 0
+  ) {
+    throw new Error(
+      "ACTIVE_ALERTS operational alerts must contain at least one alert"
+    );
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    status: cleanStatus,
+    alerts: cleanAlerts,
+    alertCount: cleanAlerts.length,
+    awarenessOnly: true,
+    summary: cleanSummary,
+  });
+}
+
+/**
+ * ============================================================
  * OPERATIONAL ASSISTANT BRIEFING CONTRACT
  * ============================================================
  */
