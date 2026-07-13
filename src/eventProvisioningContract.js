@@ -3152,6 +3152,128 @@ export function createOperationalAssistantBriefing({
     }
   }
 
+  const evidenceItems = [];
+
+  operationalInsights.forEach((insight) => {
+    const cleanInsightId = cleanId(insight.insightId);
+    const cleanInsightType = cleanId(insight.insightType);
+    const cleanInsightSeverity = cleanId(insight.severity);
+    const cleanInsightSummary = cleanId(insight.summary);
+
+    if (!cleanInsightId) {
+      throw new Error(
+        "insightId is required to create operational assistant evidence summary"
+      );
+    }
+
+    if (!cleanInsightType) {
+      throw new Error(
+        "insightType is required to create operational assistant evidence summary"
+      );
+    }
+
+    if (
+      !cleanInsightSeverity ||
+      !Object.values(INSIGHT_SEVERITY).includes(
+        cleanInsightSeverity
+      )
+    ) {
+      throw new Error(
+        "insight severity must be a known INSIGHT_SEVERITY value to create operational assistant evidence summary"
+      );
+    }
+
+    if (!cleanInsightSummary) {
+      throw new Error(
+        "insight summary is required to create operational assistant evidence summary"
+      );
+    }
+
+    evidenceItems.push({
+      evidenceId: `toa-${cleanInsightId}`,
+      evidenceType: cleanInsightType,
+      severity: cleanInsightSeverity,
+      statement: cleanInsightSummary,
+      source: "TOURNAMENT_OPERATIONAL_ANALYTICS",
+      sourceReference: cleanInsightId,
+    });
+  });
+
+  const cleanHoiAssessmentBasis = cleanId(
+    hoiAssessment.basis
+  );
+
+  const cleanHoiAssessmentSummary = cleanId(
+    hwarangOperationalIntelligenceSnapshot
+      .operationalCorrelationIntelligence?.summary
+  );
+
+  if (!cleanHoiAssessmentBasis) {
+    throw new Error(
+      "assessment.basis is required to create operational assistant evidence summary"
+    );
+  }
+
+  if (!cleanHoiAssessmentSummary) {
+    throw new Error(
+      "operational correlation summary is required to create operational assistant evidence summary"
+    );
+  }
+
+  evidenceItems.push({
+    evidenceId: "hoi-current-assessment",
+    evidenceType: "HOI_ASSESSMENT",
+    severity: assessmentSeverity,
+    statement: cleanHoiAssessmentSummary,
+    source: "HWARANG_OPERATIONAL_INTELLIGENCE",
+    sourceReference: cleanHoiAssessmentBasis,
+  });
+
+  operationalHighlights.highlights.forEach((highlight) => {
+    evidenceItems.push({
+      evidenceId: `highlight-${highlight.highlightId}`,
+      evidenceType: highlight.highlightType,
+      severity: highlight.severity,
+      statement: highlight.detail,
+      source: "OPERATIONAL_HIGHLIGHTS",
+      sourceReference: highlight.highlightId,
+    });
+  });
+
+  recommendations.recommendations.forEach((recommendation) => {
+    evidenceItems.push({
+      evidenceId: `recommendation-${recommendation.recommendationId}`,
+      evidenceType: recommendation.recommendationType,
+      severity: recommendation.priority,
+      statement: recommendation.rationale,
+      source: "RECOMMENDATIONS",
+      sourceReference: recommendation.recommendationId,
+    });
+  });
+
+  changeDetection.changes.forEach((change) => {
+    evidenceItems.push({
+      evidenceId: `change-${change.changeId}`,
+      evidenceType: change.changeType,
+      severity: change.severity,
+      statement: change.message,
+      source: "CHANGE_DETECTION",
+      sourceReference: change.changeId,
+    });
+  });
+
+  const evidenceSummary = createEvidenceSummary({
+    status:
+      evidenceItems.length > 0
+        ? "EVIDENCE_AVAILABLE"
+        : "NO_EVIDENCE_AVAILABLE",
+    evidenceItems,
+    summary:
+      evidenceItems.length > 0
+        ? `${evidenceItems.length} authorized evidence items support the current Operational Assistant briefing.`
+        : "No authorized evidence is currently available to support the Operational Assistant briefing.",
+  });
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
@@ -3161,6 +3283,7 @@ export function createOperationalAssistantBriefing({
     operationalHighlights,
     recommendations,
     changeDetection,
+    evidenceSummary,
   });
 }
 
