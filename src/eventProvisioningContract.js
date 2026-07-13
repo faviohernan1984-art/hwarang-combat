@@ -2803,6 +2803,144 @@ export function createDecisionConfidenceSupport({
 
 /**
  * ============================================================
+ * OPERATIONAL ALERTS BUILDER
+ * ============================================================
+ */
+
+/**
+ * Construye Operational Alerts utilizando exclusivamente
+ * componentes consolidados del Operational Assistant.
+ *
+ * Esta función no recalcula métricas.
+ * No interpreta Insights.
+ * No genera inteligencia.
+ * No emite recomendaciones.
+ * No decide acciones.
+ * Únicamente ordena condiciones por prioridad de atención.
+ */
+export function buildOperationalAlerts({
+  operationalHighlights,
+  changeDetection,
+  decisionConfidenceSupport,
+} = {}) {
+  if (!operationalHighlights) {
+    throw new Error(
+      "operationalHighlights is required to build operational alerts"
+    );
+  }
+
+  if (!changeDetection) {
+    throw new Error(
+      "changeDetection is required to build operational alerts"
+    );
+  }
+
+  if (!decisionConfidenceSupport) {
+    throw new Error(
+      "decisionConfidenceSupport is required to build operational alerts"
+    );
+  }
+
+  if (!Array.isArray(operationalHighlights.highlights)) {
+    throw new Error(
+      "operationalHighlights.highlights must be an array"
+    );
+  }
+
+  if (!Array.isArray(changeDetection.changes)) {
+    throw new Error(
+      "changeDetection.changes must be an array"
+    );
+  }
+
+  const alerts = [];
+
+  operationalHighlights.highlights.forEach((highlight) => {
+    if (
+      highlight.severity === INSIGHT_SEVERITY.CRITICAL ||
+      highlight.severity === INSIGHT_SEVERITY.ATTENTION
+    ) {
+      alerts.push({
+        alertId: `highlight-${highlight.highlightId}`,
+        alertType: highlight.highlightType,
+        severity: highlight.severity,
+        priority:
+          highlight.severity === INSIGHT_SEVERITY.CRITICAL
+            ? OPERATIONAL_ALERT_PRIORITY.IMMEDIATE
+            : OPERATIONAL_ALERT_PRIORITY.HIGH,
+        message: highlight.headline,
+        trigger: highlight.detail,
+        source: "OPERATIONAL_HIGHLIGHTS",
+      });
+    }
+  });
+
+  changeDetection.changes.forEach((change) => {
+    if (
+      change.severity === INSIGHT_SEVERITY.CRITICAL ||
+      change.severity === INSIGHT_SEVERITY.ATTENTION
+    ) {
+      alerts.push({
+        alertId: `change-${change.changeId}`,
+        alertType: change.changeType,
+        severity: change.severity,
+        priority:
+          change.severity === INSIGHT_SEVERITY.CRITICAL
+            ? OPERATIONAL_ALERT_PRIORITY.IMMEDIATE
+            : OPERATIONAL_ALERT_PRIORITY.HIGH,
+        message: change.message,
+        trigger: change.direction,
+        source: "CHANGE_DETECTION",
+      });
+    }
+  });
+
+  if (
+    decisionConfidenceSupport.overallConfidence ===
+      DECISION_CONFIDENCE_LEVEL.VERY_LOW ||
+    decisionConfidenceSupport.overallConfidence ===
+      DECISION_CONFIDENCE_LEVEL.LOW
+  ) {
+    alerts.push({
+      alertId: "decision-confidence",
+      alertType: "DECISION_CONFIDENCE",
+      severity: INSIGHT_SEVERITY.WATCH,
+      priority: OPERATIONAL_ALERT_PRIORITY.HIGH,
+      message:
+        "Operational conclusions require increased interpretive caution.",
+      trigger: decisionConfidenceSupport.overallConfidence,
+      source: "DECISION_CONFIDENCE_SUPPORT",
+    });
+  }
+
+  const priorityOrder = Object.freeze({
+    [OPERATIONAL_ALERT_PRIORITY.IMMEDIATE]: 0,
+    [OPERATIONAL_ALERT_PRIORITY.HIGH]: 1,
+    [OPERATIONAL_ALERT_PRIORITY.MEDIUM]: 2,
+    [OPERATIONAL_ALERT_PRIORITY.LOW]: 3,
+  });
+
+  const prioritizedAlerts = [...alerts].sort(
+    (leftAlert, rightAlert) =>
+      priorityOrder[leftAlert.priority] -
+      priorityOrder[rightAlert.priority]
+  );
+
+  return createOperationalAlerts({
+    status:
+      prioritizedAlerts.length > 0
+        ? "ACTIVE_ALERTS"
+        : "CLEAR",
+    alerts: prioritizedAlerts,
+    summary:
+      prioritizedAlerts.length > 0
+        ? `${prioritizedAlerts.length} operational alerts require prioritized attention.`
+        : "No operational conditions currently require prioritized attention.",
+  });
+}
+
+/**
+ * ============================================================
  * OPERATIONAL ASSISTANT BRIEFING CONTRACT
  * ============================================================
  */
@@ -3533,6 +3671,12 @@ export function createOperationalAssistantBriefing({
         "Decision confidence was derived exclusively from previously consolidated operational components.",
     });
 
+  const operationalAlerts = buildOperationalAlerts({
+    operationalHighlights,
+    changeDetection,
+    decisionConfidenceSupport,
+  });
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
@@ -3544,6 +3688,7 @@ export function createOperationalAssistantBriefing({
     changeDetection,
     evidenceSummary,
     decisionConfidenceSupport,
+    operationalAlerts,
   });
 }
 
