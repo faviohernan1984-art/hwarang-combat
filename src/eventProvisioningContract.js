@@ -2272,12 +2272,82 @@ export function createOperationalAssistantBriefing({
       `The leading arena is ${leadingArena}. ${attentionSummary}`,
   });
 
+  const operationalHighlightItems = [
+    {
+      highlightId: "hoi-assessment",
+      highlightType: "HOI_ASSESSMENT",
+      severity: assessmentSeverity,
+      headline:
+        `The tournament assessment is currently ${assessmentStatus}.`,
+      detail:
+        hwarangOperationalIntelligenceSnapshot
+          .operationalCorrelationIntelligence?.summary,
+      source: "HOI_ASSESSMENT",
+    },
+    {
+      highlightId: "tournament-flow",
+      highlightType: "TOURNAMENT_FLOW",
+      severity: tournamentFlowInsight.severity,
+      headline:
+        `Tournament flow is currently ${operationalFlow}.`,
+      detail: tournamentFlowInsight.summary,
+      source: "TOURNAMENT_FLOW_INSIGHT",
+    },
+    {
+      highlightId: "operational-balance",
+      highlightType: "OPERATIONAL_BALANCE",
+      severity: operationalBalanceInsight.severity,
+      headline:
+        `Operational balance is currently ${operationalBalance}.`,
+      detail: operationalBalanceInsight.summary,
+      source: "OPERATIONAL_BALANCE_INSIGHT",
+    },
+    {
+      highlightId: "arena-attention",
+      highlightType: "ARENA_ATTENTION",
+      severity: arenaAttentionInsight.severity,
+      headline:
+        arenasRequiringAttention === 0
+          ? "No arenas currently require operational attention."
+          : arenasRequiringAttention === 1
+            ? "One arena currently requires operational attention."
+            : `${arenasRequiringAttention} arenas currently require operational attention.`,
+      detail: arenaAttentionInsight.summary,
+      source: "ARENA_ATTENTION_INSIGHT",
+    },
+    {
+      highlightId: "leading-arena",
+      highlightType: "ARENA_PERFORMANCE",
+      severity:
+        leadingArena === "UNAVAILABLE"
+          ? INSIGHT_SEVERITY.WATCH
+          : INSIGHT_SEVERITY.NORMAL,
+      headline:
+        leadingArena === "UNAVAILABLE"
+          ? "The leading arena is currently unavailable."
+          : `${leadingArena} currently leads arena performance.`,
+      detail:
+        leadingArena === "UNAVAILABLE"
+          ? "The current arena performance ranking does not contain a leading arena."
+          : `${leadingArena} holds the first position in the current arena performance ranking.`,
+      source: "ARENA_PERFORMANCE_RANKING",
+    },
+  ];
+
+  const operationalHighlights = createOperationalHighlights({
+    status: "EVALUATED",
+    highlights: operationalHighlightItems,
+    summary:
+      "Operational highlights were evaluated and are explicitly available for all primary operational dimensions.",
+  });
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
     generatedAt: cleanGeneratedAt,
     executiveBriefing,
     operationalSummary,
+    operationalHighlights,
   });
 }
 
