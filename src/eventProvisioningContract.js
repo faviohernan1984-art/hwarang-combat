@@ -2463,6 +2463,105 @@ export function createOperationalAssistantBriefing({
       "Operational highlights were evaluated and are explicitly available for all primary operational dimensions.",
   });
 
+  const assessmentRecommendationMessage =
+    assessmentSeverity === INSIGHT_SEVERITY.CRITICAL
+      ? "Consider prioritizing an immediate human review of the current operational assessment."
+      : assessmentSeverity === INSIGHT_SEVERITY.ATTENTION
+        ? "Consider reviewing the current operational assessment and its supporting evidence."
+        : assessmentSeverity === INSIGHT_SEVERITY.WATCH
+          ? "Consider maintaining closer monitoring of the current operational assessment."
+          : "Consider maintaining the current operational approach while continuing regular monitoring.";
+
+  const flowRecommendationMessage =
+    tournamentFlowInsight.severity === INSIGHT_SEVERITY.NORMAL
+      ? "Consider maintaining the current tournament flow while continuing regular monitoring."
+      : "Consider reviewing the current distribution of tournament activity across registered arenas.";
+
+  const balanceRecommendationMessage =
+    operationalBalanceInsight.severity === INSIGHT_SEVERITY.NORMAL
+      ? "Consider maintaining the current operational distribution while continuing regular balance monitoring."
+      : "Consider reviewing the current operational load distribution across arenas.";
+
+  const arenaAttentionRecommendationMessage =
+    arenasRequiringAttention === 0
+      ? "No immediate arena-specific intervention is currently suggested; consider continuing regular monitoring."
+      : arenasRequiringAttention === 1
+        ? "Consider reviewing the arena currently identified by the Arena Attention Insight."
+        : `Consider reviewing the ${arenasRequiringAttention} arenas currently identified by the Arena Attention Insight.`;
+
+  const leadingArenaRecommendationMessage =
+    leadingArena === "UNAVAILABLE"
+      ? "Consider confirming that sufficient arena performance information is available before using the ranking for operational reference."
+      : `Consider using ${leadingArena} as contextual evidence when reviewing current arena performance patterns.`;
+
+  const recommendationItems = [
+    {
+      recommendationId: "review-hoi-assessment",
+      recommendationType: "OPERATIONAL_ASSESSMENT",
+      priority: assessmentSeverity,
+      message: assessmentRecommendationMessage,
+      rationale:
+        `The current HOI Assessment is classified as ${assessmentStatus} with ${assessmentSeverity} severity.`,
+      source: "HOI_ASSESSMENT",
+    },
+    {
+      recommendationId: "review-tournament-flow",
+      recommendationType: "FLOW_MONITORING",
+      priority: tournamentFlowInsight.severity,
+      message: flowRecommendationMessage,
+      rationale:
+        `Tournament Flow is currently classified as ${operationalFlow}.`,
+      source: "TOURNAMENT_FLOW_INSIGHT",
+    },
+    {
+      recommendationId: "review-operational-balance",
+      recommendationType: "BALANCE_REVIEW",
+      priority: operationalBalanceInsight.severity,
+      message: balanceRecommendationMessage,
+      rationale:
+        `Operational Balance is currently classified as ${operationalBalance}.`,
+      source: "OPERATIONAL_BALANCE_INSIGHT",
+    },
+    {
+      recommendationId: "review-arena-attention",
+      recommendationType:
+        arenasRequiringAttention === 0
+          ? "NO_IMMEDIATE_ARENA_ACTION"
+          : "ARENA_REVIEW",
+      priority: arenaAttentionInsight.severity,
+      message: arenaAttentionRecommendationMessage,
+      rationale:
+        arenasRequiringAttention === 0
+          ? "The Arena Attention Insight currently reports no arenas requiring operational attention."
+          : `The Arena Attention Insight currently reports ${arenasRequiringAttention} arena${arenasRequiringAttention === 1 ? "" : "s"} requiring operational attention.`,
+      source: "ARENA_ATTENTION_INSIGHT",
+    },
+    {
+      recommendationId: "review-leading-arena",
+      recommendationType:
+        leadingArena === "UNAVAILABLE"
+          ? "RANKING_AVAILABILITY_REVIEW"
+          : "ARENA_PERFORMANCE_REFERENCE",
+      priority:
+        leadingArena === "UNAVAILABLE"
+          ? INSIGHT_SEVERITY.WATCH
+          : INSIGHT_SEVERITY.NORMAL,
+      message: leadingArenaRecommendationMessage,
+      rationale:
+        leadingArena === "UNAVAILABLE"
+          ? "The current Arena Performance Ranking does not contain an available leading arena."
+          : `${leadingArena} currently holds the first position in the Arena Performance Ranking.`,
+      source: "ARENA_PERFORMANCE_RANKING",
+    },
+  ];
+
+  const recommendations = createRecommendations({
+    status: "EVALUATED",
+    recommendations: recommendationItems,
+    summary:
+      "Operational recommendations were evaluated and are explicitly available for all primary operational dimensions.",
+  });
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
@@ -2470,6 +2569,7 @@ export function createOperationalAssistantBriefing({
     executiveBriefing,
     operationalSummary,
     operationalHighlights,
+    recommendations,
   });
 }
 
