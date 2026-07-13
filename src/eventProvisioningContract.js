@@ -2864,6 +2864,131 @@ export function createOperationalAssistantBriefing({
       "Operational recommendations were evaluated and are explicitly available for all primary operational dimensions.",
   });
 
+  const operationalContinuityIntelligence =
+    hwarangOperationalIntelligenceSnapshot
+      .operationalContinuityIntelligence;
+
+  let changeDetection;
+
+  if (!operationalContinuityIntelligence) {
+    changeDetection = createChangeDetection({
+      status: "UNAVAILABLE",
+      changes: [],
+      summary:
+        "Change detection is currently unavailable because Operational Continuity Intelligence was not provided by the HOI snapshot.",
+    });
+  } else {
+    const continuityStatus = cleanId(
+      operationalContinuityIntelligence.status
+    );
+
+    const continuityEvidence =
+      operationalContinuityIntelligence.evidenceMap;
+
+    if (
+      !continuityStatus ||
+      !["STABLE", "IMPROVING", "DETERIORATING"].includes(
+        continuityStatus
+      )
+    ) {
+      throw new Error(
+        "operational continuity status must be STABLE, IMPROVING, or DETERIORATING"
+      );
+    }
+
+    if (
+      !continuityEvidence ||
+      typeof continuityEvidence !== "object" ||
+      Array.isArray(continuityEvidence)
+    ) {
+      throw new Error(
+        "operational continuity evidenceMap is required to create change detection"
+      );
+    }
+
+    const previousSeverity = cleanId(
+      continuityEvidence.previousSeverity
+    );
+    const currentSeverity = cleanId(
+      continuityEvidence.currentSeverity
+    );
+    const previousConfidence = Number(
+      continuityEvidence.previousConfidence
+    );
+    const currentConfidence = Number(
+      continuityEvidence.currentConfidence
+    );
+
+    if (
+      !previousSeverity ||
+      !Object.values(INSIGHT_SEVERITY).includes(previousSeverity)
+    ) {
+      throw new Error(
+        "previousSeverity must be a known INSIGHT_SEVERITY value inside operational continuity evidence"
+      );
+    }
+
+    if (
+      !currentSeverity ||
+      !Object.values(INSIGHT_SEVERITY).includes(currentSeverity)
+    ) {
+      throw new Error(
+        "currentSeverity must be a known INSIGHT_SEVERITY value inside operational continuity evidence"
+      );
+    }
+
+    if (!Number.isFinite(previousConfidence)) {
+      throw new Error(
+        "previousConfidence must be a finite number inside operational continuity evidence"
+      );
+    }
+
+    if (!Number.isFinite(currentConfidence)) {
+      throw new Error(
+        "currentConfidence must be a finite number inside operational continuity evidence"
+      );
+    }
+
+    if (continuityStatus === "STABLE") {
+      changeDetection = createChangeDetection({
+        status: "NO_SIGNIFICANT_CHANGE",
+        changes: [],
+        summary:
+          "Change detection completed. No significant operational changes were identified.",
+      });
+    } else {
+      const direction =
+        continuityStatus === "IMPROVING"
+          ? "IMPROVING"
+          : "DETERIORATING";
+
+      const changeMessage =
+        continuityStatus === "IMPROVING"
+          ? "The current HOI Assessment shows an improving operational condition compared with the previous snapshot."
+          : "The current HOI Assessment shows a deteriorating operational condition compared with the previous snapshot.";
+
+      changeDetection = createChangeDetection({
+        status: "CHANGES_DETECTED",
+        changes: [
+          {
+            changeId: "hoi-assessment-continuity",
+            changeType: "HOI_ASSESSMENT",
+            direction,
+            severity: currentSeverity,
+            previousValue:
+              `${previousSeverity} | confidence ${previousConfidence}`,
+            currentValue:
+              `${currentSeverity} | confidence ${currentConfidence}`,
+            message: changeMessage,
+            source: "OPERATIONAL_CONTINUITY_INTELLIGENCE",
+          },
+        ],
+        summary:
+          "One significant operational change was identified from Operational Continuity Intelligence.",
+      });
+    }
+  }
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
@@ -2872,6 +2997,7 @@ export function createOperationalAssistantBriefing({
     operationalSummary,
     operationalHighlights,
     recommendations,
+    changeDetection,
   });
 }
 
