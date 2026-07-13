@@ -2625,6 +2625,162 @@ export function createEvidenceSummary({
   });
 }
 
+export const DECISION_CONFIDENCE_LEVEL = Object.freeze({
+  VERY_LOW: "VERY_LOW",
+  LOW: "LOW",
+  MODERATE: "MODERATE",
+  HIGH: "HIGH",
+  VERY_HIGH: "VERY_HIGH",
+});
+
+/**
+ * ============================================================
+ * OPERATIONAL ASSISTANT DECISION CONFIDENCE SUPPORT CONTRACT
+ * ============================================================
+ */
+
+/**
+ * Confidence qualifies explanations.
+ * It never qualifies facts.
+ */
+
+/**
+ * Construye el contrato base de Decision Confidence Support.
+ *
+ * Decision Confidence Support comunica el nivel de confianza
+ * asociado al informe generado por Operational Assistant.
+ *
+ * Esta función no consume snapshots.
+ * No recalcula métricas.
+ * No recalcula índices.
+ * No recalcula Insights.
+ * No recalcula inteligencia operacional.
+ * No genera evidencia.
+ * No genera conclusiones.
+ * No modifica recomendaciones.
+ * No modifica alertas.
+ * No reemplaza el criterio del Director del Evento.
+ */
+export function createDecisionConfidenceSupport({
+  status,
+  overallConfidence,
+  confidenceFactors = [],
+  limitations = [],
+  summary,
+} = {}) {
+  const cleanStatus = cleanId(status);
+  const cleanOverallConfidence = cleanId(overallConfidence);
+  const cleanSummary = cleanId(summary);
+
+  if (!cleanStatus) {
+    throw new Error(
+      "status is required to create decision confidence support"
+    );
+  }
+
+  if (
+    !cleanOverallConfidence ||
+    !Object.values(DECISION_CONFIDENCE_LEVEL).includes(
+      cleanOverallConfidence
+    )
+  ) {
+    throw new Error(
+      "overallConfidence must be a known DECISION_CONFIDENCE_LEVEL value"
+    );
+  }
+
+  if (!Array.isArray(confidenceFactors)) {
+    throw new Error(
+      "confidenceFactors must be an array"
+    );
+  }
+
+  if (!Array.isArray(limitations)) {
+    throw new Error(
+      "limitations must be an array"
+    );
+  }
+
+  if (!cleanSummary) {
+    throw new Error(
+      "summary is required to create decision confidence support"
+    );
+  }
+
+  const cleanConfidenceFactors = Object.freeze(
+    confidenceFactors.map((factor) => {
+      const cleanConfidenceId = cleanId(
+        factor.confidenceId
+      );
+      const cleanConfidenceType = cleanId(
+        factor.confidenceType
+      );
+      const cleanConfidenceLevel = cleanId(
+        factor.confidenceLevel
+      );
+      const cleanRationale = cleanId(
+        factor.rationale
+      );
+      const cleanSource = cleanId(
+        factor.source
+      );
+
+      if (!cleanConfidenceId) {
+        throw new Error(
+          "confidenceId is required inside decision confidence support"
+        );
+      }
+
+      if (!cleanConfidenceType) {
+        throw new Error(
+          "confidenceType is required inside decision confidence support"
+        );
+      }
+
+      if (
+        !cleanConfidenceLevel ||
+        !Object.values(DECISION_CONFIDENCE_LEVEL).includes(
+          cleanConfidenceLevel
+        )
+      ) {
+        throw new Error(
+          "confidenceLevel must be a known DECISION_CONFIDENCE_LEVEL value"
+        );
+      }
+
+      if (!cleanRationale) {
+        throw new Error(
+          "rationale is required inside decision confidence support"
+        );
+      }
+
+      if (!cleanSource) {
+        throw new Error(
+          "source is required inside decision confidence support"
+        );
+      }
+
+      return Object.freeze({
+        confidenceId: cleanConfidenceId,
+        confidenceType: cleanConfidenceType,
+        confidenceLevel: cleanConfidenceLevel,
+        rationale: cleanRationale,
+        source: cleanSource,
+      });
+    })
+  );
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    status: cleanStatus,
+    overallConfidence: cleanOverallConfidence,
+    confidenceFactors: cleanConfidenceFactors,
+    confidenceFactorCount: cleanConfidenceFactors.length,
+    limitations: Object.freeze(limitations),
+    summary: cleanSummary,
+  });
+}
+
 /**
  * ============================================================
  * OPERATIONAL ASSISTANT BRIEFING CONTRACT
