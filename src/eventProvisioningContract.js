@@ -2464,6 +2464,169 @@ export function createChangeDetection({
 
 /**
  * ============================================================
+ * OPERATIONAL ASSISTANT EVIDENCE SUMMARY CONTRACT
+ * ============================================================
+ */
+
+export const EVIDENCE_SUMMARY_AUTHORIZED_SOURCES = Object.freeze([
+  "TOURNAMENT_OPERATIONAL_ANALYTICS",
+  "HWARANG_OPERATIONAL_INTELLIGENCE",
+  "OPERATIONAL_HIGHLIGHTS",
+  "RECOMMENDATIONS",
+  "CHANGE_DETECTION",
+]);
+
+/**
+ * Construye el contrato base de Evidence Summary.
+ *
+ * Evidence Summary organiza evidencia operacional previamente
+ * consolidada y autorizada para respaldar la comunicación
+ * destinada al Director del Evento.
+ *
+ * Esta función no consume snapshots.
+ * No selecciona evidencia.
+ * No interpreta evidencia.
+ * No reconstruye contexto operacional.
+ * No recalcula métricas.
+ * No recalcula índices.
+ * No recalcula Insights.
+ * No recalcula inteligencia operacional.
+ * No genera conclusiones.
+ * No genera alertas.
+ * No emite recomendaciones.
+ * No ejecuta acciones.
+ * No reemplaza el criterio del Director del Evento.
+ */
+export function createEvidenceSummary({
+  status,
+  evidenceItems = [],
+  summary,
+} = {}) {
+  const cleanStatus = cleanId(status);
+  const cleanSummary = cleanId(summary);
+
+  if (!cleanStatus) {
+    throw new Error(
+      "status is required to create an evidence summary"
+    );
+  }
+
+  if (!Array.isArray(evidenceItems)) {
+    throw new Error(
+      "evidenceItems must be an array"
+    );
+  }
+
+  if (!cleanSummary) {
+    throw new Error(
+      "summary is required to create an evidence summary"
+    );
+  }
+
+  const cleanEvidenceItems = Object.freeze(
+    evidenceItems.map((evidenceItem) => {
+      const cleanEvidenceId = cleanId(
+        evidenceItem.evidenceId
+      );
+      const cleanEvidenceType = cleanId(
+        evidenceItem.evidenceType
+      );
+      const cleanSeverity = cleanId(
+        evidenceItem.severity
+      );
+      const cleanStatement = cleanId(
+        evidenceItem.statement
+      );
+      const cleanSource = cleanId(
+        evidenceItem.source
+      );
+      const cleanSourceReference = cleanId(
+        evidenceItem.sourceReference
+      );
+
+      if (!cleanEvidenceId) {
+        throw new Error(
+          "evidenceId is required inside evidence summary"
+        );
+      }
+
+      if (!cleanEvidenceType) {
+        throw new Error(
+          "evidenceType is required inside evidence summary"
+        );
+      }
+
+      if (
+        !cleanSeverity ||
+        !Object.values(INSIGHT_SEVERITY).includes(cleanSeverity)
+      ) {
+        throw new Error(
+          "severity must be a known INSIGHT_SEVERITY value inside evidence summary"
+        );
+      }
+
+      if (!cleanStatement) {
+        throw new Error(
+          "statement is required inside evidence summary"
+        );
+      }
+
+      if (
+        !cleanSource ||
+        !EVIDENCE_SUMMARY_AUTHORIZED_SOURCES.includes(cleanSource)
+      ) {
+        throw new Error(
+          "source must be an authorized Evidence Summary source"
+        );
+      }
+
+      if (!cleanSourceReference) {
+        throw new Error(
+          "sourceReference is required inside evidence summary"
+        );
+      }
+
+      return Object.freeze({
+        evidenceId: cleanEvidenceId,
+        evidenceType: cleanEvidenceType,
+        severity: cleanSeverity,
+        statement: cleanStatement,
+        source: cleanSource,
+        sourceReference: cleanSourceReference,
+      });
+    })
+  );
+
+  if (
+    cleanStatus === "NO_EVIDENCE_AVAILABLE" &&
+    cleanEvidenceItems.length > 0
+  ) {
+    throw new Error(
+      "NO_EVIDENCE_AVAILABLE cannot contain evidence items"
+    );
+  }
+
+  if (
+    cleanStatus === "EVIDENCE_AVAILABLE" &&
+    cleanEvidenceItems.length === 0
+  ) {
+    throw new Error(
+      "EVIDENCE_AVAILABLE must contain at least one evidence item"
+    );
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    status: cleanStatus,
+    evidenceItems: cleanEvidenceItems,
+    evidenceCount: cleanEvidenceItems.length,
+    authorizedSources: EVIDENCE_SUMMARY_AUTHORIZED_SOURCES,
+    summary: cleanSummary,
+  });
+}
+
+/**
+ * ============================================================
  * OPERATIONAL ASSISTANT BRIEFING CONTRACT
  * ============================================================
  */
