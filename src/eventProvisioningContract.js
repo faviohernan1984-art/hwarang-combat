@@ -2040,6 +2040,128 @@ export function createOperationalHighlights({
 
 /**
  * ============================================================
+ * OPERATIONAL ASSISTANT RECOMMENDATIONS CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye el contrato base de Recommendations.
+ *
+ * Recommendations organiza sugerencias operacionales no vinculantes
+ * destinadas a respaldar el criterio del Director del Evento.
+ *
+ * Esta función no consume snapshots.
+ * No reconstruye contexto operacional.
+ * No selecciona evidencia.
+ * No recalcula métricas.
+ * No recalcula índices.
+ * No recalcula Insights.
+ * No recalcula inteligencia operacional.
+ * No emite órdenes obligatorias.
+ * No modifica el torneo.
+ * No reemplaza el criterio del Director del Evento.
+ */
+export function createRecommendations({
+  status,
+  recommendations = [],
+  summary,
+} = {}) {
+  const cleanStatus = cleanId(status);
+  const cleanSummary = cleanId(summary);
+
+  if (!cleanStatus) {
+    throw new Error(
+      "status is required to create recommendations"
+    );
+  }
+
+  if (!Array.isArray(recommendations)) {
+    throw new Error(
+      "recommendations must be an array"
+    );
+  }
+
+  if (!cleanSummary) {
+    throw new Error(
+      "summary is required to create recommendations"
+    );
+  }
+
+  const cleanRecommendations = Object.freeze(
+    recommendations.map((recommendation) => {
+      const cleanRecommendationId = cleanId(
+        recommendation.recommendationId
+      );
+      const cleanRecommendationType = cleanId(
+        recommendation.recommendationType
+      );
+      const cleanPriority = cleanId(recommendation.priority);
+      const cleanMessage = cleanId(recommendation.message);
+      const cleanRationale = cleanId(recommendation.rationale);
+      const cleanSource = cleanId(recommendation.source);
+
+      if (!cleanRecommendationId) {
+        throw new Error(
+          "recommendationId is required inside recommendations"
+        );
+      }
+
+      if (!cleanRecommendationType) {
+        throw new Error(
+          "recommendationType is required inside recommendations"
+        );
+      }
+
+      if (
+        !cleanPriority ||
+        !Object.values(INSIGHT_SEVERITY).includes(cleanPriority)
+      ) {
+        throw new Error(
+          "priority must be a known INSIGHT_SEVERITY value inside recommendations"
+        );
+      }
+
+      if (!cleanMessage) {
+        throw new Error(
+          "message is required inside recommendations"
+        );
+      }
+
+      if (!cleanRationale) {
+        throw new Error(
+          "rationale is required inside recommendations"
+        );
+      }
+
+      if (!cleanSource) {
+        throw new Error(
+          "source is required inside recommendations"
+        );
+      }
+
+      return Object.freeze({
+        recommendationId: cleanRecommendationId,
+        recommendationType: cleanRecommendationType,
+        priority: cleanPriority,
+        message: cleanMessage,
+        rationale: cleanRationale,
+        source: cleanSource,
+        advisoryOnly: true,
+      });
+    })
+  );
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    status: cleanStatus,
+    recommendations: cleanRecommendations,
+    recommendationCount: cleanRecommendations.length,
+    advisoryOnly: true,
+    summary: cleanSummary,
+  });
+}
+
+/**
+ * ============================================================
  * OPERATIONAL ASSISTANT BRIEFING CONTRACT
  * ============================================================
  */
