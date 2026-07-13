@@ -2302,6 +2302,168 @@ export function createOperationalAlerts({
 
 /**
  * ============================================================
+ * OPERATIONAL ASSISTANT CHANGE DETECTION CONTRACT
+ * ============================================================
+ */
+/**
+ * Construye el contrato base de Change Detection.
+ *
+ * Change Detection organiza cambios operacionales ya identificados
+ * entre estados consolidados y autorizados.
+ *
+ * Esta función no consume snapshots.
+ * No compara estados operacionales.
+ * No detecta cambios.
+ * No reconstruye contexto operacional.
+ * No recalcula métricas.
+ * No recalcula índices.
+ * No recalcula Insights.
+ * No recalcula inteligencia operacional.
+ * No genera alertas.
+ * No emite recomendaciones.
+ * No ejecuta acciones.
+ * No reemplaza el criterio del Director del Evento.
+ */
+export function createChangeDetection({
+  status,
+  changes = [],
+  summary,
+} = {}) {
+  const cleanStatus = cleanId(status);
+  const cleanSummary = cleanId(summary);
+
+  if (!cleanStatus) {
+    throw new Error(
+      "status is required to create change detection"
+    );
+  }
+
+  if (!Array.isArray(changes)) {
+    throw new Error(
+      "changes must be an array"
+    );
+  }
+
+  if (!cleanSummary) {
+    throw new Error(
+      "summary is required to create change detection"
+    );
+  }
+
+  const allowedDirections = Object.freeze([
+    "STABLE",
+    "IMPROVING",
+    "DETERIORATING",
+    "CHANGED",
+  ]);
+
+  const cleanChanges = Object.freeze(
+    changes.map((change) => {
+      const cleanChangeId = cleanId(change.changeId);
+      const cleanChangeType = cleanId(change.changeType);
+      const cleanDirection = cleanId(change.direction);
+      const cleanSeverity = cleanId(change.severity);
+      const cleanPreviousValue = cleanId(change.previousValue);
+      const cleanCurrentValue = cleanId(change.currentValue);
+      const cleanMessage = cleanId(change.message);
+      const cleanSource = cleanId(change.source);
+
+      if (!cleanChangeId) {
+        throw new Error(
+          "changeId is required inside change detection"
+        );
+      }
+
+      if (!cleanChangeType) {
+        throw new Error(
+          "changeType is required inside change detection"
+        );
+      }
+
+      if (
+        !cleanDirection ||
+        !allowedDirections.includes(cleanDirection)
+      ) {
+        throw new Error(
+          "direction must be a known change direction inside change detection"
+        );
+      }
+
+      if (
+        !cleanSeverity ||
+        !Object.values(INSIGHT_SEVERITY).includes(cleanSeverity)
+      ) {
+        throw new Error(
+          "severity must be a known INSIGHT_SEVERITY value inside change detection"
+        );
+      }
+
+      if (!cleanPreviousValue) {
+        throw new Error(
+          "previousValue is required inside change detection"
+        );
+      }
+
+      if (!cleanCurrentValue) {
+        throw new Error(
+          "currentValue is required inside change detection"
+        );
+      }
+
+      if (!cleanMessage) {
+        throw new Error(
+          "message is required inside change detection"
+        );
+      }
+
+      if (!cleanSource) {
+        throw new Error(
+          "source is required inside change detection"
+        );
+      }
+
+      return Object.freeze({
+        changeId: cleanChangeId,
+        changeType: cleanChangeType,
+        direction: cleanDirection,
+        severity: cleanSeverity,
+        previousValue: cleanPreviousValue,
+        currentValue: cleanCurrentValue,
+        message: cleanMessage,
+        source: cleanSource,
+      });
+    })
+  );
+
+  if (
+    cleanStatus === "NO_SIGNIFICANT_CHANGE" &&
+    cleanChanges.length > 0
+  ) {
+    throw new Error(
+      "NO_SIGNIFICANT_CHANGE cannot contain operational changes"
+    );
+  }
+
+  if (
+    cleanStatus === "CHANGES_DETECTED" &&
+    cleanChanges.length === 0
+  ) {
+    throw new Error(
+      "CHANGES_DETECTED must contain at least one operational change"
+    );
+  }
+
+  return Object.freeze({
+    contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
+    status: cleanStatus,
+    changes: cleanChanges,
+    changeCount: cleanChanges.length,
+    summary: cleanSummary,
+  });
+}
+
+/**
+ * ============================================================
  * OPERATIONAL ASSISTANT BRIEFING CONTRACT
  * ============================================================
  */
