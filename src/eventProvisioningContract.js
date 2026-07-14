@@ -1338,10 +1338,37 @@ export function createOperationalCorrelationIntelligence({
     (severityScore) => severityScore > 0
   ).length;
 
-  const confidence =
+  const severityConvergenceRatio =
     correlatedInsights.length > 0
       ? elevatedSignals / correlatedInsights.length
       : 0;
+
+  const expectedInsightTypes = Object.freeze([
+    "OPERATIONAL_BALANCE",
+    "TOURNAMENT_FLOW",
+    "ARENA_ATTENTION",
+  ]);
+
+  const availableInsightTypes = new Set(
+    correlatedInsights.map((insight) => insight.insightType)
+  );
+
+  const availableExpectedInsightTypes = Object.freeze(
+    expectedInsightTypes.filter((insightType) =>
+      availableInsightTypes.has(insightType)
+    )
+  );
+
+  const missingExpectedInsightTypes = Object.freeze(
+    expectedInsightTypes.filter(
+      (insightType) => !availableInsightTypes.has(insightType)
+    )
+  );
+
+  const evidenceCoverageRatio =
+    availableExpectedInsightTypes.length / expectedInsightTypes.length;
+
+  const confidence = evidenceCoverageRatio;
 
   let status = "CONSISTENT_OPERATION";
 
@@ -1378,11 +1405,18 @@ export function createOperationalCorrelationIntelligence({
       totalSignals: correlatedInsights.length,
       highestSeverityScore,
       correlationBasis: "INSIGHT_SEVERITY",
+      severityConvergenceRatio,
+      expectedInsightTypes,
+      availableExpectedInsightTypes,
+      missingExpectedInsightTypes,
+      evidenceCoverageRatio,
     }),
     interpretation,
     limitations: Object.freeze([
       "This intelligence is limited to the insights currently produced by Tournament Operational Analytics.",
       "This intelligence evaluates evidence convergence and does not emit operational recommendations.",
+      "Confidence represents coverage of the insight types expected by HOI V1.",
+      "Confidence does not represent severity or the number of problematic operational conditions.",
       "This intelligence does not yet evaluate expected pace, category congestion, resource allocation, or historical event patterns.",
     ]),
   });
@@ -1438,6 +1472,34 @@ export function createHwarangOperationalIntelligenceSnapshot({
       tournamentOperationalAnalyticsSnapshot,
     });
 
+  const operationalCorrelationConfidence = Number(
+    operationalCorrelationIntelligence.confidence
+  );
+  const severityConvergenceRatio = Number(
+    operationalCorrelationIntelligence.evidenceMap
+      ?.severityConvergenceRatio
+  );
+
+  if (
+    !Number.isFinite(operationalCorrelationConfidence) ||
+    operationalCorrelationConfidence < 0 ||
+    operationalCorrelationConfidence > 1
+  ) {
+    throw new Error(
+      "operational correlation confidence must be a finite number between 0 and 1"
+    );
+  }
+
+  if (
+    !Number.isFinite(severityConvergenceRatio) ||
+    severityConvergenceRatio < 0 ||
+    severityConvergenceRatio > 1
+  ) {
+    throw new Error(
+      "severityConvergenceRatio must be a finite number between 0 and 1"
+    );
+  }
+
   return Object.freeze({
     contractVersion: EVENT_PROVISIONING_CONTRACT_VERSION,
     eventId: cleanEventId,
@@ -1456,8 +1518,9 @@ export function createHwarangOperationalIntelligenceSnapshot({
             : operationalCorrelationIntelligence.evidenceMap?.highestSeverityScore === 1
               ? INSIGHT_SEVERITY.WATCH
               : INSIGHT_SEVERITY.NORMAL,
-      confidence: operationalCorrelationIntelligence.confidence,
-      basis: "OPERATIONAL_EVIDENCE_CONVERGENCE",
+      confidence: operationalCorrelationConfidence,
+      severityConvergenceRatio,
+      basis: "EXPECTED_INSIGHT_COVERAGE",
     }),
   });
 }
