@@ -1610,6 +1610,10 @@ export function createOperationalContinuityIntelligence({
 
   const previousSeverityScore = severityWeights[previousSeverity];
   const currentSeverityScore = severityWeights[currentSeverity];
+  const continuityConfidence = Math.min(
+    previousConfidence,
+    currentConfidence
+  );
 
   let status = "STABLE";
 
@@ -1630,11 +1634,7 @@ export function createOperationalContinuityIntelligence({
     intelligenceId: "operational-continuity",
     intelligenceType: "OPERATIONAL_CONTINUITY",
     status,
-    confidence:
-      previousSeverityScore !== currentSeverityScore ||
-      previousConfidence !== currentConfidence
-        ? 1
-        : 0,
+    confidence: continuityConfidence,
     summary,
     correlatedInsights: Object.freeze([]),
     evidenceMap: Object.freeze({
