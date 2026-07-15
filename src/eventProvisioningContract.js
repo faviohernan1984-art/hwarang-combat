@@ -1613,15 +1613,9 @@ export function createOperationalContinuityIntelligence({
 
   let status = "STABLE";
 
-  if (
-    currentSeverityScore > previousSeverityScore ||
-    currentConfidence > previousConfidence
-  ) {
+  if (currentSeverityScore > previousSeverityScore) {
     status = "DETERIORATING";
-  } else if (
-    currentSeverityScore < previousSeverityScore ||
-    currentConfidence < previousConfidence
-  ) {
+  } else if (currentSeverityScore < previousSeverityScore) {
     status = "IMPROVING";
   }
 
