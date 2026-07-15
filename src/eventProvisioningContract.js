@@ -2868,7 +2868,6 @@ export function createDecisionConfidenceSupport({
 export function buildOperationalAlerts({
   operationalHighlights,
   changeDetection,
-  decisionConfidenceSupport,
 } = {}) {
   if (!operationalHighlights) {
     throw new Error(
@@ -2879,12 +2878,6 @@ export function buildOperationalAlerts({
   if (!changeDetection) {
     throw new Error(
       "changeDetection is required to build operational alerts"
-    );
-  }
-
-  if (!decisionConfidenceSupport) {
-    throw new Error(
-      "decisionConfidenceSupport is required to build operational alerts"
     );
   }
 
@@ -2941,24 +2934,6 @@ export function buildOperationalAlerts({
       });
     }
   });
-
-  if (
-    decisionConfidenceSupport.overallConfidence ===
-      DECISION_CONFIDENCE_LEVEL.VERY_LOW ||
-    decisionConfidenceSupport.overallConfidence ===
-      DECISION_CONFIDENCE_LEVEL.LOW
-  ) {
-    alerts.push({
-      alertId: "decision-confidence",
-      alertType: "DECISION_CONFIDENCE",
-      severity: INSIGHT_SEVERITY.WATCH,
-      priority: OPERATIONAL_ALERT_PRIORITY.HIGH,
-      message:
-        "Operational conclusions require increased interpretive caution.",
-      trigger: decisionConfidenceSupport.overallConfidence,
-      source: "DECISION_CONFIDENCE_SUPPORT",
-    });
-  }
 
   const priorityOrder = Object.freeze({
     [OPERATIONAL_ALERT_PRIORITY.IMMEDIATE]: 0,
@@ -3635,93 +3610,46 @@ export function createOperationalAssistantBriefing({
         : "No authorized evidence is currently available to support the Operational Assistant briefing.",
   });
 
+  const assessmentConfidenceLevel =
+    assessmentConfidence >= 0.90
+      ? DECISION_CONFIDENCE_LEVEL.VERY_HIGH
+      : assessmentConfidence >= 0.75
+        ? DECISION_CONFIDENCE_LEVEL.HIGH
+        : assessmentConfidence >= 0.50
+          ? DECISION_CONFIDENCE_LEVEL.MODERATE
+          : assessmentConfidence >= 0.25
+            ? DECISION_CONFIDENCE_LEVEL.LOW
+            : DECISION_CONFIDENCE_LEVEL.VERY_LOW;
+
   const confidenceFactors = [
     {
       confidenceId: "hoi-assessment",
       confidenceType: "HOI_ASSESSMENT",
-      confidenceLevel:
-        assessmentConfidence >= 0.90
-          ? DECISION_CONFIDENCE_LEVEL.VERY_HIGH
-          : assessmentConfidence >= 0.75
-            ? DECISION_CONFIDENCE_LEVEL.HIGH
-            : assessmentConfidence >= 0.50
-              ? DECISION_CONFIDENCE_LEVEL.MODERATE
-              : assessmentConfidence >= 0.25
-                ? DECISION_CONFIDENCE_LEVEL.LOW
-                : DECISION_CONFIDENCE_LEVEL.VERY_LOW,
+      confidenceLevel: assessmentConfidenceLevel,
       rationale:
-        "Operational intelligence confidence was provided by the authorized HOI assessment.",
+        `HOI assessment confidence is ${assessmentConfidence}, representing Expected Insight Coverage and classified as ${assessmentConfidenceLevel}.`,
       source: "HWARANG_OPERATIONAL_INTELLIGENCE",
-    },
-    {
-      confidenceId: "evidence-summary",
-      confidenceType: "EVIDENCE_SUMMARY",
-      confidenceLevel:
-        evidenceSummary.evidenceCount > 0
-          ? DECISION_CONFIDENCE_LEVEL.VERY_HIGH
-          : DECISION_CONFIDENCE_LEVEL.LOW,
-      rationale:
-        "Operational evidence was consolidated exclusively from authorized sources.",
-      source: "EVIDENCE_SUMMARY",
-    },
-    {
-      confidenceId: "operational-highlights",
-      confidenceType: "OPERATIONAL_HIGHLIGHTS",
-      confidenceLevel:
-        operationalHighlights.highlightCount > 0
-          ? DECISION_CONFIDENCE_LEVEL.HIGH
-          : DECISION_CONFIDENCE_LEVEL.MODERATE,
-      rationale:
-        "Operational highlights summarize the most relevant operational observations.",
-      source: "OPERATIONAL_HIGHLIGHTS",
-    },
-    {
-      confidenceId: "change-detection",
-      confidenceType: "CHANGE_DETECTION",
-      confidenceLevel:
-        changeDetection.changeCount > 0
-          ? DECISION_CONFIDENCE_LEVEL.HIGH
-          : DECISION_CONFIDENCE_LEVEL.MODERATE,
-      rationale:
-        "Operational evolution was evaluated using authorized change detection.",
-      source: "CHANGE_DETECTION",
     },
   ];
 
   const decisionConfidenceSupport =
     createDecisionConfidenceSupport({
       status: "AVAILABLE",
-      overallConfidence: confidenceFactors.reduce(
-        (lowest, factor) => {
-          const order = [
-            DECISION_CONFIDENCE_LEVEL.VERY_LOW,
-            DECISION_CONFIDENCE_LEVEL.LOW,
-            DECISION_CONFIDENCE_LEVEL.MODERATE,
-            DECISION_CONFIDENCE_LEVEL.HIGH,
-            DECISION_CONFIDENCE_LEVEL.VERY_HIGH,
-          ];
-
-          return order.indexOf(factor.confidenceLevel) <
-            order.indexOf(lowest)
-            ? factor.confidenceLevel
-            : lowest;
-        },
-        DECISION_CONFIDENCE_LEVEL.VERY_HIGH
-      ),
+      overallConfidence: assessmentConfidenceLevel,
       confidenceFactors,
       limitations: [
         "Confidence qualifies explanations. It never qualifies facts.",
-        "Decision Confidence Support does not generate operational conclusions.",
+        "Confidence represents evidential coverage authorized by the HOI assessment.",
+        "Confidence does not represent severity, certainty, decision validity, operational urgency, or future outcomes.",
         "Final operational decisions remain under the authority of the Event Director.",
       ],
       summary:
-        "Decision confidence was derived exclusively from previously consolidated operational components.",
+        "Decision confidence reflects the Expected Insight Coverage authorized by the current HOI assessment.",
     });
 
   const operationalAlerts = buildOperationalAlerts({
     operationalHighlights,
     changeDetection,
-    decisionConfidenceSupport,
   });
 
   return Object.freeze({
