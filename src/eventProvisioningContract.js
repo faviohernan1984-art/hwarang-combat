@@ -2389,6 +2389,7 @@ export function createOperationalAlerts({
  * No recalcula índices.
  * No recalcula Insights.
  * No recalcula inteligencia operacional.
+ * No evalúa gravedad, urgencia, impacto ni prioridad.
  * No genera alertas.
  * No emite recomendaciones.
  * No ejecuta acciones.
@@ -2432,7 +2433,6 @@ export function createChangeDetection({
       const cleanChangeId = cleanId(change.changeId);
       const cleanChangeType = cleanId(change.changeType);
       const cleanDirection = cleanId(change.direction);
-      const cleanSeverity = cleanId(change.severity);
       const cleanPreviousValue = cleanId(change.previousValue);
       const cleanCurrentValue = cleanId(change.currentValue);
       const cleanMessage = cleanId(change.message);
@@ -2456,15 +2456,6 @@ export function createChangeDetection({
       ) {
         throw new Error(
           "direction must be a known change direction inside change detection"
-        );
-      }
-
-      if (
-        !cleanSeverity ||
-        !Object.values(INSIGHT_SEVERITY).includes(cleanSeverity)
-      ) {
-        throw new Error(
-          "severity must be a known INSIGHT_SEVERITY value inside change detection"
         );
       }
 
@@ -2496,7 +2487,6 @@ export function createChangeDetection({
         changeId: cleanChangeId,
         changeType: cleanChangeType,
         direction: cleanDirection,
-        severity: cleanSeverity,
         previousValue: cleanPreviousValue,
         currentValue: cleanCurrentValue,
         message: cleanMessage,
@@ -2506,11 +2496,11 @@ export function createChangeDetection({
   );
 
   if (
-    cleanStatus === "NO_SIGNIFICANT_CHANGE" &&
+    cleanStatus === "NO_CHANGES" &&
     cleanChanges.length > 0
   ) {
     throw new Error(
-      "NO_SIGNIFICANT_CHANGE cannot contain operational changes"
+      "NO_CHANGES cannot contain operational changes"
     );
   }
 
@@ -3485,10 +3475,10 @@ export function createOperationalAssistantBriefing({
 
     if (continuityStatus === "STABLE") {
       changeDetection = createChangeDetection({
-        status: "NO_SIGNIFICANT_CHANGE",
+        status: "NO_CHANGES",
         changes: [],
         summary:
-          "Change detection completed. No significant operational changes were identified.",
+          "Change detection completed. No operational changes were identified.",
       });
     } else {
       const direction =
@@ -3518,7 +3508,7 @@ export function createOperationalAssistantBriefing({
           },
         ],
         summary:
-          "One significant operational change was identified from Operational Continuity Intelligence.",
+          "One operational change was identified from Operational Continuity Intelligence.",
       });
     }
   }
