@@ -2531,8 +2531,6 @@ export function createChangeDetection({
 export const EVIDENCE_SUMMARY_AUTHORIZED_SOURCES = Object.freeze([
   "TOURNAMENT_OPERATIONAL_ANALYTICS",
   "HWARANG_OPERATIONAL_INTELLIGENCE",
-  "OPERATIONAL_HIGHLIGHTS",
-  "RECOMMENDATIONS",
   "CHANGE_DETECTION",
 ]);
 
@@ -2617,7 +2615,7 @@ export function createEvidenceSummary({
       }
 
       if (
-        !cleanSeverity ||
+        cleanSeverity &&
         !Object.values(INSIGHT_SEVERITY).includes(cleanSeverity)
       ) {
         throw new Error(
@@ -2646,14 +2644,19 @@ export function createEvidenceSummary({
         );
       }
 
-      return Object.freeze({
+      const cleanEvidenceItem = {
         evidenceId: cleanEvidenceId,
         evidenceType: cleanEvidenceType,
-        severity: cleanSeverity,
         statement: cleanStatement,
         source: cleanSource,
         sourceReference: cleanSourceReference,
-      });
+      };
+
+      if (cleanSeverity) {
+        cleanEvidenceItem.severity = cleanSeverity;
+      }
+
+      return Object.freeze(cleanEvidenceItem);
     })
   );
 
@@ -3565,33 +3568,10 @@ export function createOperationalAssistantBriefing({
     sourceReference: cleanHoiAssessmentBasis,
   });
 
-  operationalHighlights.highlights.forEach((highlight) => {
-    evidenceItems.push({
-      evidenceId: `highlight-${highlight.highlightId}`,
-      evidenceType: highlight.highlightType,
-      severity: highlight.severity,
-      statement: highlight.detail,
-      source: "OPERATIONAL_HIGHLIGHTS",
-      sourceReference: highlight.highlightId,
-    });
-  });
-
-  recommendations.recommendations.forEach((recommendation) => {
-    evidenceItems.push({
-      evidenceId: `recommendation-${recommendation.recommendationId}`,
-      evidenceType: recommendation.recommendationType,
-      severity: recommendation.priority,
-      statement: recommendation.rationale,
-      source: "RECOMMENDATIONS",
-      sourceReference: recommendation.recommendationId,
-    });
-  });
-
   changeDetection.changes.forEach((change) => {
     evidenceItems.push({
       evidenceId: `change-${change.changeId}`,
       evidenceType: change.changeType,
-      severity: change.severity,
       statement: change.message,
       source: "CHANGE_DETECTION",
       sourceReference: change.changeId,
