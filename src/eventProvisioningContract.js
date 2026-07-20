@@ -49,11 +49,20 @@ export const INSIGHT_CONSUMPTION_SOURCES = Object.freeze([
   "Tournament Contract Definitions",
 ]);
 
+export const OPERATIONAL_ALERT_AUTHORIZED_SOURCES = Object.freeze([
+  "TOURNAMENT_OPERATIONAL_ANALYTICS",
+  "HWARANG_OPERATIONAL_INTELLIGENCE",
+]);
+
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
 
 function cleanId(value) {
+  return isNonEmptyString(value) ? value.trim() : null;
+}
+
+function cleanText(value) {
   return isNonEmptyString(value) ? value.trim() : null;
 }
 
@@ -2272,8 +2281,8 @@ export function createOperationalAlerts({
       const cleanAlertType = cleanId(alert.alertType);
       const cleanSeverity = cleanId(alert.severity);
       const cleanPriority = cleanId(alert.priority);
-      const cleanMessage = cleanId(alert.message);
-      const cleanTrigger = cleanId(alert.trigger);
+      const cleanMessage = cleanText(alert.message);
+      const cleanTrigger = cleanText(alert.trigger);
       const cleanSource = cleanId(alert.source);
 
       if (!cleanAlertId) {
@@ -2329,6 +2338,12 @@ export function createOperationalAlerts({
       if (!cleanSource) {
         throw new Error(
           "source is required inside operational alerts"
+        );
+      }
+
+      if (!OPERATIONAL_ALERT_AUTHORIZED_SOURCES.includes(cleanSource)) {
+        throw new Error(
+          "source must be authorized for operational alerts"
         );
       }
 
@@ -2435,7 +2450,7 @@ export function createChangeDetection({
       const cleanDirection = cleanId(change.direction);
       const cleanPreviousValue = cleanId(change.previousValue);
       const cleanCurrentValue = cleanId(change.currentValue);
-      const cleanMessage = cleanId(change.message);
+      const cleanMessage = cleanText(change.message);
       const cleanSource = cleanId(change.source);
 
       if (!cleanChangeId) {
@@ -2869,71 +2884,161 @@ export function createDecisionConfidenceSupport({
  * Únicamente ordena condiciones por prioridad de atención.
  */
 export function buildOperationalAlerts({
-  operationalHighlights,
+  hoiAssessment,
+  hoiAssessmentSummary,
+  operationalInsights,
   changeDetection,
 } = {}) {
-  if (!operationalHighlights) {
+  if (!hoiAssessment) {
     throw new Error(
-      "operationalHighlights is required to build operational alerts"
+      "hoiAssessment is required to build operational alerts"
     );
   }
 
-  if (!changeDetection) {
+  if (!Array.isArray(operationalInsights)) {
     throw new Error(
-      "changeDetection is required to build operational alerts"
+      "operationalInsights must be an array"
     );
   }
 
-  if (!Array.isArray(operationalHighlights.highlights)) {
-    throw new Error(
-      "operationalHighlights.highlights must be an array"
-    );
-  }
-
-  if (!Array.isArray(changeDetection.changes)) {
+  if (
+    changeDetection &&
+    !Array.isArray(changeDetection.changes)
+  ) {
     throw new Error(
       "changeDetection.changes must be an array"
     );
   }
 
-  const alerts = [];
+  const cleanAssessmentStatus = cleanId(hoiAssessment.status);
+  const cleanAssessmentSeverity = cleanId(hoiAssessment.severity);
+  const cleanAssessmentSummary = cleanText(hoiAssessmentSummary);
 
-  operationalHighlights.highlights.forEach((highlight) => {
-    if (
-      highlight.severity === INSIGHT_SEVERITY.CRITICAL ||
-      highlight.severity === INSIGHT_SEVERITY.ATTENTION
-    ) {
-      alerts.push({
-        alertId: `highlight-${highlight.highlightId}`,
-        alertType: highlight.highlightType,
-        severity: highlight.severity,
-        priority:
-          highlight.severity === INSIGHT_SEVERITY.CRITICAL
-            ? OPERATIONAL_ALERT_PRIORITY.IMMEDIATE
-            : OPERATIONAL_ALERT_PRIORITY.HIGH,
-        message: highlight.headline,
-        trigger: highlight.detail,
-        source: "OPERATIONAL_HIGHLIGHTS",
-      });
+  if (!cleanAssessmentStatus) {
+    throw new Error(
+      "hoiAssessment.status is required to build operational alerts"
+    );
+  }
+
+  if (
+    !cleanAssessmentSeverity ||
+    !Object.values(INSIGHT_SEVERITY).includes(cleanAssessmentSeverity)
+  ) {
+    throw new Error(
+      "hoiAssessment.severity must be a known INSIGHT_SEVERITY value to build operational alerts"
+    );
+  }
+
+  if (!cleanAssessmentSummary) {
+    throw new Error(
+      "hoiAssessmentSummary is required to build operational alerts"
+    );
+  }
+
+  const requiresExplicitAttention = (severity) =>
+    severity === INSIGHT_SEVERITY.CRITICAL ||
+    severity === INSIGHT_SEVERITY.ATTENTION;
+
+  const communicationPriorityFor = (severity) =>
+    severity === INSIGHT_SEVERITY.CRITICAL
+      ? OPERATIONAL_ALERT_PRIORITY.IMMEDIATE
+      : OPERATIONAL_ALERT_PRIORITY.HIGH;
+
+  const temporalContextByType = new Map();
+
+  (changeDetection?.changes || []).forEach((change) => {
+    const cleanChangeType = cleanId(change.changeType);
+    const cleanChangeMessage = cleanText(change.message);
+
+    if (!cleanChangeType || !cleanChangeMessage) {
+      return;
     }
+
+    const messages = temporalContextByType.get(cleanChangeType) || [];
+    messages.push(cleanChangeMessage);
+    temporalContextByType.set(cleanChangeType, messages);
   });
 
-  changeDetection.changes.forEach((change) => {
+  const triggerWithTemporalContext = (conditionType, trigger) => {
+    const cleanTrigger = cleanText(trigger);
+    const temporalContext = temporalContextByType.get(conditionType);
+
+    return temporalContext?.length > 0
+      ? `${cleanTrigger} Temporal context: ${temporalContext.join(" ")}`
+      : cleanTrigger;
+  };
+
+  const alerts = [];
+
+  if (requiresExplicitAttention(cleanAssessmentSeverity)) {
+    alerts.push({
+      alertId: "hoi-assessment",
+      alertType: "HOI_ASSESSMENT",
+      severity: cleanAssessmentSeverity,
+      priority: communicationPriorityFor(cleanAssessmentSeverity),
+      message:
+        `The tournament assessment is currently ${cleanAssessmentStatus}.`,
+      trigger: triggerWithTemporalContext(
+        "HOI_ASSESSMENT",
+        cleanAssessmentSummary
+      ),
+      source: "HWARANG_OPERATIONAL_INTELLIGENCE",
+    });
+  }
+
+  operationalInsights.forEach((insight) => {
+    const cleanInsightId = cleanId(insight.insightId);
+    const cleanInsightType = cleanId(insight.insightType);
+    const cleanInsightStatus = cleanId(insight.status);
+    const cleanInsightSeverity = cleanId(insight.severity);
+    const cleanInsightSummary = cleanText(insight.summary);
+
+    if (!cleanInsightId) {
+      throw new Error(
+        "insightId is required inside operationalInsights to build operational alerts"
+      );
+    }
+
+    if (!cleanInsightType) {
+      throw new Error(
+        "insightType is required inside operationalInsights to build operational alerts"
+      );
+    }
+
+    if (!cleanInsightStatus) {
+      throw new Error(
+        "status is required inside operationalInsights to build operational alerts"
+      );
+    }
+
     if (
-      change.severity === INSIGHT_SEVERITY.CRITICAL ||
-      change.severity === INSIGHT_SEVERITY.ATTENTION
+      !cleanInsightSeverity ||
+      !Object.values(INSIGHT_SEVERITY).includes(cleanInsightSeverity)
     ) {
+      throw new Error(
+        "severity must be a known INSIGHT_SEVERITY value inside operationalInsights to build operational alerts"
+      );
+    }
+
+    if (!cleanInsightSummary) {
+      throw new Error(
+        "summary is required inside operationalInsights to build operational alerts"
+      );
+    }
+
+    if (requiresExplicitAttention(cleanInsightSeverity)) {
       alerts.push({
-        alertId: `change-${change.changeId}`,
-        alertType: change.changeType,
-        severity: change.severity,
-        priority:
-          change.severity === INSIGHT_SEVERITY.CRITICAL
-            ? OPERATIONAL_ALERT_PRIORITY.IMMEDIATE
-            : OPERATIONAL_ALERT_PRIORITY.HIGH,
-        message: change.message,
-        trigger: change.direction,
-        source: "CHANGE_DETECTION",
+        alertId: `toa-${cleanInsightId}`,
+        alertType: cleanInsightType,
+        severity: cleanInsightSeverity,
+        priority: communicationPriorityFor(cleanInsightSeverity),
+        message:
+          `${cleanInsightType} is currently ${cleanInsightStatus}.`,
+        trigger: triggerWithTemporalContext(
+          cleanInsightType,
+          cleanInsightSummary
+        ),
+        source: "TOURNAMENT_OPERATIONAL_ANALYTICS",
       });
     }
   });
@@ -3497,7 +3602,7 @@ export function createOperationalAssistantBriefing({
     const cleanInsightId = cleanId(insight.insightId);
     const cleanInsightType = cleanId(insight.insightType);
     const cleanInsightSeverity = cleanId(insight.severity);
-    const cleanInsightSummary = cleanId(insight.summary);
+    const cleanInsightSummary = cleanText(insight.summary);
 
     if (!cleanInsightId) {
       throw new Error(
@@ -3628,7 +3733,11 @@ export function createOperationalAssistantBriefing({
     });
 
   const operationalAlerts = buildOperationalAlerts({
-    operationalHighlights,
+    hoiAssessment,
+    hoiAssessmentSummary:
+      hwarangOperationalIntelligenceSnapshot
+        .operationalCorrelationIntelligence?.summary,
+    operationalInsights,
     changeDetection,
   });
 
