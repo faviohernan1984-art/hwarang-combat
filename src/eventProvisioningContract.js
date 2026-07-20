@@ -54,6 +54,30 @@ export const OPERATIONAL_ALERT_AUTHORIZED_SOURCES = Object.freeze([
   "HWARANG_OPERATIONAL_INTELLIGENCE",
 ]);
 
+const HOI_EXPECTED_INSIGHT_TYPES = Object.freeze([
+  "OPERATIONAL_BALANCE",
+  "TOURNAMENT_FLOW",
+  "ARENA_ATTENTION",
+]);
+
+const OFFICIAL_TOA_INSIGHT_STATUS_SEVERITY = Object.freeze({
+  OPERATIONAL_BALANCE: Object.freeze({
+    BALANCED: INSIGHT_SEVERITY.NORMAL,
+    SLIGHTLY_UNBALANCED: INSIGHT_SEVERITY.WATCH,
+    UNBALANCED: INSIGHT_SEVERITY.ATTENTION,
+  }),
+  TOURNAMENT_FLOW: Object.freeze({
+    FLOWING: INSIGHT_SEVERITY.NORMAL,
+    UNKNOWN: INSIGHT_SEVERITY.WATCH,
+    NOT_STARTED: INSIGHT_SEVERITY.WATCH,
+    PARTIALLY_FLOWING: INSIGHT_SEVERITY.ATTENTION,
+  }),
+  ARENA_ATTENTION: Object.freeze({
+    CLEAR: INSIGHT_SEVERITY.NORMAL,
+    ATTENTION_REQUIRED: INSIGHT_SEVERITY.ATTENTION,
+  }),
+});
+
 function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
@@ -861,6 +885,24 @@ export function createInsightContract({
     throw new Error("severity is required to create an insight contract");
   }
 
+  if (!Object.values(INSIGHT_SEVERITY).includes(cleanSeverity)) {
+    throw new Error(
+      "severity must be a known INSIGHT_SEVERITY value to create an insight contract"
+    );
+  }
+
+  const officialStatusSeverity =
+    OFFICIAL_TOA_INSIGHT_STATUS_SEVERITY[cleanInsightType];
+
+  if (
+    officialStatusSeverity &&
+    officialStatusSeverity[cleanStatus] !== cleanSeverity
+  ) {
+    throw new Error(
+      "status and severity must match the official TOA insight contract"
+    );
+  }
+
   if (!cleanSummary) {
     throw new Error("summary is required to create an insight contract");
   }
@@ -1291,6 +1333,15 @@ export function createOperationalCorrelationIntelligence({
     );
   }
 
+  if (tournamentOperationalAnalyticsSnapshot.insights.length === 0) {
+    throw new Error(
+      "HOI V1 requires exactly one insight for each expected insight type"
+    );
+  }
+
+  const insightIds = new Set();
+  const insightTypes = new Set();
+
   const correlatedInsights = Object.freeze(
     tournamentOperationalAnalyticsSnapshot.insights.map((insight) => {
       const cleanInsightId = cleanId(insight.insightId);
@@ -1305,6 +1356,23 @@ export function createOperationalCorrelationIntelligence({
       if (!cleanInsightType) {
         throw new Error("insightType is required inside insights");
       }
+
+      if (!HOI_EXPECTED_INSIGHT_TYPES.includes(cleanInsightType)) {
+        throw new Error(
+          "insightType must be one of the expected HOI V1 insight types"
+        );
+      }
+
+      if (insightIds.has(cleanInsightId)) {
+        throw new Error("insightId must be unique inside insights");
+      }
+
+      if (insightTypes.has(cleanInsightType)) {
+        throw new Error("insightType must be unique inside insights");
+      }
+
+      insightIds.add(cleanInsightId);
+      insightTypes.add(cleanInsightType);
 
       if (!cleanStatus) {
         throw new Error("status is required inside insights");
@@ -1322,6 +1390,18 @@ export function createOperationalCorrelationIntelligence({
       });
     })
   );
+
+  const missingExpectedInsightTypes = Object.freeze(
+    HOI_EXPECTED_INSIGHT_TYPES.filter(
+      (insightType) => !insightTypes.has(insightType)
+    )
+  );
+
+  if (missingExpectedInsightTypes.length > 0) {
+    throw new Error(
+      "HOI V1 requires complete expected insight coverage"
+    );
+  }
 
   const severityWeights = Object.freeze({
     [INSIGHT_SEVERITY.NORMAL]: 0,
@@ -1352,11 +1432,7 @@ export function createOperationalCorrelationIntelligence({
       ? elevatedSignals / correlatedInsights.length
       : 0;
 
-  const expectedInsightTypes = Object.freeze([
-    "OPERATIONAL_BALANCE",
-    "TOURNAMENT_FLOW",
-    "ARENA_ATTENTION",
-  ]);
+  const expectedInsightTypes = HOI_EXPECTED_INSIGHT_TYPES;
 
   const availableInsightTypes = new Set(
     correlatedInsights.map((insight) => insight.insightType)
@@ -1365,12 +1441,6 @@ export function createOperationalCorrelationIntelligence({
   const availableExpectedInsightTypes = Object.freeze(
     expectedInsightTypes.filter((insightType) =>
       availableInsightTypes.has(insightType)
-    )
-  );
-
-  const missingExpectedInsightTypes = Object.freeze(
-    expectedInsightTypes.filter(
-      (insightType) => !availableInsightTypes.has(insightType)
     )
   );
 
@@ -2359,6 +2429,18 @@ export function createOperationalAlerts({
       });
     })
   );
+
+  const alertIds = new Set();
+
+  cleanAlerts.forEach((alert) => {
+    if (alertIds.has(alert.alertId)) {
+      throw new Error(
+        "alertId must be unique inside operational alerts"
+      );
+    }
+
+    alertIds.add(alert.alertId);
+  });
 
   if (cleanStatus === "CLEAR" && cleanAlerts.length > 0) {
     throw new Error(
