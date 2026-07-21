@@ -27,6 +27,7 @@ import { db, getMatchMetaRef, getJudgesColRef, getJudgeRef } from "./firebase";
 import { QRCodeCanvas } from "qrcode.react";
 import JudgeMobileNext from "./JudgeMobileNext";
 import RotateDeviceGate from "./RotateDeviceGate";
+import TournamentSetup from "./components/tournamentSetup/TournamentSetup.jsx";
 
 if (typeof document !== "undefined" && !document.getElementById("winnerPulseStyle")) {
   const style = document.createElement("style");
@@ -15307,6 +15308,10 @@ return (
 export default function App() {
   useWakeLock(true);
   const { path, routePath, navigate, roomId, isTvMode, isDevRoute, isDevBypass } = useRoute();
+
+  if (path === "/dev/tournament-setup") {
+    return <TournamentSetup />;
+  }
 
   if (routePath === "/") {
     return (
