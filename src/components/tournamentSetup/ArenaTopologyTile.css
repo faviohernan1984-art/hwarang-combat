@@ -46,16 +46,45 @@
 }
 
 .arena-topology-tile__arena {
+  --tatami-band: clamp(
+    3px,
+    calc(var(--arena-cell-size) * 0.14),
+    8px
+  );
+
+  position: relative;
   width: var(--arena-cell-size);
   height: var(--arena-cell-size);
   box-sizing: border-box;
+  overflow: hidden;
   border: 2px solid rgba(248, 250, 252, 0.84);
-  background: transparent;
+  background: #98151c;
+}
+
+.arena-topology-tile__arena::before {
+  content: "";
+  position: absolute;
+  inset: var(--tatami-band);
+  background: #164a9b;
 }
 
 .arena-topology-tile__arena--primary {
-  border-color: #d6ad45;
-  background: #d6ad45;
+  --tatami-band: clamp(
+    3px,
+    calc(var(--arena-cell-size) * 0.14),
+    8px
+  );
+
+  position: relative;
+  border: 2px solid rgba(248, 250, 252, 0.84);
+  background: #164a9b;   /* perímetro azul */
+}
+
+.arena-topology-tile__arena--primary::before {
+  content: "";
+  position: absolute;
+  inset: var(--tatami-band);
+  background: #98151c;   /* centro rojo */
 }
 
 .arena-topology-tile--selected .arena-topology-tile__arena {
@@ -75,5 +104,12 @@
 
   .arena-topology-tile__preview {
     width: min(100%, 96px);
+  }
+}
+
+@media (max-height: 820px) and (min-width: 900px) {
+  .arena-topology-tile {
+    min-height: 150px;
+    padding: 14px;
   }
 }

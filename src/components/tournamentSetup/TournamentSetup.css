@@ -5,7 +5,7 @@
   color: #f8fafc;
   display: flex;
   justify-content: center;
-  padding: 72px 36px 44px;
+  padding: 102px 36px 24px;
   overflow-y: auto;
 }
 
@@ -13,7 +13,7 @@
   width: min(1160px, 100%);
   display: flex;
   flex-direction: column;
-  gap: 48px;
+  gap: 34px;
 }
 
 .tournament-setup__header {
@@ -34,7 +34,7 @@
   margin: 0;
   color: #ffffff;
   font-family: "Orbitron", Arial, sans-serif;
-  font-size: clamp(40px, 6vw, 82px);
+  font-size: clamp(40px, 5.4vw, 74px);
   line-height: 0.96;
   font-weight: 900;
   letter-spacing: 0;
@@ -43,7 +43,7 @@
 
 .tournament-setup__subtitle {
   max-width: 560px;
-  margin: 22px 0 0;
+  margin: 14px 0 0;
   color: rgba(226, 232, 240, 0.7);
   font-family: "Inter", Arial, sans-serif;
   font-size: 16px;
@@ -52,7 +52,10 @@
 
 .tournament-setup__footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: 28px;
+  margin-top: -14px;
 }
 
 .tournament-setup__action {
@@ -84,8 +87,46 @@
     gap: 34px;
   }
 
+  .tournament-setup__title-row {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
   .tournament-setup__footer,
   .tournament-setup__action {
     width: 100%;
   }
 }
+
+@media (max-height: 820px) and (min-width: 900px) {
+  .tournament-setup {
+    padding-top: 24px;
+    padding-bottom: 20px;
+  }
+
+  .tournament-setup__content {
+    gap: 24px;
+  }
+
+  .tournament-setup__kicker {
+    margin-bottom: 10px;
+  }
+
+  .tournament-setup__title {
+    font-size: clamp(52px, 5vw, 66px);
+    line-height: 0.92;
+  }
+
+  .tournament-setup__subtitle {
+    margin-top: 12px;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .tournament-setup__action {
+    min-height: 48px;
+  }
+}
+
+

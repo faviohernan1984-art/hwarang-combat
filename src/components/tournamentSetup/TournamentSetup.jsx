@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ArenaTopologySelector from "./ArenaTopologySelector";
 import "./TournamentSetup.css";
+import HwarangAnimatedIsotype from "../HwarangAnimatedIsotype";
 
 const ARENA_TOPOLOGIES = [
   {
@@ -141,9 +142,13 @@ export default function TournamentSetup() {
       <section className="tournament-setup__content" aria-labelledby="setup-title">
         <header className="tournament-setup__header">
           <p className="tournament-setup__kicker">Tournament Setup</p>
-          <h1 id="setup-title" className="tournament-setup__title">
-            Arena Structure
-          </h1>
+          <div className="tournament-setup__title-row">
+  <h1 id="setup-title" className="tournament-setup__title">
+    Arena Structure
+  </h1>
+
+  <HwarangAnimatedIsotype size={58} />
+</div>
           <p className="tournament-setup__subtitle">
             Define the official arena topology for this tournament.
           </p>
@@ -156,10 +161,14 @@ export default function TournamentSetup() {
         />
 
         <footer className="tournament-setup__footer">
-          <button className="tournament-setup__action" type="button">
-            Create Tournament Structure
-          </button>
-        </footer>
+  <div style={{ marginRight: 8 }}>
+  <HwarangAnimatedIsotype size={44} />
+</div>
+
+  <button className="tournament-setup__action" type="button">
+    Create Tournament Structure
+  </button>
+</footer>
       </section>
     </main>
   );
