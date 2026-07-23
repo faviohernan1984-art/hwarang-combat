@@ -141,18 +141,53 @@ export default function TournamentSetup() {
     <main className="tournament-setup">
       <section className="tournament-setup__content" aria-labelledby="setup-title">
         <header className="tournament-setup__header">
-          <p className="tournament-setup__kicker">Tournament Setup</p>
-          <div className="tournament-setup__title-row">
-  <h1 id="setup-title" className="tournament-setup__title">
-    Arena Structure
-  </h1>
 
-  <HwarangAnimatedIsotype size={58} />
-</div>
-          <p className="tournament-setup__subtitle">
-            Define the official arena topology for this tournament.
-          </p>
-        </header>
+  <p className="tournament-setup__kicker">
+    Tournament Setup
+  </p>
+
+  <div className="tournament-setup__hero">
+
+    <div className="tournament-setup__hero-left">
+
+      <h1
+        id="setup-title"
+        className="tournament-setup__title"
+      >
+        Arena Structure
+      </h1>
+
+    </div>
+
+    <div className="tournament-setup__hero-right">
+
+      <div className="tournament-setup__brand">
+
+        <HwarangAnimatedIsotype size={72} />
+
+        <div className="tournament-setup__brand-text">
+
+          <div className="tournament-setup__brand-title">
+            HWARANG
+          </div>
+
+          <div className="tournament-setup__brand-subtitle">
+            SCORING UNIVERSE™
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <p className="tournament-setup__subtitle">
+    Define the official arena topology for this tournament.
+  </p>
+
+</header>
 
         <ArenaTopologySelector
           topologies={ARENA_TOPOLOGIES}
@@ -161,11 +196,7 @@ export default function TournamentSetup() {
         />
 
         <footer className="tournament-setup__footer">
-  <div style={{ marginRight: 8 }}>
-  <HwarangAnimatedIsotype size={44} />
-</div>
-
-  <button className="tournament-setup__action" type="button">
+          <button className="tournament-setup__action" type="button">
     Create Tournament Structure
   </button>
 </footer>

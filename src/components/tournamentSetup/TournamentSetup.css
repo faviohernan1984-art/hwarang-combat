@@ -6,7 +6,29 @@
   display: flex;
   justify-content: center;
   padding: 102px 36px 24px;
-  overflow-y: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.tournament-setup::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 70% 22%,
+      rgba(0, 170, 255, 0.08),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 20% 82%,
+      rgba(0, 120, 255, 0.05),
+      transparent 42%
+    );
+
+  z-index: 0;
 }
 
 .tournament-setup__content {
@@ -17,7 +39,18 @@
 }
 
 .tournament-setup__header {
-  max-width: 780px;
+  width: 100%;
+  max-width: none;
+}
+
+.tournament-setup__title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tournament-setup__title-row > :last-child {
+  transform: translate(-72px, 18px);
 }
 
 .tournament-setup__kicker {
@@ -76,6 +109,75 @@
 .tournament-setup__action:focus-visible {
   outline: 2px solid #f8fafc;
   outline-offset: 4px;
+}
+
+.tournament-setup__brand-title {
+  color: #ffffff;
+  font-family: "Inter", Arial, sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 5px;
+  white-space: nowrap;
+}
+
+.tournament-setup__brand-subtitle {
+  margin-top: 7px;
+  color: #d6dee9;
+  font-family: "Inter", Arial, sans-serif;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 2.2px;
+  white-space: nowrap;
+}
+
+.tournament-setup__brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tournament-setup__brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tournament-setup__hero {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    width: 100%;
+    position: relative;
+}
+
+.tournament-setup__hero-right {
+    margin-left: auto;
+    transform: translateY(10px);
+}
+
+.tournament-setup__hero::after {
+  content: "";
+  position: absolute;
+
+  width: 520px;
+  height: 220px;
+
+  top: -35px;
+  left: 260px;
+
+  pointer-events: none;
+
+  background: radial-gradient(
+    ellipse,
+    rgba(0, 170, 255, 0.06) 0%,
+    rgba(0, 170, 255, 0.03) 35%,
+    transparent 75%
+  );
+
+  filter: blur(45px);
+
+  z-index: -1;
 }
 
 @media (max-width: 760px) {
