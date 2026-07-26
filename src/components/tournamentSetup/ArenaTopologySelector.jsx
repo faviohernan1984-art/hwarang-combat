@@ -8,13 +8,14 @@ export default function ArenaTopologySelector({
 }) {
   return (
     <section className="arena-topology-selector" aria-label="Arena topology">
-      {topologies.map((topology) => (
+      {topologies.map((topology, index) => (
         <ArenaTopologyTile
-          key={topology.id}
-          topology={topology}
-          isSelected={selectedTopologyId === topology.id}
-          onSelect={() => onSelectTopology(topology.id)}
-        />
+  key={topology.id}
+  topology={topology}
+  isSelected={selectedTopologyId === topology.id}
+  onSelect={() => onSelectTopology(topology.id)}
+  index={index}
+/>
       ))}
     </section>
   );

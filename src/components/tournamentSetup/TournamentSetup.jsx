@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ArenaTopologySelector from "./ArenaTopologySelector";
 import "./TournamentSetup.css";
+import "../../styles/hsu-design-tokens.css";
 import HwarangAnimatedIsotype from "../HwarangAnimatedIsotype";
 
 const ARENA_TOPOLOGIES = [
@@ -151,11 +152,12 @@ export default function TournamentSetup() {
     <div className="tournament-setup__hero-left">
 
       <h1
-        id="setup-title"
-        className="tournament-setup__title"
-      >
-        Arena Structure
-      </h1>
+  id="setup-title"
+  className="tournament-setup__title"
+  data-text="Arena Structure"
+>
+  Arena Structure
+</h1>
 
     </div>
 

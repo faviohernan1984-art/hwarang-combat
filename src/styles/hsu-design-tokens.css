@@ -1,0 +1,72 @@
+:root {
+  /* Core surfaces */
+  --hsu-black: #020307;
+  --hsu-surface-950: #05070c;
+  --hsu-surface-900: #090d15;
+  --hsu-surface-850: #0d1420;
+  --hsu-surface-800: #111a28;
+
+  /* White system */
+  --hsu-white: #ffffff;
+  --hsu-white-soft: #f3f6fb;
+  --hsu-text-muted: rgba(226, 232, 240, 0.72);
+
+  --hsu-shadow-floating:
+  0 16px 42px rgba(0, 0, 0, 0.30);
+
+  /* Hwarang blue */
+  --hsu-blue-900: #07152f;
+  --hsu-blue-800: #0a2454;
+  --hsu-blue-700: #103c8c;
+  --hsu-blue-600: #1756c2;
+  --hsu-blue-500: #2674f2;
+
+  /* Hwarang red */
+  --hsu-red-900: #320307;
+  --hsu-red-800: #64080e;
+  --hsu-red-700: #940d16;
+  --hsu-red-600: #c41420;
+  --hsu-red-500: #f01c2c;
+
+  /* Hwarang gold */
+  --hsu-gold-900: #382500;
+  --hsu-gold-800: #664300;
+  --hsu-gold-700: #9c6900;
+  --hsu-gold-600: #d59a10;
+  --hsu-gold-500: #f2c54d;
+  --hsu-gold-400: #ffd96a;
+
+  /* Nova violet */
+  --hsu-violet-800: #351360;
+  --hsu-violet-700: #59249b;
+  --hsu-violet-600: #8142df;
+  --hsu-violet-500: #aa78ff;
+
+  /* Borders */
+  --hsu-border-subtle: rgba(128, 158, 198, 0.16);
+  --hsu-border-blue: rgba(38, 116, 242, 0.54);
+  --hsu-border-red: rgba(240, 28, 44, 0.54);
+  --hsu-border-gold: rgba(242, 197, 77, 0.58);
+  --hsu-border-violet: rgba(170, 120, 255, 0.56);
+
+  /* Glows */
+  --hsu-glow-blue:
+    0 0 0 1px rgba(38, 116, 242, 0.2),
+    0 0 28px rgba(38, 116, 242, 0.26);
+
+  --hsu-glow-red:
+    0 0 0 1px rgba(240, 28, 44, 0.2),
+    0 0 28px rgba(240, 28, 44, 0.24);
+
+  --hsu-glow-gold:
+    0 0 0 1px rgba(242, 197, 77, 0.22),
+    0 0 28px rgba(242, 197, 77, 0.24);
+
+  --hsu-glow-violet:
+    0 0 0 1px rgba(170, 120, 255, 0.22),
+    0 0 28px rgba(170, 120, 255, 0.24);
+
+  /* Motion */
+  --hsu-transition-fast: 160ms ease;
+  --hsu-transition-standard: 220ms ease;
+}

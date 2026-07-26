@@ -1,7 +1,5 @@
 import "./ArenaTopologyTile.css";
 
-import "./ArenaTopologyTile.css";
-
 const TOPOLOGY_DRAWING_SIZE = 118;
 const TOPOLOGY_GAP = 6;
 const TOPOLOGY_OPTICAL_SCALE = {
@@ -44,7 +42,9 @@ export default function ArenaTopologyTile({
   topology,
   isSelected,
   onSelect,
+  index,
 }) {
+
   const { rows, columns } = getGridSize(topology.grid);
   const arenaCellSize = getArenaCellSize(rows, columns);
   const opticalScale =
@@ -58,8 +58,11 @@ export default function ArenaTopologyTile({
       type="button"
       aria-label={`Select ${topology.arenaCount} arena topology`}
       aria-pressed={isSelected}
-      onClick={onSelect}
-    >
+onClick={onSelect}
+style={{
+  "--tile-index": index,
+}}
+>
       <span className="arena-topology-tile__preview" aria-hidden="true">
         <span
           className="arena-topology-tile__grid"

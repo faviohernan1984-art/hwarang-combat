@@ -1,24 +1,86 @@
 .arena-topology-tile {
   min-height: 178px;
   padding: 18px;
-  border: 1px solid rgba(130, 170, 220, 0.14);
+
+  border: 1px solid var(--hsu-border-subtle);
   border-radius: 8px;
-  background: linear-gradient(
-  180deg,
-  rgba(18, 25, 37, 0.95) 0%,
-  rgba(10, 15, 24, 0.98) 100%
-);
-  color: #f8fafc;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(20, 30, 46, 0.98) 0%,
+      rgba(11, 18, 30, 0.99) 55%,
+      rgba(6, 10, 18, 1) 100%
+    );
+
+  color: var(--hsu-white);
+
   display: grid;
   place-items: center;
+
   cursor: pointer;
+
+  transition:
+  transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1),
+  border-color 220ms ease,
+  box-shadow 220ms ease,
+  background 220ms ease;
+
   box-shadow:
-  inset 0 1px 0 rgba(255, 255, 255, 0.035),
-  inset 0 -18px 32px rgba(0, 0, 0, 0.16);
+    inset 0 1px 0 rgba(255,255,255,.04),
+    inset 0 -30px 45px rgba(0,0,0,.28),
+    0 12px 28px rgba(0,0,0,.20);
+
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.arena-topology-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at top,
+      rgba(255,255,255,0.035) 0%,
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.02) 0%,
+      transparent 18%,
+      transparent 82%,
+      rgba(0,0,0,0.18) 100%
+    );
+
+  opacity: 1;
+  z-index: 0;
+}
+
+.arena-topology-tile > * {
+  position: relative;
+  z-index: 1;
 }
 
 .arena-topology-tile:hover {
-  border-color: rgba(214, 173, 69, 0.5);
+  transform: translateY(-2px);
+
+  border-color: rgba(64, 148, 255, 0.32);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -30px 45px rgba(0, 0, 0, 0.26),
+    0 14px 30px rgba(0, 0, 0, 0.24);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(22, 32, 48, 0.98) 0%,
+      rgba(9, 15, 25, 1) 100%
+    );
 }
 
 .arena-topology-tile:focus-visible {
@@ -27,18 +89,36 @@
 }
 
 .arena-topology-tile--selected {
-  border-color: #22d3ee;
+  transform: translateY(-5px) scale(1.018);
 
-  background: linear-gradient(
-    180deg,
-    rgba(12, 32, 52, 0.98) 0%,
-    rgba(7, 18, 31, 1) 100%
-  );
+  border-color: rgba(74, 153, 255, 0.9);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(12, 43, 96, 0.99) 0%,
+      rgba(5, 17, 39, 1) 100%
+    );
 
   box-shadow:
-    0 0 0 1px rgba(34, 211, 238, 0.35),
-    0 0 26px rgba(34, 211, 238, 0.22),
-    inset 0 0 30px rgba(34, 211, 238, 0.06);
+    0 0 0 1px rgba(74, 153, 255, 0.18),
+    0 0 30px rgba(38, 116, 242, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 36px rgba(38, 116, 242, 0.12),
+    var(--hsu-shadow-floating);
+}
+
+.arena-topology-tile--selected:hover {
+  transform: translateY(-5px) scale(1.018);
+
+  border-color: rgba(92, 166, 255, 1);
+
+  box-shadow:
+    0 0 0 1px rgba(74, 153, 255, 0.22),
+    0 0 34px rgba(38, 116, 242, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 0 38px rgba(38, 116, 242, 0.14),
+    var(--hsu-shadow-floating);
 }
 
 .arena-topology-tile__preview {
@@ -74,15 +154,39 @@
   height: var(--arena-cell-size);
   box-sizing: border-box;
   overflow: hidden;
-  border: 2px solid rgba(248, 250, 252, 0.84);
-  background: #98151c;
+
+  border: 2px solid rgba(248, 250, 252, 0.9);
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--hsu-red-600) 0%,
+      var(--hsu-red-700) 48%,
+      var(--hsu-red-900) 100%
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -5px 10px rgba(30, 0, 3, 0.3),
+    0 3px 8px rgba(0, 0, 0, 0.25);
 }
 
 .arena-topology-tile__arena::before {
   content: "";
   position: absolute;
   inset: var(--tatami-band);
-  background: #164a9b;
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--hsu-blue-600) 0%,
+var(--hsu-blue-800) 55%,
+#071526 100%
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -4px 8px rgba(0, 6, 24, 0.28);
 }
 
 .arena-topology-tile__arena--primary {
@@ -93,15 +197,39 @@
   );
 
   position: relative;
-  border: 2px solid rgba(248, 250, 252, 0.84);
-  background: #164a9b;   /* perímetro azul */
+
+  border: 2px solid rgba(248, 250, 252, 0.9);
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--hsu-blue-600) 0%,
+      var(--hsu-blue-800) 55%,
+      #071526 100%
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -5px 10px rgba(0, 6, 24, 0.32),
+    0 3px 8px rgba(0, 0, 0, 0.25);
 }
 
 .arena-topology-tile__arena--primary::before {
   content: "";
   position: absolute;
   inset: var(--tatami-band);
-  background: #98151c;   /* centro rojo */
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--hsu-red-600) 0%,
+      var(--hsu-red-700) 48%,
+      var(--hsu-red-900) 100%
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -4px 8px rgba(30, 0, 3, 0.3);
 }
 
 .arena-topology-tile--selected .arena-topology-tile__arena {
@@ -110,7 +238,32 @@
 
 .arena-topology-tile--selected
   .arena-topology-tile__arena--primary {
-  border-color: #d6ad45;
+  border-color: #f8fafc;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -5px 10px rgba(0,0,0,.30),
+    0 0 12px rgba(214,173,69,.22);
+}
+
+.arena-topology-tile__grid {
+  transition:
+    transform var(--hsu-transition-standard),
+    filter var(--hsu-transition-standard);
+}
+
+.arena-topology-tile:hover .arena-topology-tile__grid {
+  transform:
+    scale(calc(var(--arena-optical-scale, 1) * 1.02));
+
+  filter: brightness(1.04);
+}
+
+.arena-topology-tile--selected .arena-topology-tile__grid,
+.arena-topology-tile--selected:hover .arena-topology-tile__grid {
+  transform:
+    scale(calc(var(--arena-optical-scale, 1) * 1.035));
+
+  filter: brightness(1.09);
 }
 
 @media (max-width: 620px) {
@@ -128,5 +281,37 @@
   .arena-topology-tile {
     min-height: 150px;
     padding: 14px;
+  }
+}
+
+@keyframes arena-tile-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+    filter: blur(3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.arena-topology-tile {
+  animation:
+    arena-tile-enter
+    520ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+
+  animation-delay:
+    calc(120ms + var(--tile-index, 0) * 65ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arena-topology-tile,
+  .arena-topology-tile--selected {
+    animation: none;
   }
 }
