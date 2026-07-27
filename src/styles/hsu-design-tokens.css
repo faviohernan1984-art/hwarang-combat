@@ -66,6 +66,24 @@
     0 0 0 1px rgba(170, 120, 255, 0.22),
     0 0 28px rgba(170, 120, 255, 0.24);
 
+  /* Typography */
+  --hsu-font-display: "Orbitron", Arial, sans-serif;
+  --hsu-font-body: "Inter", Arial, sans-serif;
+  --hsu-font-mono: "Roboto Mono", Consolas, monospace;
+
+  --hsu-fw-regular: 400;
+  --hsu-fw-medium: 500;
+  --hsu-fw-semibold: 600;
+  --hsu-fw-bold: 700;
+  --hsu-fw-black: 900;
+
+  --hsu-text-xs: 12px;
+  --hsu-text-sm: 14px;
+  --hsu-text-md: 16px;
+  --hsu-text-lg: 20px;
+  --hsu-text-xl: 28px;
+  --hsu-text-display: clamp(40px, 5.4vw, 74px);
+
   /* Motion */
   --hsu-transition-fast: 160ms ease;
   --hsu-transition-standard: 220ms ease;
