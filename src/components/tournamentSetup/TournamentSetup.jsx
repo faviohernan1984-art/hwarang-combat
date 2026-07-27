@@ -3,6 +3,7 @@ import ArenaTopologySelector from "./ArenaTopologySelector";
 import "./TournamentSetup.css";
 import "../../styles/hsu-design-tokens.css";
 import HwarangAnimatedIsotype from "../HwarangAnimatedIsotype";
+import HSUButton from "../HSUButton/HSUButton";
 
 const ARENA_TOPOLOGIES = [
   {
@@ -198,10 +199,10 @@ export default function TournamentSetup() {
         />
 
         <footer className="tournament-setup__footer">
-          <button className="tournament-setup__action" type="button">
-    Create Tournament Structure
-  </button>
-</footer>
+          <HSUButton variant="gold" size="large">
+            Create Tournament Structure
+          </HSUButton>
+        </footer>
       </section>
     </main>
   );
