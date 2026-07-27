@@ -1,9 +1,10 @@
 import { useState } from "react";
 import ArenaTopologySelector from "./ArenaTopologySelector";
-import "./TournamentSetup.css";
 import "../../styles/hsu-design-tokens.css";
 import HwarangAnimatedIsotype from "../HwarangAnimatedIsotype";
 import HSUButton from "../HSUButton/HSUButton";
+import HSUTypography from "../HSUTypography/HSUTypography";
+import "./TournamentSetup.css";
 
 const ARENA_TOPOLOGIES = [
   {
@@ -144,21 +145,27 @@ export default function TournamentSetup() {
       <section className="tournament-setup__content" aria-labelledby="setup-title">
         <header className="tournament-setup__header">
 
-  <p className="tournament-setup__kicker">
+  <HSUTypography
+    as="p"
+    variant="overline"
+    className="tournament-setup__kicker"
+  >
     Tournament Setup
-  </p>
+  </HSUTypography>
 
   <div className="tournament-setup__hero">
 
     <div className="tournament-setup__hero-left">
 
-      <h1
+<HSUTypography
+  as="h1"
+  variant="display"
   id="setup-title"
   className="tournament-setup__title"
   data-text="Arena Structure"
 >
   Arena Structure
-</h1>
+</HSUTypography>
 
     </div>
 
@@ -170,13 +177,21 @@ export default function TournamentSetup() {
 
         <div className="tournament-setup__brand-text">
 
-          <div className="tournament-setup__brand-title">
-            HWARANG
-          </div>
+<HSUTypography
+  as="div"
+  variant="title"
+  className="tournament-setup__brand-title"
+>
+  HWARANG
+</HSUTypography>
 
-          <div className="tournament-setup__brand-subtitle">
-            SCORING UNIVERSE™
-          </div>
+<HSUTypography
+  as="div"
+  variant="overline"
+  className="tournament-setup__brand-subtitle"
+>
+  SCORING UNIVERSE™
+</HSUTypography>
 
         </div>
 
@@ -186,9 +201,13 @@ export default function TournamentSetup() {
 
   </div>
 
-  <p className="tournament-setup__subtitle">
-    Define the official arena topology for this tournament.
-  </p>
+<HSUTypography
+  as="p"
+  variant="subtitle"
+  className="tournament-setup__subtitle"
+>
+  Define the official arena topology for this tournament.
+</HSUTypography>
 
 </header>
 

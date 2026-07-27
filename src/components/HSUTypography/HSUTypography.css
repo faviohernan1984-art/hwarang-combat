@@ -1,0 +1,78 @@
+.hsu-typography {
+  margin: 0;
+
+  font-family: var(--hsu-font-body);
+  font-weight: var(--hsu-fw-regular);
+
+  color: inherit;
+}
+
+/* Primary visual hierarchy */
+
+.hsu-typography--display {
+  font-family: var(--hsu-font-display);
+  font-size: var(--hsu-text-display);
+  font-weight: var(--hsu-fw-black);
+  line-height: var(--hsu-line-height-tight);
+  letter-spacing: var(--hsu-letter-spacing-tight);
+  text-transform: uppercase;
+}
+
+.hsu-typography--h1 {
+  font-size: var(--hsu-text-xl);
+  font-weight: var(--hsu-fw-black);
+  line-height: var(--hsu-line-height-heading);
+  letter-spacing: var(--hsu-letter-spacing-tight);
+}
+
+.hsu-typography--h2 {
+  font-size: var(--hsu-text-lg);
+  font-weight: var(--hsu-fw-bold);
+  line-height: var(--hsu-line-height-heading);
+  letter-spacing: var(--hsu-letter-spacing-tight);
+}
+
+.hsu-typography--h3 {
+  font-size: var(--hsu-text-md);
+  font-weight: var(--hsu-fw-semibold);
+  line-height: var(--hsu-line-height-heading);
+  letter-spacing: var(--hsu-letter-spacing-normal);
+}
+
+/* Interface typography */
+
+.hsu-typography--title {
+  font-size: var(--hsu-text-xl);
+  font-weight: var(--hsu-fw-bold);
+  line-height: var(--hsu-line-height-heading);
+  letter-spacing: var(--hsu-letter-spacing-tight);
+}
+
+.hsu-typography--subtitle {
+  font-size: var(--hsu-text-md);
+  font-weight: var(--hsu-fw-regular);
+  line-height: var(--hsu-line-height-body);
+  letter-spacing: var(--hsu-letter-spacing-normal);
+}
+
+.hsu-typography--body {
+  font-size: var(--hsu-text-md);
+  font-weight: var(--hsu-fw-regular);
+  line-height: var(--hsu-line-height-body);
+  letter-spacing: var(--hsu-letter-spacing-normal);
+}
+
+.hsu-typography--caption {
+  font-size: var(--hsu-text-sm);
+  font-weight: var(--hsu-fw-medium);
+  line-height: var(--hsu-line-height-body);
+  letter-spacing: var(--hsu-letter-spacing-normal);
+}
+
+.hsu-typography--overline {
+  font-size: var(--hsu-text-xs);
+  font-weight: var(--hsu-fw-bold);
+  line-height: var(--hsu-line-height-heading);
+  letter-spacing: var(--hsu-letter-spacing-wide);
+  text-transform: uppercase;
+}

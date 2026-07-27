@@ -83,8 +83,17 @@
   --hsu-text-lg: 20px;
   --hsu-text-xl: 28px;
   --hsu-text-display: clamp(40px, 5.4vw, 74px);
+  
+  --hsu-line-height-tight: 0.96;
+  --hsu-line-height-heading: 1.15;
+  --hsu-line-height-body: 1.6;
+
+  --hsu-letter-spacing-tight: 0;
+  --hsu-letter-spacing-normal: 0.02em;
+  --hsu-letter-spacing-wide: 0.18em;
 
   /* Motion */
   --hsu-transition-fast: 160ms ease;
   --hsu-transition-standard: 220ms ease;
 }
+
