@@ -1,0 +1,170 @@
+.experience-engine {
+  position: relative;
+
+  min-height: calc(var(--scene-count) * 150vh);
+
+  color: #f4f7ff;
+  background: #02050d;
+}
+
+.experience-engine__viewport {
+  position: sticky;
+  top: 0;
+
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.experience-engine__camera {
+  position: relative;
+
+  display: grid;
+  place-items: center;
+
+  width: 100%;
+  height: 100%;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(42, 83, 171, 0.22),
+      transparent 34%
+    ),
+    #02050d;
+}
+
+.experience-engine__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+
+  display: grid;
+  place-items: center;
+
+  width: 110px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+
+  transform:
+    translate(-50%, -50%)
+    scale(calc(0.45 + var(--experience-progress) * 6));
+
+  opacity: calc(0.28 + var(--experience-progress) * 0.45);
+
+  background:
+    radial-gradient(
+      circle at 36% 30%,
+      #ffffff,
+      #527bd1 18%,
+      #10285f 48%,
+      #02050d 74%
+    );
+
+  box-shadow:
+    0 0 55px rgba(72, 112, 205, 0.45),
+    0 0 160px rgba(31, 68, 150, 0.28);
+
+  will-change: transform;
+}
+
+.experience-engine__core span {
+  font-family: var(--hsu-font-display);
+  font-weight: var(--hsu-fw-bold);
+  letter-spacing: 0.12em;
+}
+
+.experience-engine__scene {
+  position: relative;
+  z-index: 2;
+
+  width: min(940px, calc(100% - 48px));
+
+  text-align: center;
+
+  animation: experience-scene-enter 620ms ease both;
+}
+
+.experience-engine__scene-index {
+  margin: 0 0 22px;
+
+  font-family: var(--hsu-font-body);
+  font-size: var(--hsu-fs-caption);
+  font-weight: var(--hsu-fw-bold);
+  letter-spacing: var(--hsu-letter-spacing-wide);
+}
+
+.experience-engine__scene h1 {
+  margin: 0;
+
+  font-family: var(--hsu-font-display);
+  font-size: clamp(46px, 7vw, 104px);
+  font-weight: var(--hsu-fw-bold);
+  line-height: var(--hsu-line-height-tight);
+  letter-spacing: var(--hsu-letter-spacing-tight);
+}
+
+.experience-engine__scene-description {
+  width: min(680px, 100%);
+  margin: 30px auto 0;
+
+  font-family: var(--hsu-font-body);
+  font-size: var(--hsu-fs-subtitle);
+  line-height: var(--hsu-line-height-body);
+
+  color: rgba(226, 234, 251, 0.7);
+}
+
+.experience-engine__progress {
+  position: absolute;
+  right: 28px;
+  top: 50%;
+
+  width: 2px;
+  height: 180px;
+
+  transform: translateY(-50%);
+
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.experience-engine__progress span {
+  display: block;
+
+  width: 100%;
+  height: calc(var(--experience-progress) * 100%);
+
+  background: rgba(174, 199, 255, 0.9);
+}
+
+@keyframes experience-scene-enter {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 720px) {
+  .experience-engine__scene {
+    width: calc(100% - 32px);
+  }
+
+  .experience-engine__progress {
+    right: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .experience-engine__scene {
+    animation: none;
+  }
+
+  .experience-engine__core {
+    transform: translate(-50%, -50%);
+  }
+}
