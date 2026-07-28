@@ -29,6 +29,7 @@ import JudgeMobileNext from "./JudgeMobileNext";
 import RotateDeviceGate from "./RotateDeviceGate";
 import TournamentSetup from "./components/tournamentSetup/TournamentSetup.jsx";
 import HSUTechnologyExperience from "./components/HSUTechnologyExperience/HSUTechnologyExperience.jsx";
+import HSUUniversePOC from "./experience/universe/HSUUniversePOC.jsx";
 
 if (typeof document !== "undefined" && !document.getElementById("winnerPulseStyle")) {
   const style = document.createElement("style");
@@ -15316,6 +15317,10 @@ export default function App() {
 
   if (path === "/dev/technology-experience") {
     return <HSUTechnologyExperience />;
+  }
+
+  if (path === "/dev/universe-poc") {
+    return <HSUUniversePOC />;
   }
 
   if (routePath === "/") {
