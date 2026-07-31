@@ -177,11 +177,9 @@ function HOIPlanet({ travelProgress }) {
                 );
 
               float glow =
-                fresnel *
-                (
-                  0.12 +
-                  sunPresence * 2.1
-                );
+  fresnel *
+  sunPresence *
+  2.1;
 
               vec3 color =
                 mix(
@@ -1013,6 +1011,14 @@ function SunBacklight({ travelProgress }) {
   const sunRef = useRef(null);
   const glowTexture = useRef(null);
 
+  const coreRef = useRef(null);
+  const coronaRef = useRef(null);
+  const haloRef = useRef(null);
+
+  const coreTexture = useRef(null);
+  const coronaTexture = useRef(null);
+  const haloTexture = useRef(null);
+
   if (!glowTexture.current) {
     const canvas =
       document.createElement("canvas");
@@ -1071,6 +1077,61 @@ function SunBacklight({ travelProgress }) {
       new THREE.CanvasTexture(canvas);
   }
 
+  if (!coreTexture.current) {
+  const coreCanvas = document.createElement("canvas");
+
+  coreCanvas.width = 256;
+  coreCanvas.height = 256;
+
+  const coreContext = coreCanvas.getContext("2d");
+
+  const coreGradient = coreContext.createRadialGradient(
+    128,
+    128,
+    0,
+    128,
+    128,
+    128
+  );
+
+  coreGradient.addColorStop(
+    0,
+    "rgba(255,255,255,1)"
+  );
+
+  coreGradient.addColorStop(
+    0.1,
+    "rgba(255,255,255,1)"
+  );
+
+  coreGradient.addColorStop(
+    0.22,
+    "rgba(225,240,255,0.95)"
+  );
+
+  coreGradient.addColorStop(
+    0.35,
+    "rgba(180,215,255,0.65)"
+  );
+
+  coreGradient.addColorStop(
+    1,
+    "rgba(0,0,0,0)"
+  );
+
+  coreContext.fillStyle = coreGradient;
+
+  coreContext.fillRect(
+    0,
+    0,
+    256,
+    256
+  );
+
+  coreTexture.current =
+    new THREE.CanvasTexture(coreCanvas);
+}
+
   useFrame((state) => {
     if (!sunRef.current) return;
 
@@ -1091,6 +1152,7 @@ function SunBacklight({ travelProgress }) {
   });
 
   return (
+  <>
     <sprite
       ref={sunRef}
       position={[0, 1.15, -2.8]}
@@ -1109,7 +1171,24 @@ function SunBacklight({ travelProgress }) {
         blending={THREE.AdditiveBlending}
       />
     </sprite>
-  );
+
+    <sprite
+      ref={coreRef}
+      position={[0, 1.15, -4.2]}
+      scale={[1.35, 1.35, 1]}
+    >
+      <spriteMaterial
+        map={coreTexture.current}
+        transparent
+        depthWrite={false}
+        depthTest
+        toneMapped={false}
+        opacity={0.72}
+        blending={THREE.AdditiveBlending}
+      />
+    </sprite>
+  </>
+);
 }
 
 function UniverseScene({ travelProgress }) {
