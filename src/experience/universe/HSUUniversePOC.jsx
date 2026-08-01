@@ -1007,7 +1007,10 @@ function GalaxyRegion({
   );
 }
 
-function SunBacklight({ travelProgress }) {
+function SunBacklight({
+  travelProgress,
+  stellarCoreRef,
+}) {
   const sunRef = useRef(null);
   const glowTexture = useRef(null);
 
@@ -1154,7 +1157,10 @@ function SunBacklight({ travelProgress }) {
   return (
   <>
     <sprite
-      ref={sunRef}
+  ref={(mesh) => {
+    sunRef.current = mesh;
+    stellarCoreRef.current = mesh;
+  }}
       position={[0, 1.15, -2.8]}
       scale={[3.4, 3.4, 1]}
     >
@@ -1191,103 +1197,432 @@ function SunBacklight({ travelProgress }) {
 );
 }
 
-function UniverseScene({ travelProgress }) {
+/**
+ * ==============================================================
+ * ARCHITECTURAL CONTRACT
+ * Optical Layer
+ * ==============================================================
+ *
+ * PROPÓSITO
+ * --------------------------------------------------------------
+ * Centralizar todos los fenómenos ópticos cinematográficos de
+ * Universe™.
+ *
+ * Esta capa representa el comportamiento de la cámara virtual y
+ * del sistema óptico de visualización, no del universo físico.
+ *
+ * Todo elemento implementado aquí existe únicamente como resultado
+ * de la percepción visual del observador.
+ *
+ *
+ * RESPONSABILIDADES
+ * --------------------------------------------------------------
+ * • Renderizar efectos ópticos independientes del mundo 3D.
+ * • Utilizar información proveniente de la cámara y/o de la
+ *   proyección en pantalla.
+ * • Mantener separados los efectos cinematográficos de la
+ *   simulación física del universo.
+ *
+ *
+ * ALCANCE
+ * --------------------------------------------------------------
+ * Esta capa será el punto único de integración para todos los
+ * sistemas ópticos presentes y futuros.
+ *
+ * Ejemplos:
+ *
+ * • Stellar Optical Corona
+ * • Lens Bloom
+ * • Lens Flare
+ * • Optical Glare
+ * • Light Diffusion
+ * • Chromatic Aberration
+ * • HDR Optical Pipeline
+ * • Sensor Artifacts
+ * • Future Cinematic Effects
+ *
+ *
+ * REGLAS ARQUITECTÓNICAS
+ * --------------------------------------------------------------
+ * • Ningún efecto óptico deberá implementarse dentro de
+ *   StellarLayer.
+ *
+ * • Ningún efecto óptico deberá implementarse dentro de
+ *   PlanetLayer.
+ *
+ * • Ningún efecto óptico deberá depender de la jerarquía física
+ *   del universo cuando su naturaleza corresponda al sistema
+ *   óptico de la cámara.
+ *
+ * • Toda nueva implementación deberá incorporarse aquí antes de
+ *   crear una nueva capa visual.
+ *
+ *
+ * FILOSOFÍA
+ * --------------------------------------------------------------
+ * Universe™ no busca únicamente representar un universo
+ * tridimensional.
+ *
+ * Busca reproducir la experiencia cinematográfica de observarlo.
+ *
+ * Por ese motivo, la simulación física y la percepción óptica
+ * evolucionan como sistemas independientes.
+ *
+ * ==============================================================
+ */
+function OpticalLayer({
+  stellarCoreRef,
+}) {
   return (
     <>
-      <color attach="background" args={["#010207"]} />
-
-      <ambientLight
-  intensity={THREE.MathUtils.lerp(
-    0.04,
-    0.2,
-    travelProgress
-  )}
+      <OpticalEngine
+  stellarCoreRef={stellarCoreRef}
 />
+    </>
+  );
+}
 
-     <directionalLight
-  position={[4, 3, 6]}
-  intensity={THREE.MathUtils.lerp(
-    0.75,
-    4.2,
-    travelProgress
-  )}
-  color="#d9e9ff"
+/**
+ * ==============================================================
+ * ARCHITECTURAL CONTRACT
+ * Optical Engine
+ * ==============================================================
+ *
+ * PROPÓSITO
+ * --------------------------------------------------------------
+ * Administrar todos los fenómenos ópticos generados por la cámara
+ * virtual.
+ *
+ * RESPONSABILIDADES
+ * --------------------------------------------------------------
+ * • Coordinar los sistemas ópticos.
+ * • Compartir información entre efectos.
+ * • Mantener un único punto de entrada para el motor óptico.
+ *
+ * SISTEMAS
+ * --------------------------------------------------------------
+ * • Stellar Optical Corona
+ * • Lens Bloom
+ * • Lens Flare
+ * • HDR Pipeline
+ * • Future Optical Systems
+ * ==============================================================
+ */
+function OpticalEngine({
+  stellarCoreRef,
+}) {
+
+    const { camera } = useThree();
+
+    const systems = [
+  {
+    id: "stellar-corona",
+    component: (
+      <StellarOpticalCorona
+  key="stellar-corona"
+  camera={camera}
+  star={stellarCoreRef}
 />
+    ),
+  },
+];
 
-      <pointLight
-  position={[-4, 1, 2]}
-  intensity={THREE.MathUtils.lerp(
-    12,
-    24,
-    travelProgress
-  )}
-  distance={THREE.MathUtils.lerp(
-    10,
-    14,
-    travelProgress
-  )}
-  decay={2}
-  color="#123f8f"
-/>
+    return (
+        <>
+           {systems.map(
+  ({ component }) => component
+)}
+        </>
+);
+}
 
-<pointLight
-  position={[3, -2, -1]}
-  intensity={THREE.MathUtils.lerp(
-    2.5,
-    11,
-    travelProgress
-  )}
-  distance={THREE.MathUtils.lerp(
-    7,
-    10,
-    travelProgress
-  )}
-  decay={2}
-  color="#8d1118"
-/>
+function StellarOpticalCorona({
+  camera,
+  star,
+}) {
+  const coronaRef = useRef(null);
+  const coronaTexture = useRef(null);
 
+  const stellarWorldPosition = useRef(
+    new THREE.Vector3()
+  );
+
+  const projectedPosition = useRef(
+    new THREE.Vector3()
+  );
+
+  const rayPoint = useRef(
+    new THREE.Vector3()
+  );
+
+  const rayDirection = useRef(
+    new THREE.Vector3()
+  );
+
+  if (!coronaTexture.current) {
+    const canvas =
+      document.createElement("canvas");
+
+    canvas.width = 512;
+    canvas.height = 512;
+
+    const context =
+      canvas.getContext("2d");
+
+    const gradient =
+      context.createRadialGradient(
+        256,
+        256,
+        0,
+        256,
+        256,
+        256
+      );
+
+    gradient.addColorStop(
+      0,
+      "rgba(255,255,255,1)"
+    );
+
+    gradient.addColorStop(
+      0.08,
+      "rgba(225,245,255,1)"
+    );
+
+    gradient.addColorStop(
+      0.22,
+      "rgba(110,185,255,0.95)"
+    );
+
+    gradient.addColorStop(
+      0.5,
+      "rgba(45,105,255,0.5)"
+    );
+
+    gradient.addColorStop(
+      1,
+      "rgba(0,20,100,0)"
+    );
+
+    context.fillStyle = gradient;
+    context.fillRect(
+      0,
+      0,
+      512,
+      512
+    );
+
+    coronaTexture.current =
+      new THREE.CanvasTexture(canvas);
+  }
+
+  useFrame((state) => {
+    if (
+      !star?.current ||
+      !coronaRef.current
+    ) {
+      return;
+    }
+
+    star.current.getWorldPosition(
+      stellarWorldPosition.current
+    );
+
+    projectedPosition.current
+      .copy(stellarWorldPosition.current)
+      .project(camera);
+
+    rayPoint.current
+      .set(
+        projectedPosition.current.x,
+        projectedPosition.current.y,
+        0.5
+      )
+      .unproject(camera);
+
+    rayDirection.current
+      .copy(rayPoint.current)
+      .sub(camera.position)
+      .normalize();
+
+    coronaRef.current.position
+      .copy(camera.position)
+      .addScaledVector(
+        rayDirection.current,
+        18
+      );
+
+    const pulse =
+      1 +
+      Math.sin(
+        state.clock.elapsedTime * 0.28
+      ) * 0.004;
+
+    coronaRef.current.scale.set(
+      6.8 * pulse,
+      6.8 * pulse,
+      1
+    );
+  });
+
+  return (
+    <sprite ref={coronaRef}>
+      <spriteMaterial
+        map={coronaTexture.current}
+        transparent
+        opacity={0.95}
+        depthWrite={false}
+        depthTest
+        toneMapped={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </sprite>
+  );
+}
+
+function DeepSpaceLayer() {
+  return (
+    <>
       <DeepSpaceGradient />
-      
-      <GalaxyRegion
-  position={[-6.8, 4.2, -18]}
-  rotation={[0, 0, -0.42]}
-  scale={[18, 7, 1]}
-  coolColor="#286fd1"
-  warmColor="#d0522f"
-  opacity={0.22}
-  seed={2.4}
-  pointerInfluence={0.025}
-  rotationSpeed={0.00008}
-/>
 
-<GalaxyRegion
-  position={[7.5, -4.5, -20]}
-  rotation={[0, 0, 0.34]}
-  scale={[15, 5.5, 1]}
-  coolColor="#173f86"
-  warmColor="#9f3028"
-  opacity={0.11}
-  seed={8.7}
-  pointerInfluence={0.015}
-  rotationSpeed={-0.00005}
-/>
+      <GalaxyRegion
+        position={[-6.8, 4.2, -18]}
+        rotation={[0, 0, -0.42]}
+        scale={[18, 7, 1]}
+        coolColor="#286fd1"
+        warmColor="#d0522f"
+        opacity={0.22}
+        seed={2.4}
+        pointerInfluence={0.025}
+        rotationSpeed={0.00008}
+      />
+
+      <GalaxyRegion
+        position={[7.5, -4.5, -20]}
+        rotation={[0, 0, 0.34]}
+        scale={[15, 5.5, 1]}
+        coolColor="#173f86"
+        warmColor="#9f3028"
+        opacity={0.11}
+        seed={8.7}
+        pointerInfluence={0.015}
+        rotationSpeed={-0.00005}
+      />
 
       <DeepSpaceStars />
-<MidSpaceStars />
-<SpaceDust />
-<NearSpaceParticles />
+      <MidSpaceStars />
+    </>
+  );
+}
 
-<SunBacklight
+function NearCameraLayer() {
+  return (
+    <>
+      <SpaceDust />
+      <NearSpaceParticles />
+    </>
+  );
+}
+
+function StellarLayer({
+  travelProgress,
+  stellarCoreRef,
+}) {
+  return (
+    <SunBacklight
+      travelProgress={travelProgress}
+      stellarCoreRef={stellarCoreRef}
+    />
+  );
+}
+
+function PlanetLayer({ travelProgress }) {
+  return (
+    <HOIPlanet
+      travelProgress={travelProgress}
+    />
+  );
+}
+
+function UniverseScene({ travelProgress }) {
+  const stellarCoreRef = useRef(null);
+  return (
+    <>
+      <color
+        attach="background"
+        args={["#010207"]}
+      />
+
+      <ambientLight
+        intensity={THREE.MathUtils.lerp(
+          0.04,
+          0.2,
+          travelProgress
+        )}
+      />
+
+      <directionalLight
+        position={[4, 3, 6]}
+        intensity={THREE.MathUtils.lerp(
+          0.75,
+          4.2,
+          travelProgress
+        )}
+        color="#d9e9ff"
+      />
+
+      <pointLight
+        position={[-4, 1, 2]}
+        intensity={THREE.MathUtils.lerp(
+          12,
+          24,
+          travelProgress
+        )}
+        distance={THREE.MathUtils.lerp(
+          10,
+          14,
+          travelProgress
+        )}
+        decay={2}
+        color="#123f8f"
+      />
+
+      <pointLight
+        position={[3, -2, -1]}
+        intensity={THREE.MathUtils.lerp(
+          2.5,
+          11,
+          travelProgress
+        )}
+        distance={THREE.MathUtils.lerp(
+          7,
+          10,
+          travelProgress
+        )}
+        decay={2}
+        color="#8d1118"
+      />
+
+      <DeepSpaceLayer />
+
+      <NearCameraLayer />
+
+      <StellarLayer
   travelProgress={travelProgress}
+  stellarCoreRef={stellarCoreRef}
 />
 
-<HOIPlanet
-  travelProgress={travelProgress}
+      <PlanetLayer
+        travelProgress={travelProgress}
+      />
+
+      <OpticalLayer
+  stellarCoreRef={stellarCoreRef}
 />
 
-<CameraExperience
-  travelProgress={travelProgress}
-/>
+      <CameraExperience
+        travelProgress={travelProgress}
+      />
     </>
   );
 }
