@@ -18,8 +18,11 @@ function CameraExperience({ travelProgress }) {
       travelProgress
     );
 
-    const targetX = pointer.x * 0.42;
-    const targetY = pointer.y * 0.25;
+    // Microdesplazamiento de cámara.
+// El planeta y la estrella responden mínimamente a la perspectiva,
+// mientras el espacio profundo permanece prácticamente infinito.
+const targetX = pointer.x * 0.035;
+const targetY = pointer.y * 0.02;
 
     camera.position.x = THREE.MathUtils.lerp(
       camera.position.x,
@@ -34,10 +37,10 @@ function CameraExperience({ travelProgress }) {
     );
 
     camera.position.z = THREE.MathUtils.lerp(
-      camera.position.z,
-      targetDistance,
-      0.04
-    );
+  camera.position.z,
+  targetDistance,
+  0.028
+);
 
     camera.lookAt(0, 0, 0);
   });
@@ -45,9 +48,23 @@ function CameraExperience({ travelProgress }) {
   return null;
 }
 
-function HOIPlanet({ travelProgress }) {
-  const planetRef = useRef(null);
+function HOIPlanet({
+  travelProgress,
+  stellarCoreRef,
+  planetRef,
+}) {
   const atmosphereRef = useRef(null);
+  const starWorldPosition = useRef(
+  new THREE.Vector3()
+);
+
+const planetWorldPosition = useRef(
+  new THREE.Vector3()
+);
+
+const physicalSunDirection = useRef(
+  new THREE.Vector3()
+);
 
   useFrame((state, delta) => {
     if (planetRef.current) {
@@ -58,13 +75,39 @@ function HOIPlanet({ travelProgress }) {
     }
 
     if (atmosphereRef.current) {
-      atmosphereRef.current.uniforms.uIntensity.value =
-        THREE.MathUtils.lerp(
-          0.38,
-          0.72,
-          travelProgress
-        );
-    }
+  atmosphereRef.current.uniforms.uIntensity.value =
+    THREE.MathUtils.lerp(
+      0.38,
+      0.72,
+      travelProgress
+    );
+
+  // La atmósfera utiliza la misma estrella física
+  // que ilumina realmente al planeta.
+  if (
+    stellarCoreRef?.current &&
+    planetRef.current
+  ) {
+    stellarCoreRef.current.getWorldPosition(
+      starWorldPosition.current
+    );
+
+    planetRef.current.getWorldPosition(
+      planetWorldPosition.current
+    );
+
+    physicalSunDirection.current
+      .subVectors(
+        starWorldPosition.current,
+        planetWorldPosition.current
+      )
+      .normalize();
+
+    atmosphereRef.current.uniforms.uSunDirection.value.copy(
+      physicalSunDirection.current
+    );
+  }
+}
   });
 
   return (
@@ -204,23 +247,14 @@ function HOIPlanet({ travelProgress }) {
 function DeepSpaceStars() {
   const starsRef = useRef(null);
 
-  useFrame(({ pointer }, delta) => {
+  useFrame(({ camera }) => {
   if (!starsRef.current) return;
 
-  starsRef.current.rotation.y += delta * 0.0008;
-  starsRef.current.rotation.x += delta * 0.0002;
-
-  starsRef.current.position.x = THREE.MathUtils.lerp(
-    starsRef.current.position.x,
-    pointer.x * 0.035,
-    0.015
-  );
-
-  starsRef.current.position.y = THREE.MathUtils.lerp(
-    starsRef.current.position.y,
-    pointer.y * 0.02,
-    0.015
-  );
+  // Espacio profundo prácticamente infinito.
+  // Acompaña posición Y orientación de la cámara
+  // para eliminar el paralaje provocado por el mouse.
+  starsRef.current.position.copy(camera.position);
+  starsRef.current.quaternion.copy(camera.quaternion);
 });
 
   return (
@@ -264,23 +298,14 @@ function SpaceDust() {
 function MidSpaceStars() {
   const starsRef = useRef(null);
 
-  useFrame(({ pointer }, delta) => {
+  useFrame(({ camera }) => {
     if (!starsRef.current) return;
 
-    starsRef.current.rotation.y += delta * 0.0018;
-    starsRef.current.rotation.x += delta * 0.0005;
-
-    starsRef.current.position.x = THREE.MathUtils.lerp(
-      starsRef.current.position.x,
-      pointer.x * 0.16,
-      0.025
-    );
-
-    starsRef.current.position.y = THREE.MathUtils.lerp(
-      starsRef.current.position.y,
-      pointer.y * 0.1,
-      0.025
-    );
+    // Campo estelar intermedio:
+    // acompaña la cámara para evitar
+    // sensación de estrellas cercanas.
+    starsRef.current.position.copy(camera.position);
+    starsRef.current.quaternion.copy(camera.quaternion);
   });
 
   return (
@@ -292,7 +317,7 @@ function MidSpaceStars() {
       factor={1.45}
       saturation={0}
       fade
-      speed={0.04}
+      speed={0}
     />
   );
 }
@@ -1007,194 +1032,19 @@ function GalaxyRegion({
   );
 }
 
-function SunBacklight({
-  travelProgress,
-  stellarCoreRef,
-}) {
-  const sunRef = useRef(null);
-  const glowTexture = useRef(null);
-
-  const coreRef = useRef(null);
-  const coronaRef = useRef(null);
-  const haloRef = useRef(null);
-
-  const coreTexture = useRef(null);
-  const coronaTexture = useRef(null);
-  const haloTexture = useRef(null);
-
-  if (!glowTexture.current) {
-    const canvas =
-      document.createElement("canvas");
-
-    canvas.width = 256;
-    canvas.height = 256;
-
-    const context =
-      canvas.getContext("2d");
-
-    const gradient =
-      context.createRadialGradient(
-        128,
-        128,
-        0,
-        128,
-        128,
-        128
-      );
-
-    gradient.addColorStop(
-      0,
-      "rgba(255,255,255,1)"
-    );
-
-    gradient.addColorStop(
-      0.08,
-      "rgba(220,238,255,0.95)"
-    );
-
-    gradient.addColorStop(
-      0.22,
-      "rgba(90,155,255,0.55)"
-    );
-
-    gradient.addColorStop(
-      0.52,
-      "rgba(45,100,255,0.14)"
-    );
-
-    gradient.addColorStop(
-      1,
-      "rgba(0,0,0,0)"
-    );
-
-    context.fillStyle = gradient;
-
-    context.fillRect(
-      0,
-      0,
-      256,
-      256
-    );
-
-    glowTexture.current =
-      new THREE.CanvasTexture(canvas);
-  }
-
-  if (!coreTexture.current) {
-  const coreCanvas = document.createElement("canvas");
-
-  coreCanvas.width = 256;
-  coreCanvas.height = 256;
-
-  const coreContext = coreCanvas.getContext("2d");
-
-  const coreGradient = coreContext.createRadialGradient(
-    128,
-    128,
-    0,
-    128,
-    128,
-    128
-  );
-
-  coreGradient.addColorStop(
-    0,
-    "rgba(255,255,255,1)"
-  );
-
-  coreGradient.addColorStop(
-    0.1,
-    "rgba(255,255,255,1)"
-  );
-
-  coreGradient.addColorStop(
-    0.22,
-    "rgba(225,240,255,0.95)"
-  );
-
-  coreGradient.addColorStop(
-    0.35,
-    "rgba(180,215,255,0.65)"
-  );
-
-  coreGradient.addColorStop(
-    1,
-    "rgba(0,0,0,0)"
-  );
-
-  coreContext.fillStyle = coreGradient;
-
-  coreContext.fillRect(
-    0,
-    0,
-    256,
-    256
-  );
-
-  coreTexture.current =
-    new THREE.CanvasTexture(coreCanvas);
-}
-
-  useFrame((state) => {
-    if (!sunRef.current) return;
-
-    const pulse =
-      1 +
-      Math.sin(
-        state.clock.elapsedTime * 0.45
-      ) * 0.018;
-
-    sunRef.current.scale.setScalar(
-      pulse *
-        THREE.MathUtils.lerp(
-          3.4,
-          4.2,
-          travelProgress
-        )
-    );
-  });
-
+function StellarBody({ stellarCoreRef }) {
   return (
-  <>
-    <sprite
-  ref={(mesh) => {
-    sunRef.current = mesh;
-    stellarCoreRef.current = mesh;
-  }}
-      position={[0, 1.15, -2.8]}
-      scale={[3.4, 3.4, 1]}
-    >
-      <spriteMaterial
-        map={glowTexture.current}
-        transparent
-        depthWrite={false}
-        depthTest
-        toneMapped={false}
-        opacity={
-          0.55 +
-          travelProgress * 0.25
-        }
-        blending={THREE.AdditiveBlending}
-      />
-    </sprite>
+    <group position={[-57, 15.5, -400]}>
+      <mesh ref={stellarCoreRef}>
+        <sphereGeometry args={[12, 64, 64]} />
 
-    <sprite
-      ref={coreRef}
-      position={[0, 1.15, -4.2]}
-      scale={[1.35, 1.35, 1]}
-    >
-      <spriteMaterial
-        map={coreTexture.current}
-        transparent
-        depthWrite={false}
-        depthTest
-        toneMapped={false}
-        opacity={0.72}
-        blending={THREE.AdditiveBlending}
-      />
-    </sprite>
-  </>
-);
+        <meshBasicMaterial
+          color="#ffffff"
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
 }
 
 /**
@@ -1272,11 +1122,13 @@ function SunBacklight({
  */
 function OpticalLayer({
   stellarCoreRef,
+  planetRef,
 }) {
   return (
     <>
       <OpticalEngine
   stellarCoreRef={stellarCoreRef}
+  planetRef={planetRef}
 />
     </>
   );
@@ -1310,8 +1162,8 @@ function OpticalLayer({
  */
 function OpticalEngine({
   stellarCoreRef,
+  planetRef,
 }) {
-
     const { camera } = useThree();
 
     const systems = [
@@ -1322,6 +1174,7 @@ function OpticalEngine({
   key="stellar-corona"
   camera={camera}
   star={stellarCoreRef}
+  planet={planetRef}
 />
     ),
   },
@@ -1339,9 +1192,17 @@ function OpticalEngine({
 function StellarOpticalCorona({
   camera,
   star,
+  planet,
 }) {
   const coronaRef = useRef(null);
   const coronaTexture = useRef(null);
+  const planetWorldPosition = useRef(
+  new THREE.Vector3()
+);
+
+const planetProjectedPosition = useRef(
+  new THREE.Vector3()
+);
 
   const stellarWorldPosition = useRef(
     new THREE.Vector3()
@@ -1418,19 +1279,41 @@ function StellarOpticalCorona({
 
   useFrame((state) => {
     if (
-      !star?.current ||
-      !coronaRef.current
-    ) {
-      return;
-    }
+  !star?.current ||
+  !planet?.current ||
+  !coronaRef.current
+) {
+  return;
+}
 
     star.current.getWorldPosition(
       stellarWorldPosition.current
     );
 
+    planet.current.getWorldPosition(
+  planetWorldPosition.current
+);
+
+planetProjectedPosition.current
+  .copy(planetWorldPosition.current)
+  .project(camera);
+
     projectedPosition.current
       .copy(stellarWorldPosition.current)
       .project(camera);
+
+    const projectedDistance =
+  projectedPosition.current.distanceTo(
+    planetProjectedPosition.current
+  );
+
+  const occlusion = THREE.MathUtils.clamp(
+  1 - projectedDistance / 0.42,
+  0,
+  1
+);
+
+coronaRef.current.material.opacity = occlusion;
 
     rayPoint.current
       .set(
@@ -1493,7 +1376,7 @@ function DeepSpaceLayer() {
         warmColor="#d0522f"
         opacity={0.22}
         seed={2.4}
-        pointerInfluence={0.025}
+        pointerInfluence={0}
         rotationSpeed={0.00008}
       />
 
@@ -1505,7 +1388,7 @@ function DeepSpaceLayer() {
         warmColor="#9f3028"
         opacity={0.11}
         seed={8.7}
-        pointerInfluence={0.015}
+        pointerInfluence={0}
         rotationSpeed={-0.00005}
       />
 
@@ -1525,27 +1408,32 @@ function NearCameraLayer() {
 }
 
 function StellarLayer({
-  travelProgress,
   stellarCoreRef,
 }) {
   return (
-    <SunBacklight
-      travelProgress={travelProgress}
+    <StellarBody
       stellarCoreRef={stellarCoreRef}
     />
   );
 }
 
-function PlanetLayer({ travelProgress }) {
+function PlanetLayer({
+  travelProgress,
+  stellarCoreRef,
+  planetRef,
+}) {
   return (
     <HOIPlanet
       travelProgress={travelProgress}
+      stellarCoreRef={stellarCoreRef}
+      planetRef={planetRef}
     />
   );
 }
 
 function UniverseScene({ travelProgress }) {
   const stellarCoreRef = useRef(null);
+  const planetRef = useRef(null);
   return (
     <>
       <color
@@ -1553,55 +1441,26 @@ function UniverseScene({ travelProgress }) {
         args={["#010207"]}
       />
 
-      <ambientLight
-        intensity={THREE.MathUtils.lerp(
-          0.04,
-          0.2,
-          travelProgress
-        )}
-      />
+      <ambientLight intensity={0.015} />
 
-      <directionalLight
-        position={[4, 3, 6]}
-        intensity={THREE.MathUtils.lerp(
-          0.75,
-          4.2,
-          travelProgress
-        )}
-        color="#d9e9ff"
-      />
-
-      <pointLight
-        position={[-4, 1, 2]}
-        intensity={THREE.MathUtils.lerp(
-          12,
-          24,
-          travelProgress
-        )}
-        distance={THREE.MathUtils.lerp(
-          10,
-          14,
-          travelProgress
-        )}
-        decay={2}
-        color="#123f8f"
-      />
-
-      <pointLight
-        position={[3, -2, -1]}
-        intensity={THREE.MathUtils.lerp(
-          2.5,
-          11,
-          travelProgress
-        )}
-        distance={THREE.MathUtils.lerp(
-          7,
-          10,
-          travelProgress
-        )}
-        decay={2}
-        color="#8d1118"
-      />
+      {/* Luz estelar direccional independiente del cuerpo visual */}
+<directionalLight
+  position={[
+    -8,
+    2.8,
+    THREE.MathUtils.lerp(
+      -6,
+      -24,
+      travelProgress
+    ),
+  ]}
+  intensity={THREE.MathUtils.lerp(
+    5.5,
+    4.2,
+    travelProgress
+  )}
+  color="#dcebff"
+/>
 
       <DeepSpaceLayer />
 
@@ -1613,13 +1472,14 @@ function UniverseScene({ travelProgress }) {
 />
 
       <PlanetLayer
-        travelProgress={travelProgress}
-      />
-
+  travelProgress={travelProgress}
+  stellarCoreRef={stellarCoreRef}
+  planetRef={planetRef}
+/>
       <OpticalLayer
   stellarCoreRef={stellarCoreRef}
+  planetRef={planetRef}
 />
-
       <CameraExperience
         travelProgress={travelProgress}
       />
@@ -1628,14 +1488,20 @@ function UniverseScene({ travelProgress }) {
 }
 
 export default function HSUUniversePOC() {
+  const targetTravelRef = useRef(0);
+  const currentTravelRef = useRef(0);
+
   const [travelProgress, setTravelProgress] = useState(0);
 
   useEffect(() => {
     const handleWheel = (event) => {
       event.preventDefault();
 
-      setTravelProgress((currentProgress) =>
-        clamp(currentProgress + event.deltaY * 0.00045, 0, 1)
+      // La rueda modifica únicamente el destino.
+      targetTravelRef.current = clamp(
+        targetTravelRef.current + event.deltaY * 0.000055,
+        0,
+        1
       );
     };
 
@@ -1643,8 +1509,34 @@ export default function HSUUniversePOC() {
       passive: false,
     });
 
+    let animationFrameId;
+
+    const animateTravel = () => {
+      // Suavizado/inercia del viaje.
+      currentTravelRef.current = THREE.MathUtils.lerp(
+        currentTravelRef.current,
+        targetTravelRef.current,
+        0.016
+      );
+
+      setTravelProgress(
+        currentTravelRef.current
+      );
+
+      animationFrameId =
+        requestAnimationFrame(animateTravel);
+    };
+
+    animationFrameId =
+      requestAnimationFrame(animateTravel);
+
     return () => {
-      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener(
+        "wheel",
+        handleWheel
+      );
+
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
@@ -1664,7 +1556,9 @@ export default function HSUUniversePOC() {
           powerPreference: "high-performance",
         }}
       >
-        <UniverseScene travelProgress={travelProgress} />
+        <UniverseScene
+          travelProgress={travelProgress}
+        />
       </Canvas>
     </main>
   );
