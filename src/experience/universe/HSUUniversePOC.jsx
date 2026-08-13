@@ -148,6 +148,44 @@ const physicalSunDirection = useRef(
     shader.fragmentShader = shader.fragmentShader.replace(
       "#include <dithering_fragment>",
       `
+      
+      // Microtextura superficial de HOi.
+// No genera iluminación.
+// Introduce irregularidad extremadamente tenue
+// para que la superficie conserve materia en penumbra.
+// Microtextura orgánica y no direccional.
+// Evita bandas visibles y rompe la repetición.
+vec3 surfaceCoord =
+  normal * 3.7;
+
+float organicA =
+  sin(
+    surfaceCoord.x * 2.3 +
+    sin(surfaceCoord.y * 2.7) +
+    surfaceCoord.z * 1.9
+  );
+
+float organicB =
+  sin(
+    surfaceCoord.y * 4.1 +
+    sin(surfaceCoord.z * 3.2) -
+    surfaceCoord.x * 2.6
+  );
+
+float organicC =
+  sin(
+    surfaceCoord.z * 5.3 +
+    sin(surfaceCoord.x * 2.1) +
+    surfaceCoord.y * 3.4
+  );
+
+float hoiSurface =
+  (
+    organicA * 0.50 +
+    organicB * 0.30 +
+    organicC * 0.20
+  ) * 0.5 + 0.5;
+
         // Lectura volumétrica nocturna ya aprobada.
         vec3 viewDirection =
           normalize(vViewPosition);
@@ -172,6 +210,15 @@ const physicalSunDirection = useRef(
             0.098
           ) *
           nightVolume;
+
+        // La textura solo modula ligeramente la información
+// que ya existe en la cara nocturna.
+nightBounce *=
+  mix(
+    0.96,
+    1.035,
+    hoiSurface
+  );
 
 
         // Roce de luz proveniente de la estrella física.
@@ -1281,11 +1328,23 @@ function OpticalEngine({
     id: "stellar-corona",
     component: (
       <StellarOpticalCorona
-  key="stellar-corona"
-  camera={camera}
-  star={stellarCoreRef}
-  planet={planetRef}
-/>
+        key="stellar-corona"
+        camera={camera}
+        star={stellarCoreRef}
+        planet={planetRef}
+      />
+    ),
+  },
+
+  {
+    id: "stellar-cross",
+    component: (
+      <StellarOpticalCross
+        key="stellar-cross"
+        camera={camera}
+        star={stellarCoreRef}
+        planet={planetRef}
+      />
     ),
   },
 ];
@@ -1464,6 +1523,269 @@ coronaRef.current.material.opacity = occlusion;
         map={coronaTexture.current}
         transparent
         opacity={0.95}
+        depthWrite={false}
+        depthTest
+        toneMapped={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </sprite>
+  );
+}
+
+function StellarOpticalCross({
+  camera,
+  star,
+  planet,
+}) {
+  const crossRef = useRef(null);
+  const crossTexture = useRef(null);
+
+  const stellarWorldPosition = useRef(
+    new THREE.Vector3()
+  );
+
+  const planetWorldPosition = useRef(
+    new THREE.Vector3()
+  );
+
+  const stellarProjectedPosition = useRef(
+    new THREE.Vector3()
+  );
+
+  const planetProjectedPosition = useRef(
+    new THREE.Vector3()
+  );
+
+  const rayPoint = useRef(
+    new THREE.Vector3()
+  );
+
+  const rayDirection = useRef(
+    new THREE.Vector3()
+  );
+
+  if (!crossTexture.current) {
+    const canvas =
+      document.createElement("canvas");
+
+    canvas.width = 1024;
+    canvas.height = 1024;
+
+    const context =
+      canvas.getContext("2d");
+
+    const center = 512;
+
+    // Núcleo óptico extremadamente pequeño.
+    const coreGradient =
+      context.createRadialGradient(
+        center,
+        center,
+        0,
+        center,
+        center,
+        75
+      );
+
+    coreGradient.addColorStop(
+      0,
+      "rgba(255,255,255,0.90)"
+    );
+
+    coreGradient.addColorStop(
+      0.18,
+      "rgba(210,235,255,0.35)"
+    );
+
+    coreGradient.addColorStop(
+      1,
+      "rgba(90,150,255,0)"
+    );
+
+    context.fillStyle = coreGradient;
+
+    context.fillRect(
+      center - 75,
+      center - 75,
+      150,
+      150
+    );
+
+    // Haz horizontal.
+    const horizontalGradient =
+      context.createLinearGradient(
+        0,
+        center,
+        1024,
+        center
+      );
+
+    horizontalGradient.addColorStop(
+      0,
+      "rgba(70,130,255,0)"
+    );
+
+    horizontalGradient.addColorStop(
+      0.40,
+      "rgba(120,180,255,0.015)"
+    );
+
+    horizontalGradient.addColorStop(
+      0.485,
+      "rgba(210,235,255,0.16)"
+    );
+
+    horizontalGradient.addColorStop(
+      0.5,
+      "rgba(255,255,255,0.42)"
+    );
+
+    horizontalGradient.addColorStop(
+      0.515,
+      "rgba(210,235,255,0.16)"
+    );
+
+    horizontalGradient.addColorStop(
+      0.60,
+      "rgba(120,180,255,0.015)"
+    );
+
+    horizontalGradient.addColorStop(
+      1,
+      "rgba(70,130,255,0)"
+    );
+
+    context.fillStyle = horizontalGradient;
+
+    context.fillRect(
+      0,
+      center - 3,
+      1024,
+      6
+    );
+
+    // Haz vertical más corto.
+    const verticalGradient =
+      context.createLinearGradient(
+        center,
+        160,
+        center,
+        864
+      );
+
+    verticalGradient.addColorStop(
+      0,
+      "rgba(70,130,255,0)"
+    );
+
+    verticalGradient.addColorStop(
+      0.44,
+      "rgba(180,220,255,0.025)"
+    );
+
+    verticalGradient.addColorStop(
+      0.5,
+      "rgba(245,250,255,0.28)"
+    );
+
+    verticalGradient.addColorStop(
+      0.56,
+      "rgba(180,220,255,0.025)"
+    );
+
+    verticalGradient.addColorStop(
+      1,
+      "rgba(70,130,255,0)"
+    );
+
+    context.fillStyle = verticalGradient;
+
+    context.fillRect(
+      center - 2,
+      160,
+      4,
+      704
+    );
+
+    crossTexture.current =
+      new THREE.CanvasTexture(canvas);
+  }
+
+  useFrame(() => {
+    if (
+      !star?.current ||
+      !planet?.current ||
+      !crossRef.current
+    ) {
+      return;
+    }
+
+    star.current.getWorldPosition(
+      stellarWorldPosition.current
+    );
+
+    planet.current.getWorldPosition(
+      planetWorldPosition.current
+    );
+
+    stellarProjectedPosition.current
+      .copy(stellarWorldPosition.current)
+      .project(camera);
+
+    planetProjectedPosition.current
+      .copy(planetWorldPosition.current)
+      .project(camera);
+
+    const projectedDistance =
+      stellarProjectedPosition.current.distanceTo(
+        planetProjectedPosition.current
+      );
+
+    // La cruz nace únicamente cuando
+    // la estrella se aproxima visualmente a HOi.
+    const presence =
+      THREE.MathUtils.clamp(
+        1 - projectedDistance / 0.32,
+        0,
+        1
+      );
+
+    crossRef.current.material.opacity =
+      presence * 0.42;
+
+    rayPoint.current
+      .set(
+        stellarProjectedPosition.current.x,
+        stellarProjectedPosition.current.y,
+        0.5
+      )
+      .unproject(camera);
+
+    rayDirection.current
+      .copy(rayPoint.current)
+      .sub(camera.position)
+      .normalize();
+
+    crossRef.current.position
+      .copy(camera.position)
+      .addScaledVector(
+        rayDirection.current,
+        17.8
+      );
+
+    crossRef.current.scale.set(
+      9.5,
+      9.5,
+      1
+    );
+  });
+
+  return (
+    <sprite ref={crossRef}>
+      <spriteMaterial
+        map={crossTexture.current}
+        transparent
+        opacity={0}
         depthWrite={false}
         depthTest
         toneMapped={false}
