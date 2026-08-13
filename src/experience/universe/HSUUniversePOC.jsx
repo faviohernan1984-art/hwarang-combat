@@ -54,6 +54,7 @@ function HOIPlanet({
   planetRef,
 }) {
   const atmosphereRef = useRef(null);
+  const planetMaterialRef = useRef(null);
   const starWorldPosition = useRef(
   new THREE.Vector3()
 );
@@ -106,6 +107,15 @@ const physicalSunDirection = useRef(
     atmosphereRef.current.uniforms.uSunDirection.value.copy(
       physicalSunDirection.current
     );
+
+    if (
+  planetMaterialRef.current?.userData?.shader
+) {
+  planetMaterialRef.current.userData.shader.uniforms.uSunDirection.value.copy(
+    physicalSunDirection.current
+  );
+}
+
   }
 }
   });
@@ -116,12 +126,112 @@ const physicalSunDirection = useRef(
         <sphereGeometry args={[1.32, 128, 128]} />
 
         <meshStandardMaterial
-          color="#030a14"
-          roughness={0.82}
-          metalness={0.18}
-          emissive="#020812"
-          emissiveIntensity={0.16}
-        />
+  ref={planetMaterialRef}
+  color="#030a14"
+  roughness={0.82}
+  metalness={0.18}
+  emissive="#020812"
+  emissiveIntensity={0.16}
+  onBeforeCompile={(shader) => {
+    shader.uniforms.uSunDirection = {
+      value: new THREE.Vector3(-1, 0.3, -1).normalize(),
+    };
+
+    planetMaterialRef.current.userData.shader = shader;
+
+    shader.fragmentShader =
+      `
+        uniform vec3 uSunDirection;
+      ` +
+      shader.fragmentShader;
+
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <dithering_fragment>",
+      `
+        // Lectura volumétrica nocturna ya aprobada.
+        vec3 viewDirection =
+          normalize(vViewPosition);
+
+        float facing =
+          clamp(
+            dot(normal, viewDirection),
+            0.0,
+            1.0
+          );
+
+        float nightVolume =
+          pow(
+            facing,
+            1.7
+          );
+
+        vec3 nightBounce =
+          vec3(
+            0.026,
+            0.056,
+            0.098
+          ) *
+          nightVolume;
+
+
+        // Roce de luz proveniente de la estrella física.
+// uSunDirection llega en world space.
+// La normal del meshStandardMaterial trabaja en view space,
+// por eso convertimos la dirección antes de compararlas.
+vec3 sunDirectionView =
+  normalize(
+    mat3(viewMatrix) *
+    normalize(uSunDirection)
+  );
+
+// Roce de luz proveniente de la estrella física.
+float stellarFacing =
+  max(
+    dot(
+      normal,
+      -normalize(uSunDirection)
+    ),
+    0.0
+  );
+
+float stellarGrazing =
+  pow(
+    stellarFacing,
+    3.6
+  );
+
+float lateralBias =
+  smoothstep(
+    -0.15,
+    0.85,
+    normal.x
+  );
+
+stellarGrazing *=
+  mix(
+    0.55,
+    1.0,
+    lateralBias
+  );  
+
+vec3 stellarLight =
+  vec3(
+    0.040,
+    0.085,
+    0.150
+  ) *
+  stellarGrazing;
+
+
+        gl_FragColor.rgb +=
+          nightBounce +
+          stellarLight;
+
+        #include <dithering_fragment>
+      `
+    );
+  }}
+/>
       </mesh>
 
       <mesh scale={1.035}>
@@ -1499,7 +1609,7 @@ export default function HSUUniversePOC() {
 
       // La rueda modifica únicamente el destino.
       targetTravelRef.current = clamp(
-        targetTravelRef.current + event.deltaY * 0.000055,
+        targetTravelRef.current + event.deltaY * 0.00032,
         0,
         1
       );
