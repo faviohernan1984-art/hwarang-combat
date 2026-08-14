@@ -8,6 +8,53 @@ function clamp(value, minimum, maximum) {
   return Math.min(Math.max(value, minimum), maximum);
 }
 
+function HOIIdentityOverlay({ travelProgress }) {
+  const identityPresence =
+    THREE.MathUtils.smoothstep(
+      travelProgress,
+      0.32,
+      0.72
+    );
+
+  const identityExit =
+    1 -
+    THREE.MathUtils.smoothstep(
+      travelProgress,
+      0.86,
+      0.99
+    );
+
+  const presence =
+    identityPresence *
+    identityExit;
+
+  return (
+    <div
+      className="hoi-identity"
+      style={{
+        opacity: presence,
+        transform: `
+          translateY(${THREE.MathUtils.lerp(
+            14,
+            0,
+            presence
+          )}px)
+        `,
+      }}
+    >
+      <div className="hoi-identity__name">
+        HO<span>i</span>
+      </div>
+
+      <div className="hoi-identity__line" />
+
+      <div className="hoi-identity__meaning">
+        HWARANG OPERATIONAL INTELLIGENCE
+      </div>
+    </div>
+  );
+}
+
 function CameraExperience({ travelProgress }) {
   const { camera, pointer } = useThree();
 
@@ -68,6 +115,15 @@ const physicalSunDirection = useRef(
 );
 
   useFrame((state, delta) => {
+    // Nivel de activación de HOi según proximidad.
+// 0 = lejos / dormido
+// 1 = cerca / despierto
+const hoiAwake =
+  THREE.MathUtils.smoothstep(
+    travelProgress,
+    0.45,
+    0.92
+  );
     if (planetRef.current) {
       planetRef.current.rotation.y += delta * 0.055;
 
@@ -111,9 +167,18 @@ const physicalSunDirection = useRef(
     if (
   planetMaterialRef.current?.userData?.shader
 ) {
-  planetMaterialRef.current.userData.shader.uniforms.uSunDirection.value.copy(
+  
+  const shader =
+    planetMaterialRef.current.userData.shader;
+
+  shader.uniforms.uSunDirection.value.copy(
     physicalSunDirection.current
   );
+
+  shader.uniforms.uHoiAwake.value =
+    hoiAwake;
+  shader.uniforms.uTime.value =
+  state.clock.elapsedTime;
 }
 
   }
@@ -137,13 +202,23 @@ const physicalSunDirection = useRef(
       value: new THREE.Vector3(-1, 0.3, -1).normalize(),
     };
 
+    shader.uniforms.uHoiAwake = {
+  value: 0,
+};
+
+shader.uniforms.uTime = {
+  value: 0,
+};
+
     planetMaterialRef.current.userData.shader = shader;
 
     shader.fragmentShader =
-      `
-        uniform vec3 uSunDirection;
-      ` +
-      shader.fragmentShader;
+  `
+    uniform vec3 uSunDirection;
+uniform float uHoiAwake;
+uniform float uTime;
+  ` +
+  shader.fragmentShader;
 
     shader.fragmentShader = shader.fragmentShader.replace(
       "#include <dithering_fragment>",
@@ -269,10 +344,53 @@ vec3 stellarLight =
   ) *
   stellarGrazing;
 
+  // Pulso interno de HOi.
+// Solo aparece durante la aproximación,
+// como una actividad tenue debajo de la superficie.
+
+float pulsePhase =
+  0.5 +
+  0.5 *
+  sin(
+    vViewPosition.y * 3.2 +
+    vViewPosition.x * 1.8
+  );
+
+float pulseMask =
+  smoothstep(
+    0.35,
+    0.85,
+    pulsePhase
+  );
+
+// Respiración energética extremadamente lenta.
+// HOi no parpadea: parece contener actividad interna.
+float intelligenceBreath =
+  0.82 +
+  0.18 *
+  sin(
+    uTime * 0.42
+  );
+
+float pulsePresence =
+  uHoiAwake *
+  pulseMask *
+  nightVolume *
+  intelligenceBreath;
+
+vec3 hoiPulse =
+  vec3(
+    0.022,
+    0.070,
+    0.140
+  ) *
+  pulsePresence *
+  1.15;
 
         gl_FragColor.rgb +=
-          nightBounce +
-          stellarLight;
+  nightBounce +
+  stellarLight +
+  hoiPulse;
 
         #include <dithering_fragment>
       `
@@ -1973,8 +2091,13 @@ export default function HSUUniversePOC() {
   }, []);
 
   return (
-    <main className="hsu-universe-poc">
-      <Canvas
+  <main className="hsu-universe-poc">
+
+    <HOIIdentityOverlay
+      travelProgress={travelProgress}
+    />
+
+    <Canvas
         dpr={[1, 1.75]}
         camera={{
           position: [0, 0, 10.5],
@@ -1995,3 +2118,4 @@ export default function HSUUniversePOC() {
     </main>
   );
 }
+

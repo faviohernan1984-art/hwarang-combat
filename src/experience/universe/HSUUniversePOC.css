@@ -27,3 +27,129 @@
     cursor: default;
   }
 }
+
+/* ============================================================
+   HOi Identity
+   Nomenclatura ambiental durante aproximación
+   ============================================================ */
+
+.hoi-identity {
+  position: absolute;
+
+  left: 7vw;
+  top: 50%;
+
+  z-index: 20;
+
+  transform: translateY(-50%);
+
+  pointer-events: none;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  transition:
+    opacity 0.15s linear,
+    transform 0.2s ease-out;
+
+  will-change:
+    opacity,
+    transform;
+}
+
+
+.hoi-identity__name {
+  position: relative;
+
+  font-family:
+    "Oxanium",
+    "Orbitron",
+    sans-serif;
+
+  font-size: clamp(
+    3.8rem,
+    7vw,
+    8.5rem
+  );
+
+  font-weight: 300;
+
+  line-height: 0.9;
+
+  letter-spacing: 0.08em;
+
+  color: rgba(
+    232,
+    245,
+    255,
+    0.96
+  );
+
+  text-shadow:
+    0 0 8px rgba(120, 190, 255, 0.32),
+    0 0 22px rgba(50, 130, 255, 0.16),
+    0 0 48px rgba(30, 90, 255, 0.08);
+}
+
+
+.hoi-identity__name span {
+  color: rgba(
+    110,
+    195,
+    255,
+    0.98
+  );
+
+  text-shadow:
+    0 0 8px rgba(100, 200, 255, 0.55),
+    0 0 24px rgba(60, 140, 255, 0.30);
+}
+
+
+.hoi-identity__line {
+  width: 4.8rem;
+  height: 1px;
+
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(185, 230, 255, 0.9),
+      rgba(70, 145, 255, 0.35),
+      rgba(70, 145, 255, 0)
+    );
+
+  box-shadow:
+    0 0 8px rgba(70, 155, 255, 0.35);
+}
+
+
+.hoi-identity__meaning {
+  font-family:
+    "Oxanium",
+    "Orbitron",
+    sans-serif;
+
+  font-size: clamp(
+    0.66rem,
+    0.82vw,
+    0.95rem
+  );
+
+  font-weight: 400;
+
+  letter-spacing: 0.32em;
+
+  color: rgba(
+    170,
+    205,
+    230,
+    0.68
+  );
+
+  text-shadow:
+    0 0 10px rgba(60, 135, 255, 0.18);
+}
