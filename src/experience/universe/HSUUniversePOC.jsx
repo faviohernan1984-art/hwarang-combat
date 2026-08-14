@@ -95,6 +95,331 @@ const targetY = pointer.y * 0.02;
   return null;
 }
 
+function HOIInteractiveZone({ travelProgress }) {
+  const starRef = useRef(null);
+  const starTexture = useRef(null);
+
+  const [hovered, setHovered] = useState(false);
+  const [active, setActive] = useState(false);
+
+  const { gl } = useThree();
+
+  const presence = THREE.MathUtils.smoothstep(
+    travelProgress,
+    0.68,
+    0.90
+  );
+
+  if (!starTexture.current) {
+    const canvas = document.createElement("canvas");
+
+    canvas.width = 512;
+    canvas.height = 512;
+
+    const ctx = canvas.getContext("2d");
+
+    const center = 256;
+
+    // ============================================================
+    // HALO EXTERIOR
+    // ============================================================
+
+    const halo = ctx.createRadialGradient(
+      center,
+      center,
+      0,
+      center,
+      center,
+      170
+    );
+
+    halo.addColorStop(0, "rgba(255,255,255,1)");
+halo.addColorStop(0.018, "rgba(255,255,255,1)");
+halo.addColorStop(0.045, "rgba(210,250,255,1)");
+halo.addColorStop(0.10, "rgba(70,215,255,0.95)");
+halo.addColorStop(0.22, "rgba(25,125,255,0.62)");
+halo.addColorStop(0.42, "rgba(75,65,255,0.26)");
+halo.addColorStop(0.70, "rgba(100,40,255,0.08)");
+halo.addColorStop(1, "rgba(0,0,0,0)");
+
+    ctx.fillStyle = halo;
+
+    ctx.fillRect(
+      0,
+      0,
+      512,
+      512
+    );
+
+    // ============================================================
+    // RAYOS IRREGULARES
+    // ============================================================
+
+    const rayAngles = [
+      0.08,
+      0.82,
+      1.48,
+      2.28,
+      3.05,
+      3.82,
+      4.72,
+      5.56,
+    ];
+
+    const rayLengths = [
+      120,
+      75,
+      145,
+      62,
+      105,
+      88,
+      130,
+      70,
+    ];
+
+    rayAngles.forEach((angle, index) => {
+      const length =
+        rayLengths[index];
+
+      const x =
+        Math.cos(angle) *
+        length;
+
+      const y =
+        Math.sin(angle) *
+        length;
+
+      const gradient =
+        ctx.createLinearGradient(
+          center,
+          center,
+          center + x,
+          center + y
+        );
+
+      gradient.addColorStop(
+        0,
+        "rgba(230,250,255,0.72)"
+      );
+
+      gradient.addColorStop(
+        0.18,
+        "rgba(80,190,255,0.32)"
+      );
+
+      gradient.addColorStop(
+        1,
+        "rgba(40,90,255,0)"
+      );
+
+      ctx.strokeStyle = gradient;
+
+      ctx.lineWidth =
+        index % 2 === 0
+          ? 2.0
+          : 1.0;
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        center,
+        center
+      );
+
+      ctx.lineTo(
+        center + x,
+        center + y
+      );
+
+      ctx.stroke();
+    });
+
+    // ============================================================
+    // NÚCLEO FINAL
+    // ============================================================
+
+    const core = ctx.createRadialGradient(
+  center,
+  center,
+  0,
+  center,
+  center,
+  34
+);
+
+core.addColorStop(0, "rgba(255,255,255,1)");
+core.addColorStop(0.06, "rgba(255,255,255,1)");
+core.addColorStop(0.14, "rgba(235,255,255,1)");
+core.addColorStop(0.30, "rgba(120,235,255,0.98)");
+core.addColorStop(0.55, "rgba(40,155,255,0.60)");
+core.addColorStop(1, "rgba(50,80,255,0)");
+
+ctx.fillStyle = core;
+
+ctx.fillRect(
+  center - 40,
+  center - 40,
+  80,
+  80
+);
+
+    core.addColorStop(
+      0,
+      "rgba(255,255,255,1)"
+    );
+
+    core.addColorStop(
+      0.18,
+      "rgba(235,255,255,1)"
+    );
+
+    core.addColorStop(
+      0.45,
+      "rgba(90,220,255,0.85)"
+    );
+
+    core.addColorStop(
+      1,
+      "rgba(40,110,255,0)"
+    );
+
+    ctx.fillStyle = core;
+
+    ctx.fillRect(
+      center - 24,
+      center - 24,
+      48,
+      48
+    );
+
+    starTexture.current =
+      new THREE.CanvasTexture(canvas);
+  }
+
+  useFrame((state) => {
+    if (!starRef.current) return;
+
+    const time =
+      state.clock.elapsedTime;
+
+    const breath =
+      1 +
+      Math.sin(time * 0.9) *
+        0.025;
+
+    const hoverGain =
+      hovered
+        ? 1.16
+        : 1;
+
+    const activeGain =
+      active
+        ? 1.10
+        : 1;
+
+    const scale =
+      breath *
+      hoverGain *
+      activeGain;
+
+    starRef.current.scale.set(
+      0.28 * scale,
+      0.28 * scale,
+      1
+    );
+
+    starRef.current.material.opacity =
+  presence *
+  (
+    active
+      ? 1
+      : hovered
+        ? 1
+        : 0.82
+  );
+  });
+
+  if (presence <= 0.001) {
+    return null;
+  }
+
+  return (
+  <group>
+    <sprite
+      ref={starRef}
+      position={[0.55, 0.18, 1.20]}
+      onPointerOver={(event) => {
+        event.stopPropagation();
+
+        setHovered(true);
+
+        gl.domElement.style.cursor =
+          "pointer";
+      }}
+      onPointerOut={(event) => {
+        event.stopPropagation();
+
+        setHovered(false);
+
+        gl.domElement.style.cursor =
+          "crosshair";
+      }}
+      onClick={(event) => {
+        event.stopPropagation();
+
+        setActive(
+          (current) => !current
+        );
+      }}
+    >
+      <spriteMaterial
+        map={starTexture.current}
+        transparent
+        opacity={0}
+        depthWrite={false}
+        depthTest
+        toneMapped={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </sprite>
+        {/* SOBREEXPOSICIÓN ÓPTICA HOi */}
+    <sprite
+      position={[0.55, 0.18, 1.205]}
+      scale={[0.42, 0.42, 1]}
+    >
+      <spriteMaterial
+        map={starTexture.current}
+        color="#9eeeff"
+        transparent
+        opacity={presence * (hovered ? 0.72 : 0.48)}
+        depthWrite={false}
+        depthTest
+        toneMapped={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </sprite>
+
+    {/* CONTAMINACIÓN LUMÍNICA EXTERIOR */}
+    <sprite
+      position={[0.55, 0.18, 1.21]}
+      scale={[0.58, 0.58, 1]}
+    >
+      <spriteMaterial
+        map={starTexture.current}
+        color="#536dff"
+        transparent
+        opacity={presence * (hovered ? 0.24 : 0.12)}
+        depthWrite={false}
+        depthTest
+        toneMapped={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </sprite>
+  </group>
+);
+  
+}
+
 function HOIPlanet({
   travelProgress,
   stellarCoreRef,
@@ -514,6 +839,9 @@ vec3 hoiPulse =
             }
           `}
         />
+        <HOIInteractiveZone
+  travelProgress={travelProgress}
+/>
       </mesh>
     </group>
   );
