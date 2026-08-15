@@ -98,6 +98,11 @@ const targetY = pointer.y * 0.02;
 function HOIInteractiveZone({ travelProgress }) {
   const starRef = useRef(null);
   const starTexture = useRef(null);
+  const hoverEnergyRef = useRef(0);
+
+
+  const responseRef = useRef(null);
+  const fieldRef = useRef(null);
 
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
@@ -263,88 +268,135 @@ ctx.fillRect(
   80
 );
 
-    core.addColorStop(
-      0,
-      "rgba(255,255,255,1)"
-    );
-
-    core.addColorStop(
-      0.18,
-      "rgba(235,255,255,1)"
-    );
-
-    core.addColorStop(
-      0.45,
-      "rgba(90,220,255,0.85)"
-    );
-
-    core.addColorStop(
-      1,
-      "rgba(40,110,255,0)"
-    );
-
-    ctx.fillStyle = core;
-
-    ctx.fillRect(
-      center - 24,
-      center - 24,
-      48,
-      48
-    );
-
     starTexture.current =
       new THREE.CanvasTexture(canvas);
   }
 
-  useFrame((state) => {
-    if (!starRef.current) return;
+  useFrame((state, delta) => {
+  if (!starRef.current) return;
 
-    const time =
-      state.clock.elapsedTime;
+  const time = state.clock.elapsedTime;
 
-    const breath =
-      1 +
-      Math.sin(time * 0.9) *
-        0.025;
+  // El hover no enciende la estrella.
+  // Introduce progresivamente una perturbación óptica.
+  const targetHoverEnergy =
+    hovered ? 1 : 0;
 
-    const hoverGain =
-      hovered
-        ? 1.16
-        : 1;
-
-    const activeGain =
-      active
-        ? 1.10
-        : 1;
-
-    const scale =
-      breath *
-      hoverGain *
-      activeGain;
-
-    starRef.current.scale.set(
-      0.28 * scale,
-      0.28 * scale,
-      1
+  hoverEnergyRef.current =
+    THREE.MathUtils.lerp(
+      hoverEnergyRef.current,
+      targetHoverEnergy,
+      1 - Math.exp(-delta * 3.2)
     );
 
-    starRef.current.material.opacity =
-  presence *
-  (
-    active
-      ? 1
-      : hovered
-        ? 1
-        : 0.82
+  const hoverEnergy =
+    hoverEnergyRef.current;
+
+  // Respiración natural permanente.
+  const breath =
+    1 +
+    Math.sin(time * 0.75) *
+      0.018;
+
+  // Al detectar al usuario apenas expande su campo.
+  const interactionExpansion =
+    1 +
+    hoverEnergy * 0.055;
+
+  const scale =
+    breath *
+    interactionExpansion;
+
+  starRef.current.scale.set(
+    0.28 * scale,
+    0.28 * scale,
+    1
   );
-  });
+
+  // La estrella permanece luminosa.
+  // No existe cambio tipo interruptor.
+  starRef.current.material.opacity =
+    presence * 0.88;
+
+  // Perturbación óptica muy lenta al detectar presencia.
+  starRef.current.material.rotation =
+    Math.sin(time * 0.42) *
+    0.025 *
+    hoverEnergy;
+
+  // Respuesta óptica de HOi.
+// El núcleo permanece estable.
+// El campo energético responde a la presencia.
+
+if (responseRef.current) {
+  const responseScale =
+    THREE.MathUtils.lerp(
+      0.42,
+      0.62,
+      hoverEnergy
+    );
+
+  responseRef.current.scale.set(
+    responseScale,
+    responseScale,
+    1
+  );
+
+  responseRef.current.material.opacity =
+    presence *
+    THREE.MathUtils.lerp(
+      0.10,
+      0.42,
+      hoverEnergy
+    );
+}
+
+if (fieldRef.current) {
+  const fieldScale =
+  THREE.MathUtils.lerp(
+    0.50,
+    0.62,
+    hoverEnergy
+  );
+
+  fieldRef.current.scale.set(
+    fieldScale,
+    fieldScale,
+    1
+  );
+
+  fieldRef.current.material.opacity =
+    presence *
+    THREE.MathUtils.lerp(
+  0.01,
+  0.03,
+  hoverEnergy
+);
+}
+
+});
 
   if (presence <= 0.001) {
     return null;
   }
 
   return (
-  <group>
+  <group
+  onPointerOver={(event) => {
+    event.stopPropagation();
+    setHovered(true);
+    gl.domElement.style.cursor = "pointer";
+  }}
+  onPointerOut={(event) => {
+    event.stopPropagation();
+    setHovered(false);
+    gl.domElement.style.cursor = "crosshair";
+  }}
+  onClick={(event) => {
+    event.stopPropagation();
+    setActive((current) => !current);
+  }}
+>
     <sprite
       ref={starRef}
       position={[0.55, 0.18, 1.20]}
@@ -384,6 +436,7 @@ ctx.fillRect(
     </sprite>
         {/* SOBREEXPOSICIÓN ÓPTICA HOi */}
     <sprite
+      ref={responseRef}
       position={[0.55, 0.18, 1.205]}
       scale={[0.42, 0.42, 1]}
     >
@@ -391,7 +444,7 @@ ctx.fillRect(
         map={starTexture.current}
         color="#9eeeff"
         transparent
-        opacity={presence * (hovered ? 0.72 : 0.48)}
+        opacity={presence * 0.52}
         depthWrite={false}
         depthTest
         toneMapped={false}
@@ -401,6 +454,7 @@ ctx.fillRect(
 
     {/* CONTAMINACIÓN LUMÍNICA EXTERIOR */}
     <sprite
+      ref={fieldRef}
       position={[0.55, 0.18, 1.21]}
       scale={[0.58, 0.58, 1]}
     >
@@ -408,7 +462,7 @@ ctx.fillRect(
         map={starTexture.current}
         color="#536dff"
         transparent
-        opacity={presence * (hovered ? 0.24 : 0.12)}
+        opacity={presence * 0.14}
         depthWrite={false}
         depthTest
         toneMapped={false}
