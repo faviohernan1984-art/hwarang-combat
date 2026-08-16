@@ -8,7 +8,35 @@ function clamp(value, minimum, maximum) {
   return Math.min(Math.max(value, minimum), maximum);
 }
 
-function HOIIdentityOverlay({ travelProgress }) {
+function HOIEntryOverlay({
+  hoiEntered,
+}) {
+  return (
+    <div
+      className={`hoi-entry ${
+        hoiEntered
+          ? "hoi-entry--visible"
+          : ""
+      }`}
+    >
+      <div className="hoi-entry__classification">
+        FACTUAL LAYER
+      </div>
+
+      <div className="hoi-entry__title">
+        OPERATIONAL CONTEXT
+      </div>
+
+      <div className="hoi-entry__line" />
+    </div>
+  );
+}
+
+function HOIIdentityOverlay({
+  travelProgress,
+  hoiEntered,
+}) {
+  
   const identityPresence =
     THREE.MathUtils.smoothstep(
       travelProgress,
@@ -25,8 +53,9 @@ function HOIIdentityOverlay({ travelProgress }) {
     );
 
   const presence =
-    identityPresence *
-    identityExit;
+  identityPresence *
+  identityExit *
+  (hoiEntered ? 0 : 1);
 
   return (
     <div
@@ -55,15 +84,23 @@ function HOIIdentityOverlay({ travelProgress }) {
   );
 }
 
-function CameraExperience({ travelProgress }) {
+function CameraExperience({
+  travelProgress,
+  hoiEntered,
+}) {
   const { camera, pointer } = useThree();
 
   useFrame(() => {
-    const targetDistance = THREE.MathUtils.lerp(
-      10.5,
-      3.35,
-      travelProgress
-    );
+    const exteriorDistance = THREE.MathUtils.lerp(
+  10.5,
+  3.35,
+  travelProgress
+);
+
+const targetDistance =
+  hoiEntered
+    ? 2.15
+    : exteriorDistance;
 
     // Microdesplazamiento de cámara.
 // El planeta y la estrella responden mínimamente a la perspectiva,
@@ -95,7 +132,10 @@ const targetY = pointer.y * 0.02;
   return null;
 }
 
-function HOIInteractiveZone({ travelProgress }) {
+function HOIInteractiveZone({
+  travelProgress,
+  setHoiEntered,
+}) {
   const starRef = useRef(null);
   const starTexture = useRef(null);
   const hoverEnergyRef = useRef(0);
@@ -393,9 +433,9 @@ if (fieldRef.current) {
     gl.domElement.style.cursor = "crosshair";
   }}
   onClick={(event) => {
-    event.stopPropagation();
-    setActive((current) => !current);
-  }}
+  event.stopPropagation();
+  setHoiEntered(true);
+}}
 >
     <sprite
       ref={starRef}
@@ -417,12 +457,9 @@ if (fieldRef.current) {
           "crosshair";
       }}
       onClick={(event) => {
-        event.stopPropagation();
-
-        setActive(
-          (current) => !current
-        );
-      }}
+  event.stopPropagation();
+  setHoiEntered(true);
+}}
     >
       <spriteMaterial
         map={starTexture.current}
@@ -478,6 +515,8 @@ function HOIPlanet({
   travelProgress,
   stellarCoreRef,
   planetRef,
+  hoiEntered,
+  setHoiEntered,
 }) {
   const atmosphereRef = useRef(null);
   const planetMaterialRef = useRef(null);
@@ -555,8 +594,16 @@ const hoiAwake =
   );
 
   shader.uniforms.uHoiAwake.value =
-    hoiAwake;
-  shader.uniforms.uTime.value =
+  hoiAwake;
+
+shader.uniforms.uHoiEntry.value =
+  THREE.MathUtils.lerp(
+    shader.uniforms.uHoiEntry.value,
+    hoiEntered ? 1 : 0,
+    1 - Math.exp(-delta * 0.85)
+  );
+
+shader.uniforms.uTime.value =
   state.clock.elapsedTime;
 }
 
@@ -585,6 +632,10 @@ const hoiAwake =
   value: 0,
 };
 
+shader.uniforms.uHoiEntry = {
+  value: 0,
+};
+
 shader.uniforms.uTime = {
   value: 0,
 };
@@ -595,6 +646,7 @@ shader.uniforms.uTime = {
   `
     uniform vec3 uSunDirection;
 uniform float uHoiAwake;
+uniform float uHoiEntry;
 uniform float uTime;
   ` +
   shader.fragmentShader;
@@ -766,10 +818,96 @@ vec3 hoiPulse =
   pulsePresence *
   1.15;
 
+  // ============================================================
+// HOi ENTRY PERMEABILITY
+// La superficie comienza a perder densidad óptica
+// frente al observador durante el ingreso.
+// ============================================================
+
+float entryCenter =
+  pow(
+    facing,
+    3.8
+  );
+
+float entryBreath =
+  0.94 +
+  0.06 *
+  sin(
+    uTime * 0.55
+  );
+
+float entryPresence =
+  uHoiEntry *
+  entryCenter *
+  entryBreath;
+
+// ============================================================
+// HOi ENTRY SOFT CONVERGENCE
+// Ondulación orgánica con una leve tendencia al centro.
+// ============================================================
+
+vec2 entryCoord =
+  vec2(
+    vViewPosition.x,
+    vViewPosition.y
+  );
+
+float entryRadius =
+  length(entryCoord);
+
+float entryWave =
+  0.5 +
+  0.5 *
+  sin(
+    entryCoord.x * 7.0 +
+    entryCoord.y * 5.5 +
+    entryRadius * 3.0 -
+    uTime * 0.38
+  );
+
+float entrySecondaryWave =
+  0.5 +
+  0.5 *
+  sin(
+    entryCoord.x * -4.0 +
+    entryCoord.y * 7.5 +
+    entryRadius * 2.0 -
+    uTime * 0.48
+  );
+
+float entryStructure =
+  mix(
+    entryWave,
+    entrySecondaryWave,
+    0.38
+  );
+
+entryStructure =
+  smoothstep(
+    0.34,
+    0.82,
+    entryStructure
+  ); 
+
+vec3 entryDiffusion =
+  vec3(
+    0.075,
+    0.220,
+    0.420
+  ) *
+  entryPresence *
+  (
+    0.65 +
+    entryStructure * 0.85
+  ) *
+  1.45;
+
         gl_FragColor.rgb +=
   nightBounce +
   stellarLight +
-  hoiPulse;
+  hoiPulse +
+  entryDiffusion;
 
         #include <dithering_fragment>
       `
@@ -895,6 +1033,7 @@ vec3 hoiPulse =
         />
         <HOIInteractiveZone
   travelProgress={travelProgress}
+  setHoiEntered={setHoiEntered}
 />
       </mesh>
     </group>
@@ -2353,17 +2492,25 @@ function PlanetLayer({
   travelProgress,
   stellarCoreRef,
   planetRef,
+  hoiEntered,
+  setHoiEntered,
 }) {
   return (
     <HOIPlanet
-      travelProgress={travelProgress}
-      stellarCoreRef={stellarCoreRef}
-      planetRef={planetRef}
-    />
+  travelProgress={travelProgress}
+  stellarCoreRef={stellarCoreRef}
+  planetRef={planetRef}
+  hoiEntered={hoiEntered}
+  setHoiEntered={setHoiEntered}
+/>
   );
 }
 
-function UniverseScene({ travelProgress }) {
+function UniverseScene({
+  travelProgress,
+  hoiEntered,
+  setHoiEntered,
+}) {
   const stellarCoreRef = useRef(null);
   const planetRef = useRef(null);
   return (
@@ -2407,14 +2554,17 @@ function UniverseScene({ travelProgress }) {
   travelProgress={travelProgress}
   stellarCoreRef={stellarCoreRef}
   planetRef={planetRef}
+  hoiEntered={hoiEntered}
+  setHoiEntered={setHoiEntered}
 />
       <OpticalLayer
   stellarCoreRef={stellarCoreRef}
   planetRef={planetRef}
 />
       <CameraExperience
-        travelProgress={travelProgress}
-      />
+  travelProgress={travelProgress}
+  hoiEntered={hoiEntered}
+/>
     </>
   );
 }
@@ -2424,6 +2574,8 @@ export default function HSUUniversePOC() {
   const currentTravelRef = useRef(0);
 
   const [travelProgress, setTravelProgress] = useState(0);
+
+  const [hoiEntered, setHoiEntered] = useState(false);
 
   useEffect(() => {
     const handleWheel = (event) => {
@@ -2476,8 +2628,13 @@ export default function HSUUniversePOC() {
   <main className="hsu-universe-poc">
 
     <HOIIdentityOverlay
-      travelProgress={travelProgress}
-    />
+  travelProgress={travelProgress}
+  hoiEntered={hoiEntered}
+/>
+
+    <HOIEntryOverlay
+  hoiEntered={hoiEntered}
+/>
 
     <Canvas
         dpr={[1, 1.75]}
@@ -2494,8 +2651,10 @@ export default function HSUUniversePOC() {
         }}
       >
         <UniverseScene
-          travelProgress={travelProgress}
-        />
+  travelProgress={travelProgress}
+  hoiEntered={hoiEntered}
+  setHoiEntered={setHoiEntered}
+/>
       </Canvas>
     </main>
   );

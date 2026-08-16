@@ -153,3 +153,146 @@
   text-shadow:
     0 0 10px rgba(60, 135, 255, 0.18);
 }
+
+/* ============================================================
+   HOi Entry
+   Identificación de la primera capa interna
+   ============================================================ */
+
+.hoi-entry {
+  position: absolute;
+
+  left: 50%;
+  top: 16vh;
+
+  z-index: 21;
+
+  transform:
+    translateX(-50%)
+    translateY(12px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  pointer-events: none;
+
+  opacity: 0;
+
+  transition:
+    opacity 1.4s ease,
+    transform 1.8s ease;
+
+  will-change:
+    opacity,
+    transform;
+}
+
+
+.hoi-entry--visible {
+  opacity: 1;
+
+  transform:
+    translateX(-50%)
+    translateY(0);
+
+  transition-delay: 0.45s;
+}
+
+
+.hoi-entry__classification {
+  font-family:
+    "Oxanium",
+    "Orbitron",
+    sans-serif;
+
+  font-size: clamp(
+    0.58rem,
+    0.72vw,
+    0.82rem
+  );
+
+  font-weight: 400;
+
+  letter-spacing: 0.42em;
+
+  color: rgba(
+    105,
+    190,
+    255,
+    0.62
+  );
+
+  text-shadow:
+    0 0 12px rgba(
+      60,
+      150,
+      255,
+      0.20
+    );
+}
+
+
+.hoi-entry__title {
+  margin-top: 0.65rem;
+
+  font-family:
+    "Oxanium",
+    "Orbitron",
+    sans-serif;
+
+  font-size: clamp(
+    1rem,
+    1.6vw,
+    1.65rem
+  );
+
+  font-weight: 300;
+
+  letter-spacing: 0.20em;
+
+  color: rgba(
+    225,
+    244,
+    255,
+    0.92
+  );
+
+  text-shadow:
+    0 0 10px rgba(
+      110,
+      200,
+      255,
+      0.26
+    ),
+    0 0 28px rgba(
+      50,
+      120,
+      255,
+      0.12
+    );
+}
+
+
+.hoi-entry__line {
+  width: 5.4rem;
+  height: 1px;
+
+  margin-top: 0.9rem;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(80, 160, 255, 0),
+      rgba(150, 220, 255, 0.72),
+      rgba(80, 160, 255, 0)
+    );
+
+  box-shadow:
+    0 0 10px rgba(
+      70,
+      165,
+      255,
+      0.28
+    );
+}
