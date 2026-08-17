@@ -28,6 +28,10 @@ function HOIEntryOverlay({
       </div>
 
       <div className="hoi-entry__line" />
+      
+      <div className="hoi-entry__description">
+  THE FACTUAL FOUNDATION OF OPERATIONAL INTELLIGENCE
+</div>
     </div>
   );
 }
