@@ -10,14 +10,16 @@ function clamp(value, minimum, maximum) {
 
 function HOIEntryOverlay({
   hoiEntered,
+  hoiExploreRequested,
+  setHoiExploreRequested,
 }) {
   return (
     <div
       className={`hoi-entry ${
-        hoiEntered
-          ? "hoi-entry--visible"
-          : ""
-      }`}
+  hoiEntered ? "hoi-entry--visible" : ""
+} ${
+  hoiExploreRequested ? "hoi-entry--exploring" : ""
+}`}
     >
       <div className="hoi-entry__classification">
         FACTUAL LAYER
@@ -28,10 +30,82 @@ function HOIEntryOverlay({
       </div>
 
       <div className="hoi-entry__line" />
-      
+
       <div className="hoi-entry__description">
   THE FACTUAL FOUNDATION OF OPERATIONAL INTELLIGENCE
 </div>
+
+      <div
+  className="hoi-entry__continue"
+  onClick={() => setHoiExploreRequested(true)}
+  role="button"
+  tabIndex={0}
+>
+  EXPLORE FACTUAL LAYER
+</div>
+    </div>
+  );
+}
+
+function HOIFactualLayerIntro({
+  hoiExploreRequested,
+  hoiFactualDeparting,
+}) {
+  return (
+    <div
+      className={`hoi-factual-intro ${
+        hoiExploreRequested
+          ? "hoi-factual-intro--visible"
+          : ""
+      } ${
+        hoiFactualDeparting
+          ? "hoi-factual-intro--departing"
+          : ""
+      }`}
+    >
+      <div className="hoi-factual-intro__content">
+        <div className="hoi-factual-intro__title">
+          FACTUAL LAYER
+        </div>
+
+        <div className="hoi-factual-intro__question">
+          WHAT IS HAPPENING NOW?
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HOIFactualDimensions({
+  hoiFactualDeparting,
+}) {
+  return (
+    <div
+      className={`hoi-factual-dimensions ${
+        hoiFactualDeparting
+          ? "hoi-factual-dimensions--visible"
+          : ""
+      }`}
+    >
+      <div className="hoi-factual-dimensions__item hoi-factual-dimensions__item--event">
+        EVENT
+      </div>
+
+      <div className="hoi-factual-dimensions__item hoi-factual-dimensions__item--arenas">
+        ARENAS
+      </div>
+
+      <div className="hoi-factual-dimensions__item hoi-factual-dimensions__item--matches">
+        MATCHES
+      </div>
+
+      <div className="hoi-factual-dimensions__item hoi-factual-dimensions__item--flow">
+        FLOW
+      </div>
+
+      <div className="hoi-factual-dimensions__item hoi-factual-dimensions__item--activity">
+        ACTIVITY
+      </div>
     </div>
   );
 }
@@ -434,7 +508,7 @@ if (fieldRef.current) {
   onPointerOut={(event) => {
     event.stopPropagation();
     setHovered(false);
-    gl.domElement.style.cursor = "crosshair";
+    gl.domElement.style.cursor = "default";
   }}
   onClick={(event) => {
   event.stopPropagation();
@@ -2581,6 +2655,36 @@ export default function HSUUniversePOC() {
 
   const [hoiEntered, setHoiEntered] = useState(false);
 
+  const [hoiExploreRequested, setHoiExploreRequested] = useState(false);
+
+  const [hoiFactualDeparting, setHoiFactualDeparting] = useState(false);
+
+  const [hoiFactualJourney, setHoiFactualJourney] = useState(false);
+
+  useEffect(() => {
+  if (!hoiExploreRequested) return;
+
+  const departureTimer = window.setTimeout(() => {
+    setHoiFactualDeparting(true);
+  }, 3800);
+
+  return () => {
+    window.clearTimeout(departureTimer);
+  };
+}, [hoiExploreRequested]);
+
+  useEffect(() => {
+  if (!hoiFactualDeparting) return;
+
+  const journeyTimer = window.setTimeout(() => {
+    setHoiFactualJourney(true);
+  }, 1500);
+
+  return () => {
+    window.clearTimeout(journeyTimer);
+  };
+}, [hoiFactualDeparting]);
+
   useEffect(() => {
     const handleWheel = (event) => {
       event.preventDefault();
@@ -2638,6 +2742,17 @@ export default function HSUUniversePOC() {
 
     <HOIEntryOverlay
   hoiEntered={hoiEntered}
+  hoiExploreRequested={hoiExploreRequested}
+  setHoiExploreRequested={setHoiExploreRequested}
+/>
+
+    <HOIFactualLayerIntro
+  hoiExploreRequested={hoiExploreRequested}
+  hoiFactualDeparting={hoiFactualDeparting}
+/>
+
+    <HOIFactualDimensions
+  hoiFactualDeparting={hoiFactualDeparting}
 />
 
     <Canvas
