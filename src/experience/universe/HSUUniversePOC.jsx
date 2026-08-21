@@ -78,6 +78,7 @@ function HOIFactualLayerIntro({
 
 function HOIFactualDimensions({
   hoiFactualDeparting,
+  hoiFactualJourney,
 }) {
   return (
     <div
@@ -87,25 +88,55 @@ function HOIFactualDimensions({
           : ""
       }`}
     >
-      <div className="hoi-factual-dimensions__item hoi-factual-dimensions__item--event">
-        EVENT
-      </div>
+      <div
+  className={`hoi-factual-dimensions__item hoi-factual-dimensions__item--event ${
+    hoiFactualJourney
+      ? "hoi-factual-dimensions__item--event-journey"
+      : ""
+  }`}
+>
+  EVENT
+</div>
 
-      <div className="hoi-factual-dimensions__item hoi-factual-dimensions__item--arenas">
-        ARENAS
-      </div>
+      <div
+  className={`hoi-factual-dimensions__item hoi-factual-dimensions__item--arenas ${
+    hoiFactualJourney
+      ? "hoi-factual-dimensions__item--arenas-journey"
+      : ""
+  }`}
+>
+  ARENAS
+</div>
 
-      <div className="hoi-factual-dimensions__item hoi-factual-dimensions__item--matches">
-        MATCHES
-      </div>
+      <div
+  className={`hoi-factual-dimensions__item hoi-factual-dimensions__item--matches ${
+    hoiFactualJourney
+      ? "hoi-factual-dimensions__item--matches-journey"
+      : ""
+  }`}
+>
+  MATCHES
+</div>
 
-      <div className="hoi-factual-dimensions__item hoi-factual-dimensions__item--flow">
-        FLOW
-      </div>
+      <div
+  className={`hoi-factual-dimensions__item hoi-factual-dimensions__item--flow ${
+    hoiFactualJourney
+      ? "hoi-factual-dimensions__item--flow-journey"
+      : ""
+  }`}
+>
+  FLOW
+</div>
 
-      <div className="hoi-factual-dimensions__item hoi-factual-dimensions__item--activity">
-        ACTIVITY
-      </div>
+      <div
+  className={`hoi-factual-dimensions__item hoi-factual-dimensions__item--activity ${
+    hoiFactualJourney
+      ? "hoi-factual-dimensions__item--activity-journey"
+      : ""
+  }`}
+>
+  ACTIVITY
+</div>
     </div>
   );
 }
@@ -2753,6 +2784,7 @@ export default function HSUUniversePOC() {
 
     <HOIFactualDimensions
   hoiFactualDeparting={hoiFactualDeparting}
+  hoiFactualJourney={hoiFactualJourney}
 />
 
     <Canvas

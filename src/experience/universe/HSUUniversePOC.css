@@ -688,3 +688,297 @@
 
   color: rgba(155, 215, 255, 0.78);
 }
+
+/* ============================================================
+   FACTUAL JOURNEY
+   Coreografía normalizada
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   EVENT
+   ------------------------------------------------------------ */
+
+.hoi-factual-dimensions__item--event-journey {
+  animation:
+    hoi-event-journey 6.6s
+    cubic-bezier(0.18, 0.78, 0.22, 1)
+    0s
+    forwards;
+
+  will-change:
+    transform,
+    opacity;
+}
+
+@keyframes hoi-event-journey {
+
+  0% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      rotateY(42deg)
+      translateZ(-80px);
+  }
+
+  /* Plano dominante */
+  42% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      rotateY(16deg)
+      translate3d(-8vw, -4vh, 40px)
+      scale(1.18);
+  }
+
+  /* Pausa de lectura */
+  68% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      rotateY(16deg)
+      translate3d(-8vw, -4vh, 40px)
+      scale(1.18);
+  }
+
+  /* Atravesamiento */
+  100% {
+    opacity: 0;
+
+    transform:
+      perspective(1200px)
+      rotateY(4deg)
+      translate3d(-11vw, -6vh, 620px)
+      scale(2.35);
+  }
+}
+
+
+/* ------------------------------------------------------------
+   ARENAS
+   ------------------------------------------------------------ */
+
+.hoi-factual-dimensions__item--arenas-journey {
+  animation:
+    hoi-arenas-journey 6.6s
+    cubic-bezier(0.18, 0.78, 0.22, 1)
+    4.3s
+    forwards;
+
+  will-change:
+    transform,
+    opacity;
+}
+
+@keyframes hoi-arenas-journey {
+
+  0% {
+    opacity: 0.82;
+
+    transform:
+      perspective(1200px)
+      rotateY(47deg)
+      translateZ(-250px);
+  }
+
+  42% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      rotateY(16deg)
+      translate3d(-8vw, -4vh, 40px)
+      scale(1.18);
+  }
+
+  68% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      rotateY(16deg)
+      translate3d(-8vw, -4vh, 40px)
+      scale(1.18);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      perspective(1200px)
+      rotateY(4deg)
+      translate3d(-11vw, -6vh, 620px)
+      scale(2.35);
+  }
+}
+
+
+/* ------------------------------------------------------------
+   MATCHES
+   ------------------------------------------------------------ */
+
+.hoi-factual-dimensions__item--matches-journey {
+  animation:
+    hoi-matches-journey 6.6s
+    cubic-bezier(0.18, 0.78, 0.22, 1)
+    8.6s
+    forwards;
+
+  will-change:
+    transform,
+    opacity;
+}
+
+@keyframes hoi-matches-journey {
+
+  0% {
+    opacity: 0.62;
+
+    transform:
+      perspective(1200px)
+      rotateY(52deg)
+      translateZ(-430px);
+  }
+
+  42% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      rotateY(16deg)
+      translate3d(-8vw, -4vh, 40px)
+      scale(1.18);
+  }
+
+  68% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      rotateY(16deg)
+      translate3d(-8vw, -4vh, 40px)
+      scale(1.18);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      perspective(1200px)
+      rotateY(4deg)
+      translate3d(-11vw, -6vh, 620px)
+      scale(2.35);
+  }
+}
+
+
+/* ------------------------------------------------------------
+   FLOW
+   ------------------------------------------------------------ */
+
+.hoi-factual-dimensions__item--flow-journey {
+  animation:
+    hoi-flow-journey 6.6s
+    cubic-bezier(0.18, 0.78, 0.22, 1)
+    12.9s
+    forwards;
+
+  will-change:
+    transform,
+    opacity;
+}
+
+@keyframes hoi-flow-journey {
+
+  0% {
+    opacity: 0.43;
+
+    transform:
+      perspective(1200px)
+      rotateY(57deg)
+      translateZ(-610px);
+  }
+
+  42% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      rotateY(16deg)
+      translate3d(-8vw, -4vh, 40px)
+      scale(1.18);
+  }
+
+  68% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      rotateY(16deg)
+      translate3d(-8vw, -4vh, 40px)
+      scale(1.18);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      perspective(1200px)
+      rotateY(4deg)
+      translate3d(-11vw, -6vh, 620px)
+      scale(2.35);
+  }
+}
+
+
+/* ------------------------------------------------------------
+   ACTIVITY
+   Destino final
+   ------------------------------------------------------------ */
+
+.hoi-factual-dimensions__item--activity-journey {
+  animation:
+    hoi-activity-arrival 5.8s
+    cubic-bezier(0.18, 0.78, 0.22, 1)
+    17.2s
+    forwards;
+
+  will-change:
+    transform,
+    opacity;
+}
+
+@keyframes hoi-activity-arrival {
+
+  0% {
+    opacity: 0.28;
+
+    transform:
+      perspective(1200px)
+      rotateY(62deg)
+      translateZ(-790px);
+  }
+
+  55% {
+    opacity: 0.82;
+
+    transform:
+      perspective(1200px)
+      rotateY(30deg)
+      translate3d(-5vw, -3vh, -120px)
+      scale(1.05);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      perspective(1200px)
+      rotateY(16deg)
+      translate3d(-8vw, -4vh, 40px)
+      scale(1.18);
+  }
+}
