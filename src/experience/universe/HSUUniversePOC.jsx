@@ -2615,13 +2615,45 @@ function PlanetLayer({
   );
 }
 
-function UniverseScene({
+function HOISystemNode({
+  position = [0, 0, 0],
   travelProgress,
   hoiEntered,
   setHoiEntered,
 }) {
   const stellarCoreRef = useRef(null);
   const planetRef = useRef(null);
+
+  return (
+    <>
+      <group position={position}>
+        <StellarLayer
+          travelProgress={travelProgress}
+          stellarCoreRef={stellarCoreRef}
+        />
+
+        <PlanetLayer
+          travelProgress={travelProgress}
+          stellarCoreRef={stellarCoreRef}
+          planetRef={planetRef}
+          hoiEntered={hoiEntered}
+          setHoiEntered={setHoiEntered}
+        />
+      </group>
+
+      <OpticalLayer
+        stellarCoreRef={stellarCoreRef}
+        planetRef={planetRef}
+      />
+    </>
+  );
+}
+
+function UniverseScene({
+  travelProgress,
+  hoiEntered,
+  setHoiEntered,
+}) {
   return (
     <>
       <color
@@ -2654,22 +2686,13 @@ function UniverseScene({
 
       <NearCameraLayer />
 
-      <StellarLayer
-  travelProgress={travelProgress}
-  stellarCoreRef={stellarCoreRef}
-/>
+      <HOISystemNode
+        position={[0, 0, 0]}
+        travelProgress={travelProgress}
+        hoiEntered={hoiEntered}
+        setHoiEntered={setHoiEntered}
+      />
 
-      <PlanetLayer
-  travelProgress={travelProgress}
-  stellarCoreRef={stellarCoreRef}
-  planetRef={planetRef}
-  hoiEntered={hoiEntered}
-  setHoiEntered={setHoiEntered}
-/>
-      <OpticalLayer
-  stellarCoreRef={stellarCoreRef}
-  planetRef={planetRef}
-/>
       <CameraExperience
   travelProgress={travelProgress}
   hoiEntered={hoiEntered}
