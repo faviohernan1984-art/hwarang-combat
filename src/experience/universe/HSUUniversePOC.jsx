@@ -218,9 +218,20 @@ function CameraExperience({
 }) {
   const { camera, gl, pointer } = useThree();
   const departurePositionRef = useRef(new THREE.Vector3());
+  const departureQuaternionRef = useRef(new THREE.Quaternion());
+  const departureDirectionRef = useRef(new THREE.Vector3());
+  const departureRadiusRef = useRef(0);
   const departureFocusRef = useRef(new THREE.Vector3());
   const arrivalPositionRef = useRef(new THREE.Vector3());
+  const arrivalQuaternionRef = useRef(new THREE.Quaternion());
+  const arrivalDistanceRef = useRef(0);
   const currentFocusRef = useRef(new THREE.Vector3());
+  const finalDirectionRef = useRef(new THREE.Vector3(0, 0, 1));
+  const directionRotationRef = useRef(new THREE.Quaternion());
+  const interpolatedRotationRef = useRef(new THREE.Quaternion());
+  const identityRotationRef = useRef(new THREE.Quaternion());
+  const plannedDirectionRef = useRef(new THREE.Vector3());
+  const pointerOffsetRef = useRef(new THREE.Vector3());
   const travelStartTimeRef = useRef(null);
   const localYawRef = useRef(0);
   const localPitchRef = useRef(0);
@@ -405,6 +416,124 @@ function CameraExperience({
       return;
     }
 
+    if (
+      travelPhase === "traveling" &&
+      selectedDestinationId === SPATIAL_DESTINATIONS.hoi.id
+    ) {
+      const destination = SPATIAL_DESTINATIONS.hoi;
+
+      if (travelStartTimeRef.current === null) {
+        travelStartTimeRef.current = state.clock.elapsedTime;
+        departurePositionRef.current.copy(camera.position);
+        departureQuaternionRef.current.copy(camera.quaternion);
+        currentFocusRef.current.fromArray(destination.worldPosition);
+        departureDirectionRef.current
+          .copy(departurePositionRef.current)
+          .sub(currentFocusRef.current);
+        departureRadiusRef.current =
+          departureDirectionRef.current.length();
+        departureDirectionRef.current.normalize();
+        directionRotationRef.current.setFromUnitVectors(
+          departureDirectionRef.current,
+          finalDirectionRef.current
+        );
+
+        const exteriorDistance = THREE.MathUtils.lerp(
+          10.5,
+          3.35,
+          travelProgress
+        );
+        arrivalDistanceRef.current = hoiEntered
+          ? 2.15
+          : exteriorDistance;
+      }
+
+      const travelDuration = 5;
+      const linearProgress = THREE.MathUtils.clamp(
+        (state.clock.elapsedTime - travelStartTimeRef.current) /
+          travelDuration,
+        0,
+        1
+      );
+      const easedProgress = THREE.MathUtils.smootherstep(
+        linearProgress,
+        0,
+        1
+      );
+
+      const plannedRadius = THREE.MathUtils.lerp(
+        departureRadiusRef.current,
+        arrivalDistanceRef.current,
+        easedProgress
+      );
+
+      interpolatedRotationRef.current.slerpQuaternions(
+        identityRotationRef.current,
+        directionRotationRef.current,
+        easedProgress
+      );
+      plannedDirectionRef.current
+        .copy(departureDirectionRef.current)
+        .applyQuaternion(interpolatedRotationRef.current)
+        .normalize();
+
+      camera.position
+        .copy(plannedDirectionRef.current)
+        .multiplyScalar(plannedRadius);
+
+      const pointerBlend = THREE.MathUtils.smootherstep(
+        linearProgress,
+        0.82,
+        1
+      );
+      pointerOffsetRef.current.set(
+        pointer.x * 0.035,
+        pointer.y * 0.02,
+        0
+      );
+      camera.position.addScaledVector(
+        pointerOffsetRef.current,
+        pointerBlend
+      );
+
+      baseOrientationMatrixRef.current.lookAt(
+        camera.position,
+        currentFocusRef.current,
+        camera.up
+      );
+      arrivalQuaternionRef.current.setFromRotationMatrix(
+        baseOrientationMatrixRef.current
+      );
+      camera.quaternion.slerpQuaternions(
+        departureQuaternionRef.current,
+        arrivalQuaternionRef.current,
+        easedProgress
+      );
+
+      if (linearProgress >= 1) {
+        arrivalPositionRef.current.set(
+          pointer.x * 0.035,
+          pointer.y * 0.02,
+          arrivalDistanceRef.current
+        );
+        baseOrientationMatrixRef.current.lookAt(
+          arrivalPositionRef.current,
+          currentFocusRef.current,
+          camera.up
+        );
+        arrivalQuaternionRef.current.setFromRotationMatrix(
+          baseOrientationMatrixRef.current
+        );
+        camera.position.copy(arrivalPositionRef.current);
+        camera.quaternion.copy(arrivalQuaternionRef.current);
+        setActiveDestinationId(destination.id);
+        setSelectedDestinationId(null);
+        setTravelPhase("observing");
+      }
+
+      return;
+    }
+
     travelStartTimeRef.current = null;
 
     if (
@@ -505,6 +634,7 @@ const targetY = pointer.y * 0.02;
 function HOIInteractiveZone({
   travelProgress,
   setHoiEntered,
+  onHoiSelected,
 }) {
   const starRef = useRef(null);
   const starTexture = useRef(null);
@@ -804,7 +934,9 @@ if (fieldRef.current) {
   }}
   onClick={(event) => {
   event.stopPropagation();
-  setHoiEntered(true);
+  if (onHoiSelected() === "historical") {
+    setHoiEntered(true);
+  }
 }}
 >
     <sprite
@@ -828,7 +960,9 @@ if (fieldRef.current) {
       }}
       onClick={(event) => {
   event.stopPropagation();
-  setHoiEntered(true);
+  if (onHoiSelected() === "historical") {
+    setHoiEntered(true);
+  }
 }}
     >
       <spriteMaterial
@@ -887,6 +1021,7 @@ function HOIPlanet({
   planetRef,
   hoiEntered,
   setHoiEntered,
+  onHoiSelected,
 }) {
   const atmosphereRef = useRef(null);
   const planetMaterialRef = useRef(null);
@@ -912,13 +1047,6 @@ const hoiAwake =
     0.45,
     0.92
   );
-    if (planetRef.current) {
-      planetRef.current.rotation.y += delta * 0.055;
-
-      planetRef.current.rotation.x =
-        Math.sin(state.clock.elapsedTime * 0.18) * 0.025;
-    }
-
     if (atmosphereRef.current) {
   atmosphereRef.current.uniforms.uIntensity.value =
     THREE.MathUtils.lerp(
@@ -982,7 +1110,13 @@ shader.uniforms.uTime.value =
   });
 
   return (
-    <group>
+    <group
+      onClick={(event) => {
+        if (onHoiSelected() !== "historical") {
+          event.stopPropagation();
+        }
+      }}
+    >
       <mesh ref={planetRef}>
         <sphereGeometry args={[1.32, 128, 128]} />
 
@@ -1012,12 +1146,27 @@ shader.uniforms.uTime = {
 
     planetMaterialRef.current.userData.shader = shader;
 
+    shader.vertexShader =
+  `
+    varying vec3 vHoiObjectNormal;
+  ` +
+  shader.vertexShader;
+
+    shader.vertexShader = shader.vertexShader.replace(
+      "#include <beginnormal_vertex>",
+      `
+        #include <beginnormal_vertex>
+        vHoiObjectNormal = normalize(normal);
+      `
+    );
+
     shader.fragmentShader =
   `
     uniform vec3 uSunDirection;
 uniform float uHoiAwake;
 uniform float uHoiEntry;
 uniform float uTime;
+varying vec3 vHoiObjectNormal;
   ` +
   shader.fragmentShader;
 
@@ -1031,8 +1180,11 @@ uniform float uTime;
 // para que la superficie conserve materia en penumbra.
 // Microtextura orgánica y no direccional.
 // Evita bandas visibles y rompe la repetición.
+vec3 stableObjectNormal =
+  normalize(vHoiObjectNormal);
+
 vec3 surfaceCoord =
-  normal * 3.7;
+  stableObjectNormal * 3.7;
 
 float organicA =
   sin(
@@ -1112,7 +1264,7 @@ float stellarFacing =
   max(
     dot(
       normal,
-      -normalize(uSunDirection)
+      sunDirectionView
     ),
     0.0
   );
@@ -1127,7 +1279,7 @@ float lateralBias =
   smoothstep(
     -0.15,
     0.85,
-    normal.x
+    stableObjectNormal.x
   );
 
 stellarGrazing *=
@@ -1153,8 +1305,8 @@ float pulsePhase =
   0.5 +
   0.5 *
   sin(
-    vViewPosition.y * 3.2 +
-    vViewPosition.x * 1.8
+    stableObjectNormal.y * 3.2 +
+    stableObjectNormal.x * 1.8
   );
 
 float pulseMask =
@@ -1404,6 +1556,7 @@ vec3 entryDiffusion =
         <HOIInteractiveZone
   travelProgress={travelProgress}
   setHoiEntered={setHoiEntered}
+  onHoiSelected={onHoiSelected}
 />
       </mesh>
     </group>
@@ -2864,6 +3017,7 @@ function PlanetLayer({
   planetRef,
   hoiEntered,
   setHoiEntered,
+  onHoiSelected,
 }) {
   return (
     <HOIPlanet
@@ -2872,12 +3026,14 @@ function PlanetLayer({
   planetRef={planetRef}
   hoiEntered={hoiEntered}
   setHoiEntered={setHoiEntered}
+  onHoiSelected={onHoiSelected}
 />
   );
 }
 
 function ExperimentalRemoteBody({
   activeDestinationId,
+  travelPhase,
   setSelectedDestinationId,
   setTravelPhase,
 }) {
@@ -2923,6 +3079,8 @@ function ExperimentalRemoteBody({
       }}
       onClick={(event) => {
         event.stopPropagation();
+
+        if (travelPhase !== "observing") return;
 
         if (
           activeDestinationId ===
@@ -2973,6 +3131,7 @@ function HOISystemNode({
   travelProgress,
   hoiEntered,
   setHoiEntered,
+  onHoiSelected,
 }) {
   const stellarCoreRef = useRef(null);
   const planetRef = useRef(null);
@@ -2991,6 +3150,7 @@ function HOISystemNode({
           planetRef={planetRef}
           hoiEntered={hoiEntered}
           setHoiEntered={setHoiEntered}
+          onHoiSelected={onHoiSelected}
         />
       </group>
 
@@ -3047,6 +3207,7 @@ function UniverseScene({
 
       <ExperimentalRemoteBody
         activeDestinationId={activeDestinationId}
+        travelPhase={travelPhase}
         setSelectedDestinationId={setSelectedDestinationId}
         setTravelPhase={setTravelPhase}
       />
@@ -3056,6 +3217,26 @@ function UniverseScene({
         travelProgress={travelProgress}
         hoiEntered={hoiEntered}
         setHoiEntered={setHoiEntered}
+        onHoiSelected={() => {
+          if (travelPhase !== "observing") {
+            return "blocked";
+          }
+
+          if (
+            activeDestinationId ===
+            SPATIAL_DESTINATIONS.experimental.id
+          ) {
+            setSelectedDestinationId(SPATIAL_DESTINATIONS.hoi.id);
+            setTravelPhase("traveling");
+            return "selected";
+          }
+
+          if (activeDestinationId === SPATIAL_DESTINATIONS.hoi.id) {
+            return "historical";
+          }
+
+          return "blocked";
+        }}
       />
 
       <CameraExperience
