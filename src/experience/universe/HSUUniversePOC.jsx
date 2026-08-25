@@ -8,6 +8,19 @@ function clamp(value, minimum, maximum) {
   return Math.min(Math.max(value, minimum), maximum);
 }
 
+const SPATIAL_DESTINATIONS = {
+  hoi: {
+    id: "hoi",
+    worldPosition: [0, 0, 0],
+  },
+  experimental: {
+    id: "experimental",
+    worldPosition: [10.5, -3.2, -22],
+    frontDirection: [0, 0, 1],
+    observationDistance: 4.8,
+  },
+};
+
 function HOIEntryOverlay({
   hoiEntered,
   hoiExploreRequested,
@@ -196,10 +209,258 @@ function HOIIdentityOverlay({
 function CameraExperience({
   travelProgress,
   hoiEntered,
+  activeDestinationId,
+  selectedDestinationId,
+  travelPhase,
+  setActiveDestinationId,
+  setSelectedDestinationId,
+  setTravelPhase,
 }) {
-  const { camera, pointer } = useThree();
+  const { camera, gl, pointer } = useThree();
+  const departurePositionRef = useRef(new THREE.Vector3());
+  const departureFocusRef = useRef(new THREE.Vector3());
+  const arrivalPositionRef = useRef(new THREE.Vector3());
+  const currentFocusRef = useRef(new THREE.Vector3());
+  const travelStartTimeRef = useRef(null);
+  const localYawRef = useRef(0);
+  const localPitchRef = useRef(0);
+  const targetYawRef = useRef(0);
+  const targetPitchRef = useRef(0);
+  const orientationDragRef = useRef(false);
+  const orientationDragMovedRef = useRef(false);
+  const suppressDoubleClickRef = useRef(false);
+  const lastPointerPositionRef = useRef({ x: 0, y: 0 });
+  const baseOrientationMatrixRef = useRef(new THREE.Matrix4());
+  const baseOrientationRef = useRef(new THREE.Quaternion());
+  const localOrientationRef = useRef(new THREE.Quaternion());
+  const localEulerRef = useRef(new THREE.Euler(0, 0, 0, "YXZ"));
 
-  useFrame(() => {
+  useEffect(() => {
+    const canvas = gl.domElement;
+
+    const handlePointerDown = (event) => {
+      if (
+        activeDestinationId !==
+          SPATIAL_DESTINATIONS.experimental.id ||
+        travelPhase !== "observing"
+      ) {
+        return;
+      }
+
+      orientationDragRef.current = true;
+      orientationDragMovedRef.current = false;
+      lastPointerPositionRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+      canvas.setPointerCapture(event.pointerId);
+    };
+
+    const handlePointerMove = (event) => {
+      if (!orientationDragRef.current) return;
+
+      const deltaX =
+        event.clientX - lastPointerPositionRef.current.x;
+      const deltaY =
+        event.clientY - lastPointerPositionRef.current.y;
+      const orientationSensitivity = 0.005;
+      const pitchLimit = THREE.MathUtils.degToRad(75);
+
+      if (Math.abs(deltaX) + Math.abs(deltaY) > 2) {
+        orientationDragMovedRef.current = true;
+      }
+
+      targetYawRef.current -= deltaX * orientationSensitivity;
+      targetPitchRef.current = THREE.MathUtils.clamp(
+        targetPitchRef.current -
+          deltaY * orientationSensitivity,
+        -pitchLimit,
+        pitchLimit
+      );
+
+      lastPointerPositionRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+    };
+
+    const finishOrientationDrag = (event) => {
+      if (!orientationDragRef.current) return;
+
+      orientationDragRef.current = false;
+      suppressDoubleClickRef.current =
+        orientationDragMovedRef.current;
+
+      if (canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+    };
+
+    const handleDoubleClick = (event) => {
+      if (
+        activeDestinationId !==
+          SPATIAL_DESTINATIONS.experimental.id ||
+        travelPhase !== "observing"
+      ) {
+        return;
+      }
+
+      if (suppressDoubleClickRef.current) {
+        suppressDoubleClickRef.current = false;
+        return;
+      }
+
+      event.preventDefault();
+      orientationDragRef.current = false;
+      localYawRef.current = Math.atan2(
+        Math.sin(localYawRef.current),
+        Math.cos(localYawRef.current)
+      );
+      targetYawRef.current = 0;
+      targetPitchRef.current = 0;
+    };
+
+    canvas.addEventListener("pointerdown", handlePointerDown);
+    canvas.addEventListener("pointermove", handlePointerMove);
+    canvas.addEventListener("pointerup", finishOrientationDrag);
+    canvas.addEventListener("pointercancel", finishOrientationDrag);
+    canvas.addEventListener("dblclick", handleDoubleClick);
+
+    return () => {
+      orientationDragRef.current = false;
+      canvas.removeEventListener("pointerdown", handlePointerDown);
+      canvas.removeEventListener("pointermove", handlePointerMove);
+      canvas.removeEventListener("pointerup", finishOrientationDrag);
+      canvas.removeEventListener(
+        "pointercancel",
+        finishOrientationDrag
+      );
+      canvas.removeEventListener("dblclick", handleDoubleClick);
+    };
+  }, [activeDestinationId, gl, travelPhase]);
+
+  useFrame((state, delta) => {
+    if (
+      travelPhase === "traveling" &&
+      selectedDestinationId ===
+        SPATIAL_DESTINATIONS.experimental.id
+    ) {
+      const destination = SPATIAL_DESTINATIONS.experimental;
+
+      if (travelStartTimeRef.current === null) {
+        travelStartTimeRef.current = state.clock.elapsedTime;
+        localYawRef.current = 0;
+        localPitchRef.current = 0;
+        targetYawRef.current = 0;
+        targetPitchRef.current = 0;
+        departurePositionRef.current.copy(camera.position);
+        departureFocusRef.current.fromArray(
+          SPATIAL_DESTINATIONS[activeDestinationId].worldPosition
+        );
+
+        arrivalPositionRef.current
+          .fromArray(destination.frontDirection)
+          .normalize()
+          .multiplyScalar(destination.observationDistance)
+          .add(
+            new THREE.Vector3().fromArray(
+              destination.worldPosition
+            )
+          );
+      }
+
+      const travelDuration = 5;
+      const linearProgress = THREE.MathUtils.clamp(
+        (state.clock.elapsedTime - travelStartTimeRef.current) /
+          travelDuration,
+        0,
+        1
+      );
+      const easedProgress = THREE.MathUtils.smootherstep(
+        linearProgress,
+        0,
+        1
+      );
+
+      camera.position.lerpVectors(
+        departurePositionRef.current,
+        arrivalPositionRef.current,
+        easedProgress
+      );
+
+      currentFocusRef.current.lerpVectors(
+        departureFocusRef.current,
+        new THREE.Vector3().fromArray(destination.worldPosition),
+        easedProgress
+      );
+
+      camera.lookAt(currentFocusRef.current);
+
+      if (linearProgress >= 1) {
+        setActiveDestinationId(destination.id);
+        setSelectedDestinationId(null);
+        setTravelPhase("observing");
+      }
+
+      return;
+    }
+
+    travelStartTimeRef.current = null;
+
+    if (
+      activeDestinationId ===
+      SPATIAL_DESTINATIONS.experimental.id
+    ) {
+      const destination = SPATIAL_DESTINATIONS.experimental;
+
+      arrivalPositionRef.current
+        .fromArray(destination.frontDirection)
+        .normalize()
+        .multiplyScalar(destination.observationDistance)
+        .add(
+          new THREE.Vector3().fromArray(destination.worldPosition)
+        );
+
+      camera.position.copy(arrivalPositionRef.current);
+      currentFocusRef.current.fromArray(destination.worldPosition);
+
+      const orientationResponse = 1 - Math.exp(-delta * 4.5);
+
+      localYawRef.current = THREE.MathUtils.lerp(
+        localYawRef.current,
+        targetYawRef.current,
+        orientationResponse
+      );
+      localPitchRef.current = THREE.MathUtils.lerp(
+        localPitchRef.current,
+        targetPitchRef.current,
+        orientationResponse
+      );
+
+      baseOrientationMatrixRef.current.lookAt(
+        camera.position,
+        currentFocusRef.current,
+        camera.up
+      );
+      baseOrientationRef.current.setFromRotationMatrix(
+        baseOrientationMatrixRef.current
+      );
+      localEulerRef.current.set(
+        localPitchRef.current,
+        localYawRef.current,
+        0,
+        "YXZ"
+      );
+      localOrientationRef.current.setFromEuler(
+        localEulerRef.current
+      );
+
+      camera.quaternion
+        .copy(baseOrientationRef.current)
+        .multiply(localOrientationRef.current);
+      return;
+    }
+
     const exteriorDistance = THREE.MathUtils.lerp(
   10.5,
   3.35,
@@ -2615,6 +2876,98 @@ function PlanetLayer({
   );
 }
 
+function ExperimentalRemoteBody({
+  activeDestinationId,
+  setSelectedDestinationId,
+  setTravelPhase,
+}) {
+  const surfaceMaterialRef = useRef(null);
+  const atmosphereMaterialRef = useRef(null);
+  const [hovered, setHovered] = useState(false);
+  const { gl } = useThree();
+
+  useFrame((_, delta) => {
+    const response = 1 - Math.exp(-delta * 5.5);
+
+    if (surfaceMaterialRef.current) {
+      surfaceMaterialRef.current.emissiveIntensity =
+        THREE.MathUtils.lerp(
+          surfaceMaterialRef.current.emissiveIntensity,
+          hovered ? 0.18 : 0.12,
+          response
+        );
+    }
+
+    if (atmosphereMaterialRef.current) {
+      atmosphereMaterialRef.current.opacity =
+        THREE.MathUtils.lerp(
+          atmosphereMaterialRef.current.opacity,
+          hovered ? 0.055 : 0.035,
+          response
+        );
+    }
+  });
+
+  return (
+    <group
+      position={SPATIAL_DESTINATIONS.experimental.worldPosition}
+      onPointerOver={(event) => {
+        event.stopPropagation();
+        setHovered(true);
+        gl.domElement.style.cursor = "pointer";
+      }}
+      onPointerOut={(event) => {
+        event.stopPropagation();
+        setHovered(false);
+        gl.domElement.style.cursor = "default";
+      }}
+      onClick={(event) => {
+        event.stopPropagation();
+
+        if (
+          activeDestinationId ===
+          SPATIAL_DESTINATIONS.experimental.id
+        ) {
+          return;
+        }
+
+        setSelectedDestinationId(
+          SPATIAL_DESTINATIONS.experimental.id
+        );
+        setTravelPhase("traveling");
+      }}
+    >
+      <mesh>
+        <sphereGeometry args={[0.85, 64, 64]} />
+
+        <meshStandardMaterial
+          ref={surfaceMaterialRef}
+          color="#11141a"
+          roughness={0.94}
+          metalness={0.04}
+          emissive="#020306"
+          emissiveIntensity={0.12}
+        />
+      </mesh>
+
+      <mesh scale={1.035}>
+        <sphereGeometry args={[0.85, 64, 64]} />
+
+        <meshBasicMaterial
+          ref={atmosphereMaterialRef}
+          color="#8792a6"
+          transparent
+          opacity={0.035}
+          depthWrite={false}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function HOISystemNode({
   position = [0, 0, 0],
   travelProgress,
@@ -2653,6 +3006,12 @@ function UniverseScene({
   travelProgress,
   hoiEntered,
   setHoiEntered,
+  activeDestinationId,
+  selectedDestinationId,
+  travelPhase,
+  setActiveDestinationId,
+  setSelectedDestinationId,
+  setTravelPhase,
 }) {
   return (
     <>
@@ -2686,6 +3045,12 @@ function UniverseScene({
 
       <NearCameraLayer />
 
+      <ExperimentalRemoteBody
+        activeDestinationId={activeDestinationId}
+        setSelectedDestinationId={setSelectedDestinationId}
+        setTravelPhase={setTravelPhase}
+      />
+
       <HOISystemNode
         position={[0, 0, 0]}
         travelProgress={travelProgress}
@@ -2696,6 +3061,12 @@ function UniverseScene({
       <CameraExperience
   travelProgress={travelProgress}
   hoiEntered={hoiEntered}
+  activeDestinationId={activeDestinationId}
+  selectedDestinationId={selectedDestinationId}
+  travelPhase={travelPhase}
+  setActiveDestinationId={setActiveDestinationId}
+  setSelectedDestinationId={setSelectedDestinationId}
+  setTravelPhase={setTravelPhase}
 />
     </>
   );
@@ -2707,6 +3078,19 @@ export default function HSUUniversePOC() {
 
   const [travelProgress, setTravelProgress] = useState(0);
 
+  const [activeDestinationId, setActiveDestinationId] = useState(
+    SPATIAL_DESTINATIONS.hoi.id
+  );
+
+  const [selectedDestinationId, setSelectedDestinationId] =
+    useState(null);
+
+  const [travelPhase, setTravelPhase] = useState("observing");
+
+  const [navigationCueVisible, setNavigationCueVisible] =
+    useState(false);
+  const navigationCueShownRef = useRef(false);
+
   const [hoiEntered, setHoiEntered] = useState(false);
 
   const [hoiExploreRequested, setHoiExploreRequested] = useState(false);
@@ -2714,6 +3098,28 @@ export default function HSUUniversePOC() {
   const [hoiFactualDeparting, setHoiFactualDeparting] = useState(false);
 
   const [hoiFactualJourney, setHoiFactualJourney] = useState(false);
+
+  useEffect(() => {
+    if (
+      activeDestinationId !==
+        SPATIAL_DESTINATIONS.experimental.id ||
+      travelPhase !== "observing" ||
+      navigationCueShownRef.current
+    ) {
+      return;
+    }
+
+    navigationCueShownRef.current = true;
+    setNavigationCueVisible(true);
+
+    const cueTimer = window.setTimeout(() => {
+      setNavigationCueVisible(false);
+    }, 4800);
+
+    return () => {
+      window.clearTimeout(cueTimer);
+    };
+  }, [activeDestinationId, travelPhase]);
 
   useEffect(() => {
   if (!hoiExploreRequested) return;
@@ -2743,6 +3149,13 @@ export default function HSUUniversePOC() {
     const handleWheel = (event) => {
       event.preventDefault();
 
+      if (
+        travelPhase === "traveling" ||
+        activeDestinationId !== SPATIAL_DESTINATIONS.hoi.id
+      ) {
+        return;
+      }
+
       // La rueda modifica únicamente el destino.
       targetTravelRef.current = clamp(
         targetTravelRef.current + event.deltaY * 0.00032,
@@ -2758,16 +3171,21 @@ export default function HSUUniversePOC() {
     let animationFrameId;
 
     const animateTravel = () => {
-      // Suavizado/inercia del viaje.
-      currentTravelRef.current = THREE.MathUtils.lerp(
-        currentTravelRef.current,
-        targetTravelRef.current,
-        0.016
-      );
+      if (
+        travelPhase !== "traveling" &&
+        activeDestinationId === SPATIAL_DESTINATIONS.hoi.id
+      ) {
+        // Suavizado/inercia del viaje.
+        currentTravelRef.current = THREE.MathUtils.lerp(
+          currentTravelRef.current,
+          targetTravelRef.current,
+          0.016
+        );
 
-      setTravelProgress(
-        currentTravelRef.current
-      );
+        setTravelProgress(
+          currentTravelRef.current
+        );
+      }
 
       animationFrameId =
         requestAnimationFrame(animateTravel);
@@ -2784,10 +3202,30 @@ export default function HSUUniversePOC() {
 
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [activeDestinationId, travelPhase]);
 
   return (
   <main className="hsu-universe-poc">
+
+    <div
+      className={`hsu-navigation-cue ${
+        navigationCueVisible
+          ? "hsu-navigation-cue--visible"
+          : ""
+      }`}
+      aria-hidden="true"
+    >
+      <div className="hsu-navigation-cue__reticle">
+        <span />
+      </div>
+
+      <div className="hsu-navigation-cue__line">
+        DRAG TO LOOK AROUND
+      </div>
+      <div className="hsu-navigation-cue__line">
+        DOUBLE CLICK TO RECENTER
+      </div>
+    </div>
 
     <HOIIdentityOverlay
   travelProgress={travelProgress}
@@ -2828,6 +3266,12 @@ export default function HSUUniversePOC() {
   travelProgress={travelProgress}
   hoiEntered={hoiEntered}
   setHoiEntered={setHoiEntered}
+  activeDestinationId={activeDestinationId}
+  selectedDestinationId={selectedDestinationId}
+  travelPhase={travelPhase}
+  setActiveDestinationId={setActiveDestinationId}
+  setSelectedDestinationId={setSelectedDestinationId}
+  setTravelPhase={setTravelPhase}
 />
       </Canvas>
     </main>
