@@ -6,17 +6,8 @@ import {
   Globe,
   Trophy,
   Smartphone,
-  Lock,
   Zap,
   Crown,
-  CalendarDays,
-Clock,
-Monitor,
-Cloud,
-ShoppingCart,
-Mail,
-KeyRound,
-BadgeCheck,
 CreditCard,
 } from "lucide-react";
 
@@ -118,6 +109,71 @@ function navClickFx(e) {
 
 export default function LicensePage() {
 
+  const licenseOptions = {
+    discover: {
+      title: "DISCOVER",
+      description: "Ideal for testing and evaluation",
+      items: [
+        "10-minute evaluation access",
+        "1 DISCOVER ARENA",
+        "Terms acceptance required",
+      ],
+      route: "/license/demo",
+    },
+    nova: {
+      title: "NOVA LICENSE",
+      description: "Professional tournaments\nUp to 4 arenas",
+      items: [
+        "Up to 4 competition arenas",
+        "1 official tournament",
+        "Combat PRO included",
+        "Technical support included",
+      ],
+      route: "/license/event",
+    },
+    pulsar: {
+      title: "PULSAR LICENSE",
+      description: "The Heartbeat of an Organization",
+      items: [
+        "Unlimited Events",
+        "Combat PRO Included",
+        "Priority Support",
+      ],
+      route: "/license/pulsar",
+    },
+  };
+
+  const [selectedLicenseKey, setSelectedLicenseKey] = useState("nova");
+  const selectedLicense = licenseOptions[selectedLicenseKey];
+
+  const selectedTone =
+    selectedLicenseKey === "discover"
+      ? {
+          accent: "#22d3ee",
+          border: "rgba(34,211,238,0.58)",
+          glow: "rgba(34,211,238,0.24)",
+          surface: "rgba(0,56,72,0.22)",
+          button: "linear-gradient(90deg,#00b7ff,#00eeff)",
+          buttonColor: "#02111b",
+        }
+      : selectedLicenseKey === "pulsar"
+      ? {
+          accent: "#fbbf24",
+          border: "rgba(245,158,11,0.58)",
+          glow: "rgba(245,158,11,0.22)",
+          surface: "rgba(70,46,0,0.24)",
+          button: "linear-gradient(90deg,#d4a017,#f6c36a)",
+          buttonColor: "#111827",
+        }
+      : {
+          accent: "#a78bfa",
+          border: "rgba(167,139,250,0.58)",
+          glow: "rgba(124,58,237,0.24)",
+          surface: "rgba(28,18,56,0.28)",
+          button: "linear-gradient(90deg,#7c3aed,#a78bfa)",
+          buttonColor: "#ffffff",
+        };
+
   
 
   const [viewport, setViewport] = useState(() => ({
@@ -162,6 +218,12 @@ useEffect(() => {
 const isMobilePortrait =
   viewport.width < 900 &&
   viewport.height > viewport.width;
+
+const isNotebookLicenseLayout =
+  viewport.width >= 1200 &&
+  viewport.width <= 1600 &&
+  viewport.height >= 700 &&
+  viewport.height <= 900;
 
   const isIPhoneLandscape =
   isMobileLandscape &&
@@ -306,10 +368,52 @@ NAV LINKS INTERACTION
         </div>
       </header>
 
-      <main style={styles.main}>
-        <section style={styles.leftPanel}>
-        <div style={styles.leftContent}>
-          <div style={styles.hero}>
+      <main
+        style={{
+          ...styles.main,
+          padding: isNotebookLicenseLayout
+            ? "8px 20px 8px"
+            : "38px 92px 28px",
+          gridTemplateColumns: isNotebookLicenseLayout
+            ? "0.9fr 0.58fr"
+            : "1.35fr 0.65fr",
+          gap: 38,
+          alignItems: "center",
+          transform: isNotebookLicenseLayout
+            ? "translateY(-120px)"
+            : "none",
+        }}
+      >
+        <section
+          style={{
+            ...styles.leftPanel,
+            left: 0,
+            top: 0,
+            padding: 0,
+            maxHeight: "none",
+            transform: isNotebookLicenseLayout
+              ? "translateY(20px)"
+              : "translateY(-20px)",
+          }}
+        >
+        <div
+          style={{
+            ...styles.leftContent,
+            transform: "none",
+            left: 0,
+            top: 0,
+          }}
+        >
+          <div
+            style={{
+              ...styles.hero,
+              transform: isNotebookLicenseLayout
+                ? "scale(0.88)"
+                : "scale(0.90)",
+              transformOrigin: "top center",
+              marginBottom: isNotebookLicenseLayout ? -12 : -10,
+            }}
+          >
             <div style={styles.heroGlow} />
             <div style={styles.kicker}>GET YOUR PROFESSIONAL LICENSE</div>
             <h1 style={styles.title}>
@@ -324,7 +428,24 @@ NAV LINKS INTERACTION
             </p>
           </div>
 
-          <div style={styles.features}>
+          <div
+            style={{
+              width: "100%",
+              transform: "scale(0.95)",
+              transformOrigin: "top center",
+            }}
+          >
+          <div
+            style={{
+              ...styles.features,
+              marginTop: isNotebookLicenseLayout ? 20 : 24,
+              transform: isNotebookLicenseLayout
+                ? "scale(0.88)"
+                : "scale(0.90)",
+              transformOrigin: "top center",
+              marginBottom: isNotebookLicenseLayout ? -12 : -10,
+            }}
+          >
 <Feature
   icon={<ShieldCheck size={18} style={styles.lucideIcon} />}
   title="OFFICIAL STANDARD"
@@ -350,14 +471,28 @@ NAV LINKS INTERACTION
 />
           </div>
 
-          <div style={styles.sectionTitle}>CHOOSE YOUR LICENSE PLAN</div>
+          <div
+            style={{
+              ...styles.sectionTitle,
+              marginTop: isNotebookLicenseLayout ? 16 : 20,
+            }}
+          >
+            CHOOSE YOUR LICENSE PLAN
+          </div>
 
-          <div style={styles.cards}>
+          <div
+            style={{
+              ...styles.cards,
+              transform: isNotebookLicenseLayout
+                ? "scale(0.90)"
+                : "scale(0.91)",
+              transformOrigin: "top center",
+            }}
+          >
             <PlanCard
             tone="cyan"
             title="DISCOVER"
             desc="Ideal for testing and evaluation"
-            price="FREE"
             items={[
             "10-minute evaluation access",
             "1 DISCOVER ARENA",
@@ -366,6 +501,7 @@ NAV LINKS INTERACTION
             button="VIEW DISCOVER"
             variant="outline"
             buttonOffset={25}
+            onSelect={() => setSelectedLicenseKey("discover")}
             />
 
             <PlanCard
@@ -374,7 +510,6 @@ NAV LINKS INTERACTION
               displayTitle="NOVA LICENSE"
               desc="Professional tournaments
 Up to 4 arenas"
-              price="FROM USD 39"
               
               items={[
   "Up to 4 competition arenas",
@@ -384,24 +519,25 @@ Up to 4 arenas"
 ]}
               button="VIEW DETAILS"
               featured
+              onSelect={() => setSelectedLicenseKey("nova")}
             />
 
             <PlanCard
   tone="gold"
   title="PULSAR LICENSE"
   desc="The Heartbeat of an Organization"
-  price="USD 199"
-  small="per year"
   items={[
     "Unlimited Events",
     "Combat PRO Included",
     "Priority Support",
     
   ]}
-  button="SELECT PLAN"
+  button="VIEW DETAILS"
   variant="outline"
   onClick={() => (window.location.href = "/license/club")}
-/>
+  onSelect={() => setSelectedLicenseKey("pulsar")}
+            />
+          </div>
           </div>
 
           <div style={styles.note}>
@@ -431,52 +567,67 @@ Up to 4 arenas"
 
 </section>
 
-        <aside style={styles.checkout}>
-  <h2 style={styles.checkoutTitle}>YOUR ORDER</h2>
+        <aside
+          style={{
+            ...styles.checkout,
+            width: "auto",
+            position: "relative",
+            right: "auto",
+            top: "auto",
+            alignSelf: "center",
+            padding: 15,
+            transform: isNotebookLicenseLayout
+              ? "translateY(115px) scale(0.67)"
+              : "translateY(-23px) scale(0.91)",
+            transformOrigin: "top right",
+            borderColor: selectedTone.border,
+            boxShadow: `0 0 140px rgba(0,0,0,0.96), 0 0 60px ${selectedTone.glow}, inset 0 0 90px ${selectedTone.glow}`,
+          }}
+        >
+  <h2 style={{ ...styles.checkoutTitle, color: selectedTone.accent }}>YOUR SELECTION</h2>
 
-  <div style={styles.selectedBox}>
-    <div style={styles.trophyBox}>
-      <Trophy size={34} style={styles.checkoutMainIcon} />
+  <div style={{ ...styles.selectedBox, borderColor: selectedTone.border }}>
+    <div style={{ ...styles.trophyBox, borderColor: selectedTone.border, background: selectedTone.surface }}>
+      {selectedLicenseKey === "discover" ? (
+        <ShieldCheck size={34} style={{ ...styles.checkoutMainIcon, color: selectedTone.accent }} />
+      ) : selectedLicenseKey === "pulsar" ? (
+        <Crown size={34} style={{ ...styles.checkoutMainIcon, color: selectedTone.accent }} />
+      ) : (
+        <Zap size={34} style={{ ...styles.checkoutMainIcon, color: selectedTone.accent }} />
+      )}
     </div>
 
     <div style={{ flex: 1 }}>
       <div style={styles.muted}>SELECTED LICENSE</div>
-      <div style={styles.selectedTitle}>SINGLE EVENT</div>
-      <div style={styles.muted}>Single-event license</div>
+      <div style={{ ...styles.selectedTitle, color: selectedTone.accent }}>{selectedLicense.title}</div>
+      <div style={styles.muted}>{selectedLicense.description}</div>
     </div>
 
-    <div style={styles.priceSide}>USD 49</div>
   </div>
 
   <div style={styles.detailList}>
-    <Row icon={<CalendarDays size={18} style={styles.rowIcon} />} label="Validity" value="1 event" />
-    <Row icon={<Clock size={18} style={styles.rowIcon} />} label="Duration" value="Unlimited" />
-    <Row icon={<Monitor size={18} style={styles.rowIcon} />} label="Devices" value="Unlimited" />
-    <Row icon={<Cloud size={18} style={styles.rowIcon} />} label="Storage" value="Included" />
-  </div>
-
-  <div style={styles.totalRow}>
-    <span>TOTAL</span>
-    <strong>USD 49</strong>
+    {selectedLicense.items.map((item) => (
+      <Row
+        key={item}
+        icon={<ShieldCheck size={18} style={{ ...styles.rowIcon, color: selectedTone.accent }} />}
+        label={item}
+        value=""
+      />
+    ))}
   </div>
 
   <button
-  style={styles.buyBtn}
-  onClick={() => {
-    window.open(
-      "https://link.mercadopago.com.ar/universohwarang",
-      "_blank"
-    );
+  style={{
+    ...styles.buyBtn,
+    borderColor: selectedTone.border,
+    background: selectedTone.button,
+    color: selectedTone.buttonColor,
+    boxShadow: `0 0 24px ${selectedTone.glow}, inset 0 0 18px rgba(255,255,255,0.08)`,
   }}
+  onClick={() => (window.location.href = selectedLicense.route)}
 >
-  <Lock size={18} style={styles.buyIcon} />
-  BUY NOW
+  CONTINUE
 </button>
-
-  <div style={styles.secure}>
-    <ShieldCheck size={16} style={styles.secureIcon} />
-    100% secure payment
-  </div>
 
   <div style={styles.payments}>
     <div style={styles.payTitle}>PAYMENT METHODS</div>
@@ -511,36 +662,8 @@ Up to 4 arenas"
 </div>
 
     <p style={{ marginTop: 5 }}>
-  Your license is automatically activated after payment confirmation.
+  Payment methods will be available in the selected product flow.
 </p>
-  </div>
-
-  <div style={styles.howBox}>
-    <h3>HOW IT WORKS?</h3>
-
-    <div style={styles.howStep}>
-      <ShoppingCart size={18} style={styles.howIcon} />
-      <span style={styles.stepNumber}>1</span>
-      <p>Complete your purchase securely</p>
-    </div>
-
-    <div style={styles.howStep}>
-      <Mail size={18} style={styles.howIcon} />
-      <span style={styles.stepNumber}>2</span>
-      <p>Your license will be delivered instantly by email</p>
-    </div>
-
-    <div style={styles.howStep}>
-      <KeyRound size={18} style={styles.howIcon} />
-      <span style={styles.stepNumber}>3</span>
-      <p>Enter your license code in the platform</p>
-    </div>
-
-    <div style={styles.howStep}>
-      <BadgeCheck size={18} style={styles.howIcon} />
-      <span style={styles.stepNumber}>4</span>
-      <p>Your system will be fully activated</p>
-    </div>
   </div>
 </aside>
       </main>
@@ -2657,7 +2780,7 @@ LICENSE PAGE
 PLAN CARD COMPONENT
 Supports DISCOVER / EVENT LICENSE / CLUB ANNUAL navigation.
 ====================================================== */
-function PlanCard({ title, displayTitle, desc, price, small, items, button, featured, variant, tone = "blue", buttonOffset = 0, onClick }) {
+function PlanCard({ title, displayTitle, desc, price, small, items, button, featured, variant, tone = "blue", buttonOffset = 0, onClick, onSelect }) {
   const toneStyle =
     tone === "cyan"
       ? styles.demoCard
@@ -2687,7 +2810,7 @@ function PlanCard({ title, displayTitle, desc, price, small, items, button, feat
       : styles.checkBlue;
 
   return (
-    <div style={{ ...styles.planCard, ...toneStyle }}>
+    <div style={{ ...styles.planCard, ...toneStyle }} onClick={onSelect}>
       {featured && <div style={styles.badge}>MOST POPULAR</div>}
 
       <div style={{ ...styles.planIcon, ...iconStyle }}>
