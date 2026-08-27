@@ -267,8 +267,16 @@ NAV LINKS INTERACTION
   </span>
 
   <span
-    onMouseEnter={(e) => navHoverOn(e, true)}
-    onMouseLeave={(e) => navHoverOff(e, "#60a5fa", true)}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = "translateY(-1px)";
+      e.currentTarget.style.color = "#60a5fa";
+      e.currentTarget.style.textShadow = "0 0 14px rgba(96,165,250,0.65)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "translateY(0)";
+      e.currentTarget.style.color = "#60a5fa";
+      e.currentTarget.style.textShadow = "0 0 8px rgba(96,165,250,0.35)";
+    }}
     onMouseDown={(e) => navClickFx(e)}
     style={{
       ...styles.activeNav,
@@ -363,6 +371,7 @@ NAV LINKS INTERACTION
             <PlanCard
               tone="blue"
               title="EVENT LICENSE"
+              displayTitle="NOVA LICENSE"
               desc="Professional tournaments
 Up to 4 arenas"
               price="FROM USD 39"
@@ -2648,7 +2657,7 @@ LICENSE PAGE
 PLAN CARD COMPONENT
 Supports DISCOVER / EVENT LICENSE / CLUB ANNUAL navigation.
 ====================================================== */
-function PlanCard({ title, desc, price, small, items, button, featured, variant, tone = "blue", buttonOffset = 0, onClick }) {
+function PlanCard({ title, displayTitle, desc, price, small, items, button, featured, variant, tone = "blue", buttonOffset = 0, onClick }) {
   const toneStyle =
     tone === "cyan"
       ? styles.demoCard
@@ -2691,7 +2700,7 @@ function PlanCard({ title, desc, price, small, items, button, featured, variant,
   )}
 </div>
 
-      <h3 style={styles.planTitle}>{title}</h3>
+      <h3 style={{ ...styles.planTitle, ...priceStyle }}>{displayTitle || title}</h3>
       <p style={styles.planDesc}>{desc}</p>
 
       <div style={{ ...styles.planPrice, ...priceStyle }}>{price}</div>
@@ -3141,7 +3150,7 @@ background: "linear-gradient(180deg, rgba(0,0,0,0.94) 0%, rgba(2,6,23,0.98) 100%
     top: -14,
     left: "50%",
     transform: "translateX(-50%)",
-    background: "linear-gradient(90deg,#2563eb,#3b82f6)",
+    background: "linear-gradient(90deg,#7c3aed,#a78bfa)",
     borderRadius: 7,
     padding: "7px 22px",
     fontSize: 12,
@@ -3171,12 +3180,12 @@ planList: {
   width: "100%",
   padding: "11px 14px",
   borderRadius: 7,
-  border: "1px solid rgba(120,180,255,0.95)",
-  background: "linear-gradient(90deg,#2563eb,#3b82f6)",
+  border: "1px solid rgba(196,181,253,0.95)",
+  background: "linear-gradient(90deg,#7c3aed,#a78bfa)",
   color: "#ffffff",
   fontWeight: 900,
   boxShadow:
-    "0 0 12px rgba(59,130,246,0.45), inset 0 0 12px rgba(255,255,255,0.10)",
+    "0 0 12px rgba(124,58,237,0.45), inset 0 0 12px rgba(255,255,255,0.10)",
 },
   outlineBtn: {
   width: "100%",
@@ -3435,6 +3444,21 @@ stepNumber: {
   fontSize: 22,
   fontWeight: 900,
 },
+  priceCyan: {
+    color: "#22d3ee",
+    textShadow: "0 0 14px rgba(34,211,238,0.42)",
+  },
+  priceBlue: {
+    color: "#a78bfa",
+    textShadow: "0 0 14px rgba(167,139,250,0.42)",
+  },
+  priceGold: {
+    color: "#fbbf24",
+    textShadow: "0 0 14px rgba(245,158,11,0.38)",
+  },
+  checkCyan: { color: "#22d3ee" },
+  checkBlue: { color: "#a78bfa" },
+  checkGold: { color: "#fbbf24" },
   leftContent: { 
      
   transform: "scale(0.88)",
@@ -3455,12 +3479,12 @@ demoCard: {
 
 singleCard: {
   background:
-    "linear-gradient(180deg, rgba(0,18,120,0.98) 0%, rgba(0,6,38,1) 100%)",
+    "linear-gradient(180deg, rgba(28,18,56,0.98) 0%, rgba(10,6,24,1) 100%)",
 
-  border: "2px solid rgba(45,110,255,1)",
+  border: "2px solid rgba(167,139,250,1)",
 
   boxShadow:
-    "0 0 1px rgb(0, 6, 19), 0 0 9px rgb(5, 66, 197), 0 0 3px rgba(0,68,255,0.88), 0 0 2px rgba(8, 65, 221, 0.34), inset 0 0 2px rgba(3, 56, 172, 0.14)",
+    "0 0 1px rgb(10, 6, 24), 0 0 9px rgba(124,58,237,0.82), 0 0 3px rgba(167,139,250,0.88), 0 0 2px rgba(124,58,237,0.34), inset 0 0 2px rgba(167,139,250,0.14)",
 },
 
 clubCard: {
@@ -3493,11 +3517,11 @@ iconCyan: {
 },
 
 iconBlue: {
-  color: "#4da3ff",
-  border: "1px solid rgba(77,163,255,1)",
+  color: "#a78bfa",
+  border: "1px solid rgba(167,139,250,1)",
 
   boxShadow:
-    "0 0 8px rgba(77,163,255,1), 0 0 18px rgba(0,102,255,1), 0 0 38px rgba(0,102,255,0.72)",
+    "0 0 8px rgba(167,139,250,1), 0 0 18px rgba(124,58,237,1), 0 0 38px rgba(124,58,237,0.72)",
 },
 
 iconGold: {
@@ -3528,7 +3552,7 @@ floorGlowCyan: {
 
 floorGlowBlue: {
   background:
-    "linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,68,255,0.08) 18%, rgba(45,110,255,1) 38%, rgba(120,180,255,1) 50%, rgba(45,110,255,1) 62%, rgba(0,68,255,0.08) 82%, rgba(0,0,0,0) 100%)",
+    "linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(124,58,237,0.08) 18%, rgba(124,58,237,1) 38%, rgba(196,181,253,1) 50%, rgba(124,58,237,1) 62%, rgba(124,58,237,0.08) 82%, rgba(0,0,0,0) 100%)",
 
   width: "140%",
 },
