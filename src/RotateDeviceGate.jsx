@@ -90,7 +90,7 @@ export default function RotateDeviceGate({
           color: "#f5c542",
         }}
       >
-        HWARANG SCORING UNIVERSE™
+        HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
       </div>
 
       <div

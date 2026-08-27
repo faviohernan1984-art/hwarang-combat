@@ -18,7 +18,7 @@ export default function HwarangAnimatedIsotype({
 
       {showLabel && (
         <span className="hwarang-animated-isotype__label">
-          HWARANG SCORING UNIVERSE™
+          HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
         </span>
       )}
     </div>

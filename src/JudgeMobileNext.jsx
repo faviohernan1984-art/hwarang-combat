@@ -374,7 +374,7 @@ if (isJudgeMobileLandscape) {
           color: "#f5c542",
         }}
       >
-        HWARANG SCORING UNIVERSE™
+        HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
       </div>
 
       <div
@@ -1116,7 +1116,7 @@ if (isJudgeMobileLandscape) {
           fontWeight: 800,
         }}
       >
-        HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
+        HWARANG SCORING UNIVERSE<span style={{ fontSize: 7, verticalAlign: "super" }}>®</span>
       </div>
 
       <div
@@ -1202,7 +1202,7 @@ if (isJudgeMobileLandscape) {
   ? "GOLDEN POINT"
   : <>
       HWARANG SCORING UNIVERSE
-      <span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
+      <span style={{ fontSize: 7, verticalAlign: "super" }}>®</span>
     </>
 }
       </div>

@@ -10,7 +10,7 @@ export default function LicenseComingSoon() {
         <div style={styles.logo}>H</div>
 
         <div style={styles.kicker}>
-          HWARANG SCORING UNIVERSE™
+          HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
         </div>
 
         <h1 style={styles.title}>

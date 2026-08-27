@@ -2194,7 +2194,7 @@ function CommercialAccessScreen({ title, message }) {
               marginBottom: 14,
             }}
           >
-            HWARANG SCORING UNIVERSE™
+            HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
           </div>
 
           <div
@@ -2628,7 +2628,7 @@ bottom: 0,
       opacity: 0.9,
     }}
   >
-    HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
+    HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>®</span>
   </div>
 
   {/* LÍNEA IDENTIDAD */}
@@ -2844,7 +2844,7 @@ fontWeight: 300,
             textShadow: "0 0 8px rgba(245,197,66,0.28)",
           }}
         >
-          Hwarang Scoring Universe™
+          Hwarang Scoring Universe<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
         </div>
 
         <div
@@ -3523,7 +3523,7 @@ WebkitTextStroke: "1px rgba(255,255,255,0.22)",
 WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
           }}
         >
-          UNIVERSE™
+          UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
         </div>
 
         <div
@@ -3754,7 +3754,7 @@ WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
     opacity: 0.72,
   }}
 >
-  © 2026 Hwarang Scoring Universe™
+  © 2026 Hwarang Scoring Universe<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
 </div>
         </div>
       </div>
@@ -4140,7 +4140,7 @@ if (isMobileLandscapeHome) {
           color: "#f5c542",
         }}
       >
-        HWARANG SCORING UNIVERSE™
+        HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
       </div>
 
       <div
@@ -4902,7 +4902,7 @@ if (isMobilePortraitPublicTV) {
         color: "#f5c542",
       }}
     >
-      HWARANG SCORING UNIVERSE™
+      HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
     </div>
 
     <div
@@ -5729,7 +5729,7 @@ WebkitTextFillColor: "transparent",
 `,
       }}
     >
-      HWARANG SCORING UNIVERSE™
+      HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
     </div>
 
     <div
@@ -7527,7 +7527,7 @@ const winner = gpaWinner || (meta.showResult ? s.winner : null);
                 opacity: 0.92,
               }}
             >
-              HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
+              HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>®</span>
             </div>
 
             <div
@@ -10405,7 +10405,7 @@ letterSpacing: "0.06em",
     animation: "hwarangFlow 4.2s linear infinite, hwarangShift 2.2s ease-in-out infinite, hwarangStrike 3.2s ease-in-out infinite",
   }}
 >
-  HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
+  HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>®</span>
 </div>
 </div>
 
@@ -13884,7 +13884,7 @@ animation:
           fontWeight: 800,
         }}
       >
-        HWARANG SCORING UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>™</span>
+        HWARANG SCORING UNIVERSE<span style={{ fontSize: 7, verticalAlign: "super" }}>®</span>
       </div>
 
       <div
@@ -14030,7 +14030,7 @@ function DemoWatermark() {
           textShadow: "0 0 10px rgba(255,215,0,0.45)",
         }}
       >
-        HWARANG SCORING UNIVERSE™ · DEMO MODE · THIS SPACE IS RESERVED FOR SPONSORS & EVENT ADVERTISING · PROFESSIONAL LICENSE REQUIRED · WWW.HWARANGSCORING.ORG
+        HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup> · DEMO MODE · THIS SPACE IS RESERVED FOR SPONSORS & EVENT ADVERTISING · PROFESSIONAL LICENSE REQUIRED · WWW.HWARANGSCORING.ORG
       </div>
 
       <style>
@@ -14081,10 +14081,10 @@ function DemoWatermarkJudge() {
         }}
       >
         <span style={{ paddingRight: 60 }}>
-          DEMO MODE · NOT FOR OFFICIAL USE · HWARANG SCORING UNIVERSE™
+          DEMO MODE · NOT FOR OFFICIAL USE · HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
         </span>
         <span style={{ paddingRight: 60 }}>
-          DEMO MODE · NOT FOR OFFICIAL USE · HWARANG SCORING UNIVERSE™
+          DEMO MODE · NOT FOR OFFICIAL USE · HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
         </span>
       </div>
 
@@ -14485,7 +14485,7 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
           color: "#f5c542",
         }}
       >
-        HWARANG SCORING UNIVERSE™
+        HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
       </div>
 
       <div
@@ -14623,7 +14623,7 @@ const { meta, judges, writeMeta, writeJudge, resetAll } = useFightData(
 >
   HWARANG SCORING
   <br />
-  UNIVERSE<span style={{ fontSize: 13, verticalAlign: "super" }}>™</span>
+  UNIVERSE<span style={{ fontSize: 10, verticalAlign: "super" }}>®</span>
 </div>
 
           <div
@@ -14819,7 +14819,7 @@ if (path === "/judge-exit") {
               color: "#f5c542",
             }}
           >
-            HWARANG SCORING UNIVERSE™
+            HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
           </div>
 
           <div
@@ -14949,7 +14949,7 @@ if (path === "/judge-exit") {
               marginBottom: 18,
             }}
           >
-            HWARANG SCORING UNIVERSE™
+            HWARANG SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
           </div>
 
           <div

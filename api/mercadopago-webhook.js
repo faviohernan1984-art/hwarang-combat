@@ -88,13 +88,13 @@ function buildAccessDeliveryEmail({ checkout, accessUrls }) {
   const selectedPackage = checkout.package || "Standard";
 
   const text = `
-Welcome to Hwarang Scoring Universe™
+Welcome to Hwarang Scoring Universe®
 
 Hello ${buyerName},
 
 Your Hwarang Scoring Universe license is active.
 
-Hwarang Scoring Universe™ was created to help organizations deliver more professional, organized, and efficient events. Every tournament represents preparation, commitment, and passion. This platform was designed to support that effort and elevate the experience for athletes, coaches, officials, and spectators.
+Hwarang Scoring Universe® was created to help organizations deliver more professional, organized, and efficient events. Every tournament represents preparation, commitment, and passion. This platform was designed to support that effort and elevate the experience for athletes, coaches, officials, and spectators.
 
 Product: ${product}
 Package: ${selectedPackage}
@@ -115,13 +115,13 @@ Please keep this email for your event operations.
 
 ---
 
-Bienvenido a Hwarang Scoring Universe™
+Bienvenido a Hwarang Scoring Universe®
 
 Hola ${buyerName},
 
 Tu licencia de Hwarang Scoring Universe está activa.
 
-Hwarang Scoring Universe™ fue desarrollado para ayudar a organizaciones de todo el mundo a crear eventos más profesionales, organizados y eficientes. Cada torneo representa preparación, compromiso y pasión. Esta plataforma fue diseñada para acompañar ese esfuerzo y elevar la experiencia de competidores, entrenadores, árbitros y espectadores.
+Hwarang Scoring Universe® fue desarrollado para ayudar a organizaciones de todo el mundo a crear eventos más profesionales, organizados y eficientes. Cada torneo representa preparación, compromiso y pasión. Esta plataforma fue diseñada para acompañar ese esfuerzo y elevar la experiencia de competidores, entrenadores, árbitros y espectadores.
 
 Producto: ${product}
 Paquete: ${selectedPackage}
@@ -152,18 +152,18 @@ Conserva este correo para la operación de tu evento.
       <div style="max-width:720px;margin:0 auto;padding:28px 14px;">
         <div style="background:#111111;border:1px solid #2a2a2a;border-radius:14px;overflow:hidden;">
           <div style="background:#080808;border-bottom:3px solid #8b0000;padding:30px 28px;text-align:center;">
-            <div style="font-size:28px;font-weight:800;letter-spacing:0.5px;color:#f7d774;">Hwarang Scoring Universe™</div>
+            <div style="font-size:28px;font-weight:800;letter-spacing:0.5px;color:#f7d774;">Hwarang Scoring Universe<sup style="font-size:42%;line-height:0;vertical-align:super;margin-left:0.08em;">®</sup></div>
             <div style="margin-top:6px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#b9b9b9;">Professional Event Scoring Technology</div>
           </div>
 
           <div style="padding:28px;">
             <div style="display:inline-block;background:#8b0000;color:#ffffff;border-radius:4px;padding:8px 12px;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;">NOVA ACCESS READY</div>
 
-            <h1 style="margin:22px 0 10px;font-size:26px;line-height:1.25;color:#ffffff;">Welcome to Hwarang Scoring Universe™</h1>
+            <h1 style="margin:22px 0 10px;font-size:26px;line-height:1.25;color:#ffffff;">Welcome to Hwarang Scoring Universe<sup style="font-size:42%;line-height:0;vertical-align:super;margin-left:0.08em;">®</sup></h1>
             <p style="margin:0 0 16px;color:#d7d7d7;font-size:15px;">Hello ${safeBuyerName},</p>
             <p style="margin:0 0 18px;color:#d7d7d7;font-size:15px;">Your Hwarang Scoring Universe license is active.</p>
 
-            <p style="margin:0 0 22px;color:#c9c9c9;font-size:15px;">Hwarang Scoring Universe™ was created to help organizations deliver more professional, organized, and efficient events. Every tournament represents preparation, commitment, and passion. This platform was designed to support that effort and elevate the experience for athletes, coaches, officials, and spectators.</p>
+            <p style="margin:0 0 22px;color:#c9c9c9;font-size:15px;">Hwarang Scoring Universe<sup style="font-size:42%;line-height:0;vertical-align:super;margin-left:0.08em;">®</sup> was created to help organizations deliver more professional, organized, and efficient events. Every tournament represents preparation, commitment, and passion. This platform was designed to support that effort and elevate the experience for athletes, coaches, officials, and spectators.</p>
 
             <div style="background:#191919;border:1px solid #333333;border-radius:10px;padding:18px 20px;margin:0 0 24px;">
               <div style="font-size:13px;text-transform:uppercase;letter-spacing:1.4px;color:#f7d774;font-weight:800;margin-bottom:12px;">License Details</div>
@@ -195,11 +195,11 @@ Conserva este correo para la operación de tu evento.
 
             <div style="height:1px;background:#333333;margin:30px 0;"></div>
 
-            <h1 style="margin:0 0 10px;font-size:24px;line-height:1.25;color:#ffffff;">Bienvenido a Hwarang Scoring Universe™</h1>
+            <h1 style="margin:0 0 10px;font-size:24px;line-height:1.25;color:#ffffff;">Bienvenido a Hwarang Scoring Universe<sup style="font-size:42%;line-height:0;vertical-align:super;margin-left:0.08em;">®</sup></h1>
             <p style="margin:0 0 16px;color:#d7d7d7;font-size:15px;">Hola ${safeBuyerName},</p>
             <p style="margin:0 0 18px;color:#d7d7d7;font-size:15px;">Tu licencia de Hwarang Scoring Universe está activa.</p>
 
-            <p style="margin:0 0 22px;color:#c9c9c9;font-size:15px;">Hwarang Scoring Universe™ fue desarrollado para ayudar a organizaciones de todo el mundo a crear eventos más profesionales, organizados y eficientes. Cada torneo representa preparación, compromiso y pasión. Esta plataforma fue diseñada para acompañar ese esfuerzo y elevar la experiencia de competidores, entrenadores, árbitros y espectadores.</p>
+            <p style="margin:0 0 22px;color:#c9c9c9;font-size:15px;">Hwarang Scoring Universe<sup style="font-size:42%;line-height:0;vertical-align:super;margin-left:0.08em;">®</sup> fue desarrollado para ayudar a organizaciones de todo el mundo a crear eventos más profesionales, organizados y eficientes. Cada torneo representa preparación, compromiso y pasión. Esta plataforma fue diseñada para acompañar ese esfuerzo y elevar la experiencia de competidores, entrenadores, árbitros y espectadores.</p>
 
             <div style="background:#191919;border:1px solid #333333;border-radius:10px;padding:18px 20px;margin:0 0 24px;">
               <div style="font-size:13px;text-transform:uppercase;letter-spacing:1.4px;color:#f7d774;font-weight:800;margin-bottom:12px;">Datos de licencia</div>
@@ -235,7 +235,7 @@ Conserva este correo para la operación de tu evento.
   `;
 
   return {
-    subject: "Welcome to Hwarang Scoring Universe™ | Bienvenido a Hwarang Scoring Universe™",
+    subject: "Welcome to Hwarang Scoring Universe® | Bienvenido a Hwarang Scoring Universe®",
     text,
     html,
   };

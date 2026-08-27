@@ -190,7 +190,7 @@ export default function TournamentSetup() {
   variant="overline"
   className="tournament-setup__brand-subtitle"
 >
-  SCORING UNIVERSE™
+  SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
 </HSUTypography>
 
         </div>

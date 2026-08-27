@@ -231,7 +231,7 @@ Keeps navigation clickable above transformed content layers.
 </div>
           <div>
             <div style={styles.brandTitle}>HWARANG</div>
-            <div style={styles.brandSub}>SCORING UNIVERSE™</div>
+            <div style={styles.brandSub}>SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup></div>
           </div>
         </div>
 
@@ -307,7 +307,7 @@ NAV LINKS INTERACTION
             <h1 style={styles.title}>
               HWARANG SCORING <span style={styles.blueText}>
   UNIVERSE
-  <span style={styles.tm}>™</span>
+  <span style={styles.tm}>®</span>
 </span>
             </h1>
             <p style={styles.subtitle}>
@@ -600,7 +600,7 @@ Keeps navigation clickable above transformed content layers.
 
           <div>
             <div style={styles.brandTitle}>HWARANG</div>
-            <div style={styles.brandSub}>SCORING UNIVERSE™</div>
+            <div style={styles.brandSub}>SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup></div>
           </div>
         </div>
 
@@ -725,7 +725,7 @@ PC frozen behavior remains untouched.
       textShadow: "0 0 24px rgba(34,211,238,0.55)",
     }}
   >
-    UNIVERSE™
+    UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup>
   </span>
 </h1>
 
@@ -1095,7 +1095,7 @@ const prices = {
 
           <div>
             <div style={styles.brandTitle}>HWARANG</div>
-            <div style={styles.brandSub}>SCORING UNIVERSE™</div>
+            <div style={styles.brandSub}>SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup></div>
           </div>
         </div>
 
@@ -1890,7 +1890,7 @@ Keeps navigation clickable above transformed content layers.
 
           <div>
             <div style={styles.brandTitle}>HWARANG</div>
-            <div style={styles.brandSub}>SCORING UNIVERSE™</div>
+            <div style={styles.brandSub}>SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup></div>
           </div>
         </div>
 
