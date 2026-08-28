@@ -226,6 +226,12 @@ const isNotebookLicenseLayout =
   viewport.height >= 700 &&
   viewport.height <= 900;
 
+const isShortNotebookLicenseLayout =
+  isNotebookLicenseLayout && viewport.height < 820;
+
+const isWideLicenseDesktop =
+  viewport.width > 1600;
+
   const isIPhoneLandscape =
   isMobileLandscape &&
   typeof navigator !== "undefined" &&
@@ -239,6 +245,7 @@ const isNotebookLicenseLayout =
     <div
   style={{
     ...styles.page,
+    ...(isNotebookLicenseLayout ? notebookCollageLock : {}),
     ...(isMobileLandscape && !isMobilePortrait
   ? {
           position: "fixed",
@@ -304,8 +311,16 @@ NAV LINKS INTERACTION
 ====================================================== */}
 <nav style={styles.navLinks}>
   <span
-    onMouseEnter={(e) => navHoverOn(e)}
-    onMouseLeave={(e) => navHoverOff(e)}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = "translateY(-1px)";
+      e.currentTarget.style.color = "#60a5fa";
+      e.currentTarget.style.textShadow = "0 0 10px rgba(96,165,250,0.45)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "translateY(0)";
+      e.currentTarget.style.color = "#ffffff";
+      e.currentTarget.style.textShadow = "none";
+    }}
     onMouseDown={(e) => navClickFx(e)}
     onClick={() => (window.location.href = "/")}
     style={{
@@ -314,19 +329,6 @@ NAV LINKS INTERACTION
     }}
   >
     HOME
-  </span>
-
-  <span
-    onMouseEnter={(e) => navHoverOn(e)}
-    onMouseLeave={(e) => navHoverOff(e)}
-    onMouseDown={(e) => navClickFx(e)}
-    onClick={() => (window.location.href = "/license/demo")}
-    style={{
-      cursor: "pointer",
-      transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
-    }}
-  >
-    DISCOVER
   </span>
 
   <span
@@ -373,16 +375,19 @@ NAV LINKS INTERACTION
         style={{
           ...styles.main,
           padding: isNotebookLicenseLayout
-            ? "8px 20px 8px"
+            ? notebookCommercialViewport.pagePadding
             : "38px 92px 28px",
           gridTemplateColumns: isNotebookLicenseLayout
-            ? "0.9fr 0.58fr"
+            ? notebookCommercialViewport.gridColumns
             : "1.35fr 0.65fr",
-          gap: 38,
+          gap: isNotebookLicenseLayout
+            ? notebookCommercialViewport.gridGap
+            : 38,
           alignItems: "center",
-          transform: isNotebookLicenseLayout
-            ? "translateY(-120px)"
-            : "none",
+          minHeight: "calc(100vh - 88px)",
+          height: "auto",
+          boxSizing: "border-box",
+          overflow: "visible",
         }}
       >
         <section
@@ -392,9 +397,11 @@ NAV LINKS INTERACTION
             top: 0,
             padding: 0,
             maxHeight: "none",
-            transform: isNotebookLicenseLayout
-              ? "translateY(20px)"
-              : "translateY(-20px)",
+            transform: isNotebookLicenseLayout ? "none" : "translateY(-20px)",
+            height: "auto",
+            display: isNotebookLicenseLayout ? "flex" : "block",
+            flexDirection: isNotebookLicenseLayout ? "column" : undefined,
+            justifyContent: isNotebookLicenseLayout ? "flex-start" : undefined,
           }}
         >
         <div
@@ -408,11 +415,9 @@ NAV LINKS INTERACTION
           <div
             style={{
               ...styles.hero,
-              transform: isNotebookLicenseLayout
-                ? "scale(0.88)"
-                : "scale(0.90)",
+              transform: isNotebookLicenseLayout ? "none" : "scale(0.90)",
               transformOrigin: "top center",
-              marginBottom: isNotebookLicenseLayout ? -12 : -10,
+              marginBottom: isNotebookLicenseLayout ? 0 : -10,
             }}
           >
             <div style={styles.heroGlow} />
@@ -423,7 +428,23 @@ NAV LINKS INTERACTION
   <span style={styles.tm}>®</span>
 </span>
             </h1>
-            <p style={styles.subtitle}>
+            <p
+              style={{
+                ...styles.subtitle,
+                maxWidth: isNotebookLicenseLayout
+  ? 1100
+  : isWideLicenseDesktop
+  ? 1160
+  : styles.subtitle.maxWidth,
+                fontSize: isNotebookLicenseLayout ? 16 : styles.subtitle.fontSize,
+                lineHeight: isNotebookLicenseLayout ? 1.25 : styles.subtitle.lineHeight,
+marginTop: isNotebookLicenseLayout ? 8 : 14,
+maxWidth: isNotebookLicenseLayout ? 900 : styles.subtitle.maxWidth,
+marginLeft: "auto",
+marginRight: "auto",
+whiteSpace: isWideLicenseDesktop ? "nowrap" : "normal",
+              }}
+            >
               The professional real-time scoring system for ITF Taekwon-Do competitions.
               Reliable, accurate and designed for tournaments of all levels.
             </p>
@@ -432,40 +453,43 @@ NAV LINKS INTERACTION
           <div
             style={{
               width: "100%",
-              transform: "scale(0.95)",
+              transform: isNotebookLicenseLayout ? "none" : "scale(0.95)",
               transformOrigin: "top center",
             }}
           >
           <div
             style={{
               ...styles.features,
-              marginTop: isNotebookLicenseLayout ? 20 : 24,
-              transform: isNotebookLicenseLayout
-                ? "scale(0.88)"
-                : "scale(0.90)",
+              marginTop: isNotebookLicenseLayout ? "clamp(8px, 1.5vh, 14px)" : 24,
+              gap: isNotebookLicenseLayout ? "clamp(18px, 2.5vw, 34px)" : styles.features.gap,
+              transform: isNotebookLicenseLayout ? "none" : "scale(0.90)",
               transformOrigin: "top center",
-              marginBottom: isNotebookLicenseLayout ? -12 : -10,
+              marginBottom: isNotebookLicenseLayout ? 0 : -10,
             }}
           >
 <Feature
+  compact={isShortNotebookLicenseLayout}
   icon={<ShieldCheck size={18} style={styles.lucideIcon} />}
   title="OFFICIAL STANDARD"
   text="Professional system built to ITF standards"
 />
 
 <Feature
+  compact={isShortNotebookLicenseLayout}
   icon={<Zap size={18} style={styles.lucideIcon} />}
   title="REAL-TIME SYSTEM"
   text="Instant synchronization across all devices"
 />
 
 <Feature
+  compact={isShortNotebookLicenseLayout}
   icon={<Globe size={18} style={styles.lucideIcon} />}
   title="CLOUD PLATFORM"
   text="Your data always secure and accessible"
 />
 
 <Feature
+  compact={isShortNotebookLicenseLayout}
   icon={<Smartphone size={18} style={styles.lucideIcon} />}
   title="PREMIUM SUPPORT"
   text="Dedicated technical assistance"
@@ -475,7 +499,7 @@ NAV LINKS INTERACTION
           <div
             style={{
               ...styles.sectionTitle,
-              marginTop: isNotebookLicenseLayout ? 16 : 20,
+              marginTop: isNotebookLicenseLayout ? "clamp(8px, 1.6vh, 14px)" : 20,
             }}
           >
             CHOOSE YOUR LICENSE PLAN
@@ -484,15 +508,17 @@ NAV LINKS INTERACTION
           <div
             style={{
               ...styles.cards,
-              transform: isNotebookLicenseLayout
-                ? "scale(0.90)"
-                : "scale(0.91)",
+              gap: isNotebookLicenseLayout ? "clamp(16px, 2vw, 28px)" : styles.cards.gap,
+              padding: isNotebookLicenseLayout ? "clamp(8px, 1.2vh, 12px)" : styles.cards.padding,
+              marginTop: isNotebookLicenseLayout ? 4 : styles.cards.marginTop,
+              transform: isNotebookLicenseLayout ? "none" : "scale(0.91)",
               transformOrigin: "top center",
             }}
           >
             <PlanCard
             tone="cyan"
             title="DISCOVER"
+            compact={isShortNotebookLicenseLayout}
             desc="Ideal for testing and evaluation"
             items={[
             "10-minute evaluation access",
@@ -508,6 +534,7 @@ NAV LINKS INTERACTION
             <PlanCard
               tone="blue"
               title="EVENT LICENSE"
+              compact={isShortNotebookLicenseLayout}
               displayTitle="NOVA LICENSE"
               desc="Professional tournaments
 Up to 4 arenas"
@@ -526,6 +553,7 @@ Up to 4 arenas"
             <PlanCard
   tone="gold"
   title="PULSAR LICENSE"
+  compact={isShortNotebookLicenseLayout}
   desc="The Heartbeat of an Organization"
   items={[
     "Unlimited Events",
@@ -541,12 +569,19 @@ Up to 4 arenas"
           </div>
           </div>
 
-          <div style={styles.note}>
-            All licenses include continuous updates and platform improvements.
-          </div>
           </div>
 
-<div style={styles.statsStrip}>
+<div
+  style={{
+    ...styles.statsStrip,
+    position: "static",
+    left: "auto",
+    right: "auto",
+    bottom: "auto",
+    marginTop: isNotebookLicenseLayout ? "clamp(8px, 1.4vh, 14px)" : 18,
+    width: "100%",
+  }}
+>
   <div style={styles.statItem}>
     <ShieldCheck size={18} style={styles.bottomLucideIcon} />
     TRUSTED BY<br />
@@ -566,6 +601,21 @@ Up to 4 arenas"
   </div>
 </div>
 
+<div
+  style={{
+    ...styles.note,
+    ...(isNotebookLicenseLayout
+      ? {
+          marginTop: "clamp(8px, 1.2vh, 12px)",
+          marginBottom: 0,
+          fontSize: 13,
+        }
+      : {}),
+  }}
+>
+  All licenses include continuous updates and platform improvements.
+</div>
+
 </section>
 
         <aside
@@ -575,32 +625,53 @@ Up to 4 arenas"
             position: "relative",
             right: "auto",
             top: "auto",
-            alignSelf: "center",
-            padding: 15,
+            alignSelf: isNotebookLicenseLayout ? "start" : "center",
+            padding: isShortNotebookLicenseLayout ? 15 : 15,
             transform: isNotebookLicenseLayout
-              ? "translateY(115px) scale(0.67)"
-              : "translateY(-23px) scale(0.91)",
-            transformOrigin: "top right",
+  ? `scale(${notebookCommercialViewport.rightScale})`
+  : "translateY(-23px) scale(0.91)",
+transformOrigin: "top right",
             borderColor: selectedTone.border,
             boxShadow: `0 0 140px rgba(0,0,0,0.96), 0 0 60px ${selectedTone.glow}, inset 0 0 90px ${selectedTone.glow}`,
           }}
         >
   <h2 style={{ ...styles.checkoutTitle, color: selectedTone.accent }}>YOUR SELECTION</h2>
 
-  <div style={{ ...styles.selectedBox, borderColor: selectedTone.border }}>
-    <div style={{ ...styles.trophyBox, borderColor: selectedTone.border, background: selectedTone.surface }}>
+  <div
+    style={{
+      ...styles.selectedBox,
+      borderColor: selectedTone.border,
+      ...(isShortNotebookLicenseLayout ? { padding: "14px 16px", gap: 20 } : {}),
+    }}
+  >
+    <div
+      style={{
+        ...styles.trophyBox,
+        borderColor: selectedTone.border,
+        background: selectedTone.surface,
+        ...(isShortNotebookLicenseLayout ? { width: 64, height: 64 } : {}),
+      }}
+    >
       {selectedLicenseKey === "discover" ? (
-        <ShieldCheck size={34} style={{ ...styles.checkoutMainIcon, color: selectedTone.accent }} />
+        <ShieldCheck size={isShortNotebookLicenseLayout ? 38 : 34} style={{ ...styles.checkoutMainIcon, color: selectedTone.accent }} />
       ) : selectedLicenseKey === "pulsar" ? (
-        <Crown size={34} style={{ ...styles.checkoutMainIcon, color: selectedTone.accent }} />
+        <Crown size={isShortNotebookLicenseLayout ? 38 : 34} style={{ ...styles.checkoutMainIcon, color: selectedTone.accent }} />
       ) : (
-        <Zap size={34} style={{ ...styles.checkoutMainIcon, color: selectedTone.accent }} />
+        <Zap size={isShortNotebookLicenseLayout ? 38 : 34} style={{ ...styles.checkoutMainIcon, color: selectedTone.accent }} />
       )}
     </div>
 
     <div style={{ flex: 1 }}>
       <div style={styles.muted}>SELECTED LICENSE</div>
-      <div style={{ ...styles.selectedTitle, color: selectedTone.accent }}>{selectedLicense.title}</div>
+      <div
+        style={{
+          ...styles.selectedTitle,
+          color: selectedTone.accent,
+          ...(isShortNotebookLicenseLayout ? { fontSize: 20 } : {}),
+        }}
+      >
+        {selectedLicense.title}
+      </div>
       <div style={styles.muted}>{selectedLicense.description}</div>
     </div>
 
@@ -609,6 +680,7 @@ Up to 4 arenas"
   <div style={styles.detailList}>
     {selectedLicense.items.map((item) => (
       <Row
+        compact={isShortNotebookLicenseLayout}
         key={item}
         icon={<ShieldCheck size={18} style={{ ...styles.rowIcon, color: selectedTone.accent }} />}
         label={item}
@@ -624,6 +696,7 @@ Up to 4 arenas"
     background: selectedTone.button,
     color: selectedTone.buttonColor,
     boxShadow: `0 0 24px ${selectedTone.glow}, inset 0 0 18px rgba(255,255,255,0.08)`,
+    ...(isShortNotebookLicenseLayout ? { height: 66, fontSize: 15 } : {}),
   }}
   onClick={() => (window.location.href = selectedLicense.route)}
 >
@@ -2765,13 +2838,29 @@ function DemoLimit({ label, value }) {
   );
 }
 
-function Feature({ icon, title, text }) {
+function Feature({ icon, title, text, compact = false }) {
   
   return (
     <div style={styles.feature}>
-      <div style={styles.featureIcon}>{icon}</div>
+      <div
+        style={{
+          ...styles.featureIcon,
+          ...(compact
+            ? { width: 46, height: 46, marginBottom: 10 }
+            : {}),
+        }}
+      >
+        {icon}
+      </div>
       <div style={styles.featureTitle}>{title}</div>
-      <p style={styles.featureText}>{text}</p>
+      <p
+        style={{
+          ...styles.featureText,
+          ...(compact ? { marginTop: 6, lineHeight: 1.35 } : {}),
+        }}
+      >
+        {text}
+      </p>
     </div>
   );
 }
@@ -2781,7 +2870,7 @@ LICENSE PAGE
 PLAN CARD COMPONENT
 Supports DISCOVER / EVENT LICENSE / CLUB ANNUAL navigation.
 ====================================================== */
-function PlanCard({ title, displayTitle, desc, price, small, items, button, featured, variant, tone = "blue", buttonOffset = 0, onClick, onSelect }) {
+function PlanCard({ title, displayTitle, desc, price, small, items, button, featured, variant, tone = "blue", buttonOffset = 0, onClick, onSelect, compact = false }) {
   const toneStyle =
     tone === "cyan"
       ? styles.demoCard
@@ -2811,10 +2900,27 @@ function PlanCard({ title, displayTitle, desc, price, small, items, button, feat
       : styles.checkBlue;
 
   return (
-    <div style={{ ...styles.planCard, ...toneStyle }} onClick={onSelect}>
+    <div
+      style={{
+        ...styles.planCard,
+        ...toneStyle,
+        ...(compact
+          ? { minHeight: 235, padding: "12px 14px 12px" }
+          : {}),
+      }}
+      onClick={onSelect}
+    >
       {featured && <div style={styles.badge}>MOST POPULAR</div>}
 
-      <div style={{ ...styles.planIcon, ...iconStyle }}>
+      <div
+        style={{
+          ...styles.planIcon,
+          ...iconStyle,
+          ...(compact
+            ? { width: 50, height: 50, marginBottom: 8 }
+            : {}),
+        }}
+      >
   {tone === "cyan" ? (
     <ShieldCheck size={20} style={styles.planLucideIcon} />
   ) : tone === "gold" ? (
@@ -2824,19 +2930,41 @@ function PlanCard({ title, displayTitle, desc, price, small, items, button, feat
   )}
 </div>
 
-      <h3 style={{ ...styles.planTitle, ...priceStyle }}>{displayTitle || title}</h3>
-      <p style={styles.planDesc}>{desc}</p>
+      <h3
+        style={{
+          ...styles.planTitle,
+          ...priceStyle,
+          ...(compact ? { fontSize: 18, marginBottom: 6 } : {}),
+        }}
+      >
+        {displayTitle || title}
+      </h3>
+      <p
+        style={{
+          ...styles.planDesc,
+          ...(compact ? { minHeight: 28, fontSize: 13, lineHeight: 1.3 } : {}),
+        }}
+      >
+        {desc}
+      </p>
 
       <div style={{ ...styles.planPrice, ...priceStyle }}>{price}</div>
       {small && <div style={styles.planSmall}>{small}</div>}
 
-      <ul style={styles.planList}>
+      <ul
+        style={{
+          ...styles.planList,
+          ...(compact
+            ? { minHeight: 64, fontSize: 13, lineHeight: 1.3 }
+            : {}),
+        }}
+      >
         {items.map((item) => (
           <li
   key={item}
   style={{
-    width: 220,
-    margin: "0 auto 6px",
+    width: compact ? 210 : 220,
+margin: compact ? "0 auto 3px" : "0 auto 6px",
     display: "grid",
     gridTemplateColumns: "14px 1fr",
     columnGap: 8,
@@ -2928,7 +3056,8 @@ if (title === "PULSAR LICENSE") {
     ...(variant === "outline" ? styles.outlineBtn : styles.primaryBtn),
     ...(tone === "cyan" ? styles.cyanBtn : {}),
     ...(tone === "gold" ? styles.goldBtn : {}),
-    marginTop: buttonOffset,
+    marginTop: compact ? Math.min(buttonOffset, 14) : buttonOffset,
+    ...(compact ? { padding: "9px 14px", fontSize: 13 } : {}),
     transition:
       "transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease",
   }}
@@ -2960,9 +3089,14 @@ if (title === "PULSAR LICENSE") {
   );
 }
 
-function Row({ icon, label, value }) {
+function Row({ icon, label, value, compact = false }) {
   return (
-    <div style={styles.row}>
+    <div
+      style={{
+        ...styles.row,
+        ...(compact ? { padding: "12px 0", fontSize: 14 } : {}),
+      }}
+    >
       <div style={styles.rowLabel}>
         {icon}
         <span>{label}</span>

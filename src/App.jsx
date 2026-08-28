@@ -15245,26 +15245,32 @@ export default function App() {
   }
 
   if (routePath === "/license-dev") {
-    const isLicensePortrait =
-      typeof window !== "undefined" &&
-      window.innerWidth < 900 &&
-      window.innerHeight > window.innerWidth;
+  const isLicensePortrait =
+    typeof window !== "undefined" &&
+    window.innerWidth < 900 &&
+    window.innerHeight > window.innerWidth;
 
-    if (isLicensePortrait) {
-      return (
-        <>
-          <GlobalAppStyle />
-          <LicensePage />
-        </>
-      );
-    }
+  const isNotebookLicense =
+    typeof window !== "undefined" &&
+    window.innerWidth >= 1200 &&
+    window.innerWidth <= 1600 &&
+    window.innerHeight >= 700 &&
+    window.innerHeight <= 900;
 
-    return (
-      <CinematicAdaptiveShell>
+  return (
+    <>
+      <GlobalAppStyle />
+
+      {isLicensePortrait || isNotebookLicense ? (
         <LicensePage />
-      </CinematicAdaptiveShell>
-    );
-  }
+      ) : (
+        <CinematicAdaptiveShell>
+          <LicensePage />
+        </CinematicAdaptiveShell>
+      )}
+    </>
+  );
+}
 
   if (routePath === "/license") {
     return <LicenseComingSoon />;
