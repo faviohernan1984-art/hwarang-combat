@@ -14,7 +14,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
 import {
   onSnapshot,
-  runTransaction,
   setDoc,
   getDoc,
   getDocs,
@@ -30,6 +29,7 @@ import RotateDeviceGate from "./RotateDeviceGate";
 import TournamentSetup from "./components/tournamentSetup/TournamentSetup.jsx";
 import HSUTechnologyExperience from "./components/HSUTechnologyExperience/HSUTechnologyExperience.jsx";
 import HSUUniversePOC from "./experience/universe/HSUUniversePOC.jsx";
+import { resolveCommercialProduct } from "./commercialCatalog.js";
 
 if (typeof document !== "undefined" && !document.getElementById("winnerPulseStyle")) {
   const style = document.createElement("style");
@@ -88,30 +88,15 @@ function CheckoutPage() {
 
   const selectedProduct = checkoutParams.get("product") || "none";
   const selectedPackage = checkoutParams.get("package") || "not-selected";
-  const selectedPrice = checkoutParams.get("price") || "0";
+  const selectedPlan = resolveCommercialProduct(selectedProduct, selectedPackage);
 
   /* ======================================================
 PULSAR VOLUME DISCOUNT ENGINE
 ====================================================== */
-const numericPrice = Number(selectedPrice || 0);
-
-let discountPercent = 0;
-
-if (selectedProduct === "pulsar") {
-  if (numericPrice >= 5000) {
-    discountPercent = 15;
-  } else if (numericPrice >= 2000) {
-    discountPercent = 10;
-  } else if (numericPrice >= 1000) {
-    discountPercent = 5;
-  }
-}
-
-const discountAmount =
-  Math.round((numericPrice * discountPercent) / 100);
-
-const finalPrice =
-  numericPrice - discountAmount;
+const numericPrice = selectedPlan?.regularPriceUsd || 0;
+const discountPercent = selectedPlan?.discountPercent || 0;
+const discountAmount = numericPrice - (selectedPlan?.priceUsd || 0);
+const finalPrice = selectedPlan?.priceUsd || 0;
 
 /* ======================================================
 CHECKOUT ORGANIZER FORM STATE
@@ -121,12 +106,16 @@ const [buyerName, setBuyerName] = useState("");
 const [organization, setOrganization] = useState("");
 const [country, setCountry] = useState("");
 const [email, setEmail] = useState("");
+const [isSubmittingCheckout, setIsSubmittingCheckout] = useState(false);
+const [checkoutError, setCheckoutError] = useState("");
+const checkoutSubmittingRef = useRef(false);
 
 const isCheckoutFormValid =
+  Boolean(selectedPlan) &&
   buyerName.trim() &&
   organization.trim() &&
   country.trim() &&
-  email.trim();
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 
 /* ======================================================
 CHECKOUT REQUEST ID
@@ -141,82 +130,51 @@ const generateCheckoutId = () => {
   );
 };
 
-/* ======================================================
-LICENSE KEY GENERATOR
-HSU-TKD-NOVA-2026-A7K4P9
-HSU-TKD-PULSAR-2026-X9T2R5
-====================================================== */
-const generateLicenseKey = () => {
-  const year = new Date().getFullYear();
+async function handleCheckout() {
+  if (!isCheckoutFormValid || checkoutSubmittingRef.current) return;
+  checkoutSubmittingRef.current = true;
+  setIsSubmittingCheckout(true);
+  setCheckoutError("");
 
-  const productCode =
-    selectedProduct === "nova"
-      ? "NOVA"
-      : selectedProduct === "pulsar"
-      ? "PULSAR"
-      : "DISCOVER";
+  try {
+    const preferenceResponse = await fetch("/api/create-preference", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        checkoutId: generateCheckoutId(),
+        product: selectedProduct,
+        package: selectedPackage,
+        email: email.trim(),
+        buyerName: buyerName.trim(),
+        organization: organization.trim(),
+        country: country.trim(),
+      }),
+    });
 
-  const chars =
-    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const responseText = await preferenceResponse.text();
+    let preferenceData = {};
+    try {
+      preferenceData = responseText ? JSON.parse(responseText) : {};
+    } catch {
+      throw new Error("INVALID_SERVER_RESPONSE");
+    }
 
-  let uniqueCode = "";
+    if (!preferenceResponse.ok || !preferenceData.initPoint) {
+      throw new Error(preferenceData.error || "PAYMENT_CREATION_FAILED");
+    }
 
-  for (let i = 0; i < 6; i++) {
-    uniqueCode +=
-      chars[Math.floor(Math.random() * chars.length)];
-  }
-
-  return `HSU-TKD-${productCode}-${year}-${uniqueCode}`;
-};
-
-/* ======================================================
-CHECKOUT ACTIVATION PLAN
-Creates the future license activation structure.
-Payment approval will activate it later from backend.
-====================================================== */
-const buildActivationPlan = () => {
-  const now = new Date();
-
-  if (selectedProduct === "nova") {
-    const expires = new Date(now);
-    expires.setDate(expires.getDate() + 1);
-    return {
-      product: "nova",
-      validityType: "single-event",
-      activationStatus: "pending-payment",
-      requestedActivationDate: now.toISOString(),
-      estimatedExpirationDate: expires.toISOString(),
-      durationDays: 1,
-    };
-  }
-
-  if (selectedProduct === "pulsar") {
-    const expires = new Date(now);
-    expires.setFullYear(expires.getFullYear() + 1);
-
-    const credits = Number(
-      String(selectedPackage).replace("-credits", "")
+    window.location.assign(preferenceData.initPoint);
+  } catch (error) {
+    console.error("CHECKOUT_SUBMISSION_ERROR", error?.message);
+    setCheckoutError(
+      error?.name === "TypeError"
+        ? "Network error. Check your connection and try again."
+        : "Payment could not be started. Please review your information and try again."
     );
-
-    return {
-      product: "pulsar",
-      validityType: "annual",
-      activationStatus: "pending-payment",
-      requestedActivationDate: now.toISOString(),
-      estimatedExpirationDate: expires.toISOString(),
-      durationDays: 365,
-      creditsTotal: credits,
-      creditsUsed: 0,
-      creditsRemaining: credits,
-    };
+    checkoutSubmittingRef.current = false;
+    setIsSubmittingCheckout(false);
   }
-
-  return {
-    product: selectedProduct,
-    validityType: "unknown",
-    activationStatus: "pending-payment",
-  };
-};
+}
 
   return (
     <div
@@ -252,6 +210,11 @@ Shows selected product before payment.
     border: "1px solid rgba(96,165,250,0.35)",
   }}
 >
+  {!selectedPlan && (
+    <div role="alert" style={{ marginBottom: 12, color: "#fca5a5", fontWeight: 700 }}>
+      This product or package is not available. Return to LICENSE and select a valid option.
+    </div>
+  )}
   <div>Product: {selectedProduct}</div>
 
   <div>Package: {selectedPackage}</div>
@@ -342,96 +305,15 @@ CHECKOUT CONTINUE BUTTON
 Commercial payload preparation.
 ====================================================== */}
 <button
-  disabled={!isCheckoutFormValid}
-  onClick={async () => {
-  if (!isCheckoutFormValid) return;
-
-  const checkoutId = generateCheckoutId();
-
-const activationPlan = buildActivationPlan();
-
-const licenseKey = generateLicenseKey();
-
-const checkoutPayload = {
-    id: checkoutId,
-
-licenseKey,
-
-product: selectedProduct,
-    package: selectedPackage,
-
-    regularPrice: numericPrice,
-    discountPercent,
-    discountAmount,
-    finalPrice,
-
-    buyerName: buyerName.trim(),
-    organization: organization.trim(),
-    country: country.trim(),
-    email: email.trim(),
-
-    status: "pending",
-
-paymentStatus: "pending",
-licenseStatus: "not-created",
-activationStatus: "waiting-payment",
-
-activationPlan,
-
-createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  await setDoc(
-  doc(db, "checkoutRequests", checkoutId),
-  checkoutPayload
-);
-
-console.log(
-  "HWARANG CHECKOUT REQUEST SAVED",
-  checkoutPayload
-);
-
-const preferenceResponse = await fetch("/api/create-preference", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    checkoutId,
-    licenseKey,
-    product: selectedProduct,
-    package: selectedPackage,
-    finalPrice,
-    email: email.trim(),
-    buyerName: buyerName.trim(),
-    organization: organization.trim(),
-  }),
-});
-
-const preferenceData = await preferenceResponse.json();
-
-if (!preferenceResponse.ok) {
-  console.error("MERCADO PAGO PREFERENCE ERROR", preferenceData);
-  alert("Payment could not be created. Please try again.");
-  return;
-}
-
-if (!preferenceData.initPoint) {
-  console.error("MERCADO PAGO INIT POINT MISSING", preferenceData);
-  alert("Payment link was not received. Please try again.");
-  return;
-}
-
-window.location.href = preferenceData.initPoint;
-}}
+  disabled={!isCheckoutFormValid || isSubmittingCheckout}
+  onClick={handleCheckout}
   style={{
     marginTop: 12,
     padding: 16,
     border: "none",
     borderRadius: 12,
 
-    background: isCheckoutFormValid
+    background: isCheckoutFormValid && !isSubmittingCheckout
       ? "#2563eb"
       : "#374151",
 
@@ -439,19 +321,44 @@ window.location.href = preferenceData.initPoint;
 
     fontWeight: 700,
 
-    cursor: isCheckoutFormValid
+    cursor: isCheckoutFormValid && !isSubmittingCheckout
       ? "pointer"
       : "not-allowed",
 
-    opacity: isCheckoutFormValid
+    opacity: isCheckoutFormValid && !isSubmittingCheckout
       ? 1
       : 0.6,
 
     transition: "all 0.2s ease",
   }}
 >
-  CONTINUE TO PAYMENT
+  {isSubmittingCheckout ? "CREATING SECURE PAYMENT..." : "CONTINUE TO PAYMENT"}
 </button>
+{checkoutError && (
+  <div role="alert" style={{ color: "#fca5a5", fontSize: 14 }}>
+    {checkoutError}
+  </div>
+)}
+      </div>
+    </div>
+  );
+}
+
+function PaymentReturnPage({ status }) {
+  const content = status === "success"
+    ? { title: "PAYMENT RECEIVED", message: "Your payment is being verified. License access is activated only after payment confirmation.", color: "#22c55e" }
+    : status === "pending"
+    ? { title: "PAYMENT PENDING", message: "Your payment is still pending. License access will be activated after confirmation.", color: "#fbbf24" }
+    : { title: "PAYMENT NOT COMPLETED", message: "No license was activated. You can return to LICENSE and try again safely.", color: "#fca5a5" };
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#000", color: "#fff", display: "grid", placeItems: "center", padding: 24 }}>
+      <div style={{ width: "100%", maxWidth: 620, padding: 28, borderRadius: 16, background: "#0f172a", border: "1px solid rgba(96,165,250,0.35)", textAlign: "center" }}>
+        <h1 style={{ color: content.color }}>{content.title}</h1>
+        <p style={{ lineHeight: 1.6, color: "#cbd5e1" }}>{content.message}</p>
+        <button onClick={() => window.location.assign("/license-dev")} style={{ marginTop: 12, padding: "12px 20px", border: 0, borderRadius: 10, background: "#2563eb", color: "#fff", fontWeight: 800, cursor: "pointer" }}>
+          RETURN TO LICENSE
+        </button>
       </div>
     </div>
   );
@@ -14308,39 +14215,30 @@ async function enterJudgePortal() {
     crypto?.randomUUID?.() ||
     `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-  const slotRef = doc(
-    db,
-    "matches",
-    joinRoomId,
-    "judgeSlots",
-    String(judgeId)
-  );
-
   try {
-    await runTransaction(db, async (transaction) => {
-      const slotSnap = await transaction.get(slotRef);
-      const slot = slotSnap.exists() ? slotSnap.data() : null;
-
-      if (slot?.status === "online" && slot?.signal === 1) {
-        throw new Error("SLOT_ALREADY_IN_USE");
-      }
-
-      transaction.set(
-        slotRef,
-        {
-          name: cleanName,
-          status: "online",
-          signal: 1,
-          sessionId,
-          joinedAt: Date.now(),
-          lastSeen: Date.now(),
-          exitedAt: null,
-          role: "judge",
-          judgeId: Number(judgeId),
-        },
-        { merge: true }
-      );
+    const response = await fetch("/api/join-judge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        roomId: joinRoomId,
+        judgeId: Number(judgeId),
+        name: cleanName,
+        sessionId,
+      }),
     });
+    const responseText = await response.text();
+    let result = {};
+    try {
+      result = responseText ? JSON.parse(responseText) : {};
+    } catch {
+      throw new Error("INVALID_SERVER_RESPONSE");
+    }
+
+    if (!response.ok || !result.ok) {
+      const joinError = new Error(result.code || "SERVICE_UNAVAILABLE");
+      joinError.code = result.code;
+      throw joinError;
+    }
 
     localStorage.setItem(
       `hwarang_judge_session_${joinRoomId}_${judgeId}`,
@@ -14351,15 +14249,29 @@ async function enterJudgePortal() {
       ? `/dev/judge/${joinRoomId}/${judgeId}`
       : `/judge/${joinRoomId}/${judgeId}`;
   } catch (error) {
-    if (error.message === "SLOT_ALREADY_IN_USE") {
+    if (error.code === "SLOT_OCCUPIED") {
       alert(
         `JUDGE ${judgeId} SLOT ALREADY IN USE\n\nContact President to release this slot.`
       );
       return;
     }
 
-    console.error(error);
-    alert("Access error. Please try again.");
+    console.error("JUDGE_JOIN_ERROR", error?.code || error?.message);
+
+    const message =
+      error.code === "ROOM_NOT_FOUND"
+        ? "This competition room does not exist or is no longer available."
+        : error.code === "PERMISSION_DENIED"
+        ? "Judge access is not authorized for this room. Contact the tournament President."
+        : error.code === "SERVICE_CONFIGURATION_ERROR"
+        ? "Judge access is temporarily unavailable due to a service configuration problem."
+        : error.code === "INVALID_REQUEST"
+        ? "The judge access link is invalid. Request a new QR code from the tournament President."
+        : error.name === "TypeError"
+        ? "Network error. Check your connection and try again."
+        : "Judge access is temporarily unavailable. Please try again.";
+
+    alert(message);
   }
 }
 
@@ -15407,6 +15319,15 @@ export default function App() {
       <>
         <GlobalAppStyle />
         <CheckoutPage />
+      </>
+    );
+  }
+
+  if (["success", "failure", "pending"].some((status) => routePath === `/payment/${status}`)) {
+    return (
+      <>
+        <GlobalAppStyle />
+        <PaymentReturnPage status={routePath.split("/").pop()} />
       </>
     );
   }

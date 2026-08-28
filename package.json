@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test": "node --test test/apiValidation.test.js test/commercialCatalog.test.js",
+    "test:integration:local": "npx firebase-tools@15.28.2 emulators:exec --only firestore --project hwarang-local-test \"node scripts/seed-local-emulator.mjs && node scripts/test-local-integration.mjs\"",
+    "test:realtime:local": "npx firebase-tools@15.28.2 emulators:exec --only firestore --project hwarang-local-test \"node scripts/seed-local-emulator.mjs && node scripts/test-local-realtime.mjs\"",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -16,6 +19,7 @@
     "firebase": "^12.11.0",
     "firebase-admin": "^14.0.0",
     "lucide-react": "^1.14.0",
+    "mercadopago": "^3.6.0",
     "postprocessing": "^6.39.4",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.4",

@@ -1,27 +1,8 @@
-import { cert, getApps, initializeApp } from "firebase-admin/app";
+/* global process */
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
-
-function getFirebaseAdminApp() {
-  if (getApps().length) {
-    return getApps()[0];
-  }
-
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-  if (!projectId || !clientEmail || !privateKey) {
-    throw new Error("Firebase Admin environment variables are not configured");
-  }
-
-  return initializeApp({
-    credential: cert({
-      projectId,
-      clientEmail,
-      privateKey,
-    }),
-  });
-}
+import { InvalidWebhookSignatureError, WebhookSignatureValidator } from "mercadopago";
+import { resolveCommercialProduct } from "../src/commercialCatalog.js";
+import { getFirebaseAdminApp, isIsolatedLocalTest } from "./firebaseAdmin.js";
 
 function removeUndefinedValues(value) {
   if (Array.isArray(value)) {
@@ -275,7 +256,11 @@ async function sendAccessDeliveryEmail({ checkout, accessUrls }) {
   return data;
 }
 
-async function getMercadoPagoPayment(paymentId) {
+async function getMercadoPagoPayment(paymentId, simulatedPayment = null) {
+  if (simulatedPayment) {
+    return { ...simulatedPayment, id: simulatedPayment.id || paymentId };
+  }
+
   const response = await fetch(
     `https://api.mercadopago.com/v1/payments/${paymentId}`,
     {
@@ -353,6 +338,20 @@ function buildLicenseDocument({ checkout, checkoutId, payment }) {
   });
 }
 
+export function validateApprovedPayment(checkout, payment) {
+  const plan = resolveCommercialProduct(checkout?.product, checkout?.package);
+  if (!plan) return false;
+
+  return (
+    Number(checkout.finalPrice) === plan.priceUsd &&
+    Number(checkout.priceArs) === Number(payment?.transaction_amount) &&
+    payment?.currency_id === "ARS" &&
+    Number(checkout.activationPlan?.durationDays) === plan.durationDays &&
+    (plan.creditsTotal === null ||
+      Number(checkout.activationPlan?.creditsTotal) === plan.creditsTotal)
+  );
+}
+
 export default async function handler(req, res) {
   if (req.method === "GET") {
     return res.status(200).json({
@@ -368,10 +367,36 @@ export default async function handler(req, res) {
   }
 
   try {
-    if (!process.env.MP_ACCESS_TOKEN) {
+    const simulationEnabled =
+      isIsolatedLocalTest() && process.env.HSU_PAYMENT_SIMULATION === "1";
+    const webhookSecret = simulationEnabled
+      ? process.env.HSU_LOCAL_WEBHOOK_SECRET
+      : process.env.MP_WEBHOOK_SECRET;
+
+    if (!simulationEnabled && !process.env.MP_ACCESS_TOKEN) {
       return res.status(500).json({
         error: "MP_ACCESS_TOKEN is not configured",
       });
+    }
+
+    if (!webhookSecret) {
+      return res.status(500).json({
+        error: "Webhook verification is not configured",
+      });
+    }
+
+    try {
+      WebhookSignatureValidator.validate({
+        xSignature: req.headers?.["x-signature"],
+        xRequestId: req.headers?.["x-request-id"],
+        dataId: req.query?.["data.id"] || req.body?.data?.id,
+        secret: webhookSecret,
+      });
+    } catch (error) {
+      if (error instanceof InvalidWebhookSignatureError) {
+        return res.status(401).json({ error: "Invalid webhook signature" });
+      }
+      throw error;
     }
 
     if (!isPaymentNotification(req)) {
@@ -392,7 +417,10 @@ export default async function handler(req, res) {
       });
     }
 
-    const payment = await getMercadoPagoPayment(paymentId);
+    const payment = await getMercadoPagoPayment(
+      paymentId,
+      simulationEnabled ? req.body?.simulationPayment || null : null
+    );
 
     if (!payment) {
       return res.status(200).json({
@@ -441,6 +469,21 @@ export default async function handler(req, res) {
         throw new Error(`Checkout request has no license key: ${checkoutId}`);
       }
 
+      if (
+        checkout.paymentStatus === "approved" &&
+        String(checkout.mercadoPagoPaymentId) === String(payment.id)
+      ) {
+        return {
+          checkout,
+          licenseKey: checkout.licenseKey,
+          alreadyProcessed: true,
+        };
+      }
+
+      if (!validateApprovedPayment(checkout, payment)) {
+        throw new Error(`Payment amount validation failed: ${checkoutId}`);
+      }
+
       const now = new Date().toISOString();
       const licenseRef = db.collection("licenses").doc(checkout.licenseKey);
       const licenseDocument = buildLicenseDocument({
@@ -472,8 +515,29 @@ export default async function handler(req, res) {
       return {
         checkout,
         licenseKey: checkout.licenseKey,
+        alreadyProcessed: false,
       };
     });
+
+    if (activation.alreadyProcessed) {
+      return res.status(200).json({
+        ok: true,
+        paymentId,
+        checkoutId,
+        status: "approved",
+        alreadyProcessed: true,
+      });
+    }
+
+    if (simulationEnabled) {
+      return res.status(200).json({
+        ok: true,
+        paymentId,
+        checkoutId,
+        status: "approved",
+        deliveryStatus: "simulated",
+      });
+    }
 
     let deliveryStatus = "not-attempted";
 

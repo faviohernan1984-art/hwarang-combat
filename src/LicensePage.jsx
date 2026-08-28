@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import RotateDeviceGate from "./RotateDeviceGate";
 import LicenseComingSoon from "./LicenseComingSoon.jsx";
+import { NOVA_PACKAGES } from "./commercialCatalog.js";
 import {
   ShieldCheck,
   Globe,
@@ -1180,10 +1181,10 @@ const nova = {
 };
   
 const prices = {
-  1: 99,
-  2: 199,
-  3: 399,
-  4: 799,
+  1: NOVA_PACKAGES.starter.priceUsd,
+  2: NOVA_PACKAGES.regional.priceUsd,
+  3: NOVA_PACKAGES.championship.priceUsd,
+  4: NOVA_PACKAGES["grand-championship"].priceUsd,
 };
 
   const selectedPrice = prices[areas];
@@ -1867,7 +1868,7 @@ onClick={() => {
   };
 
   window.location.href =
-    `/checkout?product=nova&package=${novaPackages[areas]}&price=${selectedPrice}`;
+    `/checkout?product=nova&package=${novaPackages[areas]}`;
 }}
             style={{
               width: "100%",
@@ -2596,7 +2597,7 @@ onClick={() => {
   if (!accepted) return;
 
   window.location.href =
-    `/checkout?product=pulsar&package=${totalCredits}-credits&price=${selectedPrice}`;
+    `/checkout?product=pulsar&package=${totalCredits}-credits`;
 }}
             style={{
   width: "100%",

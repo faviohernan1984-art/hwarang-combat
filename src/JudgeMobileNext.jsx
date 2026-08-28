@@ -1,8 +1,6 @@
 
 import { useEffect, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
-import { doc, setDoc, onSnapshot } from "firebase/firestore";
-import { db } from "./firebase";
 export default function JudgeMobileNext({ meta, judges, writeJudge, judgeId, roomId, time, mobileWarningText }) {
   useWakeLock();
   
@@ -99,37 +97,36 @@ useEffect(() => {
     return;
   }
 
-  const slotRef = doc(
-    db,
-    "matches",
-    roomId,
-    "judgeSlots",
-    String(judgeId)
-  );
+  let cancelled = false;
 
-  const unsub = onSnapshot(slotRef, (snap) => {
-    const slot = snap.exists() ? snap.data() : null;
-
-    if (!slot) {
-      window.location.replace("/judge-exit");
-      return;
+  async function validateSession() {
+    try {
+      const response = await fetch("/api/judge-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "status",
+          roomId,
+          judgeId: Number(judgeId),
+          sessionId: localSessionId,
+        }),
+      });
+      const result = await response.json();
+      if (!cancelled && (!response.ok || result?.ok !== true) && result?.code === "SESSION_INVALID") {
+        window.location.replace("/judge-exit");
+      }
+    } catch (error) {
+      console.error("JUDGE_SESSION_VALIDATION_ERROR", error?.message);
     }
+  }
 
-    const slotSessionId = slot?.sessionId || null;
-    const slotStatus = slot?.status || null;
-    const slotSignal = Number(slot?.signal || 0);
+  validateSession();
+  const interval = window.setInterval(validateSession, 2500);
 
-    const isValidOwner =
-      slotStatus === "online" &&
-      slotSignal === 1 &&
-      slotSessionId === localSessionId;
-
-    if (!isValidOwner) {
-      window.location.replace("/judge-exit");
-    }
-  });
-
-  return () => unsub();
+  return () => {
+    cancelled = true;
+    window.clearInterval(interval);
+  };
 }, [roomId, judgeId]);
 
 const inputsLocked =
@@ -720,35 +717,21 @@ if (isJudgeMobileLandscape) {
     // No modifica scoring, timer ni lógica de combate.
     // ======================================================
 
-    const slotRef = doc(
-      db,
-      "matches",
-      roomId,
-      "judgeSlots",
-      String(judgeId)
+    const sessionId = localStorage.getItem(
+      `hwarang_judge_session_${roomId}_${judgeId}`
     );
-
-  console.log("EXIT CLEANING SLOT");
-
-    await setDoc(
-  slotRef,
-  {
-    name: null,
-    status: "released",
-    signal: 0,
-    sessionId: null,
-    role: null,
-    joinedAt: null,
-    lastSeen: null,
-    exitedAt: Date.now(),
-    releasedAt: Date.now(),
-    releasedBy: "judge",
-    judgeId: Number(judgeId),
-  },
-  { merge: true }
-);
-
-    console.log("EXIT WRITTEN");
+    const response = await fetch("/api/judge-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "release",
+        roomId,
+        judgeId: Number(judgeId),
+        sessionId,
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok || result?.ok !== true) throw new Error(result?.code || "RELEASE_FAILED");
 
     localStorage.removeItem(
       `hwarang_judge_session_${roomId}_${judgeId}`
