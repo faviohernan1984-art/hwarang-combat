@@ -430,20 +430,24 @@ NAV LINKS INTERACTION
             </h1>
             <p
               style={{
-                ...styles.subtitle,
-                maxWidth: isNotebookLicenseLayout
-  ? 1100
-  : isWideLicenseDesktop
-  ? 1160
-  : styles.subtitle.maxWidth,
-                fontSize: isNotebookLicenseLayout ? 16 : styles.subtitle.fontSize,
-                lineHeight: isNotebookLicenseLayout ? 1.25 : styles.subtitle.lineHeight,
-marginTop: isNotebookLicenseLayout ? 8 : 14,
-maxWidth: isNotebookLicenseLayout ? 900 : styles.subtitle.maxWidth,
-marginLeft: "auto",
-marginRight: "auto",
-whiteSpace: isWideLicenseDesktop ? "nowrap" : "normal",
-              }}
+  ...styles.subtitle,
+  width: isWideLicenseDesktop ? 1160 : "auto",
+  maxWidth: isNotebookLicenseLayout
+    ? 900
+    : isWideLicenseDesktop
+    ? 1160
+    : styles.subtitle.maxWidth,
+  fontSize: isNotebookLicenseLayout ? 16 : styles.subtitle.fontSize,
+  lineHeight: isNotebookLicenseLayout ? 1.25 : styles.subtitle.lineHeight,
+  marginTop: isNotebookLicenseLayout ? 8 : 14,
+  marginLeft: "auto",
+  marginRight: "auto",
+  position: isWideLicenseDesktop ? "relative" : "static",
+  left: isWideLicenseDesktop ? "50%" : "auto",
+  transform: isWideLicenseDesktop ? "translateX(-50%)" : "none",
+  textAlign: "center",
+  whiteSpace: isWideLicenseDesktop ? "nowrap" : "normal",
+}}
             >
               The professional real-time scoring system for ITF Taekwon-Do competitions.
               Reliable, accurate and designed for tournaments of all levels.
