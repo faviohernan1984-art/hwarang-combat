@@ -2162,7 +2162,7 @@ function CommercialAccessGuard({ roomId, children }) {
         if (cancelled) return;
 
         if (!response.ok) {
-          setAccessState("invalid");
+          setAccessState("server-error");
           return;
         }
 
@@ -2175,7 +2175,11 @@ function CommercialAccessGuard({ roomId, children }) {
           return;
         }
 
-        if (access?.ok !== true || access?.status !== "valid") {
+        if (
+          access?.ok !== true ||
+          access?.status !== "valid" ||
+          access?.roomReady !== true
+        ) {
           setAccessState("invalid");
           return;
         }
@@ -2187,7 +2191,7 @@ function CommercialAccessGuard({ roomId, children }) {
       } catch (error) {
         if (!cancelled) {
           console.error("COMMERCIAL_ACCESS_VALIDATION_ERROR", error);
-          setAccessState("invalid");
+          setAccessState("server-error");
         }
       }
     }
@@ -2233,6 +2237,15 @@ function CommercialAccessGuard({ roomId, children }) {
       <CommercialAccessScreen
         title="🚫 INVALID LICENSE"
         message="Commercial access could not be verified."
+      />
+    );
+  }
+
+  if (accessState === "server-error") {
+    return (
+      <CommercialAccessScreen
+        title="ROOM CREATION ERROR"
+        message="The competition room could not be prepared. Please try again."
       />
     );
   }

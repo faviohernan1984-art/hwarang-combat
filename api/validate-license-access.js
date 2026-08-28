@@ -1,5 +1,6 @@
 import { getFirestore } from "firebase-admin/firestore";
 import { getFirebaseAdminApp } from "./firebaseAdmin.js";
+import { ensureCommercialRoom } from "./roomProvisioning.js";
 
 function parseExpiresAt(expiresAt) {
   if (!expiresAt) return NaN;
@@ -75,9 +76,12 @@ export default async function handler(req, res) {
       });
     }
 
+    await ensureCommercialRoom(db, licenseKey);
+
     return res.status(200).json({
       ok: true,
       status: "valid",
+      roomReady: true,
     });
   } catch (error) {
     console.error("VALIDATE_LICENSE_ACCESS_ERROR", error);
