@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { getFirestore } from "firebase-admin/firestore";
 import { getFirebaseAdminApp } from "./firebaseAdmin.js";
-import { createDemoRoom } from "./roomProvisioning.js";
+import { ensureDemoRoom } from "./roomProvisioning.js";
 
 function makeDemoRoomId() {
   const alphabet = "abcdefghjkmnpqrstuvwxyz23456789";
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         existingData?.mode === "combat" &&
         Number(existingData?.demoLimit?.totalMs) === 10 * 60 * 1000
       ) {
-        const result = await createDemoRoom(db, requestedRoomId);
+        const result = await ensureDemoRoom(db, requestedRoomId);
         if (result.compatible) {
           return res.status(200).json({ ok: true, roomId: requestedRoomId, created: false });
         }
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 
     for (let attempt = 0; attempt < 3; attempt += 1) {
       const roomId = makeDemoRoomId();
-      const result = await createDemoRoom(db, roomId);
+      const result = await ensureDemoRoom(db, roomId, Date.now(), { allowCreate: true });
       if (result.created) return res.status(201).json({ ok: true, roomId, created: true });
     }
 

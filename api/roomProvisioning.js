@@ -124,7 +124,7 @@ export async function ensureCommercialRoom(db, licenseKey, now = Date.now()) {
   });
 }
 
-export async function createDemoRoom(db, roomId, now = Date.now()) {
+export async function ensureDemoRoom(db, roomId, now = Date.now(), { allowCreate = false } = {}) {
   if (!/^demo-hsu-[a-z0-9]{5}$/.test(roomId)) {
     throw new Error("INVALID_DEMO_ROOM_ID");
   }
@@ -147,6 +147,10 @@ export async function createDemoRoom(db, roomId, now = Date.now()) {
         transaction.set(matchRef, { demoProvisionedAt: now }, { merge: true });
       }
       return { created: false, compatible: true };
+    }
+
+    if (!allowCreate) {
+      return { created: false, compatible: false };
     }
 
     transaction.create(matchRef, {
