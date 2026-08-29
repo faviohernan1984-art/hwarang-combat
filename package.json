@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test": "node --test test/apiValidation.test.js test/commercialCatalog.test.js",
+    "test": "node --test test/apiValidation.test.js test/commercialCatalog.test.js test/roomProvisioning.test.js test/hybridRecovery.test.js",
     "test:integration:local": "npx firebase-tools@15.28.2 emulators:exec --only firestore --project hwarang-local-test \"node scripts/seed-local-emulator.mjs && node scripts/test-local-integration.mjs\"",
     "test:realtime:local": "npx firebase-tools@15.28.2 emulators:exec --only firestore --project hwarang-local-test \"node scripts/seed-local-emulator.mjs && node scripts/test-local-realtime.mjs\"",
     "lint": "eslint .",

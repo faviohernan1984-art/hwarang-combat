@@ -1118,18 +1118,22 @@ Check acceptance enables Discover access.
       ? "0 0 28px rgba(34,211,238,0.38)"
       : "none";
   }}
-  onClick={() => {
+  onClick={async () => {
     const existing = localStorage.getItem("hwarang_demo_room_id");
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let code = "";
-
-    for (let i = 0; i < 5; i += 1) {
-      code += chars[Math.floor(Math.random() * chars.length)].toLowerCase();
+    try {
+      const response = await fetch("/api/create-demo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId: existing }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok || !result.roomId) throw new Error(result.code || "SERVICE_UNAVAILABLE");
+      localStorage.setItem("hwarang_demo_room_id", result.roomId);
+      window.location.href = `/${result.roomId}`;
+    } catch (error) {
+      console.error("DEMO_PROVISIONING_ERROR", error?.message);
+      alert("Demo is temporarily unavailable. Please try again.");
     }
-
-    const roomId = existing || `demo-hsu-${code}`;
-    localStorage.setItem("hwarang_demo_room_id", roomId);
-    window.location.href = `/${roomId}`;
   }}
   style={{
     height: 52,

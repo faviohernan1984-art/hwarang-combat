@@ -14,11 +14,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
 import {
   onSnapshot,
-  setDoc,
   getDoc,
-  getDocs,
-  query,
-  doc,
   collection,
 } from "firebase/firestore";
 import { trackVisit } from "./usageTracking";
@@ -1573,23 +1569,22 @@ function getDisplaySides(meta, context = "public") {
 }
 
 async function ensureInitialDocs(roomId = "combat") {
-  const matchMetaRef = getMatchMetaRef(roomId);
-  const judgesColRef = getJudgesColRef(roomId);
-  const judgeRef = (id) => getJudgeRef(roomId, id);
+  await postCombatState({ action: "ensure", roomId });
+}
 
-  const metaSnap = await getDoc(matchMetaRef);
-  if (!metaSnap.exists()) {
-    await setDoc(matchMetaRef, makeInitialMeta());
+async function postCombatState(payload) {
+  const response = await fetch("/api/combat-state", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || !result.ok) {
+    const error = new Error(result.code || "SERVICE_UNAVAILABLE");
+    error.code = result.code;
+    throw error;
   }
-
-  const existing = await getDocs(query(judgesColRef));
-  const ids = new Set(existing.docs.map((d) => d.id));
-
-  for (let i = 1; i <= MAX_JUDGES; i += 1) {
-    if (!ids.has(String(i))) {
-      await setDoc(judgeRef(i), makeJudge(i));
-    }
-  }
+  return result;
 }
 
 function useFightData(roomId = "combat", canWriteMedicalClock = false) {
@@ -1821,7 +1816,7 @@ function stopMedicalAdmin() {
   const result = typeof mutator === "function" ? mutator(draft) : mutator;
   const next = ensureMetaShape(result ?? draft);
   next.updatedAt = Date.now();
-  await setDoc(matchMetaRef, next);
+  await postCombatState({ action: "write-meta", roomId, meta: next });
 };
 
   const writeJudge = async (id, mutator) => {
@@ -1831,7 +1826,14 @@ function stopMedicalAdmin() {
     const draft = clone(current);
     const result = typeof mutator === "function" ? mutator(draft) : mutator;
     const next = result ?? draft;
-    await setDoc(ref, next);
+    const judgeRoute = getRuntimePath(window.location.pathname).startsWith("/judge/");
+    const sessionId = judgeRoute
+      ? localStorage.getItem(`hwarang_judge_session_${roomId}_${id}`)
+      : null;
+    await postCombatState({
+      action: "write-judge", roomId, judgeId: Number(id), judge: next,
+      actor: judgeRoute ? "judge" : "president", sessionId,
+    });
     return next;
   };
 
@@ -1851,11 +1853,7 @@ function stopMedicalAdmin() {
     };
   }
 
-  await setDoc(matchMetaRef, next);
-
-  for (let i = 1; i <= MAX_JUDGES; i += 1) {
-    await setDoc(judgeRef(i), makeJudge(i));
-  }
+  await postCombatState({ action: "reset", roomId, meta: next });
 };
 
   return {
@@ -8952,6 +8950,7 @@ function PresidentScreenV2({
   navigate, 
   roomId,
   judgeSlots = {},
+  refreshJudgeSlots = async () => {},
 }) {
 
   
@@ -8998,31 +8997,12 @@ function getJudgeSlotLed(slot) {
 }
 
   async function forceReleaseJudgeSlot(judgeSlotId) {
-  const slotRef = doc(
-    db,
-    "matches",
+  await postCombatState({
+    action: "force-release",
     roomId,
-    "judgeSlots",
-    String(judgeSlotId)
-  );
-
-  await setDoc(
-    slotRef,
-    {
-      name: null,
-      status: "released",
-      signal: 0,
-      sessionId: null,
-      role: null,
-      joinedAt: null,
-      lastSeen: null,
-      exitedAt: Date.now(),
-      releasedAt: Date.now(),
-      releasedBy: "president",
-      judgeId: Number(judgeSlotId),
-    },
-    { merge: true }
-  );
+    judgeId: Number(judgeSlotId),
+  });
+  await refreshJudgeSlots();
 }
 
   async function handleActivateGPA() {
@@ -14177,28 +14157,45 @@ const [judgeSlots, setJudgeSlots] = useState({});
 // matches/{roomId}/judgeSlots
 // No modifica scoring ni lógica oficial.
 // ======================================================
-useEffect(() => {
+async function refreshJudgeSlots() {
   if (!roomId) return;
-
-  const slotsRef = collection(
-    db,
-    "matches",
-    roomId,
-    "judgeSlots"
-  );
-
-  const unsub = onSnapshot(slotsRef, (snap) => {
-    const next = {};
-
-    snap.forEach((docSnap) => {
-      next[docSnap.id] = docSnap.data();
-    });
-
-    setJudgeSlots(next);
+  const response = await fetch("/api/president-judge-slots", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ roomId }),
   });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || !result.ok || !Array.isArray(result.slots)) {
+    throw new Error(result.code || "SERVICE_UNAVAILABLE");
+  }
+  const next = {};
+  result.slots.forEach((slot) => {
+    if (Number.isInteger(Number(slot.judgeId))) next[String(slot.judgeId)] = slot;
+  });
+  setJudgeSlots(next);
+}
 
-  return () => unsub();
-}, [roomId]);
+useEffect(() => {
+  const presidentRoute = path === "/president" || path.startsWith("/president/");
+  if (!roomId || !presidentRoute) return undefined;
+
+  const refresh = () => {
+    refreshJudgeSlots().catch((error) => {
+      console.error("PRESIDENT_JUDGE_SLOTS_READ_ERROR", error?.message);
+    });
+  };
+  const onVisibilityChange = () => {
+    if (document.visibilityState === "visible") refresh();
+  };
+
+  refresh();
+  window.addEventListener("focus", refresh);
+  document.addEventListener("visibilitychange", onVisibilityChange);
+  return () => {
+    window.removeEventListener("focus", refresh);
+    document.removeEventListener("visibilitychange", onVisibilityChange);
+  };
+}, [roomId, path]);
 
   // ======================================================
 // PORTAL DE INGRESO DE JUEZ
@@ -15133,6 +15130,7 @@ if (path === "/license/pulsar" || path === "/license/club") {
         navigate={navigateRuntime}
         roomId={roomId}
         judgeSlots={judgeSlots}
+        refreshJudgeSlots={refreshJudgeSlots}
       />
     </>
   );

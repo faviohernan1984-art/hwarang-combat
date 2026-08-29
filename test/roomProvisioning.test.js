@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   ensureCommercialRoom,
+  createDemoRoom,
   makeInitialJudge,
   makeInitialMatch,
 } from "../api/roomProvisioning.js";
@@ -31,6 +32,10 @@ function fakeFirestore(initialEntries = []) {
             data: () => documents.get(ref.path),
           }),
           create: (ref, value) => creates.push([ref.path, value]),
+          set: (ref, value, options) => documents.set(
+            ref.path,
+            structuredClone(options?.merge ? { ...(documents.get(ref.path) || {}), ...value } : value)
+          ),
         };
         const result = await callback(transaction);
         for (const [path, value] of creates) {
@@ -88,4 +93,15 @@ test("two simultaneous provisioning requests are idempotent", async () => {
   assert.deepEqual(results, [{ created: true }, { created: false }]);
   assert.equal(db.documents.size, 6);
   assert.equal(db.documents.get("matches/license-local-race").updatedAt, 100);
+});
+
+test("demo provisioning only accepts server-shaped IDs and preserves existing demos", async () => {
+  const db = fakeFirestore();
+  await assert.rejects(() => createDemoRoom(db, "demo-hsu-invented", 100), /INVALID_DEMO_ROOM_ID/);
+
+  assert.deepEqual(await createDemoRoom(db, "demo-hsu-a2b3c", 100), { created: true, compatible: true });
+  const original = structuredClone(db.documents.get("matches/demo-hsu-a2b3c"));
+  assert.equal(original.demoLimit.totalMs, 10 * 60 * 1000);
+  assert.deepEqual(await createDemoRoom(db, "demo-hsu-a2b3c", 200), { created: false, compatible: true });
+  assert.deepEqual(db.documents.get("matches/demo-hsu-a2b3c"), original);
 });

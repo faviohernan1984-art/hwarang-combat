@@ -123,3 +123,39 @@ export async function ensureCommercialRoom(db, licenseKey, now = Date.now()) {
     return { created };
   });
 }
+
+export async function createDemoRoom(db, roomId, now = Date.now()) {
+  if (!/^demo-hsu-[a-z0-9]{5}$/.test(roomId)) {
+    throw new Error("INVALID_DEMO_ROOM_ID");
+  }
+
+  const matchRef = db.collection("matches").doc(roomId);
+  const judgeRefs = Array.from({ length: MAX_JUDGES }, (_, index) =>
+    matchRef.collection("judges").doc(String(index + 1))
+  );
+
+  return db.runTransaction(async (transaction) => {
+    const matchSnapshot = await transaction.get(matchRef);
+    if (matchSnapshot.exists) {
+      const existing = matchSnapshot.data();
+      const isExistingCombatDemo =
+        existing?.mode === "combat" &&
+        Number(existing?.demoLimit?.totalMs) === DEMO_LIMIT_MS;
+      if (!isExistingCombatDemo) return { created: false, compatible: false };
+
+      if (!Number.isInteger(existing.demoProvisionedAt)) {
+        transaction.set(matchRef, { demoProvisionedAt: now }, { merge: true });
+      }
+      return { created: false, compatible: true };
+    }
+
+    transaction.create(matchRef, {
+      ...makeInitialMatch(now),
+      demoProvisionedAt: now,
+    });
+    judgeRefs.forEach((judgeRef, index) => {
+      transaction.create(judgeRef, makeInitialJudge(index + 1));
+    });
+    return { created: true, compatible: true };
+  });
+}
