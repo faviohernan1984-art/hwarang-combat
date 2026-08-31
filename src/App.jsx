@@ -1608,7 +1608,7 @@ async function postCombatState(payload) {
   return result;
 }
 
-function useFightData(roomId = "combat", canWriteMedicalClock = false) {
+function useFightData(roomId = "combat", canTickDemoLimit = false) {
     const matchMetaRef = useMemo(() => getMatchMetaRef(roomId), [roomId]);
   const judgesColRef = useMemo(() => getJudgesColRef(roomId), [roomId]);
   const judgeRef = useMemo(() => {
@@ -1630,6 +1630,7 @@ const [medicalAdminEngine, setMedicalAdminEngine] = useState(
   const [judges, setJudges] = useState(
     Array.from({ length: MAX_JUDGES }, (_, i) => makeJudge(i + 1))
   );
+  const demoTickInFlightRef = useRef(false);
 
  // MEDICAL TIME LEGACY DISABLED
 // No escribir reloj medical viejo.
@@ -1638,36 +1639,30 @@ const [medicalAdminEngine, setMedicalAdminEngine] = useState(
  
 
   useEffect(() => {
+  if (!canTickDemoLimit) return;
   if (!isDemoRoom(roomId)) return;
   if (!meta?.demoLimit) return;
   if (meta.demoLimit.expired) return;
   if (meta.status !== "running") return;
 
+  const tickDemoLimit = async () => {
+    if (demoTickInFlightRef.current) return;
+    demoTickInFlightRef.current = true;
+    try {
+      await postCombatState({ action: "tick-demo", roomId });
+    } catch (error) {
+      console.error("DEMO_LIMIT_TICK_ERROR", error?.code || error?.message);
+    } finally {
+      demoTickInFlightRef.current = false;
+    }
+  };
+
   const interval = setInterval(() => {
-    writeMeta((current) => {
-      if (!isDemoRoom(roomId)) return current;
-      if (!current?.demoLimit) return current;
-      if (current.demoLimit.expired) return current;
-      if (current.status !== "running") return current;
-
-      const totalMs = current.demoLimit.totalMs || DEMO_LIMIT_MS;
-const now = Date.now();
-
-if (!current.demoLimit.startedAt) {
-  current.demoLimit.startedAt = now - (current.demoLimit.usedMs || 0);
-}
-
-const usedMs = Math.min(totalMs, now - current.demoLimit.startedAt);
-
-current.demoLimit.usedMs = usedMs;
-current.demoLimit.expired = usedMs >= totalMs;
-
-      return current;
-    });
+    tickDemoLimit();
   }, 1000);
 
   return () => clearInterval(interval);
-}, [roomId, meta?.status, meta?.demoLimit?.expired]);
+}, [canTickDemoLimit, roomId, meta?.status, meta?.demoLimit?.expired]);
   
    useEffect(() => {
   let unsubMeta = () => {};

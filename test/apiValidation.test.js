@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import createPreference from "../api/create-preference.js";
 import joinJudge, { reserveJudgeSlot } from "../api/join-judge.js";
 import judgeSession, { updateJudgeSession } from "../api/judge-session.js";
+import { applyCombatState } from "../api/combat-state.js";
 
 function responseRecorder() {
   return {
@@ -121,4 +122,135 @@ test("judge reservation is idempotent for the same session", async () => {
   });
   assert.equal(result.code, "JOINED");
   assert.equal(current.writes.length, 0);
+});
+
+function fakeCombatDatabase(initialMatch) {
+  const match = structuredClone(initialMatch);
+  const updates = [];
+  const matchRef = { kind: "match" };
+  const db = {
+    collection: () => ({ doc: () => matchRef }),
+    runTransaction: async (callback) => callback({
+      get: async () => ({ exists: true, data: () => structuredClone(match) }),
+      update: (_ref, patch) => {
+        updates.push(structuredClone(patch));
+        match.demoLimit = {
+          ...match.demoLimit,
+          startedAt: patch["demoLimit.startedAt"],
+          usedMs: patch["demoLimit.usedMs"],
+          expired: patch["demoLimit.expired"],
+        };
+      },
+    }),
+  };
+  return { db, match, updates };
+}
+
+function fakeConcurrentCombatDatabase(initialMatch, concurrentSportUpdate) {
+  const match = structuredClone(initialMatch);
+  const committedUpdates = [];
+  const matchRef = { kind: "match" };
+  const runAttempt = async (callback, commit) => {
+    const pendingUpdates = [];
+    const result = await callback({
+      get: async () => ({ exists: true, data: () => structuredClone(match) }),
+      update: (_ref, patch) => pendingUpdates.push(structuredClone(patch)),
+    });
+    if (commit) {
+      pendingUpdates.forEach((patch) => {
+        committedUpdates.push(patch);
+        Object.assign(match, patch);
+      });
+    }
+    return result;
+  };
+  const db = {
+    collection: () => ({ doc: () => matchRef }),
+    runTransaction: async (callback) => {
+      await runAttempt(callback, false);
+      Object.assign(match, structuredClone(concurrentSportUpdate));
+      return runAttempt(callback, true);
+    },
+  };
+  return { db, match, committedUpdates };
+}
+
+test("demo tick transaction cannot overwrite a concurrent sport update", async () => {
+  const initialMatch = {
+    status: "running",
+    phase: "fight",
+    hongWarnings: 0,
+    combatForcedWinner: null,
+    showResult: false,
+    demoLimit: {
+      totalMs: 600000,
+      usedMs: 1000,
+      startedAt: 1000,
+      expired: false,
+    },
+  };
+  const concurrentSportUpdate = {
+    status: "paused",
+    phase: "finished",
+    hongWarnings: 1,
+    combatForcedWinner: "hong",
+    showResult: true,
+  };
+  const { db, match, committedUpdates } = fakeConcurrentCombatDatabase(
+    initialMatch,
+    concurrentSportUpdate
+  );
+
+  const result = await applyCombatState(db, {
+    action: "tick-demo",
+    roomId: "demo-hsu-test",
+  }, 3000);
+
+  assert.equal(result.code, "UNCHANGED");
+  assert.equal(committedUpdates.length, 0);
+  assert.equal(match.status, "paused");
+  assert.equal(match.phase, "finished");
+  assert.equal(match.hongWarnings, 1);
+  assert.equal(match.combatForcedWinner, "hong");
+  assert.equal(match.showResult, true);
+  assert.deepEqual(match.demoLimit, initialMatch.demoLimit);
+});
+
+test("demo tick accumulates usage through a demoLimit-only update", async () => {
+  const { db, match, updates } = fakeCombatDatabase({
+    status: "running",
+    phase: "fight",
+    hongWarnings: 1,
+    combatForcedWinner: "hong",
+    showResult: true,
+    demoLimit: {
+      totalMs: 600000,
+      usedMs: 1000,
+      startedAt: 1000,
+      expired: false,
+    },
+  });
+
+  const runningResult = await applyCombatState(db, {
+    action: "tick-demo",
+    roomId: "demo-hsu-test",
+  }, 4000);
+
+  assert.equal(runningResult.code, "UPDATED");
+  assert.deepEqual(Object.keys(updates[0]).sort(), [
+    "demoLimit.expired",
+    "demoLimit.startedAt",
+    "demoLimit.usedMs",
+  ]);
+  assert.equal(match.status, "running");
+  assert.equal(match.phase, "fight");
+  assert.equal(match.hongWarnings, 1);
+  assert.equal(match.combatForcedWinner, "hong");
+  assert.equal(match.showResult, true);
+  assert.deepEqual(match.demoLimit, {
+    totalMs: 600000,
+    usedMs: 3000,
+    startedAt: 1000,
+    expired: false,
+  });
 });

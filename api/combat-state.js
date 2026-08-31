@@ -48,6 +48,31 @@ export async function applyCombatState(db, payload, now = Date.now()) {
       return { code: "READY" };
     }
 
+    if (action === "tick-demo") {
+      if (!roomId.startsWith("demo-hsu-")) return { code: "INVALID_REQUEST" };
+
+      const current = matchSnapshot.data();
+      const previous = current?.demoLimit;
+      if (!previous || current?.status !== "running" || previous.expired) {
+        return { code: "UNCHANGED" };
+      }
+
+      const totalMs = DEMO_LIMIT_MS;
+      const previousUsedMs = Math.max(0, Number(previous.usedMs || 0));
+      const startedAt = Number(previous.startedAt) || now - previousUsedMs;
+      const usedMs = Math.min(
+        totalMs,
+        Math.max(previousUsedMs, now - startedAt)
+      );
+
+      transaction.update(matchRef, {
+        "demoLimit.startedAt": startedAt,
+        "demoLimit.usedMs": usedMs,
+        "demoLimit.expired": usedMs >= totalMs,
+      });
+      return { code: "UPDATED" };
+    }
+
     if (action === "write-meta") {
       if (!payload.meta || typeof payload.meta !== "object" || Array.isArray(payload.meta)) {
         return { code: "INVALID_REQUEST" };
@@ -108,7 +133,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ ok: false, code: "METHOD_NOT_ALLOWED" });
   try {
     const payload = req.body || {};
-    if (!validRoomId(payload.roomId) || !["ensure", "write-meta", "write-judge", "reset", "force-release"].includes(payload.action)) {
+    if (!validRoomId(payload.roomId) || !["ensure", "tick-demo", "write-meta", "write-judge", "reset", "force-release"].includes(payload.action)) {
       return res.status(400).json({ ok: false, code: "INVALID_REQUEST" });
     }
     getFirebaseAdminApp();
