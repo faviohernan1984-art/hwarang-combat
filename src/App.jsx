@@ -14,7 +14,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
 import {
   onSnapshot,
+  setDoc,
   getDoc,
+  getDocs,
+  query,
   collection,
 } from "firebase/firestore";
 import { trackVisit } from "./usageTracking";
@@ -1569,7 +1572,23 @@ function getDisplaySides(meta, context = "public") {
 }
 
 async function ensureInitialDocs(roomId = "combat") {
-  await postCombatState({ action: "ensure", roomId });
+  const matchMetaRef = getMatchMetaRef(roomId);
+  const judgesColRef = getJudgesColRef(roomId);
+  const judgeRef = (id) => getJudgeRef(roomId, id);
+
+  const metaSnap = await getDoc(matchMetaRef);
+  if (!metaSnap.exists()) {
+    await setDoc(matchMetaRef, makeInitialMeta());
+  }
+
+  const existing = await getDocs(query(judgesColRef));
+  const ids = new Set(existing.docs.map((d) => d.id));
+
+  for (let i = 1; i <= MAX_JUDGES; i += 1) {
+    if (!ids.has(String(i))) {
+      await setDoc(judgeRef(i), makeJudge(i));
+    }
+  }
 }
 
 async function postCombatState(payload) {
@@ -1816,7 +1835,7 @@ function stopMedicalAdmin() {
   const result = typeof mutator === "function" ? mutator(draft) : mutator;
   const next = ensureMetaShape(result ?? draft);
   next.updatedAt = Date.now();
-  await postCombatState({ action: "write-meta", roomId, meta: next });
+  await setDoc(matchMetaRef, next);
 };
 
   const writeJudge = async (id, mutator) => {
@@ -1826,14 +1845,7 @@ function stopMedicalAdmin() {
     const draft = clone(current);
     const result = typeof mutator === "function" ? mutator(draft) : mutator;
     const next = result ?? draft;
-    const judgeRoute = getRuntimePath(window.location.pathname).startsWith("/judge/");
-    const sessionId = judgeRoute
-      ? localStorage.getItem(`hwarang_judge_session_${roomId}_${id}`)
-      : null;
-    await postCombatState({
-      action: "write-judge", roomId, judgeId: Number(id), judge: next,
-      actor: judgeRoute ? "judge" : "president", sessionId,
-    });
+    await setDoc(ref, next);
     return next;
   };
 
@@ -1853,7 +1865,11 @@ function stopMedicalAdmin() {
     };
   }
 
-  await postCombatState({ action: "reset", roomId, meta: next });
+  await setDoc(matchMetaRef, next);
+
+  for (let i = 1; i <= MAX_JUDGES; i += 1) {
+    await setDoc(judgeRef(i), makeJudge(i));
+  }
 };
 
   return {

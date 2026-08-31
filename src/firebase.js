@@ -9,12 +9,12 @@ const canUseLocalEmulator =
 const localEmulatorPort = Number(localEmulatorAddress?.split(":")[1]);
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCARTpTfP6_BCCIzQmWJDNCtUs5ATt1Y-8",
-  authDomain: "hwarang-scoring.firebaseapp.com",
-  projectId: canUseLocalEmulator ? "hwarang-local-test" : "hwarang-scoring",
-  storageBucket: "hwarang-scoring.firebasestorage.app",
-  messagingSenderId: "309913008618",
-  appId: "1:309913008618:web:ae3277153f88a054641a93"
+  apiKey: "AIzaSyAW61pILTbrcmGl2uX4h9LsoxuyZxaCwe4",
+  authDomain: "hwarang-combat-production.firebaseapp.com",
+  projectId: canUseLocalEmulator ? "hwarang-local-test" : "hwarang-combat-production",
+  storageBucket: "hwarang-combat-production.firebasestorage.app",
+  messagingSenderId: "436925023564",
+  appId: "1:436925023564:web:9d3bd5fdcf622433b2bbe9"
 };
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
