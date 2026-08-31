@@ -1,0 +1,362 @@
+.combat-home {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  min-height: 100dvh;
+  padding: clamp(14px, 1.5vw, 28px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  isolation: isolate;
+  color: #fff;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(47, 86, 137, 0.25), transparent 34%),
+    radial-gradient(circle at 8% 48%, rgba(15, 75, 173, 0.12), transparent 32%),
+    radial-gradient(circle at 92% 52%, rgba(197, 24, 41, 0.1), transparent 34%),
+    linear-gradient(180deg, #050b13 0%, #010306 56%, #000 100%);
+  font-family: "Orbitron", Arial, sans-serif;
+}
+
+.combat-home__grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, #000, transparent 92%);
+}
+
+.combat-home__header {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.combat-home__brand {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.combat-home__brand > span {
+  color: #f8fafc;
+  font-size: clamp(8px, 0.58vw, 10px);
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-shadow: 0 0 9px rgba(255, 255, 255, 0.3);
+}
+
+.combat-home__eyebrow,
+.combat-home__section-heading span {
+  color: #d9b44a;
+  font-size: clamp(8px, 0.62vw, 11px);
+  font-weight: 900;
+  letter-spacing: 0.28em;
+  text-shadow: 0 0 10px rgba(245, 197, 66, 0.34);
+}
+
+.combat-home__header h1 {
+  margin: 2px 0 0;
+  color: #fff;
+  font: italic 1000 clamp(22px, 2vw, 38px) / 1 "Orbitron", Arial, sans-serif;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-shadow: 0 0 7px rgba(255, 255, 255, 0.7), 0 0 22px rgba(44, 125, 244, 0.25);
+  transform: skewX(-6deg);
+}
+
+.combat-home__header .combat-home__eyebrow {
+  margin-top: 4px;
+}
+
+.combat-home__header > span {
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.54);
+  font-size: clamp(7px, 0.5vw, 9px);
+  font-weight: 800;
+  letter-spacing: 0.2em;
+}
+
+.combat-home__quick-access {
+  width: min(100%, 1500px);
+  margin: clamp(9px, 1.1vh, 14px) auto 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(5px, 0.5vw, 8px);
+}
+
+.combat-home__quick-button,
+.combat-home__copy {
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.combat-home__quick-button {
+  min-width: 0;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid;
+  border-radius: 8px;
+  color: #fff;
+  font-size: clamp(8px, 0.65vw, 12px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  transition: transform 90ms ease, filter 120ms ease, box-shadow 120ms ease;
+}
+
+.combat-home__quick-button--president {
+  border-color: rgba(83, 223, 132, 0.52);
+  background: linear-gradient(180deg, #16703b, #07351d);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.15), 0 0 18px rgba(34, 197, 94, 0.25);
+}
+
+.combat-home__quick-button--public {
+  border-color: rgba(75, 147, 255, 0.6);
+  background: linear-gradient(180deg, #1555a5, #082a59);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.15), 0 0 18px rgba(37, 99, 235, 0.3);
+}
+
+.combat-home__quick-button--judge {
+  border-color: rgba(255, 76, 89, 0.58);
+  background: linear-gradient(180deg, #a11928, #4d0811);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.14), 0 0 18px rgba(220, 38, 38, 0.28);
+}
+
+.combat-home__quick-button:hover,
+.combat-home__quick-button:focus-visible {
+  filter: brightness(1.22);
+  outline: none;
+}
+
+.combat-home__quick-button:active,
+.combat-home__copy:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.combat-home__access-section {
+  width: min(100%, 1600px);
+  margin: clamp(9px, 1.2vh, 15px) auto 0;
+}
+
+.combat-home__section-heading {
+  padding: 0 4px 6px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(245, 197, 66, 0.22);
+}
+
+.combat-home__section-heading h2 {
+  margin: 2px 0 0;
+  color: #fff;
+  font: 900 clamp(15px, 1.18vw, 22px) / 1 "Orbitron", Arial, sans-serif;
+  letter-spacing: 0.08em;
+}
+
+.combat-home__section-heading small {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: clamp(8px, 0.58vw, 10px);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.combat-home__cards {
+  margin-top: clamp(7px, 0.8vh, 10px);
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: clamp(7px, 0.6vw, 10px);
+}
+
+.combat-home__card {
+  --home-role: 255, 255, 255;
+  min-width: 0;
+  padding: clamp(8px, 0.6vw, 11px);
+  display: grid;
+  justify-items: center;
+  border: 1px solid rgba(var(--home-role), 0.3);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(var(--home-role), 0.095), rgba(3, 6, 10, 0.97) 42%);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.06),
+    0 7px 22px rgba(0, 0, 0, 0.4),
+    0 0 15px rgba(var(--home-role), 0.09);
+}
+
+.combat-home__card--president { --home-role: 50, 205, 108; }
+.combat-home__card--public { --home-role: 48, 124, 242; }
+.combat-home__card--judge { --home-role: 230, 41, 57; }
+
+.combat-home__card-role {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgb(var(--home-role));
+  font-size: clamp(9px, 0.72vw, 13px);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 10px rgba(var(--home-role), 0.48);
+}
+
+.combat-home__card-role i,
+.combat-home__footer strong i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 9px currentColor;
+}
+
+.combat-home__qr {
+  width: min(100%, 154px);
+  margin-top: 6px;
+  padding: 7px;
+  border: 1px solid rgba(var(--home-role), 0.28);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 0 15px rgba(var(--home-role), 0.15);
+}
+
+.combat-home__qr canvas {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.combat-home__route {
+  width: 100%;
+  margin-top: 6px;
+  padding: 5px 7px;
+  display: block;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  box-sizing: border-box;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(0, 0, 0, 0.42);
+  font: clamp(7px, 0.52vw, 10px) ui-monospace, Consolas, monospace;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.combat-home__copy {
+  width: 100%;
+  min-height: 25px;
+  margin-top: 5px;
+  border: 1px solid rgba(var(--home-role), 0.26);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(var(--home-role), 0.08);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+}
+
+.combat-home__copy:hover,
+.combat-home__copy:focus-visible {
+  color: #fff;
+  border-color: rgba(var(--home-role), 0.58);
+  outline: none;
+}
+
+.combat-home__footer {
+  width: min(100%, 1600px);
+  margin: 8px auto 0;
+  padding: 7px 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.34);
+  font-size: clamp(7px, 0.5vw, 9px);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.combat-home__footer strong {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #42d77c;
+  font-size: inherit;
+}
+
+@media (min-width: 1700px) and (min-height: 950px) {
+  .combat-home {
+    display: grid;
+    grid-template-rows: repeat(4, max-content);
+    align-content: center;
+    padding-block: 28px;
+  }
+
+  .combat-home .hwarang-animated-isotype {
+    --hwarang-isotype-size: 66px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .combat-home__quick-access,
+  .combat-home__cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .combat-home__quick-access,
+  .combat-home__cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .combat-home__footer span:last-child {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .combat-home {
+    padding: 10px 12px;
+  }
+
+  .combat-home .hwarang-animated-isotype {
+    --hwarang-isotype-size: 50px !important;
+  }
+
+  .combat-home__quick-button {
+    min-width: 0;
+    padding: 0 8px;
+  }
+
+  .combat-home__cards {
+    grid-template-columns: 1fr;
+  }
+
+  .combat-home__card {
+    width: min(100%, 310px);
+    margin-inline: auto;
+    box-sizing: border-box;
+  }
+
+  .combat-home__section-heading small {
+    display: none;
+  }
+
+  .combat-home__footer {
+    justify-content: center;
+    gap: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .combat-home *,
+  .combat-home *::before,
+  .combat-home *::after {
+    transition: none !important;
+  }
+}

@@ -29,6 +29,8 @@ import TournamentSetup from "./components/tournamentSetup/TournamentSetup.jsx";
 import HSUTechnologyExperience from "./components/HSUTechnologyExperience/HSUTechnologyExperience.jsx";
 import HSUUniversePOC from "./experience/universe/HSUUniversePOC.jsx";
 import { resolveCommercialProduct } from "./commercialCatalog.js";
+import HwarangAnimatedIsotype from "./components/HwarangAnimatedIsotype.jsx";
+import "./HomeScreen.css";
 
 if (typeof document !== "undefined" && !document.getElementById("winnerPulseStyle")) {
   const style = document.createElement("style");
@@ -3924,12 +3926,133 @@ function QRSection({ roomId = "combat", routePrefix = "" }) {
   );
 }
 
+function CombatHomeAccess({ accessItems, copiedPath, copyAccessUrl, navigate }) {
+  return (
+    <main className="combat-home">
+      <div className="combat-home__grid" aria-hidden="true" />
+      <header className="combat-home__header">
+        <div className="combat-home__brand">
+          <HwarangAnimatedIsotype size={58} />
+          <span>HWARANG SCORING UNIVERSE®</span>
+        </div>
+        <h1>COMBAT PRO</h1>
+        <div className="combat-home__eyebrow">MATCH ACCESS CENTER</div>
+        <span>WAITING ROOM · SCREEN ACCESS</span>
+      </header>
+
+      <nav className="combat-home__quick-access" aria-label="Screen access">
+        {accessItems.map((access) => (
+          <button
+            key={access.key}
+            type="button"
+            className={`combat-home__quick-button combat-home__quick-button--${access.tone}`}
+            onClick={() => navigate(access.navigationPath)}
+          >
+            {access.label}
+          </button>
+        ))}
+      </nav>
+
+      <section className="combat-home__access-section" aria-labelledby="combat-home-access-title">
+        <div className="combat-home__section-heading">
+          <div>
+            <span>LIVE LINKS</span>
+            <h2 id="combat-home-access-title">ACCESS SCREENS</h2>
+          </div>
+          <small>{accessItems.length} ACTIVE ENDPOINTS</small>
+        </div>
+
+        <div className="combat-home__cards">
+          {accessItems.map((access) => (
+            <article key={access.key} className={`combat-home__card combat-home__card--${access.tone}`}>
+              <div className="combat-home__card-role">
+                <span>{access.label}</span>
+                <i aria-hidden="true" />
+              </div>
+              <div className="combat-home__qr" aria-label={`${access.label} QR code`}>
+                <QRCodeCanvas value={access.qrUrl} size={192} level="M" />
+              </div>
+              <code className="combat-home__route">{access.qrPath}</code>
+              <button type="button" className="combat-home__copy" onClick={() => copyAccessUrl(access)}>
+                {copiedPath === access.qrPath ? "COPIED" : "COPY URL"}
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <footer className="combat-home__footer">
+        <span>COMBAT PRO</span>
+        <strong><i aria-hidden="true" /> SYSTEM READY</strong>
+        <span>HWARANG SCORING UNIVERSE</span>
+      </footer>
+    </main>
+  );
+}
+
 function Home({ navigate, meta, roomId = "combat", isDevRoute = false }) {
   const routePrefix = isDevRoute ? "/dev" : "";
   const presidentPath = `${routePrefix}/president/${roomId}`;
   const publicPath = `${routePrefix}/public/${roomId}`;
   const judgePath = (n) =>
     isDevRoute ? `${routePrefix}/join/${roomId}/judge/${n}` : `/judge/${roomId}/${n}`;
+  const [copiedPath, setCopiedPath] = useState(null);
+  const runtimeBase = `${getBaseURL()}${routePrefix}`;
+  const accessItems = [
+    {
+      key: "president",
+      label: "PRESIDENT",
+      tone: "president",
+      navigationPath: presidentPath,
+      qrPath: presidentPath,
+      qrUrl: `${getBaseURL()}${presidentPath}`,
+    },
+    {
+      key: "public",
+      label: "PUBLIC",
+      tone: "public",
+      navigationPath: publicPath,
+      qrPath: publicPath,
+      qrUrl: `${getBaseURL()}${publicPath}`,
+    },
+    ...Array.from({ length: COMBAT_JUDGES }, (_, index) => {
+      const judgeId = index + 1;
+      const qrPath = `${routePrefix}/join/${roomId}/judge/${judgeId}`;
+      return {
+        key: `judge-${judgeId}`,
+        label: `JUDGE ${judgeId}`,
+        tone: "judge",
+        navigationPath: judgePath(judgeId),
+        qrPath,
+        qrUrl: `${runtimeBase}/join/${roomId}/judge/${judgeId}`,
+      };
+    }),
+  ];
+
+  const copyAccessUrl = async (access) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(access.qrUrl);
+      } else {
+        const field = document.createElement("textarea");
+        field.value = access.qrUrl;
+        field.setAttribute("readonly", "");
+        field.style.position = "fixed";
+        field.style.opacity = "0";
+        document.body.appendChild(field);
+        field.select();
+        document.execCommand("copy");
+        field.remove();
+      }
+      setCopiedPath(access.qrPath);
+      window.setTimeout(
+        () => setCopiedPath((current) => current === access.qrPath ? null : current),
+        1400
+      );
+    } catch {
+      setCopiedPath(null);
+    }
+  };
   const isExpiredDemo =
   isDemoRoom(roomId) && meta?.demoLimit?.expired;
   const isMobile = typeof window !== "undefined" && window.innerWidth < 900;
@@ -4104,6 +4227,26 @@ if (isMobileLandscapeHome) {
     </div>
   );
 }
+
+  if (isMobile) {
+    return (
+      <>
+        {isExpiredDemo && (
+          <DemoExpiredOverlay
+            onLicense={() => {
+              window.location.href = "/license";
+            }}
+          />
+        )}
+        <CombatHomeAccess
+          accessItems={accessItems}
+          copiedPath={copiedPath}
+          copyAccessUrl={copyAccessUrl}
+          navigate={navigate}
+        />
+      </>
+    );
+  }
 
   if (isMobile) {
   return (
@@ -4314,7 +4457,12 @@ border: "1px solid rgba(248,113,113,0.65)",
 }
 
   return (
-    <Frame16x9>
+    <CombatHomeAccess
+      accessItems={accessItems}
+      copiedPath={copiedPath}
+      copyAccessUrl={copyAccessUrl}
+      navigate={navigate}
+    >
       {/* DEJÁ TU CONTENIDO ORIGINAL TAL CUAL */}
       <div
         style={{
@@ -4401,7 +4549,7 @@ border: "1px solid rgba(248,113,113,0.65)",
 </div>
         </div>
       </div>
-    </Frame16x9>
+    </CombatHomeAccess>
   );
 }
 
