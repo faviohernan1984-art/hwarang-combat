@@ -14314,6 +14314,8 @@ const [joinName, setJoinName] = useState("");
 // No modifica scoring, puntos, timer ni cálculo oficial.
 // ======================================================
 const [judgeSlots, setJudgeSlots] = useState({});
+const judgeSlotsRefreshInFlightRef = useRef(false);
+const judgeSlotsAbortControllerRef = useRef(null);
 
 // ======================================================
 // PRESIDENT — JUDGE SLOTS REALTIME LISTENER
@@ -14321,30 +14323,41 @@ const [judgeSlots, setJudgeSlots] = useState({});
 // matches/{roomId}/judgeSlots
 // No modifica scoring ni lógica oficial.
 // ======================================================
-async function refreshJudgeSlots() {
-  if (!roomId) return;
-  const response = await fetch("/api/president-judge-slots", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ roomId }),
-  });
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok || !result.ok || !Array.isArray(result.slots)) {
-    throw new Error(result.code || "SERVICE_UNAVAILABLE");
+async function refreshJudgeSlots(signal) {
+  const activeSignal = signal || judgeSlotsAbortControllerRef.current?.signal;
+  if (!roomId || !activeSignal || activeSignal.aborted || judgeSlotsRefreshInFlightRef.current) return;
+  judgeSlotsRefreshInFlightRef.current = true;
+  try {
+    const response = await fetch("/api/president-judge-slots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roomId }),
+      signal: activeSignal,
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.ok || !Array.isArray(result.slots)) {
+      throw new Error(result.code || "SERVICE_UNAVAILABLE");
+    }
+    if (activeSignal.aborted) return;
+    const next = {};
+    result.slots.forEach((slot) => {
+      if (Number.isInteger(Number(slot.judgeId))) next[String(slot.judgeId)] = slot;
+    });
+    setJudgeSlots(next);
+  } finally {
+    judgeSlotsRefreshInFlightRef.current = false;
   }
-  const next = {};
-  result.slots.forEach((slot) => {
-    if (Number.isInteger(Number(slot.judgeId))) next[String(slot.judgeId)] = slot;
-  });
-  setJudgeSlots(next);
 }
 
 useEffect(() => {
   const presidentRoute = path === "/president" || path.startsWith("/president/");
   if (!roomId || !presidentRoute) return undefined;
+  const controller = new AbortController();
+  judgeSlotsAbortControllerRef.current = controller;
 
   const refresh = () => {
-    refreshJudgeSlots().catch((error) => {
+    refreshJudgeSlots(controller.signal).catch((error) => {
+      if (error?.name === "AbortError") return;
       console.error("PRESIDENT_JUDGE_SLOTS_READ_ERROR", error?.message);
     });
   };
@@ -14353,9 +14366,15 @@ useEffect(() => {
   };
 
   refresh();
+  const pollingInterval = window.setInterval(refresh, 2000);
   window.addEventListener("focus", refresh);
   document.addEventListener("visibilitychange", onVisibilityChange);
   return () => {
+    window.clearInterval(pollingInterval);
+    controller.abort();
+    if (judgeSlotsAbortControllerRef.current === controller) {
+      judgeSlotsAbortControllerRef.current = null;
+    }
     window.removeEventListener("focus", refresh);
     document.removeEventListener("visibilitychange", onVisibilityChange);
   };
