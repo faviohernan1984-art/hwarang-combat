@@ -10,6 +10,7 @@ import LicensePage, {
   LicensePulsarPage,
 } from "./LicensePage.jsx";
 import LicenseComingSoon from "./LicenseComingSoon.jsx";
+import LicenseCatalog from "./LicenseCatalog.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
 import {
@@ -2924,7 +2925,7 @@ function AccessPortal({ navigate }) {
   };
 
   const goLicenseDev = () => {
-    navigate("/license-dev");
+    navigate("/license");
   };
 
   const portalActionCardBase = {
@@ -15462,7 +15463,11 @@ export default function App() {
 }
 
   if (routePath === "/license") {
-    return <LicenseComingSoon />;
+    return <LicenseCatalog />;
+  }
+
+  if (routePath === "/license-patterns" || routePath === "/license-suite") {
+    return <LicenseCatalog product={routePath === "/license-patterns" ? "patterns" : "suite"} />;
   }
 
   if (routePath === "/license/event") {

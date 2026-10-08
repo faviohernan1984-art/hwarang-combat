@@ -1,0 +1,45 @@
+﻿.license-catalog{font-family:'Inter',Arial,sans-serif;color:#f4f6ff;min-height:100dvh;background:radial-gradient(ellipse at 50% 25%,#0b1837 0,#050817 50%,#02040a 100%);font-size:16px;line-height:normal;letter-spacing:normal;color-scheme:dark}
+.license-catalog *{box-sizing:border-box}
+.catalog-header{height:80px;background:#070a22e8;border-bottom:1px solid #283052;display:flex;align-items:center;justify-content:space-between;padding:0 4%;gap:14px}
+.catalog-brand{display:flex;align-items:center;gap:14px;color:inherit;text-decoration:none}
+.catalog-logo{height:49px;width:49px;flex-shrink:0;border-radius:50%;border:2px solid #b49a6d;display:grid;place-items:center;background:#101015;color:#f02328;font-weight:900;font-size:24px;box-shadow:0 0 16px #dfb95d88}
+.catalog-brand strong{display:block;letter-spacing:.26em;font-size:20px}
+.catalog-brand small{font-size:9px;letter-spacing:.21em}
+.catalog-nav{display:flex;gap:32px;font-size:12px;font-weight:800}
+.catalog-nav a{color:#e6e9f4;text-decoration:none;padding:13px 3px}
+.catalog-nav .active{color:#60a6ff;border-bottom:3px solid #3985ee}
+.catalog-actions{display:flex;align-items:center;gap:10px;font-size:12px;border:1px solid #38446a;padding:12px;border-radius:8px}
+.catalog-actions select,.catalog-actions button{font:inherit;border:0;background:transparent;color:inherit;padding:0;cursor:pointer}
+.catalog-actions option{background:#070a22}
+.catalog-main{max-width:1660px;width:94%;margin:auto;padding:22px 18px 42px}
+.catalog-eyebrow{text-align:center;color:#b9c5e2;letter-spacing:.19em;font-size:12px;font-weight:700}
+.license-catalog h1{text-align:center;color:#f4f6ff;font-size:clamp(27px,3vw,42px);margin:9px 0 7px;letter-spacing:.055em;font-weight:700;line-height:normal}
+.license-catalog h1 span{color:#478eff}
+.catalog-registered{font-size:.32em;vertical-align:super;line-height:0;position:relative;top:-.12em;margin-left:2px;font-weight:600}
+.catalog-sub{text-align:center;color:#bac6df;font-size:15px;margin:0 0 24px}
+.license-catalog .catalog-section{font-size:15px;letter-spacing:.12em;margin:10px 0 16px;color:#f4f6ff;font-weight:700;line-height:normal}
+.catalog-dice{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:'combat gup' 'suite suite' 'dan bracket';gap:18px;max-width:1120px;margin:auto}
+.catalog-card{position:relative;text-align:left;min-height:190px;border:.7px solid var(--accent);border-radius:11px;box-shadow:0 0 12px var(--glow);padding:22px 25px;display:flex;align-items:center;color:inherit;text-decoration:none;cursor:pointer;transition:transform .18s,box-shadow .18s;min-width:0}
+.catalog-card:hover{transform:translateY(-3px);box-shadow:0 0 22px var(--glow)}
+.license-catalog a:focus-visible,.catalog-actions select:focus-visible,.catalog-actions button:focus-visible{outline:3px solid white;outline-offset:3px}
+.catalog-card h2{color:#fff;font-size:21px;margin:0 0 10px;letter-spacing:.025em;text-shadow:0 1px 10px #0006;font-weight:800;line-height:normal}
+.catalog-card p{margin:0;color:#d2d9e8;font-size:13px;line-height:1.5}
+.catalog-status{display:inline-block;margin-top:15px;font-size:10px;letter-spacing:.08em;color:var(--accent,#9ac0ff);font-weight:800}
+.catalog-card.combat{grid-area:combat;--accent:#ff3036;--glow:#f000172d;border-color:#f5222b;background:linear-gradient(118deg,rgba(255,72,75,.20),transparent 44%),linear-gradient(166deg,#87000a 0%,#4a0007 43%,#17040a 100%);box-shadow:inset 0 1px 0 #ff969a55,inset 0 -20px 38px #10000488,0 0 13px #e9001926}
+.catalog-card.gup{grid-area:gup;--accent:#4091ff;--glow:#1266f73a;border-color:#257aff;background:linear-gradient(118deg,rgba(88,155,255,.22),transparent 44%),linear-gradient(166deg,#114baf 0%,#072f80 43%,#030d32 100%);box-shadow:inset 0 1px 0 #8ec5ff60,inset 0 -20px 38px #000a2b99,0 0 13px #126cff33}
+.catalog-card.suite{grid-area:suite;--accent:#f0d0f0;--glow:#9634ee23;max-width:560px;width:100%;justify-self:center;background:linear-gradient(115deg,rgba(255,112,115,.16),transparent 42%),linear-gradient(105deg,#8d0713 0%,#58000c 29%,#170b22 50%,#092b79 73%,#1251b8 100%);border-color:#777fae;box-shadow:inset 0 1px 0 #ffffff30,inset 0 -18px 32px #07071370,0 0 12px #b92c5130,0 0 14px #1b70ff2b}
+.catalog-card.dan{grid-area:dan;--accent:#e0e5f0;--glow:#d5dbe91b;border-color:#a5b0c2;background:linear-gradient(115deg,rgba(222,229,244,.16),transparent 43%),linear-gradient(165deg,#30343e 0%,#181b22 44%,#08090e 100%);box-shadow:inset 0 1px 0 #f5f7ff30,inset 0 -18px 36px #00000088,0 0 12px var(--glow)}
+.catalog-card.bracket{grid-area:bracket;--accent:#ffc153;--glow:#f0ad2820;background:linear-gradient(117deg,rgba(255,215,128,.16),transparent 43%),linear-gradient(165deg,#49300d 0%,#2b1d0c 44%,#100d0a 100%);box-shadow:inset 0 1px 0 #ffdc9633,inset 0 -18px 36px #12090066,0 0 12px var(--glow)}
+.catalog-card.combat:hover,.catalog-card.gup:hover{box-shadow:inset 0 1px 0 #ffffff3b,0 0 22px var(--glow)}
+.catalog-card.disabled{cursor:default;opacity:.77}
+.catalog-card.disabled:hover{transform:none;box-shadow:0 0 12px var(--glow)}
+.catalog-pill{position:absolute;top:12px;right:13px;font-size:10px;background:#283048;color:#e4e8f5;border-radius:50px;padding:5px 9px}
+.catalog-footer{text-align:center;color:#8b98b2;font-size:11px;margin:38px 0 0}
+.catalog-brand strong,.catalog-nav,.license-catalog h1,.catalog-eyebrow,.catalog-section,.catalog-card h2,.catalog-status,.catalog-pending h2{font-family:'Orbitron',Arial,sans-serif}
+.catalog-pending{margin:26px auto 0;max-width:1120px;border:1px solid #4e628e;background:#0c1430;border-radius:12px;padding:24px}
+.catalog-pending h2{color:#fff;font-size:21px;line-height:1.4}
+.catalog-pending p{font-size:13px;color:#c7d3e7;line-height:1.6}
+.catalog-pending a{display:block;width:fit-content;margin-top:24px;color:#9ac0ff;font-weight:700;font-size:13px}
+@media(max-width:720px){.catalog-main{width:100%;padding:22px 12px 35px}.catalog-header{padding:0 14px;height:auto;min-height:80px;flex-wrap:wrap;gap:8px 14px;padding-block:12px}.catalog-brand strong{font-size:13px}.catalog-brand small{font-size:7px}.catalog-logo{width:40px;height:40px}.catalog-nav{gap:14px}.catalog-actions{padding:8px;gap:8px;margin-left:auto}.catalog-dice{gap:12px}.catalog-card{padding:15px;min-height:155px;display:block}.catalog-card h2{font-size:15px}.catalog-card p{font-size:11px}.catalog-card.suite{max-width:90%;min-height:145px;display:flex}.catalog-pill{position:static;display:inline-block;margin-bottom:8px}.license-catalog .catalog-section{font-size:12px}}
+@media(max-width:420px){.catalog-dice{grid-template-columns:minmax(0,1fr);grid-template-areas:'combat' 'gup' 'suite' 'dan' 'bracket'}.catalog-card.suite{max-width:100%}.catalog-card{min-height:155px}.catalog-nav{margin-left:auto}.catalog-actions{margin-left:0}.catalog-header{justify-content:flex-start}.catalog-brand{gap:8px}}
+@media(prefers-reduced-motion:reduce){.catalog-card{transition:none}.catalog-card:hover{transform:none}}

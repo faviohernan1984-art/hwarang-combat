@@ -1,0 +1,19 @@
+/* Match the Arial typography inherited by the original /license-dev header.
+   All institutional dimensions, colors and Orbital animation live in the
+   extracted commercialHeaderStyles shared with the existing license pages. */
+.commercial-license-header{font-family:Arial,sans-serif;font-size:18px;line-height:26.1px;letter-spacing:.18px;color:#f8fafc}
+.commercial-license-header button,.commercial-license-header select{font-family:inherit}
+.commercial-license-header select option{background:#060325;color:#fff}
+.commercial-license-header button:focus-visible,.commercial-license-header select:focus-visible{outline:3px solid white;outline-offset:3px}
+@media(max-width:1024px){.commercial-license-header{font-size:16px;line-height:23.2px}}
+/* Only the catalog needs a wrapping header: preserve Combat's cinematic shell
+   and orientation gate while keeping the same controls usable on small screens. */
+@media(max-width:900px){.commercial-license-header--responsive{height:auto!important;min-height:88px;padding:16px!important;flex-wrap:wrap;gap:16px}.commercial-license-header--responsive>div:last-child{margin-left:auto}}
+/* Match the reference ES button's intrinsic box. Native select chrome previously
+   widened the action group and shifted the space-between navigation by 6.86px. */
+.commercial-license-language-control{display:inline-flex;position:relative}
+.commercial-license-language-arrow{display:none}
+@media(min-width:900px){
+  .commercial-license-header .commercial-license-language{appearance:none;box-sizing:border-box;width:65.265625px;height:41px;flex:none}
+  .commercial-license-language-arrow{display:block;position:absolute;right:18px;top:50%;transform:translateY(-50%);font:800 13.3333px Arial,sans-serif;pointer-events:none}
+}

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import RotateDeviceGate from "./RotateDeviceGate";
 import LicenseComingSoon from "./LicenseComingSoon.jsx";
+import CommercialLicenseHeader from "./components/CommercialLicenseHeader.jsx";
+import { commercialHeaderStyles } from "./components/commercialLicenseHeaderStyles.js";
 import { NOVA_PACKAGES } from "./commercialCatalog.js";
 import {
   ShieldCheck,
@@ -271,105 +273,7 @@ LICENSE PAGE — BRAND NAVIGATION
 Stable navbar layer protection for notebook fullscreen.
 Keeps navigation clickable above transformed content layers.
 ====================================================== */}
-      <header
-  style={{
-    ...styles.navbar,
-    position: "relative",
-    zIndex: 9999,
-    pointerEvents: "auto",
-  }}
->
-        <div style={styles.brand}>
-          <div style={styles.logoOrb}>
-  <style>{`
-    @keyframes licenseOrbSpin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-  `}</style>
-
-  <div style={styles.logoOrbRing} />
-
-  <div style={styles.logoOrbCore}>
-    H
-  </div>
-</div>
-          <div>
-            <div style={styles.brandTitle}>HWARANG</div>
-            <div style={styles.brandSub}>SCORING UNIVERSE<sup style={{ fontSize: "0.42em", lineHeight: 0, marginLeft: "0.08em" }}>®</sup></div>
-          </div>
-        </div>
-
-        {/* ======================================================
-LICENSE PAGE
-NAV LINKS INTERACTION
-====================================================== */}
-<nav style={styles.navLinks}>
-  <span
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "translateY(-1px)";
-      e.currentTarget.style.color = "#60a5fa";
-      e.currentTarget.style.textShadow = "0 0 10px rgba(96,165,250,0.45)";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "translateY(0)";
-      e.currentTarget.style.color = "#ffffff";
-      e.currentTarget.style.textShadow = "none";
-    }}
-    onMouseDown={(e) => navClickFx(e)}
-    onClick={() => (window.location.href = "/")}
-    style={{
-      cursor: "pointer",
-      transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
-    }}
-  >
-    HOME
-  </span>
-
-  <span
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "translateY(-1px)";
-      e.currentTarget.style.color = "#60a5fa";
-      e.currentTarget.style.textShadow = "0 0 14px rgba(96,165,250,0.65)";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "translateY(0)";
-      e.currentTarget.style.color = "#60a5fa";
-      e.currentTarget.style.textShadow = "0 0 8px rgba(96,165,250,0.35)";
-    }}
-    onMouseDown={(e) => navClickFx(e)}
-    style={{
-      ...styles.activeNav,
-      cursor: "default",
-      transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
-      textShadow: "0 0 8px rgba(96,165,250,0.35)",
-    }}
-  >
-    LICENSE
-  </span>
-</nav>
-
-        <div style={styles.navActions}>
-          <button
-  style={styles.langBtn}
-  onClick={() => showComingSoon("Language selector coming soon.")}
->
-  ES⌄
-</button>
-
-<button
-  style={styles.loginBtn}
-  onClick={() => showComingSoon("Client Access coming soon.")}
->
-  SIGN IN
-</button>
-        </div>
-      </header>
+      <CommercialLicenseHeader />
 
       <main
         style={{
@@ -3135,85 +3039,7 @@ payLogoImg: {
     color: "#f8fafc",
     fontFamily: "Arial, sans-serif",
   },
-  navbar: {
-    height: 88,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "0 52px",
-    borderBottom: "1px solid rgba(148,163,184,0.16)",
-    background: "rgba(1, 1, 29, 0.82)",
-    backdropFilter: "blur(14px)",
-  },
-  brand: { display: "flex", alignItems: "center", gap: 14 },
-  logoOrb: {
-  position: "relative",
-  width: 54,
-  height: 54,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-},
-
-logoOrbRing: {
-  position: "absolute",
-  inset: 0,
-  borderRadius: "50%",
-  border: "3px solid rgba(245,197,66,0.22)",
-  borderTop: "3px solid #ff0000",
-  boxShadow: "0 0 28px rgb(255,253,253)",
-  animation: "licenseOrbSpin 2.8s linear infinite",
-},
-
-logoOrbCore: {
-  position: "relative",
-  color: "#ff0000",
-  fontSize: 28,
-  fontWeight: 1000,
-  textShadow: `
-    0 0 12px rgba(245,197,66,1),
-    0 0 28px rgba(245,197,66,0.75)
-  `,
-  zIndex: 2,
-},
-
-  brandTitle: {
-    fontSize: 24,
-    fontWeight: 900,
-    letterSpacing: 5,
-    color: "#ffffff",
-  },
-  brandSub: {
-  fontSize: 9,
-  letterSpacing: 2.2,
-  color: "#d6dee9",
-},
-  navLinks: { display: "flex", gap: 36, fontSize: 14, fontWeight: 600 },
-  activeNav: {
-    color: "#60a5fa",
-    borderBottom: "3px solid #3b82f6",
-    paddingBottom: 14,
-    minWidth: 72,
-textAlign: "center",
-display: "inline-block",
-  },
-  navActions: { display: "flex", gap: 16 },
-  langBtn: {
-    background: "rgba(6, 3, 37, 0.8)",
-    color: "white",
-    border: "1px solid rgba(148,163,184,0.25)",
-    borderRadius: 8,
-    padding: "10px 18px",
-    fontWeight: 800,
-  },
-  loginBtn: {
-    background: "linear-gradient(90deg,#2563eb,#0284c7)",
-    color: "white",
-    border: "none",
-    borderRadius: 8,
-    padding: "5px 10px",
-    fontWeight: 900,
-  },
+  ...commercialHeaderStyles,
   main: {
     background:
     "linear-gradient(180deg, #020617 0%, #000000 100%)",
