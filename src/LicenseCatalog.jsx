@@ -26,7 +26,7 @@ function readLanguage() {
   catch { return "en"; }
 }
 
-export default function LicenseCatalog({ product = null, view = null, onCombatDiscover,
+export default function LicenseCatalog({ product = null, view = null, onCombatDiscover, onNavigate,
   sceneFrame, patternsOrigin = import.meta.env?.VITE_PATTERNS_APP_ORIGIN,
   patternsDemoEnabled = import.meta.env?.VITE_PATTERNS_DEMO_ENABLED === "true" }) {
   const [language, setLanguage] = useState(readLanguage);
@@ -124,7 +124,15 @@ export default function LicenseCatalog({ product = null, view = null, onCombatDi
       <div className="license-catalog hsu-first-layer-catalog" lang={language}>
         <div className="hsu-first-layer-body">{centralContent}</div>
         <div className="hsu-first-layer-controls">
-          <a href="/">← HOME</a>
+          <a href="/" onClick={(event) => {
+            if (
+              event.defaultPrevented || event.button !== 0 ||
+              event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ||
+              typeof onNavigate !== "function"
+            ) return;
+            event.preventDefault();
+            onNavigate("/");
+          }}>← HOME</a>
           <label>{t.language}<select aria-label={t.language} value={language} onChange={changeLanguage}>
             <option value="es">ES</option><option value="en">EN</option>
           </select></label>

@@ -15464,14 +15464,14 @@ export default function App() {
 }
 
   if (routePath === "/discover") {
-    return <LicenseCatalog view="discover" sceneFrame={AccessPortal} onCombatDiscover={() => {
+    return <LicenseCatalog view="discover" sceneFrame={AccessPortal} onNavigate={navigate} onCombatDiscover={() => {
       const demoRoom = getOrCreateDemoRoomId();
       navigate(`/${demoRoom}`);
     }} />;
   }
 
   if (routePath === "/license") {
-    return <LicenseCatalog sceneFrame={AccessPortal} />;
+    return <LicenseCatalog sceneFrame={AccessPortal} onNavigate={navigate} />;
   }
 
   if (routePath === "/license-patterns" || routePath === "/license-suite") {
