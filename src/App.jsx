@@ -2902,8 +2902,15 @@ lineHeight: 1.1,
     No toca scoring, timer, judges, Firebase ni combate.
 ====================================================== */}
 
-function AccessPortal({ navigate, children }) {
+function AccessPortal({ navigate, children, preferWebp = false }) {
   const { sceneRef, contentRef } = useHomeSceneFit(Boolean(children));
+  const webpBackground = 'image-set(url("/portalenterprice/newportal-1920x1080-q95.webp") type("image/webp"), url("/portalenterprice/newportal.png") type("image/png"))';
+  const portalBackground =
+    preferWebp &&
+    typeof CSS !== "undefined" &&
+    CSS.supports("background-image", webpBackground)
+      ? webpBackground
+      : "url('/portalenterprice/newportal.png')";
   const isMobileLandscape =
   typeof window !== "undefined" &&
   window.innerWidth < 900 &&
@@ -3111,7 +3118,7 @@ transformOrigin: "center center",
     rgba(0,0,0,0.48),
     rgba(0,0,0,0.48)
   ),
-  url('/portalenterprice/newportal.png')
+  ${portalBackground}
 `,
 backgroundSize: "cover",
 backgroundPosition: "center",
@@ -15423,7 +15430,7 @@ export default function App() {
     return (
       <>
         <GlobalAppStyle />
-        <AccessPortal navigate={navigate} />
+        <AccessPortal navigate={navigate} preferWebp />
       </>
     );
   }
