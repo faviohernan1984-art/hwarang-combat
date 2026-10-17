@@ -1,0 +1,41 @@
+/* HOME only. Existing first-layer scenes and operational orientation gates
+   deliberately receive no styles from this file. Desktop HOME stays unchanged. */
+@media(max-width:899px){
+ .hsu-home-scene{width:100%!important;height:100dvh!important;transform:translate(-50%,-50%)!important}
+ .hsu-home-scene .hsu-home-content{
+  width:100%!important;height:100%!important;box-sizing:border-box;
+  padding:max(20px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))!important;
+  justify-content:flex-start!important;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;text-align:center;
+ }
+ .hsu-home-content>div{flex-shrink:0;max-width:100%;box-sizing:border-box}
+ .hsu-home-content>div:first-child{width:64px!important;height:64px!important;margin-top:auto;margin-bottom:14px!important}
+ .hsu-home-content>div:nth-child(2){font-size:clamp(22px,6.2vw,30px)!important;line-height:1.15!important;letter-spacing:.08em!important}
+ .hsu-home-content>div:nth-child(3){font-size:16px!important;letter-spacing:.28em!important;margin-top:8px!important}
+ .hsu-home-content>div:nth-child(4){margin:16px 0 12px!important}
+ .hsu-home-content>div:nth-child(5){font-size:12px!important;line-height:1.6;letter-spacing:.16em!important;margin-bottom:20px!important}
+ .hsu-home-content .hsu-home-panels{display:grid!important;width:min(620px,100%)!important;grid-template-columns:minmax(0,1fr)!important;gap:14px!important}
+ .hsu-home-panels>div{min-width:0;min-height:174px!important;padding:18px!important;border-radius:20px!important;box-sizing:border-box}
+ .hsu-home-panels>div>div:first-child{font-size:21px!important;line-height:1.3;letter-spacing:.06em!important}
+ .hsu-home-panels>div>div:nth-child(2){font-size:14px!important;line-height:1.45!important;margin-top:10px!important}
+ .hsu-home-panels button{min-height:46px;height:auto!important;margin-top:16px!important;padding:12px 8px;font-size:14px!important;line-height:1.4;letter-spacing:.06em!important;flex-shrink:0;box-sizing:border-box}
+ .hsu-home-panels button:focus-visible{outline:3px solid white;outline-offset:3px}
+ .hsu-home-content>div:last-child{margin-top:20px!important;margin-bottom:auto;font-size:10px!important;line-height:1.6;letter-spacing:.13em!important}
+ .hsu-home-content>div:last-child>div{margin-top:8px!important;font-size:9px!important;line-height:1.6;letter-spacing:.1em!important}
+}
+@media(max-width:899px) and (orientation:landscape){
+ .hsu-home-scene .hsu-home-content{
+  padding:max(12px,env(safe-area-inset-top)) max(24px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left))!important;
+ }
+ .hsu-home-content>div:first-child{width:44px!important;height:44px!important;margin-bottom:8px!important}
+ .hsu-home-content>div:nth-child(2){font-size:25px!important;line-height:1.1!important}
+ .hsu-home-content>div:nth-child(3){font-size:13px!important;margin-top:4px!important}
+ .hsu-home-content>div:nth-child(4){margin:10px 0 8px!important}
+ .hsu-home-content>div:nth-child(5){font-size:11px!important;margin-bottom:12px!important}
+ .hsu-home-content .hsu-home-panels{width:min(780px,100%)!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important}
+ .hsu-home-panels>div{min-height:156px!important;padding:14px 18px!important}
+ .hsu-home-panels>div>div:first-child{font-size:19px!important}
+ .hsu-home-panels>div>div:nth-child(2){font-size:13px!important;margin-top:8px!important}
+ .hsu-home-panels button{min-height:44px;margin-top:12px!important;font-size:13px!important;padding:10px 8px}
+ .hsu-home-content>div:last-child{margin-top:12px!important;font-size:9px!important}
+ .hsu-home-content>div:last-child>div{margin-top:4px!important;font-size:8px!important}
+}

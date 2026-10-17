@@ -1,3 +1,4 @@
+import "./components/CombatLicenseMobile.css";
 import React, { useEffect, useState } from "react";
 import RotateDeviceGate from "./RotateDeviceGate";
 import LicenseComingSoon from "./LicenseComingSoon.jsx";
@@ -239,12 +240,9 @@ const isWideLicenseDesktop =
   typeof navigator !== "undefined" &&
   /iPhone|iPod/.test(navigator.userAgent);
 
-  if (isMobilePortrait) {
-  return <RotateDeviceGate />;
-}
 
   return (
-    <div
+    <div className="combat-license-page"
   style={{
     ...styles.page,
     ...(isNotebookLicenseLayout ? notebookCollageLock : {}),
@@ -275,7 +273,7 @@ Keeps navigation clickable above transformed content layers.
 ====================================================== */}
       <CommercialLicenseHeader />
 
-      <main
+      <main className="combat-license-main"
         style={{
           ...styles.main,
           padding: isNotebookLicenseLayout
@@ -294,7 +292,7 @@ Keeps navigation clickable above transformed content layers.
           overflow: "visible",
         }}
       >
-        <section
+        <section className="combat-license-leftPanel"
           style={{
             ...styles.leftPanel,
             left: 0,
@@ -308,7 +306,7 @@ Keeps navigation clickable above transformed content layers.
             justifyContent: isNotebookLicenseLayout ? "flex-start" : undefined,
           }}
         >
-        <div
+        <div className="combat-license-leftContent"
           style={{
             ...styles.leftContent,
             transform: "none",
@@ -316,7 +314,7 @@ Keeps navigation clickable above transformed content layers.
             top: 0,
           }}
         >
-          <div
+          <div className="combat-license-hero"
             style={{
               ...styles.hero,
               transform: isNotebookLicenseLayout ? "none" : "scale(0.90)",
@@ -324,15 +322,15 @@ Keeps navigation clickable above transformed content layers.
               marginBottom: isNotebookLicenseLayout ? 0 : -10,
             }}
           >
-            <div style={styles.heroGlow} />
-            <div style={styles.kicker}>GET YOUR PROFESSIONAL LICENSE</div>
-            <h1 style={styles.title}>
+            <div className="combat-license-heroGlow" style={styles.heroGlow} />
+            <div className="combat-license-kicker" style={styles.kicker}>GET YOUR PROFESSIONAL LICENSE</div>
+            <h1 className="combat-license-title" style={styles.title}>
               HWARANG SCORING <span style={styles.blueText}>
   UNIVERSE
   <span style={styles.tm}>®</span>
 </span>
             </h1>
-            <p
+            <p className="combat-license-subtitle"
               style={{
   ...styles.subtitle,
   width: isWideLicenseDesktop ? 1160 : "auto",
@@ -365,7 +363,7 @@ Keeps navigation clickable above transformed content layers.
               transformOrigin: "top center",
             }}
           >
-          <div
+          <div className="combat-license-features"
             style={{
               ...styles.features,
               marginTop: isNotebookLicenseLayout ? "clamp(8px, 1.5vh, 14px)" : 24,
@@ -404,7 +402,7 @@ Keeps navigation clickable above transformed content layers.
 />
           </div>
 
-          <div
+          <div className="combat-license-sectionTitle"
             style={{
               ...styles.sectionTitle,
               marginTop: isNotebookLicenseLayout ? "clamp(8px, 1.6vh, 14px)" : 20,
@@ -413,7 +411,7 @@ Keeps navigation clickable above transformed content layers.
             CHOOSE YOUR LICENSE PLAN
           </div>
 
-          <div
+          <div className="combat-license-cards"
             style={{
               ...styles.cards,
               gap: isNotebookLicenseLayout ? "clamp(16px, 2vw, 28px)" : styles.cards.gap,
@@ -479,7 +477,7 @@ Up to 4 arenas"
 
           </div>
 
-<div
+<div className="combat-license-statsStrip"
   style={{
     ...styles.statsStrip,
     position: "static",
@@ -490,26 +488,26 @@ Up to 4 arenas"
     width: "100%",
   }}
 >
-  <div style={styles.statItem}>
+  <div className="combat-license-statItem" style={styles.statItem}>
     <ShieldCheck size={18} style={styles.bottomLucideIcon} />
     TRUSTED BY<br />
     PROFESSIONAL ORGANIZATIONS WORLDWIDE
   </div>
 
-  <div style={styles.statItem}>
+  <div className="combat-license-statItem" style={styles.statItem}>
     <Trophy size={18} style={styles.bottomLucideIcon} />
     OFFICIAL SYSTEM USED IN<br />
     NATIONAL & INTERNATIONAL EVENTS
   </div>
 
-  <div style={styles.statItem}>
+  <div className="combat-license-statItem" style={styles.statItem}>
     <Globe size={18} style={styles.bottomLucideIcon} />
     ENGINEERED BY EXPERTS IN<br />
     ITF TAEKWONDO & COMPETITIVE TECHNOLOGY
   </div>
 </div>
 
-<div
+<div className="combat-license-note"
   style={{
     ...styles.note,
     ...(isNotebookLicenseLayout
@@ -526,7 +524,7 @@ Up to 4 arenas"
 
 </section>
 
-        <aside
+        <aside className="combat-license-checkout"
           style={{
             ...styles.checkout,
             width: "auto",
@@ -543,16 +541,16 @@ transformOrigin: "top right",
             boxShadow: `0 0 140px rgba(0,0,0,0.96), 0 0 60px ${selectedTone.glow}, inset 0 0 90px ${selectedTone.glow}`,
           }}
         >
-  <h2 style={{ ...styles.checkoutTitle, color: selectedTone.accent }}>YOUR SELECTION</h2>
+  <h2 className="combat-license-checkoutTitle" style={{ ...styles.checkoutTitle, color: selectedTone.accent }}>YOUR SELECTION</h2>
 
-  <div
+  <div className="combat-license-selectedBox"
     style={{
       ...styles.selectedBox,
       borderColor: selectedTone.border,
       ...(isShortNotebookLicenseLayout ? { padding: "14px 16px", gap: 20 } : {}),
     }}
   >
-    <div
+    <div className="combat-license-trophyBox"
       style={{
         ...styles.trophyBox,
         borderColor: selectedTone.border,
@@ -570,8 +568,8 @@ transformOrigin: "top right",
     </div>
 
     <div style={{ flex: 1 }}>
-      <div style={styles.muted}>SELECTED LICENSE</div>
-      <div
+      <div className="combat-license-muted" style={styles.muted}>SELECTED LICENSE</div>
+      <div className="combat-license-selectedTitle"
         style={{
           ...styles.selectedTitle,
           color: selectedTone.accent,
@@ -580,12 +578,12 @@ transformOrigin: "top right",
       >
         {selectedLicense.title}
       </div>
-      <div style={styles.muted}>{selectedLicense.description}</div>
+      <div className="combat-license-muted" style={styles.muted}>{selectedLicense.description}</div>
     </div>
 
   </div>
 
-  <div style={styles.detailList}>
+  <div className="combat-license-detailList" style={styles.detailList}>
     {selectedLicense.items.map((item) => (
       <Row
         compact={isShortNotebookLicenseLayout}
@@ -597,7 +595,7 @@ transformOrigin: "top right",
     ))}
   </div>
 
-  <button
+  <button className="combat-license-buyBtn"
   style={{
     ...styles.buyBtn,
     borderColor: selectedTone.border,
@@ -611,34 +609,34 @@ transformOrigin: "top right",
   CONTINUE
 </button>
 
-  <div style={styles.payments}>
-    <div style={styles.payTitle}>PAYMENT METHODS</div>
+  <div className="combat-license-payments" style={styles.payments}>
+    <div className="combat-license-payTitle" style={styles.payTitle}>PAYMENT METHODS</div>
 
     {/* ==============================
     PAYMENT METHODS LOGOS
     ============================== */}
-<div style={styles.payLogos}>
-  <div style={styles.payCard}>
+<div className="combat-license-payLogos" style={styles.payLogos}>
+  <div className="combat-license-payCard" style={styles.payCard}>
     <img src="/payments/paypal.png" alt="PayPal" style={styles.payLogoImg} />
   </div>
 
-  <div style={styles.payCard}>
+  <div className="combat-license-payCard" style={styles.payCard}>
     <img src="/payments/amex.png" alt="AMEX" style={styles.payLogoImg} />
   </div>
 
-  <div style={styles.payCard}>
+  <div className="combat-license-payCard" style={styles.payCard}>
     <img src="/payments/mastercard.png" alt="Mastercard" style={styles.payLogoImg} />
   </div>
 
-  <div style={styles.payCard}>
+  <div className="combat-license-payCard" style={styles.payCard}>
     <img src="/payments/visa.png" alt="Visa" style={styles.payLogoImg} />
   </div>
 
-  <div style={styles.payCard}>
+  <div className="combat-license-payCard" style={styles.payCard}>
     <img src="/payments/mercadopago.png" alt="Mercado Pago" style={styles.payLogoImg} />
   </div>
 
-  <div style={styles.payCard}>
+  <div className="combat-license-payCard" style={styles.payCard}>
     <img src="/payments/nx.png" alt="NX" style={styles.payLogoImg} />
   </div>
 </div>
@@ -672,7 +670,7 @@ export function LicenseDemoPage() {
     window.innerHeight <= 900;
 
   return (
-    <div
+    <div className="hsu-product-page"
   style={{
     ...styles.page,
     minHeight: "100vh",
@@ -692,7 +690,7 @@ LICENSE DISCOVER PAGE — BRAND NAVIGATION
 Stable navbar layer protection for notebook fullscreen.
 Keeps navigation clickable above transformed content layers.
 ====================================================== */}
-<header
+<header className="hsu-product-header"
   style={{
     ...styles.navbar,
     position: "relative",
@@ -794,7 +792,7 @@ LICENSE DISCOVER PAGE — NOTEBOOK GRID FORMULA
 Replicated from Pulsar notebook architecture.
 PC frozen behavior remains untouched.
 ====================================================== */}
-<main
+<main className="hsu-product-main"
   style={{
     minHeight: "calc(100vh - 88px)",
 
@@ -822,7 +820,7 @@ PC frozen behavior remains untouched.
         <section>
           <div style={styles.kicker}>FREE EVALUATION ACCESS</div>
 
-          <h1
+          <h1 className="hsu-product-h1"
   style={{
     ...styles.title,
     fontSize: 72,
@@ -865,7 +863,7 @@ paddingLeft: 0,
           {/* ======================================================
           LICENSE DISCOVER PAGE — INCLUDED FEATURES STRIP
           ====================================================== */}
-          <div
+          <div className="hsu-product-benefits"
   style={{
     display: "grid",
     gridTemplateColumns: "repeat(3, 1fr)",
@@ -888,7 +886,7 @@ LICENSE DISCOVER PAGE — TERMS AND LIMITS CARD
 Notebook formula replicated from Pulsar purchase card.
 Do not modify PC frozen behavior.
 ====================================================== */}
-<aside
+<aside className="hsu-product-aside"
   style={{
     border: "1px solid rgba(34,211,238,0.55)",
     borderRadius: 26,
@@ -1175,7 +1173,7 @@ const prices = {
   const selectedPrice = prices[areas];
 
   return (
-    <div
+    <div className="hsu-product-page"
   style={{
   ...styles.page,
   minHeight: "100vh",
@@ -1191,7 +1189,7 @@ const prices = {
       {/* ======================================================
       LICENSE EVENT PAGE — BRAND NAVIGATION
       ====================================================== */}
-      <header
+      <header className="hsu-product-header"
   style={{
     ...styles.navbar,
     position: "relative",
@@ -1319,7 +1317,7 @@ No modifica Discover ni Pulsar
       {/* ======================================================
       LICENSE EVENT PAGE — HERO + CHECKOUT GRID
       ====================================================== */}
-      <main
+      <main className="hsu-product-main"
         style={{
           minHeight: "calc(100vh - 88px)",
           padding: isNotebook
@@ -1342,7 +1340,7 @@ transform: isNotebook
         {/* ======================================================
 LICENSE NOVA PAGE — LEFT COMMERCIAL COLUMN
 ====================================================== */}
-<section
+<section className="hsu-product-section"
   style={{
     transform: isNotebook
       ? "translateY(20px)"
@@ -1372,7 +1370,7 @@ Uses the dominant Nova accent to unify the commercial hierarchy.
 NOVA LICENSE — HERO TITLE DISCOVER TEMPLATE
 Replicates Discover hierarchy: strong white title + controlled themed highlight.
 ====================================================== */}
-<h1
+<h1 className="hsu-product-h1"
   style={{
     ...styles.title,
     fontSize: isNotebook ? 66 : 76,
@@ -1461,7 +1459,7 @@ Mismo tono oficial utilizado en panel derecho
   {/* ======================================================
   LICENSE NOVA PAGE — INCLUDED FEATURES
   ====================================================== */}
-  <div
+  <div className="hsu-product-benefits"
     style={{
       display: "grid",
       gridTemplateColumns: "repeat(3, 1fr)",
@@ -1549,7 +1547,7 @@ Color oficial Nova utilizado en panel derecho
 LICENSE NOVA PAGE — RIGHT PURCHASE CARD
 Notebook/PC scale and position cloned from Pulsar.
 ====================================================== */}
-<aside
+<aside className="hsu-product-aside"
   style={{
     border: `1px solid ${nova.border}`,
     borderRadius: 26,
@@ -1596,7 +1594,7 @@ LICENSE NOVA PAGE — RIGHT CARD TITLE
           {/* ======================================================
 LICENSE NOVA PAGE — PACKAGE SELECTOR
 ====================================================== */}
-<div
+<div className="hsu-product-packages"
   style={{
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
@@ -1956,7 +1954,7 @@ const isNotebook =
   
 
   return (
-    <div
+    <div className="hsu-product-page"
       style={{
   ...styles.page,
   minHeight: "100vh",
@@ -1986,7 +1984,7 @@ LICENSE PULSAR PAGE — BRAND NAVIGATION
 Stable navbar layer protection for notebook fullscreen.
 Keeps navigation clickable above transformed content layers.
 ====================================================== */}
-<header
+<header className="hsu-product-header"
   style={{
     ...styles.navbar,
     position: "relative",
@@ -2104,7 +2102,7 @@ Keeps navigation clickable above transformed content layers.
       {/* ======================================================
       LICENSE EVENT PAGE — HERO + CHECKOUT GRID
       ====================================================== */}
-      <main
+      <main className="hsu-product-main"
         style={{
           minHeight: "calc(100vh - 88px)",
           padding: isNotebook
@@ -2144,7 +2142,7 @@ Annual descriptor aligned with Nova and Discover title system.
 PULSAR LICENSE — HERO TITLE DISCOVER TEMPLATE
 Replicates Discover hierarchy: strong white title + controlled themed highlight.
 ====================================================== */}
-<h1
+<h1 className="hsu-product-h1"
   style={{
     ...styles.title,
     fontSize: isNotebook ? 66 : 76,
@@ -2229,7 +2227,7 @@ clubs and organizations that operate year-round.
           {/* ======================================================
           LICENSE EVENT PAGE — INCLUDED FEATURES
           ====================================================== */}
-          <div
+          <div className="hsu-product-benefits"
             style={{
               display: "grid",
 gridTemplateColumns: "repeat(3, 1fr)",
@@ -2250,7 +2248,7 @@ maxWidth: isNotebook ? 760 : 860,
         {/* ======================================================
         LICENSE EVENT PAGE — RIGHT PURCHASE CARD
         ====================================================== */}
-        <aside
+        <aside className="hsu-product-aside"
           style={{
   border: `1px solid ${pulsar.border}`,
   borderRadius: 26,
@@ -2290,7 +2288,7 @@ transformOrigin: "top right",
           {/* ======================================================
           LICENSE EVENT PAGE — AREA SELECTOR
           ====================================================== */}
-          <div
+          <div className="hsu-product-packages"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
@@ -2340,7 +2338,7 @@ transformOrigin: "top right",
           {/* ======================================================
 LICENSE PULSAR PAGE — TOP-UP CONTROL
 ====================================================== */}
-<div
+<div className="hsu-product-topup"
   style={{
     marginBottom: 5,
     padding: 5,

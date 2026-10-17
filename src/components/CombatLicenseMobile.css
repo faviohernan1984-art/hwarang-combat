@@ -1,0 +1,62 @@
+/* Only the /license-dev index owns .combat-license-page. No desktop overrides,
+   shared component edits, payment changes or operational orientation changes. */
+@media(max-width:899px){
+ .combat-license-page{
+  position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:0!important;
+  transform:none!important;overflow-y:auto!important;overflow-x:hidden!important;
+  overscroll-behavior:contain;box-sizing:border-box;
+  padding:max(0px,env(safe-area-inset-top)) max(0px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(0px,env(safe-area-inset-left));
+ }
+ .combat-license-page *, .combat-license-page *::before, .combat-license-page *::after{box-sizing:border-box}
+ .combat-license-page .commercial-license-header{
+  height:auto!important;min-height:88px;display:grid!important;grid-template-columns:minmax(0,1fr) auto;
+  gap:12px 16px;padding:18px!important;
+ }
+ .combat-license-page .commercial-license-header>div:first-child{grid-column:1/-1;min-width:0}
+ .combat-license-page .commercial-license-header>nav{gap:18px!important;align-items:center;min-width:0}
+ .combat-license-page .commercial-license-header>nav>span{display:flex!important;align-items:center;min-height:44px;padding-bottom:0!important}
+ .combat-license-page .commercial-license-header>div:last-child{gap:8px!important}
+ .combat-license-page .commercial-license-header button{min-height:44px;padding:10px!important}
+ .combat-license-page .combat-license-main{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:28px!important;
+  padding:28px 18px 18px!important;min-height:0!important;height:auto!important;
+ }
+ .combat-license-page .combat-license-leftPanel,.combat-license-page .combat-license-leftContent{
+  min-width:0;width:100%!important;max-height:none!important;transform:none!important;
+ }
+ .combat-license-page .combat-license-hero{transform:none!important;margin-bottom:0!important}
+ .combat-license-page .combat-license-heroGlow{width:min(100%,560px)!important}
+ .combat-license-page .combat-license-title{font-size:clamp(26px,5vw,38px)!important;line-height:1.2;letter-spacing:1px!important;overflow-wrap:anywhere}
+ .combat-license-page .combat-license-subtitle{font-size:16px!important;line-height:1.5!important}
+ .combat-license-page .combat-license-leftContent>div:nth-child(2){transform:none!important}
+ .combat-license-page .combat-license-features{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px 14px!important;transform:none!important;margin-block:24px!important}
+ .combat-license-page .combat-license-sectionTitle{font-size:16px!important;line-height:1.5;margin-left:0!important}
+ .combat-license-page .combat-license-cards{grid-template-columns:minmax(0,1fr)!important;gap:56px!important;padding:24px 14px!important;transform:none!important;align-items:stretch!important}
+ .combat-license-page .combat-license-cards>div{min-width:0;transform:none!important;padding:24px 18px!important;display:flex;flex-direction:column}
+ .combat-license-page .combat-license-cards h3{font-size:22px;line-height:1.4;overflow-wrap:anywhere}
+ .combat-license-page .combat-license-cards ul{font-size:15px!important;line-height:1.6!important}
+ .combat-license-page .combat-license-cards li{width:100%!important;max-width:100%;grid-template-columns:14px minmax(0,1fr)!important;overflow-wrap:anywhere}
+ .combat-license-page .combat-license-cards button{min-height:48px;font-size:14px;white-space:normal;margin-top:auto!important}
+ .combat-license-page .combat-license-statsStrip{grid-template-columns:minmax(0,1fr)!important;gap:8px}
+ .combat-license-page .combat-license-note{font-size:14px!important;line-height:1.5}
+ .combat-license-page .combat-license-checkout{width:100%!important;min-width:0;max-width:100%;transform:none!important;overflow:visible!important;padding:20px!important;align-self:start!important}
+ .combat-license-page .combat-license-selectedBox{min-width:0;gap:12px!important}
+ .combat-license-page .combat-license-selectedBox>div:first-child{flex-shrink:0}
+ .combat-license-page .combat-license-selectedBox>div:last-child{min-width:0;overflow-wrap:anywhere}
+ .combat-license-page .combat-license-checkout button{min-height:48px;white-space:normal}
+ .combat-license-page .combat-license-payLogos{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+ .combat-license-page .combat-license-payLogos img{max-width:92%;height:auto;object-fit:contain}
+ .combat-license-page .combat-license-checkout p{line-height:1.5}
+ .combat-license-page button:focus-visible{outline:3px solid white;outline-offset:3px}
+}
+@media(max-width:899px) and (orientation:landscape){
+ .combat-license-page .commercial-license-header{display:flex!important;flex-wrap:wrap;gap:12px 20px;padding:14px 24px!important}
+ .combat-license-page .combat-license-main{padding:24px!important}
+ .combat-license-page .combat-license-features{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ .combat-license-page .combat-license-cards{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:18px!important}
+ .combat-license-page .combat-license-cards>div{padding:24px 12px!important}
+ .combat-license-page .combat-license-cards h3{font-size:20px}
+ .combat-license-page .combat-license-cards ul{font-size:14px!important}
+ .combat-license-page .combat-license-statsStrip{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ .combat-license-page .combat-license-payLogos{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+}

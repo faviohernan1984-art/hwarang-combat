@@ -1,3 +1,4 @@
+import CommercialProductFrame from "./components/CommercialProductFrame.jsx";
 console.log("ESTOY EN EL APP CORRECTO");
 import CinematicAdaptiveShell from "./components/CinematicAdaptiveShell";
 /* ======================================================
@@ -11,6 +12,8 @@ import LicensePage, {
 } from "./LicensePage.jsx";
 import LicenseComingSoon from "./LicenseComingSoon.jsx";
 import LicenseCatalog from "./LicenseCatalog.jsx";
+import { useHomeSceneFit } from "./components/useHomeSceneFit.js";
+import "./components/HomeMobile.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useWakeLock } from "./useWakeLock";
 import {
@@ -2899,30 +2902,14 @@ lineHeight: 1.1,
     No toca scoring, timer, judges, Firebase ni combate.
 ====================================================== */}
 
-function AccessPortal({ navigate }) {
-  const isMobilePortrait =
-    typeof window !== "undefined" &&
-    window.innerWidth < 900 &&
-    window.innerHeight > window.innerWidth;
-
+function AccessPortal({ navigate, children }) {
+  const { sceneRef, contentRef } = useHomeSceneFit(Boolean(children));
   const isMobileLandscape =
   typeof window !== "undefined" &&
   window.innerWidth < 900 &&
   window.innerWidth > window.innerHeight;  
 
-  if (isMobilePortrait) {
-  return (
-    <RotateDeviceGate
-      title="Rotate Device"
-      message="Turn your phone horizontally to enter the Hwarang Scoring portal."
-    />
-  );
-}
-
-  const goDemo = () => {
-    const demoRoom = getOrCreateDemoRoomId();
-    navigate(`/${demoRoom}`);
-  };
+  const goDemo = () => navigate("/discover");
 
   const goLicenseDev = () => {
     navigate("/license");
@@ -2948,8 +2935,166 @@ const portalActionButtonBase = {
   marginTop: 0,
 };  
 
+  const homePanels = (<>
+          <div
+            style={{
+  minHeight: 255,
+  borderRadius: 26,
+  padding: "26px 26px 30px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  alignItems: "center",
+              background: "linear-gradient(180deg, rgba(4,18,42,0.82), rgba(0,0,0,0.88))",
+              border: "1px solid rgba(56,130,255,0.58)",
+              boxShadow: "0 0 34px rgba(30,111,255,0.25), inset 0 0 28px rgba(56,130,255,0.08)",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ color: "#3b82f6", fontSize: 30, fontWeight: 900, letterSpacing: "0.1em" }}>
+              DISCOVER MODE
+            </div>
+
+            <div style={{ marginTop: 18, color: "rgba(255,255,255,0.76)", fontSize: 16, lineHeight: 1.45 }}>
+              Explore the full system with
+              <br />
+              a controlled demo environment.
+            </div>
+
+            <button
+  onClick={goDemo}
+  style={{
+    marginTop: 34,
+    width: "100%",
+    height: 62,
+    borderRadius: 16,
+    border: "1px solid rgba(80,160,255,0.9)",
+    background: "linear-gradient(180deg, rgba(35,110,255,0.78), rgba(4,22,58,0.96))",
+    color: "#dbeafe",
+    fontSize: 18,
+    fontWeight: 900,
+    letterSpacing: "0.12em",
+    cursor: "pointer",
+    boxShadow: "0 0 24px rgba(59,130,246,0.38)",
+
+    position: "relative",
+    overflow: "hidden",
+    animation: "portalButtonPulseBlue 3.2s ease-in-out infinite",
+  }}
+>
+  <>
+  <span
+    style={{
+      position: "absolute",
+      inset: 0,
+      background:
+        "linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.26) 50%, transparent 80%)",
+
+      animation: "portalButtonScan 4s linear infinite",
+
+      pointerEvents: "none",
+    }}
+  />
+
+  <span
+    style={{
+      position: "relative",
+      zIndex: 2,
+    }}
+  >
+    ENTER DISCOVER
+  </span>
+</>
+</button>
+          </div>
+
+          <div
+            style={{
+  minHeight: 255,
+  borderRadius: 26,
+  padding: "26px 26px 30px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  alignItems: "center",
+              background: "linear-gradient(180deg, rgba(56,39,4,0.78), rgba(0,0,0,0.9))",
+              border: "1px solid rgba(245,197,66,0.72)",
+              boxShadow: "0 0 34px rgba(245,197,66,0.28), inset 0 0 28px rgba(245,197,66,0.08)",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ color: "#f5c542", fontSize: 30, fontWeight: 900, letterSpacing: "0.1em" }}>
+              LICENCE
+            </div>
+
+            <div style={{ marginTop: 18, color: "rgba(255,255,255,0.76)", fontSize: 16, lineHeight: 1.45 }}>
+              Access the development
+              <br />
+              licensed environment.
+            </div>
+
+            <button
+  onClick={goLicenseDev}
+  style={{
+    marginTop: 34,
+    width: "100%",
+    height: 62,
+    borderRadius: 16,
+
+    border: "1px solid rgba(255,220,120,0.88)",
+
+    background:
+      "linear-gradient(180deg, #f5c542, #8a5f08)",
+
+    color: "#111827",
+
+    fontSize: 18,
+    fontWeight: 1000,
+    letterSpacing: "0.08em",
+
+    cursor: "pointer",
+
+    boxShadow:
+      "0 0 28px rgba(245,197,66,0.48)",
+
+    position: "relative",
+    overflow: "hidden",
+
+    animation:
+      "portalButtonPulseGold 3.4s ease-in-out infinite",
+  }}
+>
+  <>
+    <span
+      style={{
+        position: "absolute",
+        inset: 0,
+
+        background:
+          "linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.34) 50%, transparent 80%)",
+
+        animation:
+          "portalButtonScan 4.2s linear infinite",
+
+        pointerEvents: "none",
+      }}
+    />
+
+    <span
+      style={{
+        position: "relative",
+        zIndex: 2,
+      }}
+    >
+      ACCESS LICENCE
+    </span>
+  </>
+</button>
+          </div>
+  </>);
+
   return (
-    <div
+    <div ref={sceneRef} className={children ? "hsu-first-layer-scene" : "hsu-home-scene"}
       style={{
         position: "fixed",
 left: "50%",
@@ -3361,7 +3506,7 @@ backgroundRepeat: "no-repeat",
 
 
       {/* CONTENT */}
-<div
+<div ref={contentRef} className={children ? "hsu-first-layer-content" : "hsu-home-content"}
   style={{
     position: "relative",
     zIndex: 5,
@@ -3482,7 +3627,7 @@ WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
         </div>
 
         {/* ACCESS PANELS */}
-        <div
+        <div className={children ? "hsu-first-layer-slot" : "hsu-home-panels"}
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
@@ -3490,161 +3635,10 @@ WebkitTextStroke: "0.6px rgba(255,255,255,0.12)",
             width: "min(980px, 86vw)",
           }}
         >
-          <div
-            style={{
-  minHeight: 255,
-  borderRadius: 26,
-  padding: "26px 26px 30px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  alignItems: "center",
-              background: "linear-gradient(180deg, rgba(4,18,42,0.82), rgba(0,0,0,0.88))",
-              border: "1px solid rgba(56,130,255,0.58)",
-              boxShadow: "0 0 34px rgba(30,111,255,0.25), inset 0 0 28px rgba(56,130,255,0.08)",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ color: "#3b82f6", fontSize: 30, fontWeight: 900, letterSpacing: "0.1em" }}>
-              DISCOVER MODE
-            </div>
-
-            <div style={{ marginTop: 18, color: "rgba(255,255,255,0.76)", fontSize: 16, lineHeight: 1.45 }}>
-              Explore the full system with
-              <br />
-              a controlled demo environment.
-            </div>
-
-            <button
-  onClick={goDemo}
-  style={{
-    marginTop: 34,
-    width: "100%",
-    height: 62,
-    borderRadius: 16,
-    border: "1px solid rgba(80,160,255,0.9)",
-    background: "linear-gradient(180deg, rgba(35,110,255,0.78), rgba(4,22,58,0.96))",
-    color: "#dbeafe",
-    fontSize: 18,
-    fontWeight: 900,
-    letterSpacing: "0.12em",
-    cursor: "pointer",
-    boxShadow: "0 0 24px rgba(59,130,246,0.38)",
-
-    position: "relative",
-    overflow: "hidden",
-    animation: "portalButtonPulseBlue 3.2s ease-in-out infinite",
-  }}
->
-  <>
-  <span
-    style={{
-      position: "absolute",
-      inset: 0,
-      background:
-        "linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.26) 50%, transparent 80%)",
-
-      animation: "portalButtonScan 4s linear infinite",
-
-      pointerEvents: "none",
-    }}
-  />
-
-  <span
-    style={{
-      position: "relative",
-      zIndex: 2,
-    }}
-  >
-    ENTER DISCOVER
-  </span>
-</>
-</button>
-          </div>
-
-          <div
-            style={{
-  minHeight: 255,
-  borderRadius: 26,
-  padding: "26px 26px 30px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  alignItems: "center",
-              background: "linear-gradient(180deg, rgba(56,39,4,0.78), rgba(0,0,0,0.9))",
-              border: "1px solid rgba(245,197,66,0.72)",
-              boxShadow: "0 0 34px rgba(245,197,66,0.28), inset 0 0 28px rgba(245,197,66,0.08)",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ color: "#f5c542", fontSize: 30, fontWeight: 900, letterSpacing: "0.1em" }}>
-              LICENCE 
-            </div>
-
-            <div style={{ marginTop: 18, color: "rgba(255,255,255,0.76)", fontSize: 16, lineHeight: 1.45 }}>
-              Access the development
-              <br />
-              licensed environment.
-            </div>
-
-            <button
-  onClick={goLicenseDev}
-  style={{
-    marginTop: 34,
-    width: "100%",
-    height: 62,
-    borderRadius: 16,
-
-    border: "1px solid rgba(255,220,120,0.88)",
-
-    background:
-      "linear-gradient(180deg, #f5c542, #8a5f08)",
-
-    color: "#111827",
-
-    fontSize: 18,
-    fontWeight: 1000,
-    letterSpacing: "0.08em",
-
-    cursor: "pointer",
-
-    boxShadow:
-      "0 0 28px rgba(245,197,66,0.48)",
-
-    position: "relative",
-    overflow: "hidden",
-
-    animation:
-      "portalButtonPulseGold 3.4s ease-in-out infinite",
-  }}
->
-  <>
-    <span
-      style={{
-        position: "absolute",
-        inset: 0,
-
-        background:
-          "linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.34) 50%, transparent 80%)",
-
-        animation:
-          "portalButtonScan 4.2s linear infinite",
-
-        pointerEvents: "none",
-      }}
-    />
-
-    <span
-      style={{
-        position: "relative",
-        zIndex: 2,
-      }}
-    >
-      ACCESS LICENCE 
-    </span>
-  </>
-</button>
-          </div>
+          {children ? (<>
+            <div className="hsu-first-layer-home-layout" aria-hidden="true" inert>{homePanels}</div>
+            <div className="hsu-first-layer-replacement">{children}</div>
+          </>) : homePanels}
         </div>
 
         <div
@@ -15205,9 +15199,9 @@ if (path === "/license/event") {
       {isNotebookLicense ? (
         <LicenseEventPage />
       ) : (
-        <CinematicAdaptiveShell>
+        <CommercialProductFrame>
           <LicenseEventPage />
-        </CinematicAdaptiveShell>
+        </CommercialProductFrame>
       )}
     </>
   );
@@ -15232,9 +15226,9 @@ if (path === "/license/demo") {
       {isNotebookLicense ? (
         <LicenseDemoPage />
       ) : (
-        <CinematicAdaptiveShell>
+        <CommercialProductFrame>
           <LicenseDemoPage />
-        </CinematicAdaptiveShell>
+        </CommercialProductFrame>
       )}
     </>
   );
@@ -15281,9 +15275,9 @@ if (path === "/license/pulsar" || path === "/license/club") {
       {isNotebookLicense ? (
         <LicensePulsarPage />
       ) : (
-        <CinematicAdaptiveShell>
+        <CommercialProductFrame mobileEnabled={path === "/license/pulsar"}>
           <LicensePulsarPage />
-        </CinematicAdaptiveShell>
+        </CommercialProductFrame>
       )}
     </>
   );
@@ -15462,8 +15456,15 @@ export default function App() {
   );
 }
 
+  if (routePath === "/discover") {
+    return <LicenseCatalog view="discover" sceneFrame={AccessPortal} onCombatDiscover={() => {
+      const demoRoom = getOrCreateDemoRoomId();
+      navigate(`/${demoRoom}`);
+    }} />;
+  }
+
   if (routePath === "/license") {
-    return <LicenseCatalog />;
+    return <LicenseCatalog sceneFrame={AccessPortal} />;
   }
 
   if (routePath === "/license-patterns" || routePath === "/license-suite") {
@@ -15484,9 +15485,9 @@ export default function App() {
         {isNotebookLicense ? (
           <LicenseEventPage />
         ) : (
-          <CinematicAdaptiveShell>
+          <CommercialProductFrame>
             <LicenseEventPage />
-          </CinematicAdaptiveShell>
+          </CommercialProductFrame>
         )}
       </>
     );
@@ -15506,9 +15507,9 @@ export default function App() {
         {isNotebookLicense ? (
           <LicenseDemoPage />
         ) : (
-          <CinematicAdaptiveShell>
+          <CommercialProductFrame>
             <LicenseDemoPage />
-          </CinematicAdaptiveShell>
+          </CommercialProductFrame>
         )}
       </>
     );
@@ -15546,9 +15547,9 @@ export default function App() {
         {isNotebookLicense ? (
           <LicensePulsarPage />
         ) : (
-          <CinematicAdaptiveShell>
+          <CommercialProductFrame mobileEnabled={routePath === "/license/pulsar"}>
             <LicensePulsarPage />
-          </CinematicAdaptiveShell>
+          </CommercialProductFrame>
         )}
       </>
     );
