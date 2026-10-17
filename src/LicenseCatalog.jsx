@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { patternsCommercialLinks } from "./patternsCommercialLinks.js";
 import "./LicenseCatalog.css";
 import "./components/HomeFirstLayer.css";
@@ -27,7 +27,7 @@ function readLanguage() {
 }
 
 export default function LicenseCatalog({ product = null, view = null, onCombatDiscover, onNavigate,
-  sceneFrame, patternsOrigin = import.meta.env?.VITE_PATTERNS_APP_ORIGIN,
+  sceneFrame, embedded = false, patternsOrigin = import.meta.env?.VITE_PATTERNS_APP_ORIGIN,
   patternsDemoEnabled = import.meta.env?.VITE_PATTERNS_DEMO_ENABLED === "true" }) {
   const [language, setLanguage] = useState(readLanguage);
   const t = copy[language];
@@ -69,6 +69,15 @@ export default function LicenseCatalog({ product = null, view = null, onCombatDi
     setLanguage(next);
     try { localStorage.setItem("hsu-commercial-language", next); } catch { /* Storage may be unavailable. */ }
   }
+  function navigateWithinScene(event) {
+    if (
+      event.defaultPrevented || event.button !== 0 ||
+      event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ||
+      typeof onNavigate !== "function"
+    ) return;
+    event.preventDefault();
+    onNavigate(event.currentTarget.getAttribute("href"));
+  }
   const centralContent = (<>
         {view === "discover" ? (
           <section className="catalog-discover-section" aria-labelledby="discover-systems-title">
@@ -80,7 +89,7 @@ export default function LicenseCatalog({ product = null, view = null, onCombatDi
               </div></article>
               <article className="catalog-card gup"><div><h2>PATTERNS GUP PRO</h2><p>{accessText.discover}</p>{discoverAction}</div></article>
             </div>
-            <a className="catalog-access-back" href="/license">{accessText.back}</a>
+            <a className="catalog-access-back" href="/license" onClick={navigateWithinScene}>{accessText.back}</a>
           </section>
         ) : product === "patterns" ? (
           <section className="catalog-patterns-section" aria-labelledby="patterns-commercial-title">
@@ -118,21 +127,13 @@ export default function LicenseCatalog({ product = null, view = null, onCombatDi
           </>
         )}
   </>);
-  const SceneFrame = sceneFrame;
-  if (SceneFrame && !product) return (
+  const SceneFrame = sceneFrame || Fragment;
+  if ((embedded || sceneFrame) && !product) return (
     <SceneFrame>
       <div className="license-catalog hsu-first-layer-catalog" lang={language}>
         <div className="hsu-first-layer-body">{centralContent}</div>
         <div className="hsu-first-layer-controls">
-          <a href="/" onClick={(event) => {
-            if (
-              event.defaultPrevented || event.button !== 0 ||
-              event.metaKey || event.ctrlKey || event.shiftKey || event.altKey ||
-              typeof onNavigate !== "function"
-            ) return;
-            event.preventDefault();
-            onNavigate("/");
-          }}>← HOME</a>
+          <a href="/" onClick={navigateWithinScene}>← HOME</a>
           <label>{t.language}<select aria-label={t.language} value={language} onChange={changeLanguage}>
             <option value="es">ES</option><option value="en">EN</option>
           </select></label>

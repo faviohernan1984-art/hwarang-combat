@@ -3113,7 +3113,7 @@ transform: isMobileLandscape
   : "translate(-50%, -50%) scale(1)",
 transformOrigin: "center center",
         overflow: "hidden",
-        background: `
+        backgroundImage: `
   linear-gradient(
     rgba(0,0,0,0.48),
     rgba(0,0,0,0.48)
@@ -15426,11 +15426,23 @@ export default function App() {
     return <HSUUniversePOC />;
   }
 
-  if (routePath === "/") {
+  if (["/", "/license", "/discover"].includes(routePath)) {
     return (
       <>
-        <GlobalAppStyle />
-        <AccessPortal navigate={navigate} preferWebp />
+        {routePath === "/" && <GlobalAppStyle />}
+        <AccessPortal navigate={navigate} preferWebp={routePath === "/"}>
+          {routePath !== "/" && (
+            <LicenseCatalog
+              embedded
+              view={routePath === "/discover" ? "discover" : null}
+              onNavigate={navigate}
+              onCombatDiscover={() => {
+                const demoRoom = getOrCreateDemoRoomId();
+                navigate(`/${demoRoom}`);
+              }}
+            />
+          )}
+        </AccessPortal>
       </>
     );
   }
@@ -15462,17 +15474,6 @@ export default function App() {
     </>
   );
 }
-
-  if (routePath === "/discover") {
-    return <LicenseCatalog view="discover" sceneFrame={AccessPortal} onNavigate={navigate} onCombatDiscover={() => {
-      const demoRoom = getOrCreateDemoRoomId();
-      navigate(`/${demoRoom}`);
-    }} />;
-  }
-
-  if (routePath === "/license") {
-    return <LicenseCatalog sceneFrame={AccessPortal} onNavigate={navigate} />;
-  }
 
   if (routePath === "/license-patterns" || routePath === "/license-suite") {
     return <LicenseCatalog product={routePath === "/license-patterns" ? "patterns" : "suite"} />;
