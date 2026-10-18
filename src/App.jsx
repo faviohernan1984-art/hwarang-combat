@@ -15465,10 +15465,10 @@ export default function App() {
       <GlobalAppStyle />
 
       {isLicensePortrait || isNotebookLicense ? (
-        <LicensePage />
+        <LicensePage onNavigate={navigate} />
       ) : (
         <CinematicAdaptiveShell>
-          <LicensePage />
+          <LicensePage onNavigate={navigate} />
         </CinematicAdaptiveShell>
       )}
     </>

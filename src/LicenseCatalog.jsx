@@ -121,7 +121,7 @@ export default function LicenseCatalog({ product = null, view = null, onCombatDi
             <section className="catalog-dice" aria-label={t.choose}>
               {cards.map(({ key, title, href, status }) => {
                 const content = <>{!href && <span className="catalog-pill">{t.soon}</span>}<span><h2>{title}</h2><p>{t[key]}</p><span className="catalog-status">{status || t.future}</span></span></>;
-                return href ? <a key={key} className={`catalog-card ${key}`} href={href}>{content}</a> : <div key={key} className={`catalog-card ${key} disabled`} aria-disabled="true">{content}</div>;
+                return href ? <a key={key} className={`catalog-card ${key}`} href={href} onClick={embedded && key === "combat" ? navigateWithinScene : undefined}>{content}</a> : <div key={key} className={`catalog-card ${key} disabled`} aria-disabled="true">{content}</div>;
               })}
             </section>
           </>

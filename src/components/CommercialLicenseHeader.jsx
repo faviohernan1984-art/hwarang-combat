@@ -15,7 +15,7 @@ function navClickFx(event) {
 
 // Defaults preserve the existing Combat header. Catalog pages provide their
 // existing ES/EN preference without changing Combat's placeholder controls.
-export default function CommercialLicenseHeader({ language, onLanguageChange }) {
+export default function CommercialLicenseHeader({ language, onLanguageChange, onNavigateHome }) {
   return (
       <header
   className={language ? "commercial-license-header commercial-license-header--responsive" : "commercial-license-header"}
@@ -69,13 +69,26 @@ NAV LINKS INTERACTION
       e.currentTarget.style.textShadow = "none";
     }}
     onMouseDown={(e) => navClickFx(e)}
-    onClick={() => (window.location.href = "/")}
+    onClick={(event) => {
+      if (!onNavigateHome) {
+        window.location.href = "/";
+        return;
+      }
+      if (
+        event.defaultPrevented || event.button !== 0 ||
+        event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
+      ) return;
+      event.preventDefault();
+      onNavigateHome("/");
+    }}
     style={{
       cursor: "pointer",
       transition: "transform 0.12s ease, color 0.16s ease, text-shadow 0.16s ease",
     }}
   >
-    HOME
+    {onNavigateHome ? (
+      <a href="/" style={{ color: "inherit", textDecoration: "none" }}>HOME</a>
+    ) : "HOME"}
   </span>
 
   <span

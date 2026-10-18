@@ -111,7 +111,7 @@ function navClickFx(e) {
   }, 90);
 }
 
-export default function LicensePage() {
+export default function LicensePage({ onNavigate }) {
 
   const licenseOptions = {
     discover: {
@@ -271,7 +271,7 @@ LICENSE PAGE — BRAND NAVIGATION
 Stable navbar layer protection for notebook fullscreen.
 Keeps navigation clickable above transformed content layers.
 ====================================================== */}
-      <CommercialLicenseHeader />
+      <CommercialLicenseHeader onNavigateHome={onNavigate} />
 
       <main className="combat-license-main"
         style={{
