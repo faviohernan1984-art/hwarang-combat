@@ -15426,57 +15426,51 @@ export default function App() {
     return <HSUUniversePOC />;
   }
 
-  if (["/", "/license", "/discover"].includes(routePath)) {
+  if (["/", "/license", "/discover", "/license-patterns", "/license-dev"].includes(routePath)) {
+    const isPortalPage = ["/", "/license", "/discover"].includes(routePath);
+    const isLicensePortrait = window.innerWidth < 900 && window.innerHeight > window.innerWidth;
+    const isNotebookLicense =
+      window.innerWidth >= 1200 && window.innerWidth <= 1600 &&
+      window.innerHeight >= 700 && window.innerHeight <= 900;
+
     return (
       <>
-        {routePath === "/" && <GlobalAppStyle />}
-        <AccessPortal navigate={navigate} preferWebp={routePath === "/"}>
-          {routePath !== "/" && (
-            <LicenseCatalog
-              embedded
-              view={routePath === "/discover" ? "discover" : null}
-              onNavigate={navigate}
-              onCombatDiscover={() => {
-                const demoRoom = getOrCreateDemoRoomId();
-                navigate(`/${demoRoom}`);
-              }}
-            />
-          )}
-        </AccessPortal>
+        {(routePath === "/" || routePath === "/license-dev") && <GlobalAppStyle />}
+        {/* Keep the portal's DOM and animation timelines alive without placing
+            individual product pages inside its cinematic composition. */}
+        <div
+          style={{ display: "contents", visibility: isPortalPage ? "visible" : "hidden" }}
+          inert={!isPortalPage}
+          aria-hidden={!isPortalPage}
+        >
+          <AccessPortal navigate={navigate} preferWebp={routePath === "/"}>
+            {(routePath === "/license" || routePath === "/discover") && (
+              <LicenseCatalog
+                embedded
+                view={routePath === "/discover" ? "discover" : null}
+                onNavigate={navigate}
+                onCombatDiscover={() => {
+                  const demoRoom = getOrCreateDemoRoomId();
+                  navigate(`/${demoRoom}`);
+                }}
+              />
+            )}
+          </AccessPortal>
+        </div>
+        {routePath === "/license-patterns" && <LicenseCatalog product="patterns" onNavigate={navigate} />}
+        {routePath === "/license-dev" && (isLicensePortrait || isNotebookLicense ? (
+          <LicensePage onNavigate={navigate} />
+        ) : (
+          <CinematicAdaptiveShell>
+            <LicensePage onNavigate={navigate} />
+          </CinematicAdaptiveShell>
+        ))}
       </>
     );
   }
 
-  if (routePath === "/license-dev") {
-  const isLicensePortrait =
-    typeof window !== "undefined" &&
-    window.innerWidth < 900 &&
-    window.innerHeight > window.innerWidth;
-
-  const isNotebookLicense =
-    typeof window !== "undefined" &&
-    window.innerWidth >= 1200 &&
-    window.innerWidth <= 1600 &&
-    window.innerHeight >= 700 &&
-    window.innerHeight <= 900;
-
-  return (
-    <>
-      <GlobalAppStyle />
-
-      {isLicensePortrait || isNotebookLicense ? (
-        <LicensePage onNavigate={navigate} />
-      ) : (
-        <CinematicAdaptiveShell>
-          <LicensePage onNavigate={navigate} />
-        </CinematicAdaptiveShell>
-      )}
-    </>
-  );
-}
-
-  if (routePath === "/license-patterns" || routePath === "/license-suite") {
-    return <LicenseCatalog product={routePath === "/license-patterns" ? "patterns" : "suite"} />;
+  if (routePath === "/license-suite") {
+    return <LicenseCatalog product="suite" />;
   }
 
   if (routePath === "/license/event") {

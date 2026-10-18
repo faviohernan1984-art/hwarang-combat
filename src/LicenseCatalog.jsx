@@ -108,7 +108,7 @@ export default function LicenseCatalog({ product = null, view = null, onCombatDi
               {patternsLinks ? <a href={patternsLinks.institutional} referrerPolicy="no-referrer">{accessText.privateLink}</a>
                 : <span role="status">{accessText.privateUnavailable}</span>}
             </aside>
-            <a className="catalog-access-back" href="/license">{accessText.back}</a>
+            <a className="catalog-access-back" href="/license" onClick={navigateWithinScene}>{accessText.back}</a>
           </section>
         ) : product ? (
           <section className="catalog-pending" aria-labelledby="pending-title">
@@ -121,7 +121,7 @@ export default function LicenseCatalog({ product = null, view = null, onCombatDi
             <section className="catalog-dice" aria-label={t.choose}>
               {cards.map(({ key, title, href, status }) => {
                 const content = <>{!href && <span className="catalog-pill">{t.soon}</span>}<span><h2>{title}</h2><p>{t[key]}</p><span className="catalog-status">{status || t.future}</span></span></>;
-                return href ? <a key={key} className={`catalog-card ${key}`} href={href} onClick={embedded && key === "combat" ? navigateWithinScene : undefined}>{content}</a> : <div key={key} className={`catalog-card ${key} disabled`} aria-disabled="true">{content}</div>;
+                return href ? <a key={key} className={`catalog-card ${key}`} href={href} onClick={embedded && (key === "combat" || key === "gup") ? navigateWithinScene : undefined}>{content}</a> : <div key={key} className={`catalog-card ${key} disabled`} aria-disabled="true">{content}</div>;
               })}
             </section>
           </>
